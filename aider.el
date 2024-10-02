@@ -31,6 +31,7 @@
     ("a" "Run Aider" aider-run-aider)
     ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
@@ -42,7 +43,6 @@
     ("t" "Architect Discussion" aider-architect-discussion)
     ]
    ["Other"
-    ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
     ("g" "General Command" aider-general-command)
     ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
