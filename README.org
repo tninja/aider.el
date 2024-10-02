@@ -11,4 +11,22 @@ To install the Aider package, add the following to your Emacs configuration:
 #+END_SRC
 
 * Advantage of aider.el over the command line
+1. **Integrated Environment**: Aider.el runs directly within Emacs, allowing for seamless integration with your coding environment. You can edit, run, and test your code without switching contexts.
 
+2. **Real-time Interaction**: Unlike command-line tools, Aider.el provides real-time feedback and suggestions as you type, making it easier to iterate on your code.
+
+3. **Context Awareness**: Aider.el has access to the entire buffer and can understand the context of your code, which allows it to provide more relevant suggestions and edits.
+
+4. **Enhanced Editing Capabilities**: With Aider.el, you can leverage Emacs' powerful editing features, such as multiple cursors, macros, and advanced navigation, while also benefiting from AI assistance.
+
+5. **Customizable Workflows**: You can customize Aider.el to fit your specific workflow and preferences, including keybindings, commands, and integration with other Emacs packages.
+
+6. **Support for Multiple Languages**: Aider.el can assist with various programming languages, making it a versatile tool for developers working in different environments.
+
+7. **Built-in Documentation**: Aider.el provides easy access to documentation and help commands directly within Emacs, reducing the need to search for information externally.
+
+8. **Version Control Integration**: Aider.el can work with your version control system (like Git) directly, allowing you to manage changes and commits without leaving the editor.
+
+9. **Architect Mode**: Aider.el includes an architect mode that allows for high-level discussions about code design and architecture, providing a more structured approach to coding tasks.
+
+10. **Community and Support**: Being part of the Emacs ecosystem, Aider.el benefits from a large community of users and contributors, providing support and resources for troubleshooting and enhancements.
