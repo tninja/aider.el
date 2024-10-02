@@ -1,4 +1,4 @@
-#+TITLE: Aider Package for Interactive Conversation with OpenAI
+#+TITLE: aider.el : aider (AI pair programming) in your emacs 
 
 * Introduction
 The Aider package provides an interactive interface to communicate with https://github.com/paul-gauthier/aider.
