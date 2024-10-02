@@ -24,16 +24,6 @@
   :type '(repeat string)
   :group 'aider)
 
-;; Define the keymap for Aider commands
-(defvar aider-global-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c a") 'aider-transient-menu)  ;; Bind transient menu to "C-c a"
-    map)
-  "Global keymap for Aider commands.")
-
-;; Activate the global keymap
-(define-key global-map (kbd "C-c a") aider-global-map)
-
 ;; Transient menu for Aider commands
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
@@ -58,6 +48,8 @@
     ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
    ])
+
+(global-set-key (kbd "C-c a") 'aider-transient-menu)
 
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command."
@@ -147,6 +139,7 @@ COMMAND is a string representing the command to send."
   "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (read-string "Enter code command: ")))
+    (aider-add-current-file)
     (aider--send-command (concat "/code " command))))
 
 ;; New function to get command from user and send it prefixed with "/ask "
@@ -154,6 +147,7 @@ COMMAND is a string representing the command to send."
   "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/ask \"."
   (interactive)
   (let ((command (read-string "Enter ask question: ")))
+    (aider-add-current-file)
     (aider--send-command (concat "/ask " command))))
 
 ;; New function to get command from user and send it prefixed with "/help "
@@ -168,6 +162,7 @@ COMMAND is a string representing the command to send."
   "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (read-string "Enter architect command: ")))
+    (aider-add-current-file)
     (aider--send-command (concat "/architect " command))))
 
 ;; Modified function to get command from user and send it based on selected region
@@ -188,6 +183,7 @@ The command will be formatted as \"/code \" followed by the user command and the
              (command (format "/code \"in function %s, for the following code block, %s: %s\""
                               function-name user-command processed-region-text)))
         (aider--send-command command))
+    (aider-add-current-file)
     (message "No region selected.")))
 
 (provide 'aider)
