@@ -131,6 +131,8 @@ COMMAND should be a string representing the command to send."
 COMMAND is a string representing the command to send."
   (interactive
    (list (read-string "Enter command to send to aider: ")))
+  ;; Ensure the current file is added before sending the command
+  (aider-add-current-file)
   ;; Use the shared helper function to send the command
   (aider--send-command command))
 
