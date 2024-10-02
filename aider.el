@@ -18,31 +18,15 @@
   :prefix "aider-"
   :group 'convenience)
 
-
-(defcustom aider-deepseek-api-key deepseek-api-key
-  "DeepSeek API key for Aider."
-  :type 'string
-  :group 'aider)
-
-(defcustom aider-args '("--deepseek")
+(defcustom aider-args '("--model" "gpt-4o-mini")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
 
-;; (defcustom aider-openai-api-key chatgpt-shell-openai-key
-;;   "OpenAI API key for Aider."
-;;   :type 'string
-;;   :group 'aider)
-
-;; (defcustom aider-args '("--model" "gpt-4o-mini")
-;;   "Arguments to pass to the Aider command."
-;;   :type '(repeat string)
-;;   :group 'aider)
-
 ;; Define the keymap for Aider commands
 (defvar aider-global-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "a") 'run-aider)         
+    (define-key map (kbd "a") 'aider-run-aider)         
     (define-key map (kbd "z") 'aider-switch-to-buffer)
     (define-key map (kbd "s") 'aider-add-current-file)
     (define-key map (kbd "d") 'aider-drop-current-file)
@@ -65,7 +49,7 @@
   "Transient menu for Aider commands."
   ["Aider Menu"
    ["Aider process"
-    ("a" "Run Aider" run-aider)
+    ("a" "Run Aider" aider-run-aider)
     ("s" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("d" "Drop Current File" aider-drop-current-file)
@@ -85,7 +69,6 @@
     ]
    ])
 
-
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command."
   (let* ((buffer-file-path (buffer-file-name))
@@ -94,7 +77,7 @@
          (relative-path (substring git-repo-path (length home-path))))
     (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))
 
-(defun run-aider ()
+(defun aider-run-aider ()
   "Create a comint-based buffer and run 'aider' for interactive conversation."
   (interactive)
   (let* ((buffer-name (aider-buffer-name))
@@ -102,8 +85,6 @@
     ;; Check if the buffer already has a running process
     (unless (comint-check-proc buffer-name)
       ;; Create a new comint buffer and start the process
-      ;; (setenv "OPENAI_API_KEY" aider-openai-api-key)
-      (setenv "DEEPSEEK_API_KEY" aider-deepseek-api-key)
       (apply 'make-comint-in-buffer "aider" buffer-name command nil aider-args)
       ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
