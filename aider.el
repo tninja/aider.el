@@ -126,13 +126,12 @@ COMMAND should be a string representing the command to send."
         (aider--send-command command)))))
 
 ;; Function to send a custom command to *aider* buffer
-(defun aider-general-command (command)
-  "Prompt the user to input COMMAND and send it to the *aider* comint buffer.
-COMMAND is a string representing the command to send."
-  (interactive
-   (list (read-string "Enter command to send to aider: ")))
-  ;; Use the shared helper function to send the command
-  (aider--send-command command))
+(defun aider-general-command ()
+  "Prompt the user to input COMMAND and send it to the *aider* comint buffer."
+  (interactive)
+  (let ((command (read-string "Enter command to send to aider: ")))
+    ;; Use the shared helper function to send the command
+    (aider--send-command command)))
 
 ;; New function to get command from user and send it prefixed with "/code "
 (defun aider-code-command ()
