@@ -27,18 +27,7 @@
 ;; Define the keymap for Aider commands
 (defvar aider-global-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "a") 'aider-run-aider)         
-    (define-key map (kbd "z") 'aider-switch-to-buffer)
-    (define-key map (kbd "s") 'aider-add-current-file)
-    (define-key map (kbd "g") 'aider-general-command) 
-    (define-key map (kbd "c") 'aider-code-command)  
-    (define-key map (kbd "q") 'aider-ask-question)   
-    (define-key map (kbd "t") 'aider-architect-command)
-    (define-key map (kbd "e") 'aider-region-code-command)
-    (define-key map (kbd "u") 'aider-undo-last-change)
-    (define-key map (kbd "r") 'aider-reset-command)   
-    (define-key map (kbd "m") 'aider-transient-menu) 
-    (define-key map (kbd "h") 'aider-help)
+    (define-key map (kbd "C-c a") 'aider-transient-menu)  ;; Bind transient menu to "C-c a"
     map)
   "Global keymap for Aider commands.")
 
