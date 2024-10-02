@@ -90,14 +90,14 @@
   (interactive)
   (aider--send-command "/reset"))
 
-;; Shared helper function to send commands to *aider* buffer
+;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command)
-  "Send COMMAND to the *aider* comint buffer after performing necessary checks.
+  "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
-  ;; Check if the *aider* buffer exists
+  ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
       (let ((aider-process (get-buffer-process aider-buffer)))
-        ;; Check if the *aider* buffer has an active process
+        ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Ensure the command ends with a newline
@@ -106,14 +106,14 @@ COMMAND should be a string representing the command to send."
               ;; Send the command to the aider process
               (comint-send-string aider-buffer command)
               ;; Provide feedback to the user
-              (message "Sent command to *aider*: %s" (string-trim command))
+              (message "Sent command to aider buffer: %s" (string-trim command))
               (aider-switch-to-buffer))
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
-;; Function to send "/add <current buffer file full path>" to *aider* buffer
+;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 (defun aider-add-current-file ()
-  "Send the command \"/add <current buffer file full path>\" to the *aider* comint buffer."
+  "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
@@ -124,9 +124,9 @@ COMMAND should be a string representing the command to send."
         ;; Use the shared helper function to send the command
         (aider--send-command command)))))
 
-;; Function to send a custom command to *aider* buffer
+;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
-  "Prompt the user to input COMMAND and send it to the *aider* comint buffer."
+  "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
   (interactive)
   (let ((command (read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
@@ -135,7 +135,7 @@ COMMAND should be a string representing the command to send."
 
 ;; New function to get command from user and send it prefixed with "/code "
 (defun aider-code-change ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/code \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (read-string "Enter code command: ")))
     (aider-add-current-file)
@@ -143,7 +143,7 @@ COMMAND should be a string representing the command to send."
 
 ;; New function to get command from user and send it prefixed with "/ask "
 (defun aider-ask-question ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/ask \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
   (interactive)
   (let ((command (read-string "Enter ask question: ")))
     (aider-add-current-file)
@@ -151,14 +151,14 @@ COMMAND should be a string representing the command to send."
 
 ;; New function to get command from user and send it prefixed with "/help "
 (defun aider-help ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/help \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
   (interactive)
   (let ((command (read-string "Enter help command: ")))
     (aider--send-command (concat "/help " command))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 (defun aider-architect-discussion ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/architect \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (read-string "Enter architect command: ")))
     (aider-add-current-file)
@@ -171,7 +171,7 @@ COMMAND should be a string representing the command to send."
   (aider--send-command "/undo"))
 
 (defun aider-region-refactor ()
-  "Get a command from the user and send it to the *aider* comint buffer based on the selected region.
+  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
 The command will be formatted as \"/code \" followed by the user command and the text from the selected region."
   (interactive)
   (if (use-region-p)
