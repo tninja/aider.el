@@ -29,7 +29,7 @@
     (define-key map (kbd "a") 'aider-run-aider)         
     (define-key map (kbd "z") 'aider-switch-to-buffer)
     (define-key map (kbd "s") 'aider-add-current-file)
-    (define-key map (kbd "c") 'aider-send-command) 
+    (define-key map (kbd "c") 'aider-general-command) 
     (define-key map (kbd "d") 'aider-code-command)  
     (define-key map (kbd "q") 'aider-ask-question)   
     (define-key map (kbd "t") 'aider-architect-command)
@@ -63,7 +63,7 @@
     ]
    ["Other"
     ("r" "Reset Aider" aider-reset-command) ;; Menu item for reset command
-    ("c" "General Command" aider-send-command)
+    ("c" "General Command" aider-general-command)
     ]
    ])
 
@@ -142,7 +142,7 @@ COMMAND should be a string representing the command to send."
         (aider--send-command command)))))
 
 ;; Function to send a custom command to *aider* buffer
-(defun aider-send-command (command)
+(defun aider-general-command (command)
   "Prompt the user to input COMMAND and send it to the *aider* comint buffer.
 COMMAND is a string representing the command to send."
   (interactive
