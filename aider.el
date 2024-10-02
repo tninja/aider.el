@@ -1,4 +1,4 @@
-;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
+;;; aider.el --- Aider package for interactive conversation with OpenAI -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.1.0
@@ -37,6 +37,7 @@
     (define-key map (kbd "u") 'aider-undo-last-change)
     (define-key map (kbd "r") 'aider-reset-command)   
     (define-key map (kbd "m") 'aider-transient-menu) 
+    (define-key map (kbd "h") 'aider-help)  ;; Shortcut for aider-help
     map)
   "Global keymap for Aider commands.")
 
@@ -60,6 +61,9 @@
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-command)
+    ]
+   ["Help"
+    ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
    ["Other"
     ("r" "Reset Aider" aider-reset-command) ;; Menu item for reset command
@@ -163,6 +167,13 @@ COMMAND is a string representing the command to send."
   (interactive)
   (let ((command (read-string "Enter ask command: ")))
     (aider--send-command (concat "/ask " command))))
+
+;; New function to get command from user and send it prefixed with "/help "
+(defun aider-help ()
+  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/help \"."
+  (interactive)
+  (let ((command (read-string "Enter help command: ")))
+    (aider--send-command (concat "/help " command))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 (defun aider-architect-command ()
