@@ -1,4 +1,4 @@
-;;; aider.el --- Aider package for interactive conversation with OpenAI -*- lexical-binding: t; -*-
+;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.1.0
@@ -29,8 +29,8 @@
     (define-key map (kbd "a") 'aider-run-aider)         
     (define-key map (kbd "z") 'aider-switch-to-buffer)
     (define-key map (kbd "s") 'aider-add-current-file)
-    (define-key map (kbd "c") 'aider-general-command) 
-    (define-key map (kbd "d") 'aider-code-command)  
+    (define-key map (kbd "g") 'aider-general-command) 
+    (define-key map (kbd "c") 'aider-code-command)  
     (define-key map (kbd "q") 'aider-ask-question)   
     (define-key map (kbd "t") 'aider-architect-command)
     (define-key map (kbd "e") 'aider-region-code-command)
@@ -53,7 +53,7 @@
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ]
    ["Code change"
-    ("d" "Code Change" aider-code-command)
+    ("c" "Code Change" aider-code-command)
     ("e" "Region Code Change" aider-region-code-command)
     ("u" "Undo Last Change" aider-undo-last-change) ;; Menu item for undo last change
     ]
@@ -63,7 +63,7 @@
     ]
    ["Other"
     ("r" "Reset Aider" aider-reset-command) ;; Menu item for reset command
-    ("c" "General Command" aider-general-command)
+    ("g" "General Command" aider-general-command)
     ]
    ])
 
