@@ -29,7 +29,9 @@
     (define-key map (kbd "a") 'aider-run-aider)         
     (define-key map (kbd "z") 'aider-switch-to-buffer)
     (define-key map (kbd "s") 'aider-add-current-file)
+    (define-key map (kbd "p") 'aider-drop-current-file)
     (define-key map (kbd "c") 'aider-send-command) 
+    (define-key map (kbd "d") 'aider-code-command)  
     (define-key map (kbd "q") 'aider-ask-question)   
     (define-key map (kbd "t") 'aider-architect-command)
     (define-key map (kbd "e") 'aider-region-code-command)
@@ -50,8 +52,10 @@
     ("a" "Run Aider" aider-run-aider)
     ("s" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("p" "Drop Current File" aider-drop-current-file)
     ]
    ["Code change"
+    ("d" "Code Change" aider-code-command)
     ("e" "Region Code Change" aider-region-code-command)
     ("u" "Undo Last Change" aider-undo-last-change) ;; Menu item for undo last change
     ]
@@ -136,6 +140,19 @@ COMMAND should be a string representing the command to send."
     (let ((file-path (expand-file-name buffer-file-name)))
       ;; Construct the command
       (let ((command (format "/add %s" file-path)))
+        ;; Use the shared helper function to send the command
+        (aider--send-command command)))))
+
+;; New function to send "/drop <current buffer file full path>" to *aider* buffer
+(defun aider-drop-current-file ()
+  "Send the command \"/drop <current buffer file full path>\" to the *aider* comint buffer."
+  (interactive)
+  ;; Ensure the current buffer is associated with a file
+  (if (not buffer-file-name)
+      (message "Current buffer is not associated with a file.")
+    (let ((file-path (expand-file-name buffer-file-name)))
+      ;; Construct the command
+      (let ((command (format "/drop %s" file-path)))
         ;; Use the shared helper function to send the command
         (aider--send-command command)))))
 
