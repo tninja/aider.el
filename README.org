@@ -32,4 +32,4 @@ M-x run-aider
 For more detailed usage, refer to the key functions listed above.
 
 * License
-This package is licensed under the GPL-3.0 license.
+This package is licensed under the Apache-2.0 license.
