@@ -18,8 +18,7 @@
   :prefix "aider-"
   :group 'convenience)
 
-(defcustom aider-args '("--model" "gpt-4o-mini"
-                        "--no-attribute-author")
+(defcustom aider-args '("--model" "gpt-4o-mini")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
@@ -34,16 +33,16 @@
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ]
    ["Code change"
-    ("c" "Code Change" aider-code-command)
-    ("r" "Region Code Refactor" aider-region-refactor-command)
+    ("c" "Code Change" aider-code-change)
+    ("r" "Region Code Refactor" aider-region-refactor)
     ("u" "Undo Last Change" aider-undo-last-change) ;; Menu item for undo last change
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("t" "Architect Discussion" aider-architect-command)
+    ("t" "Architect Discussion" aider-architect-discussion)
     ]
    ["Other"
-    ("s" "Reset Aider" aider-reset-command) ;; Menu item for reset command
+    ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
     ("g" "General Command" aider-general-command)
     ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
@@ -86,7 +85,7 @@
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;; Function to reset the Aider buffer
-(defun aider-reset-command ()
+(defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
   (aider--send-command "/reset"))
@@ -135,7 +134,7 @@ COMMAND should be a string representing the command to send."
     (aider--send-command command)))
 
 ;; New function to get command from user and send it prefixed with "/code "
-(defun aider-code-command ()
+(defun aider-code-change ()
   "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (read-string "Enter code command: ")))
@@ -158,7 +157,7 @@ COMMAND should be a string representing the command to send."
     (aider--send-command (concat "/help " command))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
-(defun aider-architect-command ()
+(defun aider-architect-discussion ()
   "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (read-string "Enter architect command: ")))
@@ -171,7 +170,7 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (aider--send-command "/undo"))
 
-(defun aider-region-refactor-command ()
+(defun aider-region-refactor ()
   "Get a command from the user and send it to the *aider* comint buffer based on the selected region.
 The command will be formatted as \"/code \" followed by the user command and the text from the selected region."
   (interactive)
