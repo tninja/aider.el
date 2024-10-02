@@ -1,4 +1,4 @@
-#+TITLE: aider.el : aider (AI pair programming) in your emacs 
+#+TITLE: aider.el : aider (AI pair programming) inside emacs 
 
 * Introduction
 The Aider package provides an interactive interface to communicate with https://github.com/paul-gauthier/aider.
@@ -10,26 +10,5 @@ To install the Aider package, add the following to your Emacs configuration:
 (require 'aider)
 #+END_SRC
 
-* Key Functions
-- [[#run-aider][run-aider]]: Create a comint-based buffer and run 'aider' for interactive conversation.
-- [[#aider-switch-to-buffer][aider-switch-to-buffer]]: Switch to the Aider buffer.
-- [[#aider-add-current-file][aider-add-current-file]]: Send the command "/add <current buffer file full path>" to the *aider* comint buffer.
-- [[#aider-drop-current-file][aider-drop-current-file]]: Send the command "/drop <current buffer file full path>" to the *aider* comint buffer.
-- [[#aider-send-command][aider-send-command]]: Prompt the user to input a command and send it to the *aider* comint buffer.
-- [[#aider-code-command][aider-code-command]]: Prompt the user for a command and send it to the *aider* comint buffer prefixed with "/code ".
-- [[#aider-ask-question][aider-ask-question]]: Prompt the user for a command and send it to the *aider* comint buffer prefixed with "/ask ".
-- [[#aider-architect-command][aider-architect-command]]: Prompt the user for a command and send it to the *aider* comint buffer prefixed with "/architect ".
-- [[#aider-undo-last-change][aider-undo-last-change]]: Undo the last change made by Aider.
-- [[#aider-region-code-command][aider-region-code-command]]: Get a command from the user and send it to the *aider* comint buffer based on the selected region.
+* Advantage of aider.el over the command line
 
-* Usage
-To start an interactive conversation with Aider, use the following command:
-
-#+BEGIN_SRC emacs-lisp
-M-x run-aider
-#+END_SRC
-
-For more detailed usage, refer to the key functions listed above.
-
-* License
-This package is licensed under the Apache-2.0 license.
