@@ -18,7 +18,8 @@
   :prefix "aider-"
   :group 'convenience)
 
-(defcustom aider-args '("--model" "gpt-4o-mini")
+(defcustom aider-args '("--model" "gpt-4o-mini"
+                        "--no-attribute-author")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
@@ -37,7 +38,7 @@
     (define-key map (kbd "u") 'aider-undo-last-change)
     (define-key map (kbd "r") 'aider-reset-command)   
     (define-key map (kbd "m") 'aider-transient-menu) 
-    (define-key map (kbd "h") 'aider-help)  ;; Shortcut for aider-help
+    (define-key map (kbd "h") 'aider-help)
     map)
   "Global keymap for Aider commands.")
 
@@ -163,7 +164,7 @@ COMMAND is a string representing the command to send."
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/ask \"."
   (interactive)
-  (let ((command (read-string "Enter ask command: ")))
+  (let ((command (read-string "Enter ask question: ")))
     (aider--send-command (concat "/ask " command))))
 
 ;; New function to get command from user and send it prefixed with "/help "
