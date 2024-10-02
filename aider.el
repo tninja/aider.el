@@ -30,12 +30,12 @@
   ["Aider Menu"
    ["Aider process"
     ("a" "Run Aider" aider-run-aider)
-    ("s" "Add Current File" aider-add-current-file)
+    ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ]
    ["Code change"
     ("c" "Code Change" aider-code-command)
-    ("e" "Region Code Change" aider-region-code-command)
+    ("r" "Region Code Refactor" aider-region-refactor-command)
     ("u" "Undo Last Change" aider-undo-last-change) ;; Menu item for undo last change
     ]
    ["Discussion"
@@ -43,7 +43,7 @@
     ("t" "Architect Discussion" aider-architect-command)
     ]
    ["Other"
-    ("r" "Reset Aider" aider-reset-command) ;; Menu item for reset command
+    ("s" "Reset Aider" aider-reset-command) ;; Menu item for reset command
     ("g" "General Command" aider-general-command)
     ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
@@ -131,6 +131,7 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (let ((command (read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
+    (aider-add-current-file)
     (aider--send-command command)))
 
 ;; New function to get command from user and send it prefixed with "/code "
@@ -170,7 +171,7 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (aider--send-command "/undo"))
 
-(defun aider-region-code-command ()
+(defun aider-region-refactor-command ()
   "Get a command from the user and send it to the *aider* comint buffer based on the selected region.
 The command will be formatted as \"/code \" followed by the user command and the text from the selected region."
   (interactive)
