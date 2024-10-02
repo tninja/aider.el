@@ -62,12 +62,10 @@
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-command)
     ]
-   ["Help"
-    ("h" "Help Command" aider-help) ;; Menu item for help command
-    ]
    ["Other"
     ("r" "Reset Aider" aider-reset-command) ;; Menu item for reset command
     ("g" "General Command" aider-general-command)
+    ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
    ])
 
