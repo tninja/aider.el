@@ -1,8 +1,8 @@
-;;; aider.el --- Aider package for interactive conversation with OpenAI -*- lexical-binding: t; -*-
+;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "24.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
