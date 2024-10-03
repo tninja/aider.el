@@ -36,3 +36,9 @@
 * Screenshot
 
 [[file:./screenshot.png]]
+
+* Other Emacs AI coding tool
+
+- [[https://github.com/copilot-emacs/copilot.el][copilot.el]]: Emacs plugin for GitHub Copilot
+- [[https://github.com/shouya/ancilla.el][ancilla.el]]: AI Coding Assistant support code generation / code rewrite / discussion
+- [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]: ChatGPT and DALL-E Emacs shells + Org Babel
