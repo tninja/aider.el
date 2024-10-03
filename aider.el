@@ -1,8 +1,8 @@
-;;; aider.el --- Aider package for interactive conversation with OpenAI -*- lexical-binding: t; -*-
+;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "24.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -18,73 +18,37 @@
   :prefix "aider-"
   :group 'convenience)
 
-
-(defcustom aider-deepseek-api-key deepseek-api-key
-  "DeepSeek API key for Aider."
-  :type 'string
-  :group 'aider)
-
-(defcustom aider-args '("--deepseek")
+(defcustom aider-args '("--model" "gpt-4o-mini")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
-
-;; (defcustom aider-openai-api-key chatgpt-shell-openai-key
-;;   "OpenAI API key for Aider."
-;;   :type 'string
-;;   :group 'aider)
-
-;; (defcustom aider-args '("--model" "gpt-4o-mini")
-;;   "Arguments to pass to the Aider command."
-;;   :type '(repeat string)
-;;   :group 'aider)
-
-;; Define the keymap for Aider commands
-(defvar aider-global-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "a") 'run-aider)         
-    (define-key map (kbd "z") 'aider-switch-to-buffer)
-    (define-key map (kbd "s") 'aider-add-current-file)
-    (define-key map (kbd "d") 'aider-drop-current-file)
-    (define-key map (kbd "c") 'aider-send-command) 
-    (define-key map (kbd "d") 'aider-code-command)  
-    (define-key map (kbd "q") 'aider-ask-question)   
-    (define-key map (kbd "t") 'aider-architect-command)
-    (define-key map (kbd "e") 'aider-region-code-command)
-    (define-key map (kbd "u") 'aider-undo-last-change)
-    (define-key map (kbd "r") 'aider-reset-command)   
-    (define-key map (kbd "m") 'aider-transient-menu) 
-    map)
-  "Global keymap for Aider commands.")
-
-;; Activate the global keymap
-(define-key global-map (kbd "C-c a") aider-global-map)
 
 ;; Transient menu for Aider commands
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
   ["Aider Menu"
    ["Aider process"
-    ("a" "Run Aider" run-aider)
-    ("s" "Add Current File" aider-add-current-file)
+    ("a" "Run Aider" aider-run-aider)
+    ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("d" "Drop Current File" aider-drop-current-file)
+    ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
     ]
    ["Code change"
-    ("d" "Code Change" aider-code-command)
-    ("e" "Region Code Change" aider-region-code-command)
+    ("c" "Code Change" aider-code-change)
+    ("r" "Region Code Refactor" aider-region-refactor)
     ("u" "Undo Last Change" aider-undo-last-change) ;; Menu item for undo last change
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("t" "Architect Discussion" aider-architect-command)
+    ("t" "Architect Discussion" aider-architect-discussion)
     ]
    ["Other"
-    ("r" "Reset Aider" aider-reset-command) ;; Menu item for reset command
-    ("c" "General Command" aider-send-command)
+    ("g" "General Command" aider-general-command)
+    ("h" "Help Command" aider-help) ;; Menu item for help command
     ]
    ])
 
+(global-set-key (kbd "C-c a") 'aider-transient-menu)
 
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command."
@@ -94,7 +58,7 @@
          (relative-path (substring git-repo-path (length home-path))))
     (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))
 
-(defun run-aider ()
+(defun aider-run-aider ()
   "Create a comint-based buffer and run 'aider' for interactive conversation."
   (interactive)
   (let* ((buffer-name (aider-buffer-name))
@@ -102,8 +66,6 @@
     ;; Check if the buffer already has a running process
     (unless (comint-check-proc buffer-name)
       ;; Create a new comint buffer and start the process
-      ;; (setenv "OPENAI_API_KEY" aider-openai-api-key)
-      (setenv "DEEPSEEK_API_KEY" aider-deepseek-api-key)
       (apply 'make-comint-in-buffer "aider" buffer-name command nil aider-args)
       ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
@@ -123,19 +85,19 @@
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;; Function to reset the Aider buffer
-(defun aider-reset-command ()
+(defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
   (aider--send-command "/reset"))
 
-;; Shared helper function to send commands to *aider* buffer
+;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command)
-  "Send COMMAND to the *aider* comint buffer after performing necessary checks.
+  "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
-  ;; Check if the *aider* buffer exists
+  ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
       (let ((aider-process (get-buffer-process aider-buffer)))
-        ;; Check if the *aider* buffer has an active process
+        ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Ensure the command ends with a newline
@@ -144,14 +106,14 @@ COMMAND should be a string representing the command to send."
               ;; Send the command to the aider process
               (comint-send-string aider-buffer command)
               ;; Provide feedback to the user
-              (message "Sent command to *aider*: %s" (string-trim command))
+              (message "Sent command to aider buffer: %s" (string-trim command))
               (aider-switch-to-buffer))
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
-;; Function to send "/add <current buffer file full path>" to *aider* buffer
+;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 (defun aider-add-current-file ()
-  "Send the command \"/add <current buffer file full path>\" to the *aider* comint buffer."
+  "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
@@ -162,47 +124,44 @@ COMMAND should be a string representing the command to send."
         ;; Use the shared helper function to send the command
         (aider--send-command command)))))
 
-;; New function to send "/drop <current buffer file full path>" to *aider* buffer
-(defun aider-drop-current-file ()
-  "Send the command \"/drop <current buffer file full path>\" to the *aider* comint buffer."
+;; Function to send a custom command to corresponding aider buffer
+(defun aider-general-command ()
+  "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
   (interactive)
-  ;; Ensure the current buffer is associated with a file
-  (if (not buffer-file-name)
-      (message "Current buffer is not associated with a file.")
-    (let ((file-path (expand-file-name buffer-file-name)))
-      ;; Construct the command
-      (let ((command (format "/drop %s" file-path)))
-        ;; Use the shared helper function to send the command
-        (aider--send-command command)))))
-
-;; Function to send a custom command to *aider* buffer
-(defun aider-send-command (command)
-  "Prompt the user to input COMMAND and send it to the *aider* comint buffer.
-COMMAND is a string representing the command to send."
-  (interactive
-   (list (read-string "Enter command to send to aider: ")))
-  ;; Use the shared helper function to send the command
-  (aider--send-command command))
+  (let ((command (read-string "Enter command to send to aider: ")))
+    ;; Use the shared helper function to send the command
+    (aider-add-current-file)
+    (aider--send-command command)))
 
 ;; New function to get command from user and send it prefixed with "/code "
-(defun aider-code-command ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/code \"."
+(defun aider-code-change ()
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (read-string "Enter code command: ")))
+    (aider-add-current-file)
     (aider--send-command (concat "/code " command))))
 
 ;; New function to get command from user and send it prefixed with "/ask "
 (defun aider-ask-question ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/ask \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
   (interactive)
-  (let ((command (read-string "Enter ask command: ")))
+  (let ((command (read-string "Enter ask question: ")))
+    (aider-add-current-file)
     (aider--send-command (concat "/ask " command))))
 
+;; New function to get command from user and send it prefixed with "/help "
+(defun aider-help ()
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
+  (interactive)
+  (let ((command (read-string "Enter help command: ")))
+    (aider--send-command (concat "/help " command))))
+
 ;; New function to get command from user and send it prefixed with "/architect "
-(defun aider-architect-command ()
-  "Prompt the user for a command and send it to the *aider* comint buffer prefixed with \"/architect \"."
+(defun aider-architect-discussion ()
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (read-string "Enter architect command: ")))
+    (aider-add-current-file)
     (aider--send-command (concat "/architect " command))))
 
 ;; Modified function to get command from user and send it based on selected region
@@ -211,8 +170,8 @@ COMMAND is a string representing the command to send."
   (interactive)
   (aider--send-command "/undo"))
 
-(defun aider-region-code-command ()
-  "Get a command from the user and send it to the *aider* comint buffer based on the selected region.
+(defun aider-region-refactor ()
+  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
 The command will be formatted as \"/code \" followed by the user command and the text from the selected region."
   (interactive)
   (if (use-region-p)
@@ -223,6 +182,7 @@ The command will be formatted as \"/code \" followed by the user command and the
              (command (format "/code \"in function %s, for the following code block, %s: %s\""
                               function-name user-command processed-region-text)))
         (aider--send-command command))
+    (aider-add-current-file)
     (message "No region selected.")))
 
 (provide 'aider)
