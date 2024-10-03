@@ -51,12 +51,15 @@
 (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
 (defun aider-buffer-name ()
-  "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command."
+  "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command.
+If not in a git repository, an error is raised."
   (let* ((buffer-file-path (buffer-file-name))
-         (git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
-         (home-path (expand-file-name "~"))
-         (relative-path (substring git-repo-path (length home-path))))
-    (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))
+         (git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
+    (if (string-match-p "fatal" git-repo-path)
+        (error "Not in a git repository")
+      (let ((home-path (expand-file-name "~"))
+            (relative-path (substring git-repo-path (length home-path))))
+        (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))))
 
 (defun aider-run-aider ()
   "Create a comint-based buffer and run 'aider' for interactive conversation."
@@ -118,11 +121,10 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((file-path (expand-file-name buffer-file-name)))
-      ;; Construct the command
-      (let ((command (format "/add %s" file-path)))
-        ;; Use the shared helper function to send the command
-        (aider--send-command command)))))
+    (let ((file-path (expand-file-name buffer-file-name))
+          (command (format "/add %s" (expand-file-name buffer-file-name))))
+      ;; Use the shared helper function to send the command
+      (aider--send-command command))))
 
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
@@ -138,16 +140,14 @@ COMMAND should be a string representing the command to send."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (read-string "Enter code command: ")))
-    (aider-add-current-file)
-    (aider--send-command (concat "/code " command))))
+    (aider-send-command-with-prefix "/code " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask "
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
   (interactive)
   (let ((command (read-string "Enter ask question: ")))
-    (aider-add-current-file)
-    (aider--send-command (concat "/ask " command))))
+    (aider-send-command-with-prefix "/ask " command)))
 
 ;; New function to get command from user and send it prefixed with "/help "
 (defun aider-help ()
@@ -161,8 +161,7 @@ COMMAND should be a string representing the command to send."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (read-string "Enter architect command: ")))
-    (aider-add-current-file)
-    (aider--send-command (concat "/architect " command))))
+    (aider-send-command-with-prefix "/architect " command)))
 
 ;; Modified function to get command from user and send it based on selected region
 (defun aider-undo-last-change ()
@@ -184,6 +183,11 @@ The command will be formatted as \"/code \" followed by the user command and the
         (aider--send-command command))
     (aider-add-current-file)
     (message "No region selected.")))
+
+(defun aider-send-command-with-prefix (prefix command)
+  "Send COMMAND to the Aider buffer prefixed with PREFIX."
+  (aider-add-current-file)
+  (aider--send-command (concat prefix command)))
 
 (provide 'aider)
 
