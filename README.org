@@ -29,8 +29,8 @@
   (use-package aider
     :straight (:host github :repo "tninja/aider.el")
     :config
-    (setq aider-args '("--model" "gpt-4o-mini")))
-    (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+    (setq aider-args '("--model" "gpt-4o-mini"))
+    (setenv "OPENAI_API_KEY" <your-openai-api-key>))
 #+END_SRC
 
 * Screenshot
