@@ -26,7 +26,7 @@
 ;; Transient menu for Aider commands
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
-  ["Aider Menu"
+  ["Aider: AI pair programming"
    ["Aider process"
     ("a" "Run Aider" aider-run-aider)
     ("f" "Add Current File" aider-add-current-file)
@@ -44,7 +44,7 @@
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
-    ("h" "Help Command" aider-help) ;; Menu item for help command
+    ("h" "Help" aider-help) ;; Menu item for help command
     ]
    ])
 
@@ -153,7 +153,7 @@ COMMAND should be a string representing the command to send."
 (defun aider-help ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
   (interactive)
-  (let ((command (read-string "Enter help command: ")))
+  (let ((command (read-string "Enter help question: ")))
     (aider--send-command (concat "/help " command))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
