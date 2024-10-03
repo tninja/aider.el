@@ -37,3 +37,5 @@
 
 [[file:./screenshot.png]]
 
+- In the above screenshot, aider was asked to generate a aider-help function, and add corresponding entry to menu (right top window)
+- Aider get the command and generate the commit for it (left bottom
