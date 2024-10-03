@@ -1,0 +1,16 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /Users/tninja/git/aider.el/README.org
+
+
+* Other Emacs AI coding tool
+:PROPERTIES:
+:ARCHIVE_TIME: 2024-10-03 Thu 07:59
+:ARCHIVE_FILE: ~/git/aider.el/README.org
+:ARCHIVE_CATEGORY: README
+:END:
+
+- [[https://github.com/copilot-emacs/copilot.el][copilot.el]]: Emacs plugin for GitHub Copilot
+- [[https://github.com/shouya/ancilla.el][ancilla.el]]: AI Coding Assistant support code generation / code rewrite / discussion
+- [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]: ChatGPT and DALL-E Emacs shells + Org Babel
