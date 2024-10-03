@@ -57,8 +57,8 @@ If not in a git repository, an error is raised."
          (git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
-      (let ((home-path (expand-file-name "~"))
-            (relative-path (substring git-repo-path (length home-path))))
+      (let* ((home-path (expand-file-name "~"))
+             (relative-path (substring git-repo-path (length home-path))))
         (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))))
 
 (defun aider-run-aider ()
