@@ -46,7 +46,7 @@
                  :history 'aider-helm-read-string-history
                  :initial-input initial-input
                  :default default-value
-                 :fuzzy t)))  ;; 添加模糊匹配支持
+                 :fuzzy t)))  ;; fuzzy match
     ;; Add input to history if it's not empty
     (unless (string-empty-p input)
       (add-to-history 'aider-helm-read-string-history input))
