@@ -53,3 +53,5 @@
     input))
 
 (defalias 'aider-read-string 'aider-helm-read-string)
+
+;; how to copy candidate to mini-buffer? C-c C-y: https://emacs.stackexchange.com/questions/47588/in-a-helm-prompt-how-do-i-copy-a-candidate-for-editing
