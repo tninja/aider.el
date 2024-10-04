@@ -46,6 +46,7 @@ This function can be customized or redefined by the user."
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
+    ("d" "Debug Command" aider-debug) ;; Menu item for debug command
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
@@ -168,6 +169,18 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (let ((command (aider-read-string "Enter architect command: ")))
     (aider-send-command-with-prefix "/architect " command)))
+
+;; New function to get command from user and send it prefixed with "/debug "
+(defun aider-debug ()
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/debug \",
+replacing all newline characters except for the one at the end."
+  (interactive)
+  (let ((command (read-string "Enter debug command: ")))
+    ;; Replace all newline characters with a space, except for the last one
+    (setq command (replace-regexp-in-string "\n" " " command))
+    (when (string-match-p "\n" command)
+      (setq command (concat (string-trim command) "\n"))) ;; Add a newline at the end
+    (aider--send-command (concat "/debug " command))))
 
 ;; Modified function to get command from user and send it based on selected region
 (defun aider-undo-last-change ()
