@@ -23,14 +23,14 @@
   :type '(repeat string)
   :group 'aider)
 
-(defun aider-read-string (prompt &optional initial-input)
+(defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (let ((input (read-string prompt initial-input)))
-    (setq input (replace-regexp-in-string "\n" " " input)) ;; Replace newlines with spaces
-    (if (string-suffix-p "\n" initial-input)
-        (concat input "\n") ;; Keep the final newline if it was present
-      input)))
+  (let* ((input (read-string prompt initial-input))
+         (processed-input (replace-regexp-in-string "\n" " " input)))
+    (concat processed-input "\n")))
+
+(defalias 'aider-read-string 'aider-plain-read-string)
 
 ;; Transient menu for Aider commands
 (transient-define-prefix aider-transient-menu ()
@@ -50,7 +50,7 @@ This function can be customized or redefined by the user."
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
-    ("d" "Debug Command" aider-debug) ;; Menu item for debug command
+    ("d" "Debug Exception" aider-debug-exception) ;; Menu item for debug command
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
@@ -174,17 +174,13 @@ COMMAND should be a string representing the command to send."
   (let ((command (aider-read-string "Enter architect command: ")))
     (aider-send-command-with-prefix "/architect " command)))
 
-;; New function to get command from user and send it prefixed with "/ask "
-(defun aider-debug ()
+;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
+(defun aider-debug-exception ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/debug \",
 replacing all newline characters except for the one at the end."
   (interactive)
-  (let ((command (read-string "Enter exception, can be multiple lines: ")))
-    ;; Replace all newline characters with a space, except for the last one
-    (setq command (replace-regexp-in-string "\n" " " command))
-    (when (string-match-p "\n" command)
-      (setq command (concat (string-trim command) "\n"))) ;; Add a newline at the end
-    (aider--send-command (concat "/ask " command))))
+  (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
+    (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command))))
 
 ;; Modified function to get command from user and send it based on selected region
 (defun aider-undo-last-change ()
@@ -201,7 +197,7 @@ The command will be formatted as \"/code \" followed by the user command and the
              (processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text))
              (user-command (aider-read-string "Enter your command: "))
              (function-name (or (which-function) "unknown function"))
-             (command (format "/code \"in function %s, for the following code block, %s: %s\""
+             (command (format "/code \"in function %s, for the following code block, %s: %s\"\n"
                               function-name user-command processed-region-text)))
         (aider--send-command command))
     (aider-add-current-file)
