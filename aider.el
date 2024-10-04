@@ -23,6 +23,11 @@
   :type '(repeat string)
   :group 'aider)
 
+(defun aider-read-string (prompt &optional initial-input)
+  "Read a string from the user with PROMPT and optional INITIAL-INPUT.
+This function can be customized or redefined by the user."
+  (read-string prompt initial-input))
+
 ;; Transient menu for Aider commands
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
@@ -130,7 +135,7 @@ COMMAND should be a string representing the command to send."
 (defun aider-general-command ()
   "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
   (interactive)
-  (let ((command (read-string "Enter command to send to aider: ")))
+  (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
     (aider-add-current-file)
     (aider--send-command command)))
@@ -139,28 +144,28 @@ COMMAND should be a string representing the command to send."
 (defun aider-code-change ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
-  (let ((command (read-string "Enter code command: ")))
+  (let ((command (aider-read-string "Enter code command: ")))
     (aider-send-command-with-prefix "/code " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask "
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
   (interactive)
-  (let ((command (read-string "Enter ask question: ")))
+  (let ((command (aider-read-string "Enter ask question: ")))
     (aider-send-command-with-prefix "/ask " command)))
 
 ;; New function to get command from user and send it prefixed with "/help "
 (defun aider-help ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
   (interactive)
-  (let ((command (read-string "Enter help question: ")))
+  (let ((command (aider-read-string "Enter help question: ")))
     (aider--send-command (concat "/help " command))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 (defun aider-architect-discussion ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
-  (let ((command (read-string "Enter architect command: ")))
+  (let ((command (aider-read-string "Enter architect command: ")))
     (aider-send-command-with-prefix "/architect " command)))
 
 ;; Modified function to get command from user and send it based on selected region
@@ -176,7 +181,7 @@ The command will be formatted as \"/code \" followed by the user command and the
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
              (processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text))
-             (user-command (read-string "Enter your command: "))
+             (user-command (aider-read-string "Enter your command: "))
              (function-name (or (which-function) "unknown function"))
              (command (format "/code \"in function %s, for the following code block, %s: %s\""
                               function-name user-command processed-region-text)))
