@@ -37,6 +37,8 @@
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
 
+- Note: The `use-package` command will only load the `aider.el` file and not all `.el` files in the repository.
+
 * Screenshot
 
 [[file:./screenshot.png]]
