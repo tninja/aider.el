@@ -53,7 +53,8 @@ This function can be customized or redefined by the user."
     ]
    ])
 
-(global-set-key (kbd "C-c a") 'aider-transient-menu)
+;; Removed the default key binding
+;; (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command.
