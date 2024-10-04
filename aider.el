@@ -26,7 +26,11 @@
 (defun aider-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (read-string prompt initial-input))
+  (let ((input (read-string prompt initial-input)))
+    (setq input (replace-regexp-in-string "\n" " " input)) ;; Replace newlines with spaces
+    (if (string-suffix-p "\n" initial-input)
+        (concat input "\n") ;; Keep the final newline if it was present
+      input)))
 
 ;; Transient menu for Aider commands
 (transient-define-prefix aider-transient-menu ()
