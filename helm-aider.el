@@ -1,4 +1,3 @@
-
 ;; optional helm based completion, need to be manually loaded when needed
 
 ;; helm based aider input
@@ -38,7 +37,8 @@
 (load-aider-helm-read-string-history)
 
 (defun aider-helm-read-string (prompt &optional initial-input default-value)
-  "Read a string with Helm completion, showing historical inputs."
+  "Read a string with Helm completion, showing historical inputs.
+Automatically remove newline characters from the input."
   (let* ((input (helm-comp-read
                  prompt
                  aider-helm-read-string-history
@@ -47,6 +47,8 @@
                  :history 'aider-helm-read-string-history
                  :initial-input initial-input
                  :default default-value)))
+    ;; Remove newline characters from the input
+    (setq input (replace-regexp-in-string "\n" "" input))
     ;; Add input to history if it's not empty
     (unless (string-empty-p input)
       (add-to-history 'aider-helm-read-string-history input))
