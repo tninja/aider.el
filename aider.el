@@ -86,7 +86,6 @@ If not in a git repository, an error is raised."
         (comint-mode)
         ))
     ;; Switch to the buffer
-    (aider-add-current-file)
     (pop-to-buffer buffer-name)))
 
 ;; Function to switch to the Aider buffer
