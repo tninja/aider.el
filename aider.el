@@ -62,21 +62,21 @@ This function can be customized or redefined by the user."
 ;; Removed the default key binding
 ;; (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
-(defun aider-buffer-name-from-git-repo-path (git-repo-path)
-  "Generate the Aider buffer name based on the GIT-REPO-PATH.
+(defun aider-buffer-name-from-git-repo-path (git-repo-path home-path)
+  "Generate the Aider buffer name based on the GIT-REPO-PATH and HOME-PATH.
 If not in a git repository, an error is raised."
-  (let* ((home-path (expand-file-name "~"))
-         (relative-path (substring git-repo-path (length home-path))))
+  (let* ((relative-path (substring git-repo-path (length home-path))))
     (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))
 
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command.
 If not in a git repository, an error is raised."
   (let* ((buffer-file-path (buffer-file-name))
-         (git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
+         (git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
+         (home-path (expand-file-name "~")))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
-      (aider-buffer-name-from-git-repo-path git-repo-path))))
+      (aider-buffer-name-from-git-repo-path git-repo-path home-path))))
 
 (defun aider-run-aider ()
   "Create a comint-based buffer and run 'aider' for interactive conversation."
