@@ -40,6 +40,7 @@ This function can be customized or redefined by the user."
     ("a" "Run Aider" aider-run-aider)
     ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("c" "Clear Aider" aider-clear) ;; Menu item for clear command
     ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
     ]
    ["Code change"
@@ -98,6 +99,11 @@ If not in a git repository, an error is raised."
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;; Function to reset the Aider buffer
+(defun aider-clear ()
+  "Send the command \"/clear\" to the Aider buffer."
+  (interactive)
+  (aider--send-command "/clear"))
+
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
