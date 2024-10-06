@@ -40,7 +40,7 @@ This function can be customized or redefined by the user."
     ("a" "Run Aider" aider-run-aider)
     ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("c" "Clear Aider" aider-clear) ;; Menu item for clear command
+    ("l" "Clear Aider" aider-clear) ;; Menu item for clear command
     ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
     ]
    ["Code change"
