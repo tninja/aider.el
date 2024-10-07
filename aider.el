@@ -27,7 +27,7 @@
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
   (let* ((input (read-string prompt initial-input))
-         (processed-input (replace-regexp-in-string "\n" " " input)))
+         (processed-input (replace-regexp-in-string "\n" "\\\\n" input)))
     (concat processed-input "\n")))
 
 (defalias 'aider-read-string 'aider-plain-read-string)
@@ -107,15 +107,18 @@ If not in a git repository, an error is raised."
 (defun aider-clear ()
   "Send the command \"/clear\" to the Aider buffer."
   (interactive)
-  (aider--send-command "/clear"))
+  (aider--send-command "/clear" t))
 
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
-  (aider--send-command "/reset"))
+  (aider--send-command "/reset" t))
 
 ;; Shared helper function to send commands to corresponding aider buffer
-(defun aider--send-command (command)
+(defun aider--send-command (command &optional not-switch-to-buffer)
+  "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
+COMMAND should be a string representing the command to send.
+SWITCH-TO-BUFFER determines whether to switch to the Aider buffer after sending the command. Default is t."
   "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
@@ -131,7 +134,8 @@ COMMAND should be a string representing the command to send."
               (comint-send-string aider-buffer command)
               ;; Provide feedback to the user
               (message "Sent command to aider buffer: %s" (string-trim command))
-              (aider-switch-to-buffer))
+              (when (not not-switch-to-buffer)
+                (aider-switch-to-buffer)))
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
@@ -145,7 +149,7 @@ COMMAND should be a string representing the command to send."
     (let ((file-path (expand-file-name buffer-file-name))
           (command (format "/add %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
-      (aider--send-command command))))
+      (aider--send-command command t))))
 
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
@@ -167,7 +171,7 @@ COMMAND should be a string representing the command to send."
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
   (interactive)
-  (let ((command (aider-read-string "Enter ask question: ")))
+  (let ((command (aider-read-string "Enter question to ask: ")))
     (aider-send-command-with-prefix "/ask " command)))
 
 ;; New function to get command from user and send it prefixed with "/help "
@@ -181,7 +185,7 @@ COMMAND should be a string representing the command to send."
 (defun aider-architect-discussion ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
-  (let ((command (aider-read-string "Enter architect command: ")))
+  (let ((command (aider-read-string "Enter architect discussion question: ")))
     (aider-send-command-with-prefix "/architect " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
@@ -196,7 +200,7 @@ replacing all newline characters except for the one at the end."
 (defun aider-undo-last-change ()
   "Undo the last change made by Aider."
   (interactive)
-  (aider--send-command "/undo"))
+  (aider--send-command "/undo" t))
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
