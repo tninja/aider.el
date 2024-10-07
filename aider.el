@@ -79,7 +79,7 @@ If not in a git repository, an error is raised."
       (aider-buffer-name-from-git-repo-path git-repo-path home-path))))
 
 (defun aider-run-aider ()
-  "Create a comint-based buffer and run 'aider' for interactive conversation."
+  "Create a comint-based buffer and run \"aider\" for interactive conversation."
   (interactive)
   (let* ((buffer-name (aider-buffer-name))
          (command "aider"))
