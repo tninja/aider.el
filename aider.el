@@ -62,6 +62,7 @@ This function can be customized or redefined by the user."
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
     ("d" "Debug Exception" aider-debug-exception) ;; Menu item for debug command
+    ("Q" "Ask Question Under Cursor" aider-ask-question-under-cursor)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
