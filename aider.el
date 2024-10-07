@@ -237,6 +237,13 @@ The command will be formatted as \"/architect \" followed by the user command an
   (aider-add-current-file)
   (aider--send-command (concat prefix command)))
 
+;; New function to send "ask <line under cursor>" to the Aider buffer
+(defun aider-ask-question-under-cursor ()
+  "Send the command \"ask <line under cursor>\" to the Aider buffer."
+  (interactive)
+  (let ((line (thing-at-point 'line t)))
+    (aider--send-command (concat "/ask " (string-trim line)))))
+
 (provide 'aider)
 
 ;;; aider.el ends here
