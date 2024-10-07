@@ -43,3 +43,10 @@
 
 - In the above screenshot, aider was asked to generate an aider-help function and add the corresponding entry to the menu (top right window).
 - aider received the command and generated the commit for it (bottom left).
+
+* Other Emacs AI coding tool
+
+- Inspired by, and Thanks to:
+  - [[https://github.com/shouya/ancilla.el][ancilla.el]]: AI Coding Assistant support code generation / code rewrite / discussion
+  - [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]: ChatGPT and DALL-E Emacs shells + Org Babel
+  - [[https://github.com/copilot-emacs/copilot.el][copilot.el]]: Emacs plugin for GitHub Copilot
