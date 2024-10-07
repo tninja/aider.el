@@ -14,6 +14,7 @@
 (require 'comint)
 (require 'transient)
 (require 'which-func)
+(require 'dired)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -159,6 +160,16 @@ COMMAND should be a string representing the command to send."
     (let ((command (format "/add %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
       (aider--send-command command t))))
+
+;; New function to add multiple Dired marked files to Aider buffer
+(defun aider-batch-add-dired-marked-files ()
+  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (dolist (file files)
+          (aider--send-command (format "/add %s" (expand-file-name file))))
+      (message "No files marked in Dired."))))
 
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
