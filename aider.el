@@ -11,7 +11,9 @@
 
 ;;; Code:
 
+(require 'comint)
 (require 'transient)
+(require 'which-func)
 
 (defgroup aider nil
   "Customization group for the Aider package."
