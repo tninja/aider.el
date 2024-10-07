@@ -18,6 +18,11 @@
   :prefix "aider-"
   :group 'convenience)
 
+(defcustom aider-program "aider"
+  "The name or path of the aider program."
+  :type 'string
+  :group 'aider)
+
 (defcustom aider-args '("--model" "gpt-4o-mini")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
@@ -81,12 +86,11 @@ If not in a git repository, an error is raised."
 (defun aider-run-aider ()
   "Create a comint-based buffer and run 'aider' for interactive conversation."
   (interactive)
-  (let* ((buffer-name (aider-buffer-name))
-         (command "aider"))
+  (let* ((buffer-name (aider-buffer-name)))
     ;; Check if the buffer already has a running process
     (unless (comint-check-proc buffer-name)
       ;; Create a new comint buffer and start the process
-      (apply 'make-comint-in-buffer "aider" buffer-name command nil aider-args)
+      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil aider-args)
       ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
         (comint-mode)
