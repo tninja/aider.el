@@ -76,8 +76,7 @@ If not in a git repository, an error is raised."
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command.
 If not in a git repository, an error is raised."
-  (let* ((buffer-file-path (buffer-file-name))
-         (git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
+  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
          (home-path (expand-file-name "~")))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
@@ -152,8 +151,7 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((file-path (expand-file-name buffer-file-name))
-          (command (format "/add %s" (expand-file-name buffer-file-name))))
+    (let ((command (format "/add %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
       (aider--send-command command t))))
 
