@@ -201,8 +201,11 @@ replacing all newline characters except for the one at the end."
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
   (let ((processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text)))
-    (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
-            function-name user-command processed-region-text)))
+    (if function-name
+        (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
+                function-name user-command processed-region-text)
+      (format "/architect \"for the following code block, %s: %s\"\n"
+              user-command processed-region-text))))
 
 (defun aider-region-refactor ()
   "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
