@@ -35,6 +35,9 @@ This function can be customized or redefined by the user."
 (defalias 'aider-read-string 'aider-plain-read-string)
 
 ;; Transient menu for Aider commands
+;; The instruction in the autoload comment is needed, see
+;; https://github.com/magit/transient/issues/280.
+;;;###autoload (autoload 'aider-transient-menu "aider" "Transient menu for Aider commands." t)
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
   ["Aider: AI pair programming"
@@ -80,6 +83,7 @@ If not in a git repository, an error is raised."
         (error "Not in a git repository")
       (aider-buffer-name-from-git-repo-path git-repo-path home-path))))
 
+;;;###autoload
 (defun aider-run-aider ()
   "Create a comint-based buffer and run 'aider' for interactive conversation."
   (interactive)
