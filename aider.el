@@ -198,17 +198,21 @@ replacing all newline characters except for the one at the end."
   (interactive)
   (aider--send-command "/undo"))
 
+(defun aider-region-refactor-generate-command (region-text function-name user-command)
+  "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
+  (let ((processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text)))
+    (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
+            function-name user-command processed-region-text)))
+
 (defun aider-region-refactor ()
   "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
-The command will be formatted as \"/code \" followed by the user command and the text from the selected region."
+The command will be formatted as \"/architect \" followed by the user command and the text from the selected region."
   (interactive)
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text))
-             (user-command (aider-read-string "Enter your command: "))
-             (function-name (or (which-function) "unknown function"))
-             (command (format "/code \"in function %s, for the following code block, %s: %s\"\n"
-                              function-name user-command processed-region-text)))
+             (function-name (which-function))
+             (user-command (aider-read-string "Enter your refactor instruction: "))
+             (command (aider-region-refactor-generate-command region-text function-name user-command)))
         (aider--send-command command))
     (aider-add-current-file)
     (message "No region selected.")))
