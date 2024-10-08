@@ -161,16 +161,6 @@ COMMAND should be a string representing the command to send."
       ;; Use the shared helper function to send the command
       (aider--send-command command t))))
 
-;; New function to add multiple Dired marked files to Aider buffer
-(defun aider-batch-add-dired-marked-files ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
-  (interactive)
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
-          (aider--send-command command))
-      (message "No files marked in Dired."))))
-
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
   "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
@@ -255,6 +245,18 @@ The command will be formatted as \"/architect \" followed by the user command an
   (interactive)
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (concat "/ask " (string-trim line)))))
+
+;;; functions for dired related
+
+;; New function to add multiple Dired marked files to Aider buffer
+(defun aider-batch-add-dired-marked-files ()
+  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
+          (aider--send-command command))
+      (message "No files marked in Dired."))))
 
 ;;; functions for .aider file
 
