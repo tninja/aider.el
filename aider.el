@@ -49,10 +49,14 @@ This function can be customized or redefined by the user."
   ["Aider: AI pair programming"
    ["Aider process"
     ("a" "Run Aider" aider-run-aider)
-    ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear) ;; Menu item for clear command
     ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
+    ]
+   ["Add file to aider"
+    ("f" "Add Current File" aider-add-current-file)
+    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
+    ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
@@ -246,16 +250,6 @@ The command will be formatted as \"/architect \" followed by the user command an
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (concat "/ask " (string-trim line)))))
 
-;; New function to run `find-name-dired` from the Git repository root directory
-(defun aider-repo-find-name-dired (pattern)
-  "Run `find-name-dired` from the Git repository root directory with the given PATTERN."
-  (interactive "sFind name (pattern): ")
-  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
-         (repo-path (string-trim git-repo-path)))
-    (if (string-match-p "fatal" repo-path)
-        (message "Not in a git repository")
-      (find-name-dired repo-path pattern))))
-
 ;;; functions for dired related
 
 ;; New function to add multiple Dired marked files to Aider buffer
@@ -267,6 +261,16 @@ The command will be formatted as \"/architect \" followed by the user command an
         (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
           (aider--send-command command))
       (message "No files marked in Dired."))))
+
+;; New function to run `find-name-dired` from the Git repository root directory
+(defun aider-repo-find-name-dired (pattern)
+  "Run `find-name-dired` from the Git repository root directory with the given PATTERN."
+  (interactive "sFind name (pattern): ")
+  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
+         (repo-path (string-trim git-repo-path)))
+    (if (string-match-p "fatal" repo-path)
+        (message "Not in a git repository")
+      (find-name-dired repo-path pattern))))
 
 ;;; functions for .aider file
 
