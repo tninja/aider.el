@@ -256,6 +256,13 @@ The command will be formatted as \"/architect \" followed by the user command an
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (concat "/ask " (string-trim line)))))
 
+;; New function to send "<line under cursor>" to the Aider buffer
+(defun aider-send-line-under-cursor ()
+  "Send the command \"ask <line under cursor>\" to the Aider buffer."
+  (interactive)
+  (let ((line (thing-at-point 'line t)))
+    (aider--send-command (string-trim line))))
+
 (provide 'aider)
 
 ;;; aider.el ends here
