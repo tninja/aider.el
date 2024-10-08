@@ -256,6 +256,19 @@ The command will be formatted as \"/architect \" followed by the user command an
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (concat "/ask " (string-trim line)))))
 
+;;; New function to send the current paragraph to the Aider buffer
+(defun aider-send-paragraph ()
+  "Send the current paragraph to the Aider buffer."
+  (interactive)
+  (let ((paragraph (buffer-substring-no-properties
+                    (save-excursion
+                      (backward-paragraph)
+                      (point))
+                    (save-excursion
+                      (forward-paragraph)
+                      (point)))))
+    (aider--send-command (string-trim paragraph))))
+
 ;;; functions for .aider file
 
 ;; New function to send "<line under cursor>" to the Aider buffer
@@ -268,8 +281,8 @@ The command will be formatted as \"/architect \" followed by the user command an
 (defun aider-mode-setup ()
   "Setup key bindings for Aider mode."
   (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor)
-  (local-set-key (kbd "C-c C-z") 'aider-switch-to-buffer)
-  )
+  (local-set-key (kbd "C-c C-b") 'aider-send-block)
+  (local-set-key (kbd "C-c C-p") 'aider-send-paragraph))  ;; Add this line
 
 (add-hook 'aider-mode-hook 'aider-mode-setup)
 
