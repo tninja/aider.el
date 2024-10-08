@@ -263,6 +263,19 @@ The command will be formatted as \"/architect \" followed by the user command an
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (string-trim line))))
 
+(defun aider-mode-setup ()
+  "Setup key bindings for Aider mode."
+  (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor))
+
+(add-hook 'aider-mode-hook 'aider-mode-setup)
+
+(define-derived-mode aider-mode fundamental-mode "Aider"
+  "Major mode for editing Aider files."
+  ;; Add any additional setup for aider-mode here
+)
+
+(add-to-list 'auto-mode-alist '("\\.aider\\'" . aider-mode))
+
 (provide 'aider)
 
 ;;; aider.el ends here
