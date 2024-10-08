@@ -167,8 +167,8 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (let ((files (dired-get-marked-files)))
     (if files
-        (dolist (file files)
-          (aider--send-command (format "/add %s" (expand-file-name file))))
+        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
+          (aider--send-command command))
       (message "No files marked in Dired."))))
 
 ;; Function to send a custom command to corresponding aider buffer
