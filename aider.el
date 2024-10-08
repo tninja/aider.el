@@ -14,6 +14,7 @@
 (require 'comint)
 (require 'transient)
 (require 'which-func)
+(require 'dired)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -62,6 +63,7 @@ This function can be customized or redefined by the user."
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
     ("d" "Debug Exception" aider-debug-exception) ;; Menu item for debug command
+    ("Q" "Ask Question Under Cursor" aider-ask-question-under-cursor)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
@@ -159,6 +161,16 @@ COMMAND should be a string representing the command to send."
       ;; Use the shared helper function to send the command
       (aider--send-command command t))))
 
+;; New function to add multiple Dired marked files to Aider buffer
+(defun aider-batch-add-dired-marked-files ()
+  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (dolist (file files)
+          (aider--send-command (format "/add %s" (expand-file-name file))))
+      (message "No files marked in Dired."))))
+
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
   "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
@@ -236,6 +248,13 @@ The command will be formatted as \"/architect \" followed by the user command an
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
   (aider--send-command (concat prefix command)))
+
+;; New function to send "ask <line under cursor>" to the Aider buffer
+(defun aider-ask-question-under-cursor ()
+  "Send the command \"ask <line under cursor>\" to the Aider buffer."
+  (interactive)
+  (let ((line (thing-at-point 'line t)))
+    (aider--send-command (concat "/ask " (string-trim line)))))
 
 (provide 'aider)
 
