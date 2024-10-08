@@ -1,0 +1,24 @@
+
+/ask what this repo is about?
+
+# This repository appears to be focused on an Emacs package called "Aider," which 
+# provides an interactive interface for communicating with an AI tool (likely     
+# related to programming assistance). The package allows users to send commands   
+# and queries to the Aider program, which seems to facilitate AI pair programming 
+# or code assistance.                                                             
+
+# Key features of the repository include:                                         
+
+#  • Interactive Commands: Users can run commands like adding files, asking       
+#    questions, and performing code changes through a transient menu.             
+#  • Integration with Git: The package can generate buffer names based on the     
+#    current Git repository, indicating that it is designed to work within a      
+#    version-controlled environment.                                              
+#  • Custom Commands: Users can send custom commands to the Aider buffer, allowing
+#    for flexible interaction with the AI.                                        
+#  • File Type Association: The package defines a major mode (aider-mode) for     
+#    files with the .aider extension, which includes specific key bindings and    
+#    functionalities tailored for those files.                                    
+
+# Overall, the repository is aimed at enhancing the coding experience by          
+# leveraging AI assistance within the Emacs text editor.                          
