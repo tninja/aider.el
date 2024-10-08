@@ -246,6 +246,16 @@ The command will be formatted as \"/architect \" followed by the user command an
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (concat "/ask " (string-trim line)))))
 
+;; New function to run `find-name-dired` from the Git repository root directory
+(defun aider-repo-find-name-dired (pattern)
+  "Run `find-name-dired` from the Git repository root directory with the given PATTERN."
+  (interactive "sFind name (pattern): ")
+  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
+         (repo-path (string-trim git-repo-path)))
+    (if (string-match-p "fatal" repo-path)
+        (message "Not in a git repository")
+      (find-name-dired repo-path pattern))))
+
 ;;; functions for dired related
 
 ;; New function to add multiple Dired marked files to Aider buffer
