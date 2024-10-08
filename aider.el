@@ -267,7 +267,9 @@ The command will be formatted as \"/architect \" followed by the user command an
 
 (defun aider-mode-setup ()
   "Setup key bindings for Aider mode."
-  (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor))
+  (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor)
+  (local-set-key (kbd "C-c C-z") 'aider-switch-to-buffer)
+  )
 
 (add-hook 'aider-mode-hook 'aider-mode-setup)
 
