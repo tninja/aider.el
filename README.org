@@ -17,7 +17,9 @@
 
 - Git Repository-Specific aider Sessions in Emacs: Automatically identify the Git repository of the current file and create a new aider session for it. Multiple aider sessions can exist for different Git repositories.
 
-- Region-Based Refactor Support: You can select a region (e.g., a code block) in a file and ask aider to refactor it.
+- Batch add files from dired buffer (aider-batch-add-dired-marked-files): Add multiple Dired marked files to the Aider buffer
+
+- Region-Based Refactor Support (aider-region-refactor): You can select a region (e.g., a code block) in a file and ask aider to refactor it.
 
 - And More: Add your own Elisp functions to support your use case. You can certainly ask aider / aider.el to do that.
 
