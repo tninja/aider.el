@@ -49,10 +49,14 @@ This function can be customized or redefined by the user."
   ["Aider: AI pair programming"
    ["Aider process"
     ("a" "Run Aider" aider-run-aider)
-    ("f" "Add Current File" aider-add-current-file)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear) ;; Menu item for clear command
     ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
+    ]
+   ["Add file to aider"
+    ("f" "Add Current File" aider-add-current-file)
+    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
+    ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
@@ -161,16 +165,6 @@ COMMAND should be a string representing the command to send."
       ;; Use the shared helper function to send the command
       (aider--send-command command t))))
 
-;; New function to add multiple Dired marked files to Aider buffer
-(defun aider-batch-add-dired-marked-files ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
-  (interactive)
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
-          (aider--send-command command))
-      (message "No files marked in Dired."))))
-
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
   "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
@@ -255,6 +249,64 @@ The command will be formatted as \"/architect \" followed by the user command an
   (interactive)
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (concat "/ask " (string-trim line)))))
+
+;;; functions for dired related
+
+;; New function to add multiple Dired marked files to Aider buffer
+(defun aider-batch-add-dired-marked-files ()
+  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
+          (aider--send-command command))
+      (message "No files marked in Dired."))))
+
+;; New function to run `find-name-dired` from the Git repository root directory
+(defun aider-repo-find-name-dired (pattern)
+  "Run `find-name-dired` from the Git repository root directory with the given PATTERN."
+  (interactive "sFind name (pattern): ")
+  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
+         (repo-path (string-trim git-repo-path)))
+    (if (string-match-p "fatal" repo-path)
+        (message "Not in a git repository")
+      (find-name-dired repo-path pattern))))
+
+;;; functions for .aider file
+
+;; New function to send "<line under cursor>" to the Aider buffer
+(defun aider-send-line-under-cursor ()
+  "Send the command \"ask <line under cursor>\" to the Aider buffer."
+  (interactive)
+  (let ((line (thing-at-point 'line t)))
+    (aider--send-command (string-trim line))))
+
+;;; New function to send the current paragraph to the Aider buffer
+(defun aider-send-paragraph ()
+  "Send the current paragraph to the Aider buffer."
+  (interactive)
+  (let ((paragraph (buffer-substring-no-properties
+                    (save-excursion
+                      (backward-paragraph)
+                      (point))
+                    (save-excursion
+                      (forward-paragraph)
+                      (point)))))
+    (aider--send-command (string-trim paragraph))))
+
+(defun aider-mode-setup ()
+  "Setup key bindings for Aider mode."
+  (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor)
+  (local-set-key (kbd "C-c C-c") 'aider-send-paragraph))
+
+(add-hook 'aider-mode-hook 'aider-mode-setup)
+
+(define-derived-mode aider-mode fundamental-mode "Aider"
+  "Major mode for editing Aider files."
+  ;; Add any additional setup for aider-mode here
+)
+
+(add-to-list 'auto-mode-alist '("\\.aider\\'" . aider-mode))
 
 (provide 'aider)
 

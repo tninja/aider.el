@@ -17,7 +17,7 @@
 
 - Git Repository-Specific aider Sessions in Emacs: Automatically identify the Git repository of the current file and create a new aider session for it. Multiple aider sessions can exist for different Git repositories.
 
-- Batch add files from dired buffer (aider-batch-add-dired-marked-files): Add multiple Dired marked files to the Aider buffer
+- Batch add files from dired buffer (aider-batch-add-dired-marked-files): Add multiple Dired marked files to the Aider buffer. These files can be searched from repo with aider-repo-find-name-dired command
 
 - Region-Based Refactor Support (aider-region-refactor): You can select a region (e.g., a code block) in a file and ask aider to refactor it.
 
@@ -38,6 +38,10 @@
     ;; Optional: Set a key binding for the transient menu
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
+
+** Optional
+
+- If you use helm, maybe you can load the helm-aider.el manually. That file added support of command history and completion from helm.
 
 * Screenshot
 
