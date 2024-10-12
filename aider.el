@@ -131,15 +131,15 @@ If not in a git repository, an error is raised."
 (defun aider-clear ()
   "Send the command \"/clear\" to the Aider buffer."
   (interactive)
-  (aider--send-command "/clear" t))
+  (aider--send-command "/clear" nil))
 
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
-  (aider--send-command "/reset" t))
+  (aider--send-command "/reset" nil))
 
 ;; Shared helper function to send commands to corresponding aider buffer
-(defun aider--send-command (command &optional not-switch-to-buffer)
+(defun aider--send-command (command &optional switch-to-buffer)
   "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
@@ -155,7 +155,7 @@ COMMAND should be a string representing the command to send."
               (comint-send-string aider-buffer command)
               ;; Provide feedback to the user
               (message "Sent command to aider buffer: %s" (string-trim command))
-              (when (not not-switch-to-buffer)
+              (when switch-to-buffer
                 (aider-switch-to-buffer)))
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
@@ -220,7 +220,7 @@ replacing all newline characters except for the one at the end."
 (defun aider-undo-last-change ()
   "Undo the last change made by Aider."
   (interactive)
-  (aider--send-command "/undo" t))
+  (aider--send-command "/undo" nil))
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
