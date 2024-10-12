@@ -11,15 +11,6 @@
 
 ;;; Code:
 
-(defun aider-git-repo-root-dired ()
-  "Open a Dired buffer at the root of the current Git repository."
-  (interactive)
-  (let ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
-    (if (string-match-p "fatal" git-repo-path)
-        (message "The current buffer is not in a Git repository.")
-      (let ((repo-path (string-trim git-repo-path)))
-        (dired-other-window repo-path)))))
-
 (require 'comint)
 (require 'transient)
 (require 'which-func)
@@ -59,24 +50,24 @@ This function can be customized or redefined by the user."
    ["Aider process"
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("l" "Clear Aider" aider-clear) ;; Menu item for clear command
-    ("s" "Reset Aider" aider-reset) ;; Menu item for reset command
+    ("l" "Clear Aider" aider-clear)
+    ("s" "Reset Aider" aider-reset)
     ]
    ["Add file to aider"
     ("f" "Add Current File" aider-add-current-file)
     ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
-    ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired) ;; 新增的菜单项
+    ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
     ("r" "Region Code Refactor" aider-region-refactor)
-    ("u" "Undo Last Change" aider-undo-last-change) ;; Menu item for undo last change
+    ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
-    ("d" "Debug Exception" aider-debug-exception) ;; Menu item for debug command
+    ("d" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
@@ -131,12 +122,12 @@ If not in a git repository, an error is raised."
 (defun aider-clear ()
   "Send the command \"/clear\" to the Aider buffer."
   (interactive)
-  (aider--send-command "/clear" nil))
+  (aider--send-command "/clear"))
 
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
-  (aider--send-command "/reset" nil))
+  (aider--send-command "/reset"))
 
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional switch-to-buffer)
@@ -169,7 +160,7 @@ COMMAND should be a string representing the command to send."
       (message "Current buffer is not associated with a file.")
     (let ((command (format "/add %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
-      (aider--send-command command t))))
+      (aider--send-command command))))
 
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
@@ -178,7 +169,7 @@ COMMAND should be a string representing the command to send."
   (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
     (aider-add-current-file)
-    (aider--send-command command)))
+    (aider--send-command command t)))
 
 ;; New function to get command from user and send it prefixed with "/code "
 (defun aider-code-change ()
@@ -214,13 +205,13 @@ COMMAND should be a string representing the command to send."
 replacing all newline characters except for the one at the end."
   (interactive)
   (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
-    (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command))))
+    (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
 
 ;; Modified function to get command from user and send it based on selected region
 (defun aider-undo-last-change ()
   "Undo the last change made by Aider."
   (interactive)
-  (aider--send-command "/undo" nil))
+  (aider--send-command "/undo"))
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
@@ -241,14 +232,14 @@ The command will be formatted as \"/architect \" followed by the user command an
              (user-command (aider-read-string "Enter your refactor instruction: "))
              (command (aider-region-refactor-generate-command region-text function-name user-command)))
         (aider-add-current-file)
-        (aider--send-command command)
+        (aider--send-command command t)
         )
     (message "No region selected.")))
 
 (defun aider-send-command-with-prefix (prefix command)
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
-  (aider--send-command (concat prefix command)))
+  (aider--send-command (concat prefix command) t))
 
 ;;; functions for dired related
 
@@ -259,7 +250,7 @@ The command will be formatted as \"/architect \" followed by the user command an
   (let ((files (dired-get-marked-files)))
     (if files
         (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
-          (aider--send-command command))
+          (aider--send-command command t))
       (message "No files marked in Dired."))))
 
 ;; New function to run `find-name-dired` from the Git repository root directory
@@ -288,7 +279,7 @@ The command will be formatted as \"/architect \" followed by the user command an
   "Send the command \"ask <line under cursor>\" to the Aider buffer."
   (interactive)
   (let ((line (thing-at-point 'line t)))
-    (aider--send-command (string-trim line))))
+    (aider--send-command (string-trim line) t)))
 
 ;;; New function to send the current paragraph to the Aider buffer
 (defun aider-send-paragraph ()
@@ -301,7 +292,7 @@ The command will be formatted as \"/architect \" followed by the user command an
                     (save-excursion
                       (forward-paragraph)
                       (point)))))
-    (aider--send-command (string-trim paragraph))))
+    (aider--send-command (string-trim paragraph) t)))
 
 (defun aider-mode-setup ()
   "Setup key bindings for Aider mode."
