@@ -11,6 +11,15 @@
 
 ;;; Code:
 
+(defun aider-git-repo-root-dired ()
+  "Open a Dired buffer at the root of the current Git repository."
+  (interactive)
+  (let ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
+    (if (string-match-p "fatal" git-repo-path)
+        (message "The current buffer is not in a Git repository.")
+      (let ((repo-path (string-trim git-repo-path)))
+        (dired-other-window repo-path)))))
+
 (require 'comint)
 (require 'transient)
 (require 'which-func)
@@ -57,6 +66,7 @@ This function can be customized or redefined by the user."
     ("f" "Add Current File" aider-add-current-file)
     ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
+    ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired) ;; 新增的菜单项
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
@@ -67,7 +77,6 @@ This function can be customized or redefined by the user."
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
     ("d" "Debug Exception" aider-debug-exception) ;; Menu item for debug command
-    ("Q" "Ask Question Under Cursor" aider-ask-question-under-cursor)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
@@ -132,9 +141,6 @@ If not in a git repository, an error is raised."
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional not-switch-to-buffer)
   "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
-COMMAND should be a string representing the command to send.
-SWITCH-TO-BUFFER determines whether to switch to the Aider buffer after sending the command. Default is t."
-  "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
@@ -193,7 +199,7 @@ COMMAND should be a string representing the command to send."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
   (interactive)
   (let ((command (aider-read-string "Enter help question: ")))
-    (aider--send-command (concat "/help " command))))
+    (aider-send-command-with-prefix "/help " command)))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 (defun aider-architect-discussion ()
@@ -234,21 +240,15 @@ The command will be formatted as \"/architect \" followed by the user command an
              (function-name (which-function))
              (user-command (aider-read-string "Enter your refactor instruction: "))
              (command (aider-region-refactor-generate-command region-text function-name user-command)))
-        (aider--send-command command))
-    (aider-add-current-file)
+        (aider-add-current-file)
+        (aider--send-command command)
+        )
     (message "No region selected.")))
 
 (defun aider-send-command-with-prefix (prefix command)
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
   (aider--send-command (concat prefix command)))
-
-;; New function to send "ask <line under cursor>" to the Aider buffer
-(defun aider-ask-question-under-cursor ()
-  "Send the command \"ask <line under cursor>\" to the Aider buffer."
-  (interactive)
-  (let ((line (thing-at-point 'line t)))
-    (aider--send-command (concat "/ask " (string-trim line)))))
 
 ;;; functions for dired related
 
@@ -272,7 +272,16 @@ The command will be formatted as \"/architect \" followed by the user command an
         (message "Not in a git repository")
       (find-name-dired repo-path pattern))))
 
-;;; functions for .aider file
+(defun aider-git-repo-root-dired ()
+  "Open a Dired buffer at the root of the current Git repository."
+  (interactive)
+  (let ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
+    (if (string-match-p "fatal" git-repo-path)
+        (message "The current buffer is not in a Git repository.")
+      (let ((repo-path (string-trim git-repo-path)))
+        (dired-other-window repo-path)))))
+
+;;; functions for .aider file related
 
 ;; New function to send "<line under cursor>" to the Aider buffer
 (defun aider-send-line-under-cursor ()
@@ -297,7 +306,6 @@ The command will be formatted as \"/architect \" followed by the user command an
 (defun aider-mode-setup ()
   "Setup key bindings for Aider mode."
   (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor)
-  (local-set-key (kbd "C-c C-b") 'aider-send-block)
   (local-set-key (kbd "C-c C-c") 'aider-send-paragraph))
 
 (add-hook 'aider-mode-hook 'aider-mode-setup)
@@ -305,7 +313,7 @@ The command will be formatted as \"/architect \" followed by the user command an
 (define-derived-mode aider-mode fundamental-mode "Aider"
   "Major mode for editing Aider files."
   ;; Add any additional setup for aider-mode here
-)
+  )
 
 (add-to-list 'auto-mode-alist '("\\.aider\\'" . aider-mode))
 
