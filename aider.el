@@ -308,5 +308,6 @@ The command will be formatted as \"/architect \" followed by the user command an
   :lighter " Aider"
   :keymap aider-minor-mode-map)
 
+(provide 'aider)
 
 ;;; aider.el ends here
