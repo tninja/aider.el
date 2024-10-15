@@ -308,13 +308,5 @@ The command will be formatted as \"/architect \" followed by the user command an
   :lighter " Aider"
   :keymap aider-minor-mode-map)
 
-;; Automatically enable Aider Minor Mode for files containing "aider" in their names
-(add-hook 'find-file-hook
-          (lambda ()
-            (when (and (buffer-file-name)
-                       (string-match-p "aider" (buffer-file-name)))
-              (aider-minor-mode 1))))
-
-(provide 'aider)
 
 ;;; aider.el ends here
