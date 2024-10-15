@@ -294,20 +294,19 @@ The command will be formatted as \"/architect \" followed by the user command an
                       (point)))))
     (aider--send-command (string-trim paragraph) t)))
 
-(defun aider-mode-setup ()
-  "Setup key bindings for Aider mode."
-  (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor)
-  (local-set-key (kbd "C-c C-c") 'aider-send-paragraph))
+;; Define the keymap for Aider Minor Mode
+(defvar aider-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
+    (define-key map (kbd "C-c C-c") 'aider-send-paragraph)
+    map)
+  "Keymap for Aider Minor Mode.")
 
-(add-hook 'aider-mode-hook 'aider-mode-setup)
+;; Define the Aider Minor Mode
+(define-minor-mode aider-minor-mode
+  "Minor mode for Aider with keybindings."
+  :lighter " Aider"
+  :keymap aider-minor-mode-map)
 
-(define-derived-mode aider-mode fundamental-mode "Aider"
-  "Major mode for editing Aider files."
-  ;; Add any additional setup for aider-mode here
-  )
-
-(add-to-list 'auto-mode-alist '("\\.aider\\'" . aider-mode))
-
-(provide 'aider)
 
 ;;; aider.el ends here

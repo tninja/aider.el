@@ -41,7 +41,21 @@
 
 ** Optional
 
-- If you use helm, maybe you can load the helm-aider.el manually. That file added support of command history and completion from helm.
+- Maybe you might want to try helm-aider.el. That file added support of command history and completion from helm.
+
+- If you enjoy writing aider command in a separate file and send them to aider session, just like working on python or R script and send code block into REPL, you might want to try aider-minor-mode. It by default bind C-c C-n to send current line to aider session, and C-c C-c to send current region to aider session.
+
+- To automatically enable aider-minor-mode to any file with aider inside filename
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'find-file-hook
+            (lambda ()
+              (when (and (buffer-file-name)
+                         (string-match-p "aider" (buffer-file-name)))
+                (aider-minor-mode 1))))
+
+  (provide 'aider)
+#+END_SRC
 
 * Screenshot
 
