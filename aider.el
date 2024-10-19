@@ -55,10 +55,10 @@ This function can be customized or redefined by the user."
     ]
    ["Add file to aider"
     ("f" "Add Current File" aider-add-current-file)
-    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
+    ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
+    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
     ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
-    ("W" "Add Files in Current Window" aider-add-files-in-current-window)
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
