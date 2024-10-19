@@ -58,6 +58,7 @@ This function can be customized or redefined by the user."
     ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
+    ("W" "Add Files in Current Window" aider-add-files-in-current-window)
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
@@ -301,6 +302,21 @@ The command will be formatted as \"/architect \" followed by the user command an
     (define-key map (kbd "C-c C-c") 'aider-send-paragraph)
     map)
   "Keymap for Aider Minor Mode.")
+
+;; New function to add files in all buffers in current emacs window
+(defun aider-add-files-in-current-window ()
+  "Add files in all buffers in the current Emacs window to the Aider buffer."
+  (interactive)
+  (let ((files (mapcar (lambda (buffer)
+                         (with-current-buffer buffer
+                           (when buffer-file-name
+                             (expand-file-name buffer-file-name))))
+                       (mapcar 'window-buffer (window-list)))))
+    (setq files (delq nil files))
+    (if files
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+          (aider--send-command command t))
+      (message "No files found in the current window."))))
 
 ;; Define the Aider Minor Mode
 (define-minor-mode aider-minor-mode
