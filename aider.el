@@ -315,7 +315,7 @@ The command will be formatted as \"/architect \" followed by the user command an
     (setq files (delq nil files))
     (if files
         (let ((command (concat "/add " (mapconcat 'identity files " "))))
-          (aider--send-command command t))
+          (aider--send-command command nil))
       (message "No files found in the current window."))))
 
 ;; Define the Aider Minor Mode
