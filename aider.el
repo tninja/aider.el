@@ -98,7 +98,8 @@ If not in a git repository, an error is raised."
 (defun aider-run-aider ()
   "Create a comint-based buffer and run \"aider\" for interactive conversation."
   (interactive)
-  (let* ((buffer-name (aider-buffer-name)))
+  (let* ((buffer-name (aider-buffer-name))
+         (comint-terminfo-terminal "dumb"))
     ;; Check if the buffer already has a running process
     (unless (comint-check-proc buffer-name)
       ;; Create a new comint buffer and start the process
