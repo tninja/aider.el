@@ -36,7 +36,8 @@
 This function can be customized or redefined by the user."
   (let* ((input (read-string prompt initial-input))
          (processed-input (replace-regexp-in-string "\n" "\\\\n" input)))
-    (concat processed-input "\n")))
+    processed-input
+    ))
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
@@ -62,12 +63,13 @@ This function can be customized or redefined by the user."
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
-    ("r" "Region Code Refactor" aider-region-refactor)
+    ("r" "Refactor Code in Selected Region" aider-region-refactor)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("t" "Architect Discussion" aider-architect-discussion)
+    ("e" "Explain Code in Selected Region" aider-region-explain)
     ("d" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
@@ -130,6 +132,20 @@ If not in a git repository, an error is raised."
   (interactive)
   (aider--send-command "/reset"))
 
+;; Function to send large text (> 1024 chars) to the Aider buffer
+(defun comint-send-large-string (buffer text)
+  "Send large TEXT to the comint buffer in chunks of 1000 characters."
+  (let ((chunk-size 1000)
+        (pos 0)
+        (process (get-buffer-process buffer)))
+    (while (< pos (length text))
+      (process-send-string
+       process
+       (substring text pos (min (+ pos chunk-size) (length text))))
+      (sleep-for 0.1)
+      (message "Sent command to aider buffer: %s" (substring text pos (min (+ pos chunk-size) (length text))))
+      (setq pos (+ pos chunk-size)))))
+
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional switch-to-buffer)
   "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
@@ -144,9 +160,9 @@ COMMAND should be a string representing the command to send."
               (unless (string-suffix-p "\n" command)
                 (setq command (concat command "\n")))
               ;; Send the command to the aider process
-              (comint-send-string aider-buffer command)
+              (comint-send-large-string aider-buffer command)
               ;; Provide feedback to the user
-              (message "Sent command to aider buffer: %s" (string-trim command))
+              ;; (message "Sent command to aider buffer: %s" (string-trim command))
               (when switch-to-buffer
                 (aider-switch-to-buffer)))
           (message "No active process found in buffer %s." (aider-buffer-name))))
@@ -235,6 +251,26 @@ The command will be formatted as \"/architect \" followed by the user command an
         (aider-add-current-file)
         (aider--send-command command t)
         )
+    (message "No region selected.")))
+
+;; New function to explain the code in the selected region
+(defun aider-region-explain ()
+  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
+The command will be formatted as \"/ask \" followed by the text from the selected region."
+  (interactive)
+  (if (use-region-p)
+      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
+             (function-name (which-function))
+             (processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text))
+             (command (if function-name
+                          (format "/ask in function %s, explain the following code block: %s"
+                                  function-name
+                                  processed-region-text)
+                          (format "/ask explain the following code block: %s"
+                                  processed-region-text)
+                        )))
+        (aider-add-current-file)
+        (aider--send-command command t))
     (message "No region selected.")))
 
 (defun aider-send-command-with-prefix (prefix command)
