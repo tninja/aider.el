@@ -63,12 +63,13 @@ This function can be customized or redefined by the user."
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
+    ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
+    ("m" "Show last commit with magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("t" "Architect Discussion" aider-architect-discussion)
     ("e" "Explain Code in Selected Region" aider-region-explain)
     ("d" "Debug Exception" aider-debug-exception)
     ]
@@ -133,7 +134,7 @@ If not in a git repository, an error is raised."
   (aider--send-command "/reset"))
 
 ;; Function to send large text (> 1024 chars) to the Aider buffer
-(defun comint-send-large-string (buffer text)
+(defun aider--comint-send-large-string (buffer text)
   "Send large TEXT to the comint buffer in chunks of 1000 characters."
   (let ((chunk-size 1000)
         (pos 0)
@@ -160,7 +161,7 @@ COMMAND should be a string representing the command to send."
               (unless (string-suffix-p "\n" command)
                 (setq command (concat command "\n")))
               ;; Send the command to the aider process
-              (comint-send-large-string aider-buffer command)
+              (aider--comint-send-large-string aider-buffer command)
               ;; Provide feedback to the user
               ;; (message "Sent command to aider buffer: %s" (string-trim command))
               (when switch-to-buffer
@@ -238,6 +239,15 @@ replacing all newline characters except for the one at the end."
   (interactive)
   (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
+
+;; New function to show the last commit using magit
+(defun aider-magit-show-last-commit ()
+  "Show the last commit message using Magit.
+If Magit is not installed, report that it is required."
+  (interactive)
+  (if (require 'magit nil 'noerror)
+      (magit-show-commit "HEAD")
+    (message "Magit is required to show the last commit.")))
 
 ;; Modified function to get command from user and send it based on selected region
 (defun aider-undo-last-change ()
@@ -363,4 +373,3 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 (provide 'aider)
 
 ;;; aider.el ends here
-
