@@ -55,8 +55,9 @@ This function can be customized or redefined by the user."
     ]
    ["Add file to aider"
     ("f" "Add Current File" aider-add-current-file)
-    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
+    ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
+    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
     ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
     ]
    ["Code change"
@@ -294,19 +295,34 @@ The command will be formatted as \"/architect \" followed by the user command an
                       (point)))))
     (aider--send-command (string-trim paragraph) t)))
 
-(defun aider-mode-setup ()
-  "Setup key bindings for Aider mode."
-  (local-set-key (kbd "C-c C-n") 'aider-send-line-under-cursor)
-  (local-set-key (kbd "C-c C-c") 'aider-send-paragraph))
+;; Define the keymap for Aider Minor Mode
+(defvar aider-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
+    (define-key map (kbd "C-c C-c") 'aider-send-paragraph)
+    map)
+  "Keymap for Aider Minor Mode.")
 
-(add-hook 'aider-mode-hook 'aider-mode-setup)
+;; New function to add files in all buffers in current emacs window
+(defun aider-add-files-in-current-window ()
+  "Add files in all buffers in the current Emacs window to the Aider buffer."
+  (interactive)
+  (let ((files (mapcar (lambda (buffer)
+                         (with-current-buffer buffer
+                           (when buffer-file-name
+                             (expand-file-name buffer-file-name))))
+                       (mapcar 'window-buffer (window-list)))))
+    (setq files (delq nil files))
+    (if files
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+          (aider--send-command command nil))
+      (message "No files found in the current window."))))
 
-(define-derived-mode aider-mode fundamental-mode "Aider"
-  "Major mode for editing Aider files."
-  ;; Add any additional setup for aider-mode here
-  )
-
-(add-to-list 'auto-mode-alist '("\\.aider\\'" . aider-mode))
+;; Define the Aider Minor Mode
+(define-minor-mode aider-minor-mode
+  "Minor mode for Aider with keybindings."
+  :lighter " Aider"
+  :keymap aider-minor-mode-map)
 
 (provide 'aider)
 
