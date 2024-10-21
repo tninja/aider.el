@@ -132,7 +132,7 @@ If not in a git repository, an error is raised."
   (interactive)
   (aider--send-command "/reset"))
 
-;; Function to send large text to the Aider buffer
+;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun comint-send-large-string (buffer text)
   "Send large TEXT to the comint buffer in chunks of 1000 characters."
   (let ((chunk-size 1000)
