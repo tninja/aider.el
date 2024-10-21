@@ -179,6 +179,21 @@ COMMAND should be a string representing the command to send."
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
+;; New function to add files in all buffers in current emacs window
+(defun aider-add-files-in-current-window ()
+  "Add files in all buffers in the current Emacs window to the Aider buffer."
+  (interactive)
+  (let ((files (mapcar (lambda (buffer)
+                         (with-current-buffer buffer
+                           (when buffer-file-name
+                             (expand-file-name buffer-file-name))))
+                       (mapcar 'window-buffer (window-list)))))
+    (setq files (delq nil files))
+    (if files
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+          (aider--send-command command nil))
+      (message "No files found in the current window."))))
+
 ;; Function to send a custom command to corresponding aider buffer
 (defun aider-general-command ()
   "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
@@ -339,21 +354,6 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
     map)
   "Keymap for Aider Minor Mode.")
 
-;; New function to add files in all buffers in current emacs window
-(defun aider-add-files-in-current-window ()
-  "Add files in all buffers in the current Emacs window to the Aider buffer."
-  (interactive)
-  (let ((files (mapcar (lambda (buffer)
-                         (with-current-buffer buffer
-                           (when buffer-file-name
-                             (expand-file-name buffer-file-name))))
-                       (mapcar 'window-buffer (window-list)))))
-    (setq files (delq nil files))
-    (if files
-        (let ((command (concat "/add " (mapconcat 'identity files " "))))
-          (aider--send-command command nil))
-      (message "No files found in the current window."))))
-
 ;; Define the Aider Minor Mode
 (define-minor-mode aider-minor-mode
   "Minor mode for Aider with keybindings."
@@ -363,3 +363,4 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 (provide 'aider)
 
 ;;; aider.el ends here
+
