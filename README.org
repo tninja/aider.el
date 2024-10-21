@@ -58,8 +58,6 @@
               (when (and (buffer-file-name)
                          (string-match-p "aider" (buffer-file-name)))
                 (aider-minor-mode 1))))
-
-  (provide 'aider)
 #+END_SRC
 
 * Screenshot
