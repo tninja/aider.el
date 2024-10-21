@@ -41,6 +41,16 @@ This function can be customized or redefined by the user."
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
+;; New function to show the last commit using magit
+(defun aider-magit-show-last-commit ()
+  "Show the last commit message using Magit.
+If Magit is not installed, report that it is required."
+  (interactive)
+  (if (require 'magit nil 'noerror)
+      (let ((last-commit (magit-git-string "log" "-1" "--pretty=%B")))
+        (message "Last commit message: %s" last-commit))
+    (message "Magit is required to show the last commit.")))
+
 ;; Transient menu for Aider commands
 ;; The instruction in the autoload comment is needed, see
 ;; https://github.com/magit/transient/issues/280.
@@ -363,4 +373,3 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 (provide 'aider)
 
 ;;; aider.el ends here
-
