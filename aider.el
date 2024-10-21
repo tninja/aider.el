@@ -237,6 +237,18 @@ The command will be formatted as \"/architect \" followed by the user command an
         )
     (message "No region selected.")))
 
+;; New function to explain the code in the selected region
+(defun aider-region-explain ()
+  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
+The command will be formatted as \"/explain \" followed by the text from the selected region."
+  (interactive)
+  (if (use-region-p)
+      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
+             (command (concat "/explain " (replace-regexp-in-string "\n" "\\\\n" region-text))))
+        (aider-add-current-file)
+        (aider--send-command command t))
+    (message "No region selected.")))
+
 (defun aider-send-command-with-prefix (prefix command)
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
