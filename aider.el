@@ -63,12 +63,12 @@ This function can be customized or redefined by the user."
     ]
    ["Code change"
     ("c" "Code Change" aider-code-change)
+    ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("t" "Architect Discussion" aider-architect-discussion)
     ("e" "Explain Code in Selected Region" aider-region-explain)
     ("d" "Debug Exception" aider-debug-exception)
     ]
