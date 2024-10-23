@@ -31,6 +31,16 @@
   :type '(repeat string)
   :group 'aider)
 
+(defface aider-command-separator
+  '((((type graphic)) :strike-through t :extend t)
+    (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
+  "Face for command separator in aider."
+  :group 'aider)
+
+(defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
+                                   ("^\x2500+" 0 '(face nil display (space :width 2))))
+  "Font lock keywords for aider buffer.")
+
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
@@ -101,7 +111,8 @@ If not in a git repository, an error is raised."
 (defun aider-run-aider ()
   "Create a comint-based buffer and run \"aider\" for interactive conversation."
   (interactive)
-  (let* ((buffer-name (aider-buffer-name)))
+  (let* ((buffer-name (aider-buffer-name))
+         (comint-terminfo-terminal "dumb"))
     ;; Check if the buffer already has a running process
     (unless (comint-check-proc buffer-name)
       ;; Create a new comint buffer and start the process
@@ -109,7 +120,7 @@ If not in a git repository, an error is raised."
       ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
         (comint-mode)
-        ))
+        (font-lock-add-keywords nil aider-font-lock-keywords t)))
     ;; Switch to the buffer
     (pop-to-buffer buffer-name)))
 
