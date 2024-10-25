@@ -1,7 +1,7 @@
 ;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
@@ -31,6 +31,11 @@
   :type '(repeat string)
   :group 'aider)
 
+(defcustom aider-enable-doom-bindings nil
+  "Enable Doom Emacs specific keybindings."
+  :type 'boolean
+  :group 'aider)
+
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -41,13 +46,13 @@
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
+
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
   (let* ((input (read-string prompt initial-input))
          (processed-input (replace-regexp-in-string "\n" "\\\\n" input)))
-    processed-input
-    ))
+    processed-input))
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
@@ -63,9 +68,11 @@ This function can be customized or redefined by the user."
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
+    ("x" "Exit Aider" aider-exit)
     ]
    ["Add file to aider"
     ("f" "Add Current File" aider-add-current-file)
+    ("o" "Read Current file " aider-read-current-file)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
@@ -144,6 +151,11 @@ If not in a git repository, an error is raised."
   (interactive)
   (aider--send-command "/reset"))
 
+(defun aider-exit ()
+  "Send the command \"/exit\" to the Aider buffer."
+  (interactive)
+  (aider--send-command "/exit"))
+
 ;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-large-string (buffer text)
   "Send large TEXT to the comint buffer in chunks of 1000 characters."
@@ -188,6 +200,17 @@ COMMAND should be a string representing the command to send."
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
     (let ((command (format "/add %s" (expand-file-name buffer-file-name))))
+      ;; Use the shared helper function to send the command
+      (aider--send-command command))))
+
+;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
+(defun aider-read-current-file ()
+  "Send the command \"/read <current buffer file full path>\" to the corresponding aider comint buffer."
+  (interactive)
+  ;; Ensure the current buffer is associated with a file
+  (if (not buffer-file-name)
+      (message "Current buffer is not associated with a file.")
+    (let ((command (format "/read %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
@@ -285,8 +308,7 @@ The command will be formatted as \"/architect \" followed by the user command an
              (user-command (aider-read-string "Enter your refactor instruction: "))
              (command (aider-region-refactor-generate-command region-text function-name user-command)))
         (aider-add-current-file)
-        (aider--send-command command t)
-        )
+        (aider--send-command command t))
     (message "No region selected.")))
 
 ;; New function to explain the code in the selected region
@@ -302,9 +324,8 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
                           (format "/ask in function %s, explain the following code block: %s"
                                   function-name
                                   processed-region-text)
-                          (format "/ask explain the following code block: %s"
-                                  processed-region-text)
-                        )))
+                        (format "/ask explain the following code block: %s"
+                                processed-region-text))))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No region selected.")))
@@ -380,6 +401,90 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
   :keymap aider-minor-mode-map)
+
+(defvar aider-prog-mode-map (make-sparse-keymap)
+  "Keymap for Aider commands in programming modes.")
+
+;;;###autoload
+(define-minor-mode aider-prog-mode
+  "Minor mode for Aider programming mode integration."
+  :lighter " Aider"
+  :keymap aider-prog-mode-map)
+
+;;;###autoload
+(defun aider-setup-doom-bindings ()
+  "Set up Doom-specific keybindings for Aider in programming modes."
+  (when (and (featurep 'evil) (fboundp 'map!))
+    ;; First declare the prefix
+    (map! :map nil
+          :leader
+          (:prefix ("l" . "aider")))
+
+    ;; Root level commands
+    (map! :map aider-prog-mode-map
+          :leader
+          (:prefix ("l" . "aider")
+                   ))
+
+    ;; Submenus
+    (map! :map aider-prog-mode-map
+          :leader
+          (:prefix ("l" . "aider")
+                   (:prefix ("b" . "buffer")
+                    :desc "aider-run-aider (buffer)" "b" #'aider-run-aider
+                    :desc "aider-clear" "c" #'aider-clear
+                    :desc "aider-reset" "x" #'aider-reset
+                    :desc "aider-exit" "q" #'aider-exit)
+
+                   (:prefix ("a" . "add")
+                    :desc "aider-add-current-file" "f" #'aider-add-current-file
+                    :desc "aider-add-files-in-current-window" "w" #'aider-add-files-in-current-window
+                    :desc "aider-batch-add-dired-marked-files" "b" #'aider-batch-add-dired-marked-files
+                    :desc "aider-repo-find-name-dired" "g" #'aider-repo-find-name-dired
+                    :desc "aider-git-repo-root-dired" "d" #'aider-git-repo-root-dired)
+
+                   (:prefix ("r" . "read")
+                    :desc "aider-read-current-file" "f" #'aider-read-current-file
+                    :desc "aider-send-line-under-cursor" "l" #'aider-send-line-under-cursor
+                    :desc "aider-send-paragraph" "p" #'aider-send-paragraph)
+
+                   (:prefix ("c" . "code")
+                    :desc "aider-code-change" "c" #'aider-code-change
+                    :desc "aider-region-refactor" "r" #'aider-region-refactor
+                    :desc "aider-undo-last-change" "u" #'aider-undo-last-change)
+
+                   (:prefix ("d" . "discussion")
+                    :desc "aider-ask-question" "a" #'aider-ask-question
+                    :desc "aider-architect-discussion" "d" #'aider-architect-discussion
+                    :desc "aider-region-explain" "r" #'aider-region-explain
+                    :desc "aider-debug-exception" "e" #'aider-debug-exception)
+
+                   (:prefix ("o" . "other")
+                    :desc "aider-general-command" "c" #'aider-general-command
+                    :desc "aider-help" "h" #'aider-help
+                    :desc "aider-magit-show-last-commit" "g" #'aider-magit-show-last-commit)))))
+
+
+;;;###autoload
+(defun aider-maybe-enable-prog-mode ()
+  "Enable aider-prog-mode if we're in a programming mode and Doom bindings are enabled."
+  (when (and aider-enable-doom-bindings
+             (derived-mode-p 'prog-mode))
+    (aider-prog-mode 1)))
+
+(add-hook 'prog-mode-hook #'aider-maybe-enable-prog-mode)
+
+;; Setup function that runs when the package loads
+(defun aider-setup ()
+  "Set up Aider package."
+  (when aider-enable-doom-bindings
+    (aider-setup-doom-bindings)))
+
+;; Run setup when package loads
+(add-hook 'after-load-functions
+          (lambda (&rest _)
+            (when (featurep 'aider)
+              (aider-setup))))
 
 (provide 'aider)
 
