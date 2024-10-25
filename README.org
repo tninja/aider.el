@@ -30,6 +30,7 @@
 
 * Installation
 
+** Vanilla Emas Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
 - Install aider.el with the following code:
@@ -43,6 +44,29 @@
     ;; Optional: Set a key binding for the transient menu
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
+
+
+** Doom Installation and Configuration
+
+- Add the following code to your doom/packages.el
+
+#+BEGIN_SRC emacs-lisp
+(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el")))
+#+END_SRC
+
+- Adjust and add the following code to your doom/config.el
+
+#+BEGIN_SRC emacs-lisp
+(use-package aider
+  :config
+  (setq aider-args '("--no-auto-commit" "--model" "gpt-4o-mini"))
+  (setq aider-enable-doom-bindings t))
+#+END_SRC
+
+- Start with =[SPC] l b b=
+- Add files with =[SPC] l f a=
+
+[[file:./doom-menus.png]]
 
 ** Optional
 
@@ -60,25 +84,7 @@
                 (aider-minor-mode 1))))
 #+END_SRC
 
-*** Doom integration
-
-- Add the following code to your packages.el
-
-#+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el")))
-#+END_SRC
-
-- Adjust and add the following code to your config.el
-
-#+BEGIN_SRC emacs-lisp
-(use-package aider
-  :config
-  (setq aider-args '("--no-auto-commit" "--model" "gpt-4o-mini"))
-  (setq aider-enable-doom-bindings t))
-#+END_SRC
-
-- Start with =[SPC] l b b=
-- Add files with =[SPC] l f a=
+[[file:./doom-menus.png]]
 
 * Screenshot
 

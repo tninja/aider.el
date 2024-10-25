@@ -415,18 +415,6 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 (defun aider-setup-doom-bindings ()
   "Set up Doom-specific keybindings for Aider in programming modes."
   (when (and (featurep 'evil) (fboundp 'map!))
-    ;; First declare the prefix
-    (map! :map nil
-          :leader
-          (:prefix ("l" . "aider")))
-
-    ;; Root level commands
-    (map! :map aider-prog-mode-map
-          :leader
-          (:prefix ("l" . "aider")
-                   ))
-
-    ;; Submenus
     (map! :map aider-prog-mode-map
           :leader
           (:prefix ("l" . "aider")
