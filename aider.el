@@ -1,5 +1,4 @@
 ;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
-;;; b
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
