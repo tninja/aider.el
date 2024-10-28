@@ -418,14 +418,14 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
     (map! :map aider-prog-mode-map
           :leader
           (:prefix ("l" . "aider")
-                   (:prefix ("b" . "buffer")
-                    :desc "aider-run-aider (buffer)" "b" #'aider-run-aider
+                   (:prefix ("l" . "buffer")
+                    :desc "aider-run-aider (buffer)" "o" #'aider-run-aider
                     :desc "aider-clear" "c" #'aider-clear
-                    :desc "aider-reset" "x" #'aider-reset
-                    :desc "aider-exit" "q" #'aider-exit)
+                    :desc "aider-reset" "r" #'aider-reset
+                    :desc "aider-exit" "x" #'aider-exit)
 
                    (:prefix ("a" . "add")
-                    :desc "aider-add-current-file" "f" #'aider-add-current-file
+                    :desc "aider-add-current-file" "c" #'aider-add-current-file
                     :desc "aider-add-files-in-current-window" "w" #'aider-add-files-in-current-window
                     :desc "aider-batch-add-dired-marked-files" "b" #'aider-batch-add-dired-marked-files
                     :desc "aider-repo-find-name-dired" "g" #'aider-repo-find-name-dired
@@ -436,12 +436,12 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
                     :desc "aider-send-line-under-cursor" "l" #'aider-send-line-under-cursor
                     :desc "aider-send-paragraph" "p" #'aider-send-paragraph)
 
-                   (:prefix ("c" . "code")
+                   (:prefix ("c" . "change")
                     :desc "aider-code-change" "c" #'aider-code-change
                     :desc "aider-region-refactor" "r" #'aider-region-refactor
                     :desc "aider-undo-last-change" "u" #'aider-undo-last-change)
 
-                   (:prefix ("d" . "discussion")
+                   (:prefix ("d" . "discuss")
                     :desc "aider-ask-question" "a" #'aider-ask-question
                     :desc "aider-architect-discussion" "d" #'aider-architect-discussion
                     :desc "aider-region-explain" "r" #'aider-region-explain

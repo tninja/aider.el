@@ -63,8 +63,10 @@
   (setq aider-enable-doom-bindings t))
 #+END_SRC
 
-- Start with =[SPC] l b b=
-- Add files with =[SPC] l f a=
+The aider prefix is "l".
+
+- Start and open the aider buffer: =[SPC] l l o=
+- Add the current file with =[SPC] l a c=
 
 [[file:./doom-menus.png]]
 
