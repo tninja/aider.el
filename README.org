@@ -84,7 +84,6 @@
                 (aider-minor-mode 1))))
 #+END_SRC
 
-[[file:./doom-menus.png]]
 
 * Screenshot
 
