@@ -1,4 +1,5 @@
 ;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
+;;; b
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
@@ -72,7 +73,7 @@ This function can be customized or redefined by the user."
     ]
    ["Add file to aider"
     ("f" "Add Current File" aider-add-current-file)
-    ("o" "Read Current file " aider-read-current-file)
+    ("o" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
@@ -204,13 +205,13 @@ COMMAND should be a string representing the command to send."
       (aider--send-command command))))
 
 ;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
-(defun aider-read-current-file ()
-  "Send the command \"/read <current buffer file full path>\" to the corresponding aider comint buffer."
+(defun aider-current-file-read-only ()
+  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((command (format "/read %s" (expand-file-name buffer-file-name))))
+    (let ((command (format "/read-only %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
@@ -432,7 +433,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
                     :desc "aider-git-repo-root-dired" "d" #'aider-git-repo-root-dired)
 
                    (:prefix ("r" . "read")
-                    :desc "aider-read-current-file" "f" #'aider-read-current-file
+                    :desc "aider-current-file-read-only" "f" #'aider-current-file-read-only
                     :desc "aider-send-line-under-cursor" "l" #'aider-send-line-under-cursor
                     :desc "aider-send-paragraph" "p" #'aider-send-paragraph)
 

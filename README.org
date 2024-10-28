@@ -84,7 +84,6 @@
                 (aider-minor-mode 1))))
 #+END_SRC
 
-
 * Screenshot
 
 [[file:./screenshot.png]]
