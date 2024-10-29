@@ -30,7 +30,7 @@
 
 * Installation
 
-** Vanilla Emas Installation
+** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
 - Install aider.el with the following code:
