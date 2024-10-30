@@ -1,7 +1,7 @@
 ;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
@@ -41,13 +41,13 @@
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
+
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
   (let* ((input (read-string prompt initial-input))
          (processed-input (replace-regexp-in-string "\n" "\\\\n" input)))
-    processed-input
-    ))
+    processed-input))
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
@@ -63,9 +63,11 @@ This function can be customized or redefined by the user."
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
+    ("x" "Exit Aider" aider-exit)
     ]
    ["Add file to aider"
     ("f" "Add Current File" aider-add-current-file)
+    ("o" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
@@ -144,6 +146,11 @@ If not in a git repository, an error is raised."
   (interactive)
   (aider--send-command "/reset"))
 
+(defun aider-exit ()
+  "Send the command \"/exit\" to the Aider buffer."
+  (interactive)
+  (aider--send-command "/exit"))
+
 ;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-large-string (buffer text)
   "Send large TEXT to the comint buffer in chunks of 1000 characters."
@@ -188,6 +195,17 @@ COMMAND should be a string representing the command to send."
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
     (let ((command (format "/add %s" (expand-file-name buffer-file-name))))
+      ;; Use the shared helper function to send the command
+      (aider--send-command command))))
+
+;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
+(defun aider-current-file-read-only ()
+  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
+  (interactive)
+  ;; Ensure the current buffer is associated with a file
+  (if (not buffer-file-name)
+      (message "Current buffer is not associated with a file.")
+    (let ((command (format "/read-only %s" (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
@@ -285,8 +303,7 @@ The command will be formatted as \"/architect \" followed by the user command an
              (user-command (aider-read-string "Enter your refactor instruction: "))
              (command (aider-region-refactor-generate-command region-text function-name user-command)))
         (aider-add-current-file)
-        (aider--send-command command t)
-        )
+        (aider--send-command command t))
     (message "No region selected.")))
 
 ;; New function to explain the code in the selected region
@@ -302,9 +319,8 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
                           (format "/ask in function %s, explain the following code block: %s"
                                   function-name
                                   processed-region-text)
-                          (format "/ask explain the following code block: %s"
-                                  processed-region-text)
-                        )))
+                        (format "/ask explain the following code block: %s"
+                                processed-region-text))))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No region selected.")))
@@ -380,6 +396,9 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
   :keymap aider-minor-mode-map)
+
+(when (featurep 'doom)
+  (require 'aider-doom))
 
 (provide 'aider)
 

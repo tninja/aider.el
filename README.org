@@ -30,6 +30,7 @@
 
 * Installation
 
+** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
 - Install aider.el with the following code:
@@ -44,9 +45,33 @@
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
 
+
+** Doom Installation and Configuration
+
+- Add the following code to your doom/packages.el
+
+#+BEGIN_SRC emacs-lisp
+(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("*.el")))
+#+END_SRC
+
+- Adjust and add the following code to your doom/config.el
+
+#+BEGIN_SRC emacs-lisp
+(use-package aider
+  :config
+  (setq aider-args '("--model" "gpt-4o-mini")))
+#+END_SRC
+
+The aider prefix is "l".
+
+- Start and open the aider buffer: =[SPC] l o=
+- Add the current file with =[SPC] l a c=
+
+[[file:./doom-menus.png]]
+
 ** Optional
 
-- Maybe you might want to try helm-aider.el. That file added support of command history and completion from helm.
+- Maybe you might want to try aider-helm.el. That file added support of command history and completion from helm.
 
 - If you enjoy writing aider command in a separate file and send them to aider session, just like working on python or R script and send code block into REPL, you might want to try aider-minor-mode. It by default bind C-c C-n to send current line to aider session, and C-c C-c to send current region to aider session.
 

@@ -9,7 +9,7 @@
   "History list for `aider-helm-read-string` inputs.")
 
 (defvar aider-helm-read-string-history-file
-  "~/.emacs.d/aider-helm-read-string-history.el"
+  (expand-file-name "aider-helm-read-string-history.el" user-emacs-directory)
   "File to save `aider-helm-read-string-history`.")
 
 (defvar aider-helm-read-string-history-max 1000
