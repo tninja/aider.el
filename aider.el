@@ -31,11 +31,6 @@
   :type '(repeat string)
   :group 'aider)
 
-(defcustom aider-enable-doom-bindings nil
-  "Enable Doom Emacs specific keybindings."
-  :type 'boolean
-  :group 'aider)
-
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -402,77 +397,8 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   :lighter " Aider"
   :keymap aider-minor-mode-map)
 
-(defvar aider-prog-mode-map (make-sparse-keymap)
-  "Keymap for Aider commands in programming modes.")
-
-;;;###autoload
-(define-minor-mode aider-prog-mode
-  "Minor mode for Aider programming mode integration."
-  :lighter " Aider"
-  :keymap aider-prog-mode-map)
-
-;;;###autoload
-(defun aider-setup-doom-bindings ()
-  "Set up Doom-specific keybindings for Aider in programming modes."
-  (when (and (featurep 'evil) (fboundp 'map!))
-    (map! :map aider-prog-mode-map
-          :leader
-          (:prefix ("l" . "aider")
-                   (:prefix ("l" . "buffer")
-                    :desc "aider-run-aider (buffer)" "o" #'aider-run-aider
-                    :desc "aider-clear" "c" #'aider-clear
-                    :desc "aider-reset" "r" #'aider-reset
-                    :desc "aider-exit" "x" #'aider-exit)
-
-                   (:prefix ("a" . "add")
-                    :desc "aider-add-current-file" "c" #'aider-add-current-file
-                    :desc "aider-add-files-in-current-window" "w" #'aider-add-files-in-current-window
-                    :desc "aider-batch-add-dired-marked-files" "b" #'aider-batch-add-dired-marked-files
-                    :desc "aider-repo-find-name-dired" "g" #'aider-repo-find-name-dired
-                    :desc "aider-git-repo-root-dired" "d" #'aider-git-repo-root-dired)
-
-                   (:prefix ("r" . "read")
-                    :desc "aider-current-file-read-only" "f" #'aider-current-file-read-only
-                    :desc "aider-send-line-under-cursor" "l" #'aider-send-line-under-cursor
-                    :desc "aider-send-paragraph" "p" #'aider-send-paragraph)
-
-                   (:prefix ("c" . "change")
-                    :desc "aider-code-change" "c" #'aider-code-change
-                    :desc "aider-region-refactor" "r" #'aider-region-refactor
-                    :desc "aider-undo-last-change" "u" #'aider-undo-last-change)
-
-                   (:prefix ("d" . "discuss")
-                    :desc "aider-ask-question" "a" #'aider-ask-question
-                    :desc "aider-architect-discussion" "d" #'aider-architect-discussion
-                    :desc "aider-region-explain" "r" #'aider-region-explain
-                    :desc "aider-debug-exception" "e" #'aider-debug-exception)
-
-                   (:prefix ("o" . "other")
-                    :desc "aider-general-command" "c" #'aider-general-command
-                    :desc "aider-help" "h" #'aider-help
-                    :desc "aider-magit-show-last-commit" "g" #'aider-magit-show-last-commit)))))
-
-
-;;;###autoload
-(defun aider-maybe-enable-prog-mode ()
-  "Enable aider-prog-mode if we're in a programming mode and Doom bindings are enabled."
-  (when (and aider-enable-doom-bindings
-             (derived-mode-p 'prog-mode))
-    (aider-prog-mode 1)))
-
-(add-hook 'prog-mode-hook #'aider-maybe-enable-prog-mode)
-
-;; Setup function that runs when the package loads
-(defun aider-setup ()
-  "Set up Aider package."
-  (when aider-enable-doom-bindings
-    (aider-setup-doom-bindings)))
-
-;; Run setup when package loads
-(add-hook 'after-load-functions
-          (lambda (&rest _)
-            (when (featurep 'aider)
-              (aider-setup))))
+(when (featurep 'doom)
+  (require 'doom-aider))
 
 (provide 'aider)
 

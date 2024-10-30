@@ -59,8 +59,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--no-auto-commit" "--model" "gpt-4o-mini"))
-  (setq aider-enable-doom-bindings t))
+  (setq aider-args '("--model" "gpt-4o-mini")))
 #+END_SRC
 
 The aider prefix is "l".
