@@ -398,7 +398,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   :keymap aider-minor-mode-map)
 
 (when (featurep 'doom)
-  (require 'doom-aider))
+  (require 'aider-doom))
 
 (provide 'aider)
 
