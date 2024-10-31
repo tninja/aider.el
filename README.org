@@ -71,11 +71,10 @@ The aider prefix is "l".
 
 ** Optional
 
-- Maybe you might want to try aider-helm.el. That file added support of command history and completion from helm.
+- You might want to try aider-helm.el. That file added support of command history and completion from helm.
 
 - If you enjoy writing aider command in a separate file and send them to aider session, just like working on python or R script and send code block into REPL, you might want to try aider-minor-mode. It by default bind C-c C-n to send current line to aider session, and C-c C-c to send current region to aider session.
-
-- To automatically enable aider-minor-mode to any file with aider inside filename
+  - To automatically enable aider-minor-mode to any file with aider inside filename
 
 #+BEGIN_SRC emacs-lisp
   (add-hook 'find-file-hook
@@ -91,6 +90,8 @@ The aider prefix is "l".
 
 - In the above screenshot, aider was asked to generate an aider-help function and add the corresponding entry to the menu (top right window).
 - aider received the command and generated the commit for it (bottom left).
+
+* [[./examples][Example Application Written with aider.el]]
 
 * Other Emacs AI coding tool
 
