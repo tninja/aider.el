@@ -1,0 +1,62 @@
+
+* [[https://en.wikipedia.org/wiki/Connect_Four][Connect Four]]
+
+Connect Four (also known as Connect 4, Four Up, Plot Four, Find Four, Captain's Mistress, Four in a Row, Drop Four, and Gravitrips in the Soviet Union) is a game in which the players choose a color and then take turns dropping colored tokens into a six-row, seven-column vertically suspended grid. The pieces fall straight down, occupying the lowest available space within the column. The objective of the game is to be the first to form a horizontal, vertical, or diagonal line of four of one's own tokens. It is therefore a type of m,n,k-game (7, 6, 4) with restricted piece placement. Connect Four is a solved game. The first player can always win by playing the right moves.
+
+The game was created by Howard Wexler, and first sold under the Connect Four trademark[10] by Milton Bradley in February 1974.
+
+** Gameplay
+
+    Object: Connect four of your discs in a row while preventing your opponent from doing the same. But, look out – your opponent can sneak up on you and win the game!
+    — Milton Bradley, Connect Four "Pretty Sneaky, Sis" television commercial, 1977[11]
+
+A gameplay example (right), shows the first player starting Connect Four by dropping one of their yellow discs into the center column of an empty game board. The two players then alternate turns dropping one of their discs at a time into an unfilled column, until the second player, with red discs, achieves a diagonal four in a row, and wins the game. If the board fills up before either player achieves four in a row, then the game is a draw.
+
+** Mathematical solution
+
+Connect Four is a two-player game with perfect information for both sides, meaning that nothing is hidden from anyone. Connect Four also belongs to the classification of an adversarial, zero-sum game, since a player's advantage is an opponent's disadvantage.
+
+One measure of complexity of the Connect Four game is the number of possible games board positions. For classic Connect Four played on a 7-column-wide, 6-row-high grid, there are 4,531,985,219,092 (about 4½ trillion) positions[12] for all game boards populated with 0 to 42 pieces.
+
+The game was first solved by James Dow Allen (October 1, 1988), and independently by Victor Allis (October 16, 1988).[13] Allis describes a knowledge-based approach,[14] with nine strategies, as a solution for Connect Four. Allen also describes winning strategies[15][16] in his analysis of the game. At the time of the initial solutions for Connect Four, brute-force analysis was not deemed feasible given the game's complexity and the computer technology available at the time.
+
+Connect Four has since been solved with brute-force methods, beginning with John Tromp's work in compiling an 8-ply database.[13][17] The artificial intelligence algorithms able to strongly solve Connect Four are minimax or negamax, with optimizations that include alpha-beta pruning, move ordering, and transposition tables. The code for solving Connect Four with these methods is also the basis for the Fhourstones[18] integer performance benchmark.
+
+The solved conclusion for Connect Four is first-player-win. With perfect play, the first player can force a win,[13][14][15] on or before the 41st move[19] by starting in the middle column. The game is a theoretical draw when the first player starts in the columns adjacent to the center. For the edges of the game board, column 1 and 2 on left (or column 7 and 6 on right), the exact move-value score for first player start is loss on the 40th move,[19] and loss on the 42nd move,[19] respectively. In other words, by starting with the four outer columns, the first player allows the second player to force a win. 
+
+* Design
+
+** Board
+
+- Data structure
+  - The board is represented as a 2D array of integers, default is 6 rows * 7 columns. The value of each cell is 0 if it is empty, 1 if it is occupied by a player 1 token, and 2 if it is occupied by a player 2 token.
+  - The board is initialized with all cells set to 0. 
+
+- Display
+  - The board is displayed as a grid of 6 rows and 7 columns, with each cell represented by a character. The characters used to represent the empty cell, player 1 token, and player 2 token are '.', 'X', and 'O', respectively.
+
+** Player
+
+- The player is represented as an integer, with 1 for player 1 and 2 for player 2.
+
+- Player can choose a column to drop a token into. The column number is an integer from 1 to 7.
+  
+- If the chosen column is full, the player is prompted to choose another column.
+
+- When there are four tokens of the same player in a row (horizontally, vertically, or diagonally), the player wins the game.
+
+*** Human Player
+
+- The human player is prompted to input the column number to drop a token into.
+
+*** Computer Player
+
+- The computer player uses a simple strategy to choose the column to drop a token into. The strategy is to check if there is a winning move available, and if not, to choose a random column.
+
+** Game
+
+- The game loop alternates between the two players, allowing each player to take a turn.
+
+- The game checks for a win condition after each player's turn. If a player wins, the game ends and the winning player is announced.
+
+- If the board is full and no player has won, the game ends in a draw.
