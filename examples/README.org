@@ -1,14 +1,14 @@
 
-Two games were written with assistance of aider / aider.el
+Two games were written with the assistance of aider / aider.el
 
 - [[./battleship][battleship]] - https://en.wikipedia.org/wiki/Battleship_(game)
-  - 2.5h to write the game with human vs human mode
-    - using deepseek model
-  - 1.5h to iterate and add human vs computer mode
-    - using claude model
+  - 2.5h to write the game with human vs. human mode
+    - using DeepSeek model
+  - 1.5h to iterate and add human vs. computer mode
+    - using Claude model
 - [[./connect4][connect4]] - https://en.wikipedia.org/wiki/Connect_Four
-  - 0.5h to write the game with basic human vs computer mode
-  - 0.5h to iterate the AI and make it acceptable
-  - all use claude model
+  - 0.5h to write the game with basic human vs. computer mode
+  - 0.5h to iterate the AI and make it more effective
+  - all using Claude model
 
-- These games are just CLI based text game. Maybe in future I can try to make them using graphical mode with pygame, with the help of aider and aider.el
+- These games are CLI-based text games. In the future, I plan to create graphical versions using pygame, with the help of aider and aider.el
