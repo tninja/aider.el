@@ -1,56 +1,38 @@
 ;; optional helm based completion, need to be manually loaded when needed
 
-;; helm based aider input
-
 (require 'helm)
 (require 'cl-lib)  ; For `cl-subseq`
 
-(defvar aider-helm-read-string-history nil
-  "History list for `aider-helm-read-string` inputs.")
-
-(defvar aider-helm-read-string-history-file
-  (expand-file-name "aider-helm-read-string-history.el" user-emacs-directory)
-  "File to save `aider-helm-read-string-history`.")
-
-(defvar aider-helm-read-string-history-max 1000
-  "Maximum number of entries to keep in `aider-helm-read-string-history`.")
-
-(defun save-aider-helm-read-string-history ()
-  "Save `aider-helm-read-string-history` to a file."
-  ;; Trim history to maximum size
-  (setq aider-helm-read-string-history
-        (cl-subseq aider-helm-read-string-history
-                   0 (min (length aider-helm-read-string-history)
-                          aider-helm-read-string-history-max)))
-  ;; Save to file
-  (with-temp-file aider-helm-read-string-history-file
-    (insert (prin1-to-string aider-helm-read-string-history))))
-
-(defun load-aider-helm-read-string-history ()
-  "Load `aider-helm-read-string-history` from a file."
-  (when (file-exists-p aider-helm-read-string-history-file)
-    (with-temp-buffer
-      (insert-file-contents aider-helm-read-string-history-file)
-      (setq aider-helm-read-string-history (read (buffer-string))))))
-
-(add-hook 'kill-emacs-hook 'save-aider-helm-read-string-history)
-(load-aider-helm-read-string-history)
-
-(defun aider-helm-read-string (prompt &optional initial-input default-value)
-  "Read a string with Helm completion, showing historical inputs."
-  (let* ((input (helm-comp-read
-                 prompt
-                 aider-helm-read-string-history
-                 :must-match nil
-                 :name "Helm Read String"
-                 :history 'aider-helm-read-string-history
-                 :initial-input initial-input
-                 :default default-value
-                 :fuzzy t)))  ;; fuzzy match
-    ;; Add input to history if it's not empty
+(defun helm-read-string-with-history (prompt history-file-name)
+  "Read a string with Helm completion using specified history file.
+PROMPT is the prompt string.
+HISTORY-FILE-NAME is the base name for history file."
+  ;; Load history from file
+  (let* ((history-file (expand-file-name history-file-name user-emacs-directory))
+         (history (when (file-exists-p history-file)
+                   (with-temp-buffer
+                     (insert-file-contents history-file)
+                     (delete-dups (read (buffer-string))))))
+         ;; Read input with helm
+         (input (helm-comp-read
+                prompt
+                history
+                :must-match nil
+                :name "Helm Read String"
+                :fuzzy t)))
+    ;; Add to history if non-empty and save
     (unless (string-empty-p input)
-      (add-to-history 'aider-helm-read-string-history input))
+      (push input history)
+      (with-temp-file history-file
+        (let ((history-entries (cl-subseq history
+                                         0 (min (length history)
+                                              1000))))  ; Keep last 1000 entries
+          (insert (prin1-to-string history-entries)))))
     input))
+
+(defun aider-helm-read-string (prompt)
+  "Read a string with Helm completion for aider, showing historical inputs."
+  (helm-read-string-with-history prompt "aider-helm-read-string-history.el"))
 
 (defalias 'aider-read-string 'aider-helm-read-string)
 
