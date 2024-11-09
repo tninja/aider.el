@@ -13,7 +13,7 @@
   (when (and (featurep 'doom-keybinds)
              (vc-backend (or (buffer-file-name) default-directory)))
     (map! :leader
-          (:prefix ("l" . "Aider")
+          (:prefix ("A" . "Aider")
                    (:prefix ("a" . "Add")
                     :desc "Current file" "c" #'aider-add-current-file
                     :desc "Files in window" "w" #'aider-add-files-in-current-window

@@ -62,10 +62,10 @@
   (setq aider-args '("--model" "gpt-4o-mini")))
 #+END_SRC
 
-The aider prefix is "l".
+The aider prefix is "A".
 
-- Start and open the aider buffer: =[SPC] l o=
-- Add the current file with =[SPC] l a c=
+- Start and open the aider buffer: =[SPC] A o=
+- Add the current file with =[SPC] A a c=
 
 [[file:./doom-menus.png]]
 
