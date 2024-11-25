@@ -124,7 +124,7 @@ If not in a git repository, an error is raised."
         (comint-mode)
         (font-lock-add-keywords nil aider-font-lock-keywords t)))
     ;; Switch to the buffer
-    (pop-to-buffer buffer-name)))
+    (aider-switch-to-buffer)))
 
 ;; Function to switch to the Aider buffer
 (defun aider-switch-to-buffer ()
