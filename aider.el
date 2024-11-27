@@ -142,7 +142,10 @@ If not in a git repository, an error is raised."
       (with-current-buffer buffer-name
         (comint-mode)
         (font-lock-add-keywords nil aider-font-lock-keywords t)
-        (aider--inherit-source-highlighting source-buffer)
+        ;; Only inherit syntax highlighting when source buffer is in prog-mode
+        (when (with-current-buffer source-buffer
+                (derived-mode-p 'prog-mode))
+          (aider--inherit-source-highlighting source-buffer))
         (font-lock-mode 1)
         (font-lock-ensure)))
     (aider-switch-to-buffer)))
