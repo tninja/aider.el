@@ -109,21 +109,40 @@ If not in a git repository, an error is raised."
         (error "Not in a git repository")
       (aider-buffer-name-from-git-repo-path git-repo-path home-path))))
 
-;;;###autoload
+(defun aider--inherit-source-highlighting (source-buffer)
+  "Inherit syntax highlighting settings from SOURCE-BUFFER."
+  (with-current-buffer source-buffer
+    (let ((source-keywords font-lock-keywords)
+          (source-keywords-only font-lock-keywords-only)
+          (source-keywords-case-fold-search font-lock-keywords-case-fold-search)
+          (source-syntax-table (syntax-table))
+          (source-defaults font-lock-defaults))
+      (with-current-buffer (aider-buffer-name)
+        (set-syntax-table source-syntax-table)
+        (setq font-lock-defaults
+              (if source-defaults
+                  source-defaults
+                `((,source-keywords)
+                  nil
+                  ,source-keywords-case-fold-search)))
+        (setq font-lock-keywords source-keywords
+              font-lock-keywords-only source-keywords-only
+              font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
+
 (defun aider-run-aider ()
   "Create a comint-based buffer and run \"aider\" for interactive conversation."
   (interactive)
   (let* ((buffer-name (aider-buffer-name))
-         (comint-terminfo-terminal "dumb"))
-    ;; Check if the buffer already has a running process
+         (comint-terminfo-terminal "dumb")
+         (source-buffer (window-buffer (selected-window))))
     (unless (comint-check-proc buffer-name)
-      ;; Create a new comint buffer and start the process
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil aider-args)
-      ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
         (comint-mode)
-        (font-lock-add-keywords nil aider-font-lock-keywords t)))
-    ;; Switch to the buffer
+        (font-lock-add-keywords nil aider-font-lock-keywords t)
+        (aider--inherit-source-highlighting source-buffer)
+        (font-lock-mode 1)
+        (font-lock-ensure)))
     (aider-switch-to-buffer)))
 
 ;; Function to switch to the Aider buffer
