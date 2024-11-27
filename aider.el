@@ -145,9 +145,10 @@ If not in a git repository, an error is raised."
         ;; Only inherit syntax highlighting when source buffer is in prog-mode
         (when (with-current-buffer source-buffer
                 (derived-mode-p 'prog-mode))
-          (aider--inherit-source-highlighting source-buffer))
-        (font-lock-mode 1)
-        (font-lock-ensure)))
+          (aider--inherit-source-highlighting source-buffer)
+          (font-lock-mode 1)
+          (font-lock-ensure))
+        ))
     (aider-switch-to-buffer)))
 
 ;; Function to switch to the Aider buffer
