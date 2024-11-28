@@ -26,7 +26,7 @@ HISTORY-FILE-NAME is the base name for history file."
       (with-temp-file history-file
         (let ((history-entries (cl-subseq history
                                          0 (min (length history)
-                                              1000))))  ; Keep last 1000 entries
+                                              10000))))  ; Keep last 10000 entries
           (insert (prin1-to-string history-entries)))))
     input))
 

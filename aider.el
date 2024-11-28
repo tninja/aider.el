@@ -42,6 +42,7 @@
   "Font lock keywords for aider buffer.")
 
 
+;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
@@ -109,24 +110,51 @@ If not in a git repository, an error is raised."
         (error "Not in a git repository")
       (aider-buffer-name-from-git-repo-path git-repo-path home-path))))
 
+(defun aider--inherit-source-highlighting (source-buffer)
+  "Inherit syntax highlighting settings from SOURCE-BUFFER."
+  (with-current-buffer source-buffer
+    (let ((source-keywords font-lock-keywords)
+          (source-keywords-only font-lock-keywords-only)
+          (source-keywords-case-fold-search font-lock-keywords-case-fold-search)
+          (source-syntax-table (syntax-table))
+          (source-defaults font-lock-defaults))
+      (with-current-buffer (aider-buffer-name)
+        (set-syntax-table source-syntax-table)
+        (setq font-lock-defaults
+              (if source-defaults
+                  source-defaults
+                `((,source-keywords)
+                  nil
+                  ,source-keywords-case-fold-search)))
+        (setq font-lock-keywords source-keywords
+              font-lock-keywords-only source-keywords-only
+              font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
+
 ;;;###autoload
 (defun aider-run-aider ()
   "Create a comint-based buffer and run \"aider\" for interactive conversation."
   (interactive)
   (let* ((buffer-name (aider-buffer-name))
-         (comint-terminfo-terminal "dumb"))
-    ;; Check if the buffer already has a running process
+         (comint-terminfo-terminal "dumb")
+         (source-buffer (window-buffer (selected-window))))
     (unless (comint-check-proc buffer-name)
-      ;; Create a new comint buffer and start the process
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil aider-args)
-      ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
         (comint-mode)
-        (font-lock-add-keywords nil aider-font-lock-keywords t)))
-    ;; Switch to the buffer
-    (pop-to-buffer buffer-name)))
+        (font-lock-add-keywords nil aider-font-lock-keywords t)
+        ;; Only inherit syntax highlighting when source buffer is in prog-mode
+        (when (with-current-buffer source-buffer
+                (derived-mode-p 'prog-mode))
+          (aider--inherit-source-highlighting source-buffer)
+          (font-lock-mode 1)
+          (font-lock-ensure)
+          (message "Aider buffer syntax highlighting inherited from %s" 
+                   (with-current-buffer source-buffer major-mode)))
+        ))
+    (aider-switch-to-buffer)))
 
 ;; Function to switch to the Aider buffer
+;;;###autoload
 (defun aider-switch-to-buffer ()
   "Switch to the Aider buffer."
   (interactive)
@@ -136,16 +164,19 @@ If not in a git repository, an error is raised."
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;; Function to reset the Aider buffer
+;;;###autoload
 (defun aider-clear ()
   "Send the command \"/clear\" to the Aider buffer."
   (interactive)
   (aider--send-command "/clear"))
 
+;;;###autoload
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
   (interactive)
   (aider--send-command "/reset"))
 
+;;;###autoload
 (defun aider-exit ()
   "Send the command \"/exit\" to the Aider buffer."
   (interactive)
@@ -188,6 +219,7 @@ COMMAND should be a string representing the command to send."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
+;;;###autoload
 (defun aider-add-current-file ()
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
@@ -199,6 +231,7 @@ COMMAND should be a string representing the command to send."
       (aider--send-command command))))
 
 ;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
+;;;###autoload
 (defun aider-current-file-read-only ()
   "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
@@ -210,6 +243,7 @@ COMMAND should be a string representing the command to send."
       (aider--send-command command))))
 
 ;; New function to add files in all buffers in current emacs window
+;;;###autoload
 (defun aider-add-files-in-current-window ()
   "Add files in all buffers in the current Emacs window to the Aider buffer."
   (interactive)
@@ -225,6 +259,7 @@ COMMAND should be a string representing the command to send."
       (message "No files found in the current window."))))
 
 ;; Function to send a custom command to corresponding aider buffer
+;;;###autoload
 (defun aider-general-command ()
   "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
   (interactive)
@@ -234,6 +269,7 @@ COMMAND should be a string representing the command to send."
     (aider--send-command command t)))
 
 ;; New function to get command from user and send it prefixed with "/code "
+;;;###autoload
 (defun aider-code-change ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
@@ -241,6 +277,7 @@ COMMAND should be a string representing the command to send."
     (aider-send-command-with-prefix "/code " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask "
+;;;###autoload
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
   (interactive)
@@ -248,6 +285,7 @@ COMMAND should be a string representing the command to send."
     (aider-send-command-with-prefix "/ask " command)))
 
 ;; New function to get command from user and send it prefixed with "/help "
+;;;###autoload
 (defun aider-help ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
   (interactive)
@@ -255,6 +293,7 @@ COMMAND should be a string representing the command to send."
     (aider-send-command-with-prefix "/help " command)))
 
 ;; New function to get command from user and send it prefixed with "/architect "
+;;;###autoload
 (defun aider-architect-discussion ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
@@ -262,6 +301,7 @@ COMMAND should be a string representing the command to send."
     (aider-send-command-with-prefix "/architect " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
+;;;###autoload
 (defun aider-debug-exception ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/debug \",
 replacing all newline characters except for the one at the end."
@@ -270,6 +310,7 @@ replacing all newline characters except for the one at the end."
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
 
 ;; New function to show the last commit using magit
+;;;###autoload
 (defun aider-magit-show-last-commit ()
   "Show the last commit message using Magit.
 If Magit is not installed, report that it is required."
@@ -279,6 +320,7 @@ If Magit is not installed, report that it is required."
     (message "Magit is required to show the last commit.")))
 
 ;; Modified function to get command from user and send it based on selected region
+;;;###autoload
 (defun aider-undo-last-change ()
   "Undo the last change made by Aider."
   (interactive)
@@ -293,6 +335,7 @@ If Magit is not installed, report that it is required."
       (format "/architect \"for the following code block, %s: %s\"\n"
               user-command processed-region-text))))
 
+;;;###autoload
 (defun aider-region-refactor ()
   "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
 The command will be formatted as \"/architect \" followed by the user command and the text from the selected region."
@@ -307,6 +350,7 @@ The command will be formatted as \"/architect \" followed by the user command an
     (message "No region selected.")))
 
 ;; New function to explain the code in the selected region
+;;;###autoload
 (defun aider-region-explain ()
   "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
 The command will be formatted as \"/ask \" followed by the text from the selected region."
@@ -333,6 +377,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 ;;; functions for dired related
 
 ;; New function to add multiple Dired marked files to Aider buffer
+;;;###autoload
 (defun aider-batch-add-dired-marked-files ()
   "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
   (interactive)
@@ -343,6 +388,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
       (message "No files marked in Dired."))))
 
 ;; New function to run `find-name-dired` from the Git repository root directory
+;;;###autoload
 (defun aider-repo-find-name-dired (pattern)
   "Run `find-name-dired` from the Git repository root directory with the given PATTERN."
   (interactive "sFind name (pattern): ")
@@ -352,6 +398,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
         (message "Not in a git repository")
       (find-name-dired repo-path pattern))))
 
+;;;###autoload
 (defun aider-git-repo-root-dired ()
   "Open a Dired buffer at the root of the current Git repository."
   (interactive)
@@ -364,6 +411,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 ;;; functions for .aider file related
 
 ;; New function to send "<line under cursor>" to the Aider buffer
+;;;###autoload
 (defun aider-send-line-under-cursor ()
   "Send the command \"ask <line under cursor>\" to the Aider buffer."
   (interactive)
@@ -371,6 +419,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
     (aider--send-command (string-trim line) t)))
 
 ;;; New function to send the current paragraph to the Aider buffer
+;;;###autoload
 (defun aider-send-paragraph ()
   "Send the current paragraph to the Aider buffer."
   (interactive)
@@ -392,6 +441,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   "Keymap for Aider Minor Mode.")
 
 ;; Define the Aider Minor Mode
+;;;###autoload
 (define-minor-mode aider-minor-mode
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
