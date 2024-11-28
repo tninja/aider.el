@@ -147,7 +147,9 @@ If not in a git repository, an error is raised."
                 (derived-mode-p 'prog-mode))
           (aider--inherit-source-highlighting source-buffer)
           (font-lock-mode 1)
-          (font-lock-ensure))
+          (font-lock-ensure)
+          (message "Aider buffer syntax highlighting inherited from %s" 
+                   (with-current-buffer source-buffer major-mode)))
         ))
     (aider-switch-to-buffer)))
 
