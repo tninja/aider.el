@@ -11,24 +11,24 @@ INITIAL-INPUT is optional initial input string."
   ;; Load history from file
   (let* ((history-file (expand-file-name history-file-name user-emacs-directory))
          (history (when (file-exists-p history-file)
-                   (with-temp-buffer
-                     (insert-file-contents history-file)
-                     (delete-dups (read (buffer-string))))))
+                    (with-temp-buffer
+                      (insert-file-contents history-file)
+                      (delete-dups (read (buffer-string))))))
          ;; Read input with helm
          (input (helm-comp-read
-                prompt
-                history
-                :must-match nil
-                :name "Helm Read String"
-                :fuzzy t
-                :initial-input initial-input)))
+                 prompt
+                 history
+                 :must-match nil
+                 :name "Helm Read String"
+                 :fuzzy t
+                 :initial-input initial-input)))
     ;; Add to history if non-empty and save
     (unless (string-empty-p input)
       (push input history)
       (with-temp-file history-file
         (let ((history-entries (cl-subseq history
-                                         0 (min (length history)
-                                              10000))))  ; Keep last 10000 entries
+                                          0 (min (length history)
+                                                 10000))))  ; Keep last 10000 entries
           (insert (prin1-to-string history-entries)))))
     input))
 

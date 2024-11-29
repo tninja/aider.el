@@ -77,8 +77,8 @@ This function can be customized or redefined by the user."
    ["Code change"
     ("c" "Code Change" aider-code-change)
     ("t" "Architect Discuss and Change" aider-architect-discussion)
+    ("R" "Refactor Function Under Cursor" aider-function-refactor)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
-    ("f" "Refactor Function Under Cursor" aider-function-refactor)
     ("m" "Show last commit with magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
@@ -310,20 +310,6 @@ replacing all newline characters except for the one at the end."
   (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
 
-;;;###autoload
-(defun aider-function-refactor ()
-  "Get the function name under cursor and send refactor command to aider.
-The command will be formatted as \"/architect\" followed by refactoring instructions
-for the specified function."
-  (interactive)
-  (if-let ((function-name (which-function)))
-      (let* ((initial-input (format "refactor %s" function-name))
-             (user-command (aider-read-string "Enter refactor instruction: " initial-input))
-             (command (format "/architect %s" user-command)))
-        (aider-add-current-file)
-        (aider--send-command command t))
-    (message "No function found at cursor position.")))
-
 ;; New function to show the last commit using magit
 ;;;###autoload
 (defun aider-magit-show-last-commit ()
@@ -349,6 +335,20 @@ If Magit is not installed, report that it is required."
                 function-name user-command processed-region-text)
       (format "/architect \"for the following code block, %s: %s\"\n"
               user-command processed-region-text))))
+
+;;;###autoload
+(defun aider-function-refactor ()
+  "Get the function name under cursor and send refactor command to aider.
+The command will be formatted as \"/architect\" followed by refactoring instructions
+for the specified function."
+  (interactive)
+  (if-let ((function-name (which-function)))
+      (let* ((initial-input (format "refactor %s: " function-name))
+             (user-command (aider-read-string "Enter refactor instruction: " initial-input))
+             (command (format "/architect %s" user-command)))
+        (aider-add-current-file)
+        (aider--send-command command t))
+    (message "No function found at cursor position.")))
 
 ;;;###autoload
 (defun aider-region-refactor ()
