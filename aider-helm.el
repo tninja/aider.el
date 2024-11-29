@@ -3,10 +3,11 @@
 (require 'helm)
 (require 'cl-lib)  ; For `cl-subseq`
 
-(defun helm-read-string-with-history (prompt history-file-name)
+(defun helm-read-string-with-history (prompt history-file-name &optional initial-input)
   "Read a string with Helm completion using specified history file.
 PROMPT is the prompt string.
-HISTORY-FILE-NAME is the base name for history file."
+HISTORY-FILE-NAME is the base name for history file.
+INITIAL-INPUT is optional initial input string."
   ;; Load history from file
   (let* ((history-file (expand-file-name history-file-name user-emacs-directory))
          (history (when (file-exists-p history-file)
@@ -19,7 +20,8 @@ HISTORY-FILE-NAME is the base name for history file."
                 history
                 :must-match nil
                 :name "Helm Read String"
-                :fuzzy t)))
+                :fuzzy t
+                :initial-input initial-input)))
     ;; Add to history if non-empty and save
     (unless (string-empty-p input)
       (push input history)
@@ -30,9 +32,11 @@ HISTORY-FILE-NAME is the base name for history file."
           (insert (prin1-to-string history-entries)))))
     input))
 
-(defun aider-helm-read-string (prompt)
-  "Read a string with Helm completion for aider, showing historical inputs."
-  (helm-read-string-with-history prompt "aider-helm-read-string-history.el"))
+(defun aider-helm-read-string (prompt &optional initial-input)
+  "Read a string with Helm completion for aider, showing historical inputs.
+PROMPT is the prompt string.
+INITIAL-INPUT is optional initial input string."
+  (helm-read-string-with-history prompt "aider-helm-read-string-history.el" initial-input))
 
 (defalias 'aider-read-string 'aider-helm-read-string)
 
