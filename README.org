@@ -22,8 +22,8 @@
   - Add all buffers in current window: (aider-add-files-in-current-window)
   - Batch add files from dired buffer (aider-batch-add-dired-marked-files): Add multiple Dired marked files to the Aider buffer.
 
-- Refactor for an existing function    
-    - (aider-function-function): Ask aider to refactor the function under cursor given your instruction.
+- Refactor function under cursor
+    - (aider-function-refactor): Ask aider to refactor the function under cursor given your instruction.
 
 - Region-Based Explain / Refactor Support
   - Explain: (aider-region-explain): You can select a region (e.g., a code block) in a file and ask aider to explain it.
