@@ -137,7 +137,13 @@ If not in a git repository, an error is raised."
   (interactive)
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
-         (source-buffer (window-buffer (selected-window))))
+         (source-buffer (window-buffer (selected-window)))
+         ;; Add Projectile support: use project root if available
+         (default-directory 
+           (if (and (fboundp 'projectile-project-root)
+                    (projectile-project-p))
+               (projectile-project-root)
+             default-directory)))
     (unless (comint-check-proc buffer-name)
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil aider-args)
       (with-current-buffer buffer-name
