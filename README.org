@@ -79,7 +79,7 @@ The aider prefix is "A".
 
 ** Optional
 
-** Optional Helm Support
+*** Optional Helm Support
 
 You can enable Helm-based completion in two ways:
 
@@ -104,8 +104,10 @@ You can enable Helm-based completion in two ways:
     (require 'aider-helm))
 #+END_SRC
   
+*** Aider script interactive mode: aider-minor-mode
 
 - If you enjoy writing aider command in a separate file and send them to aider session, just like working on python or R script and send code block into REPL, you might want to try aider-minor-mode. It by default bind C-c C-n to send current line to aider session, and C-c C-c to send current region to aider session.
+  - Enable aider-minor-mode for your editing buffer
   - To automatically enable aider-minor-mode to any file with aider inside filename
 
 #+BEGIN_SRC emacs-lisp
