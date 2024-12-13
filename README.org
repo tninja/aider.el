@@ -79,10 +79,29 @@ The aider prefix is "A".
 
 ** Optional
 
-- You might want to try [[./aider-helm.el][aider-helm.el]]. That file added support of command history and completion from helm.
+** Optional Helm Support
+
+You can enable Helm-based completion in two ways:
+
+1. Using use-package:
 
 #+BEGIN_SRC emacs-lisp
-  (load-file "aider-helm.el") ;; or put the full path 
+  ;; Basic aider installation
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el")))
+
+  ;; Optional helm support
+  (use-package aider-helm
+    :straight (:host github :repo "tninja/aider.el" :files ("aider-helm.el"))
+    :after (aider helm))
+#+END_SRC
+
+2. Manual loading:
+
+#+BEGIN_SRC emacs-lisp
+  ;; Load helm support after both aider and helm are loaded
+  (with-eval-after-load 'helm
+    (require 'aider-helm))
 #+END_SRC
   
 
