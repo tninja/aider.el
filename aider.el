@@ -58,28 +58,28 @@ This function can be customized or redefined by the user."
 ;;;###autoload (autoload 'aider-transient-menu "aider" "Transient menu for Aider commands." t)
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
-  ["Aider: AI pair programming"
-   ["Aider process"
+  ["Aider: AI Pair Programming"
+   ["Aider Process"
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
     ("x" "Exit Aider" aider-exit)
     ]
-   ["Add file to aider"
+   ["Add File to Aider"
     ("f" "Add Current File" aider-add-current-file)
     ("o" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
-    ("F" "Find Files in the Git Repo" aider-repo-find-name-dired)
+    ("F" "Find Files in Git Repo" aider-repo-find-name-dired)
     ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
     ]
-   ["Code change"
+   ["Code Change"
     ("c" "Code Change" aider-code-change)
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("R" "Refactor Function Under Cursor" aider-function-refactor)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
-    ("m" "Show last commit with magit" aider-magit-show-last-commit)
+    ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
