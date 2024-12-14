@@ -28,6 +28,7 @@
 - Region-Based Explain / Refactor Support:
   - Explain: (`aider-region-explain`): Select a region (e.g., a code block) in a file and ask Aider to explain it.
   - Refactor: (`aider-region-refactor`): Ask Aider to refactor it given your input instruction.
+  - Fix Tests: (`aider-fix-failing-test`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
 - And More: Add your own Elisp functions to support your use case. You can certainly ask Aider / `aider.el` to do that.
 
