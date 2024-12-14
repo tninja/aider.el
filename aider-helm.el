@@ -1,4 +1,16 @@
-;; optional helm based completion, need to be manually loaded when needed
+;;; aider-helm.el --- Helm completion for aider.el -*- lexical-binding: t; -*-
+
+;; Author: Kang Tu <tninja@gmail.com>
+;; Version: 0.2.0
+;; Package-Requires: ((emacs "25.1") (helm "3.0"))
+;; Keywords: convenience, tools
+;; URL: https://github.com/tninja/aider.el
+
+;;; Commentary:
+;; Optional Helm completion interface for aider.el
+;; To use this, ensure both aider.el and helm are installed.
+
+;;; Code:
 
 (require 'helm)
 (require 'cl-lib)  ; For `cl-subseq`
@@ -38,6 +50,11 @@ PROMPT is the prompt string.
 INITIAL-INPUT is optional initial input string."
   (helm-read-string-with-history prompt "aider-helm-read-string-history.el" initial-input))
 
-(defalias 'aider-read-string 'aider-helm-read-string)
+(declare-function aider-read-string "aider")
 
-;; how to copy candidate to mini-buffer? C-c C-y: https://emacs.stackexchange.com/questions/47588/in-a-helm-prompt-how-do-i-copy-a-candidate-for-editing
+;;;###autoload
+(with-eval-after-load 'aider
+  (defalias 'aider-read-string 'aider-helm-read-string))
+
+(provide 'aider-helm)
+;;; aider-helm.el ends here
