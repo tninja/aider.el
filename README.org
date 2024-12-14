@@ -83,7 +83,7 @@ The aider prefix is "A".
 
 You can enable Helm-based completion in two ways:
 
-1. Using use-package:
+- 1. Using use-package:
 
 #+BEGIN_SRC emacs-lisp
   ;; Basic aider installation
@@ -96,7 +96,7 @@ You can enable Helm-based completion in two ways:
     :after (aider helm))
 #+END_SRC
 
-2. Manual loading:
+- 2. Manual loading:
 
 #+BEGIN_SRC emacs-lisp
   ;; Load helm support after both aider and helm are loaded
