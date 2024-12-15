@@ -82,7 +82,9 @@ The aider prefix is "A".
 
 ** Optional
 
-*** Optional Helm Support
+*** Helm Support
+
+Helm provide history prompt fuzzy searching
 
 You can enable Helm-based completion in two ways:
 
