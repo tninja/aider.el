@@ -432,10 +432,10 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 This function assumes the cursor is on or inside a test function."
   (interactive)
   (if-let ((test-function-name (which-function)))
-      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make all tests pass. " 
+      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test" 
                                    test-function-name))
-             (test-output (aider-read-string "Enter test failure output: " initial-input))
-             (command (format "/code %s" test-output)))
+             (test-output (aider-read-string "Architect question: " initial-input))
+             (command (format "/architect %s" test-output)))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
