@@ -79,7 +79,7 @@ This function can be customized or redefined by the user."
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("R" "Refactor Function Under Cursor" aider-function-refactor)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
-    ("T" "Fix Failing Test" aider-fix-failing-test)
+    ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
@@ -427,7 +427,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 ;;; functions for test fixing
 
 ;;;###autoload
-(defun aider-fix-failing-test ()
+(defun aider-fix-failing-test-under-cursor ()
   "Report the current test failure to aider and ask it to fix the code.
 This function assumes the cursor is on or inside a test function."
   (interactive)
