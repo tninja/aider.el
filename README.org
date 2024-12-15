@@ -84,7 +84,7 @@ The aider prefix is "A".
 
 *** Helm Support
 
-Helm provide history prompt fuzzy searching
+Helm enables fuzzy searching functionality for command history prompts
 
 You can enable Helm-based completion in two ways:
 
