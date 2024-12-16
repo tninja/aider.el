@@ -400,6 +400,17 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
     (aider-add-current-file)
     (aider--send-command prompt t)))
 
+;; New function to ask Aider to explain the function under the cursor
+;;;###autoload
+(defun aider-function-explain ()
+  "Ask Aider to explain the function under the cursor."
+  (interactive)
+  (if-let ((function-name (which-function)))
+      (let ((command (format "/ask Please explain the function: %s" function-name)))
+        (aider-add-current-file)
+        (aider--send-command command t))
+    (message "No function found at cursor position.")))
+
 (defun aider-send-command-with-prefix (prefix command)
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
