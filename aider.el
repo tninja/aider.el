@@ -86,6 +86,7 @@ This function can be customized or redefined by the user."
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("e" "Explain Code in Selected Region" aider-region-explain)
+    ("p" "Explain Symbol Under Cursor" aider-explain-symbol-under-point)
     ("d" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
@@ -384,6 +385,20 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No region selected.")))
+
+;; New function to explain the symbol at line
+;;;###autoload
+(defun aider-explain-symbol-under-point ()
+  "Ask Aider to explain symbol under point, given the code line as background info."
+  (interactive)
+  (let* ((symbol (thing-at-point 'symbol))
+         (line (buffer-substring-no-properties
+                (line-beginning-position)
+                (line-end-position)))
+         (prompt (format "/ask Please explain what '%s' means in the context of this code line: %s"
+                         symbol line)))
+    (aider-add-current-file)
+    (aider--send-command prompt t)))
 
 (defun aider-send-command-with-prefix (prefix command)
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
