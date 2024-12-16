@@ -77,8 +77,9 @@ This function can be customized or redefined by the user."
    ["Code Change"
     ("c" "Code Change" aider-code-change)
     ("t" "Architect Discuss and Change" aider-architect-discussion)
-    ("R" "Refactor Function Under Cursor" aider-function-refactor)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
+    ("R" "Refactor Function Under Cursor" aider-function-refactor)
+    ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
@@ -422,6 +423,22 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
         (message "The current buffer is not in a Git repository.")
       (let ((repo-path (string-trim git-repo-path)))
         (dired-other-window repo-path)))))
+
+;;; functions for test fixing
+
+;;;###autoload
+(defun aider-fix-failing-test-under-cursor ()
+  "Report the current test failure to aider and ask it to fix the code.
+This function assumes the cursor is on or inside a test function."
+  (interactive)
+  (if-let ((test-function-name (which-function)))
+      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test" 
+                                   test-function-name))
+             (test-output (aider-read-string "Architect question: " initial-input))
+             (command (format "/architect %s" test-output)))
+        (aider-add-current-file)
+        (aider--send-command command t))
+    (message "No test function found at cursor position.")))
 
 ;;; functions for .aider file related
 
