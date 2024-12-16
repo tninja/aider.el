@@ -22,12 +22,14 @@
   - Add all buffers in the current window: (`aider-add-files-in-current-window`)
   - Batch add files from the Dired buffer: (`aider-batch-add-dired-marked-files`) Add multiple Dired marked files to the Aider buffer.
 
-- Refactor function under the cursor:
+- Refactor region / function:
+  - (`aider-region-refactor`): Ask Aider to refactor it given your input instruction.
   - (`aider-function-refactor`): Ask Aider to refactor the function under the cursor given your instruction.
 
-- Region-Based Explain / Refactor Support:
-  - Explain: (`aider-region-explain`): Select a region (e.g., a code block) in a file and ask Aider to explain it.
-  - Refactor: (`aider-region-refactor`): Ask Aider to refactor it given your input instruction.
+- Explain code
+  - (`aider-region-explain`): Select a region (e.g., a code block) in a file and ask Aider to explain it.
+  - (`aider-function-explain`): Place the cursor on a function and ask Aider to explain it.
+  - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
 - Support for Test Driven Development:
   - Fix Tests: (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
