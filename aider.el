@@ -120,10 +120,10 @@ If not in a git repository, an error is raised."
     (let ((source-keywords font-lock-keywords)
           (source-keywords-only font-lock-keywords-only)
           (source-keywords-case-fold-search font-lock-keywords-case-fold-search)
-          (source-syntax-table (syntax-table))
+          ;; (source-syntax-table (syntax-table))
           (source-defaults font-lock-defaults))
       (with-current-buffer (aider-buffer-name)
-        (set-syntax-table source-syntax-table)
+        ;; (set-syntax-table source-syntax-table)
         (setq font-lock-defaults
               (if source-defaults
                   source-defaults
