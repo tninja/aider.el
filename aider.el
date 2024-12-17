@@ -430,6 +430,26 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
+(defun copilot-chat-add-files-under-dir ()
+  "Add all files with same suffix as current file under current directory.
+If there are more than 10 files, refuse to add and show warning message."
+  (interactive)
+  (if (not buffer-file-name)
+      (message "Current buffer is not visiting a file")
+    (let* ((current-suffix (file-name-extension buffer-file-name))
+           (dir (file-name-directory buffer-file-name))
+           (max-files 40)
+           (files (directory-files dir t 
+                                   (concat "\\." current-suffix "$")
+                                   t))) ; t means don't include . and ..
+      (if (> (length files) max-files)
+          (message "Too many files (%d, > %d) found with suffix .%s. Aborting." 
+                   (length files) max-files current-suffix)
+        (dolist (file files)
+          (copilot-chat-add-file file))
+        (message "Added %d files with suffix .%s" 
+                 (length files) current-suffix)))))
+
 ;; New function to run `find-name-dired` from the Git repository root directory
 ;;;###autoload
 (defun aider-repo-find-name-dired (pattern)
