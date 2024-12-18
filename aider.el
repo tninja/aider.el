@@ -70,6 +70,7 @@ This function can be customized or redefined by the user."
     ("f" "Add Current File" aider-add-current-file)
     ("o" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
+    ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("F" "Find Files in Git Repo" aider-repo-find-name-dired)
     ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
@@ -88,7 +89,7 @@ This function can be customized or redefined by the user."
     ("e" "Explain Code in Selected Region" aider-region-explain)
     ("E" "Explain Function Under Cursor" aider-function-explain)
     ("p" "Explain Symbol Under Cursor" aider-explain-symbol-under-point)
-    ("d" "Debug Exception" aider-debug-exception)
+    ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
@@ -450,26 +451,6 @@ If there are more than 40 files, refuse to add and show warning message."
         (let ((command (concat "/add " (mapconcat 'identity files " "))))
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
-                 (length files) current-suffix)))))
-
-(defun copilot-chat-add-files-under-dir ()
-  "Add all files with same suffix as current file under current directory.
-If there are more than 10 files, refuse to add and show warning message."
-  (interactive)
-  (if (not buffer-file-name)
-      (message "Current buffer is not visiting a file")
-    (let* ((current-suffix (file-name-extension buffer-file-name))
-           (dir (file-name-directory buffer-file-name))
-           (max-files 40)
-           (files (directory-files dir t 
-                                   (concat "\\." current-suffix "$")
-                                   t))) ; t means don't include . and ..
-      (if (> (length files) max-files)
-          (message "Too many files (%d, > %d) found with suffix .%s. Aborting." 
-                   (length files) max-files current-suffix)
-        (dolist (file files)
-          (copilot-chat-add-file file))
-        (message "Added %d files with suffix .%s" 
                  (length files) current-suffix)))))
 
 ;; New function to run `find-name-dired` from the Git repository root directory
