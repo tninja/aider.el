@@ -223,29 +223,29 @@ COMMAND should be a string representing the command to send."
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
+;;;###autoload
+(defun aider-add-or-read-current-file (command-prefix)
+  "Send the command \"COMMAND-PREFIX <current buffer file full path>\" to the corresponding aider comint buffer."
+  ;; Ensure the current buffer is associated with a file
+  (if (not buffer-file-name)
+      (message "Current buffer is not associated with a file.")
+    (let ((command (format "%s %s" command-prefix (expand-file-name buffer-file-name))))
+      ;; Use the shared helper function to send the command
+      (aider--send-command command))))
+
 ;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-add-current-file ()
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  ;; Ensure the current buffer is associated with a file
-  (if (not buffer-file-name)
-      (message "Current buffer is not associated with a file.")
-    (let ((command (format "/add %s" (expand-file-name buffer-file-name))))
-      ;; Use the shared helper function to send the command
-      (aider--send-command command))))
+  (aider-add-or-read-current-file "/add"))
 
 ;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-current-file-read-only ()
   "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  ;; Ensure the current buffer is associated with a file
-  (if (not buffer-file-name)
-      (message "Current buffer is not associated with a file.")
-    (let ((command (format "/read-only %s" (expand-file-name buffer-file-name))))
-      ;; Use the shared helper function to send the command
-      (aider--send-command command))))
+  (aider-add-or-read-current-file "/read-only"))
 
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
