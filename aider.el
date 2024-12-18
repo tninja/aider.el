@@ -72,8 +72,8 @@ This function can be customized or redefined by the user."
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
-    ("F" "Find Files in Git Repo" aider-repo-find-name-dired)
-    ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
+    ;; ("F" "Find Files in Git Repo" aider-repo-find-name-dired)
+    ;; ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
     ]
    ["Code Change"
     ("c" "Code Change" aider-code-change)
