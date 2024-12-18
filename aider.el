@@ -72,8 +72,6 @@ This function can be customized or redefined by the user."
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
-    ;; ("F" "Find Files in Git Repo" aider-repo-find-name-dired)
-    ;; ("R" "Open Git Repo Root Dired" aider-git-repo-root-dired)
     ]
    ["Code Change"
     ("c" "Code Change" aider-code-change)
@@ -452,27 +450,6 @@ If there are more than 40 files, refuse to add and show warning message."
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
-
-;; New function to run `find-name-dired` from the Git repository root directory
-;;;###autoload
-(defun aider-repo-find-name-dired (pattern)
-  "Run `find-name-dired` from the Git repository root directory with the given PATTERN."
-  (interactive "sFind name (pattern): ")
-  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
-         (repo-path (string-trim git-repo-path)))
-    (if (string-match-p "fatal" repo-path)
-        (message "Not in a git repository")
-      (find-name-dired repo-path pattern))))
-
-;;;###autoload
-(defun aider-git-repo-root-dired ()
-  "Open a Dired buffer at the root of the current Git repository."
-  (interactive)
-  (let ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel")))
-    (if (string-match-p "fatal" git-repo-path)
-        (message "The current buffer is not in a Git repository.")
-      (let ((repo-path (string-trim git-repo-path)))
-        (dired-other-window repo-path)))))
 
 ;;; functions for test fixing
 
