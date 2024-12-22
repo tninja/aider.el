@@ -77,7 +77,7 @@ This function can be customized or redefined by the user."
     ("c" "Code Change" aider-code-change)
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("r" "Refactor Code in Selected Region" aider-region-refactor)
-    ("R" "Refactor Function Under Cursor" aider-function-refactor)
+    ("R" "Refactor Function or Region" aider-function-or-region-refactor)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)

@@ -32,7 +32,7 @@
 
                    (:prefix ("c" . "Code")
                     :desc "Change" "c" #'aider-code-change
-                    :desc "Refactor region" "r" #'aider-region-refactor
+                    :desc "Refactor region or function" "r" #'aider-function-or-region-refactor
                     :desc "Undo change" "u" #'aider-undo-last-change)
 
                    (:prefix ("d" . "Discuss")
