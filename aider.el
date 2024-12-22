@@ -84,9 +84,7 @@ This function can be customized or redefined by the user."
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("e" "Explain Code in Selected Region" aider-region-explain)
-    ("E" "Explain Function Under Cursor" aider-function-explain)
-    ("p" "Explain Symbol Under Cursor" aider-explain-symbol-under-point)
+    ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
@@ -396,6 +394,14 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No function found at cursor position.")))
+
+;;;###autoload
+(defun aider-function-or-region-explain ()
+  "Call aider-function-explain when no region is selected, otherwise call aider-region-explain."
+  (interactive)
+  (if (region-active-p)
+      (aider-region-explain)
+    (aider-function-explain)))
 
 ;; New function to explain the symbol at line
 ;;;###autoload
