@@ -74,10 +74,9 @@ This function can be customized or redefined by the user."
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ]
    ["Code Change"
-    ("c" "Code Change" aider-code-change)
     ("t" "Architect Discuss and Change" aider-architect-discussion)
-    ("r" "Refactor Code in Selected Region" aider-region-refactor)
-    ("R" "Refactor Function or Region" aider-function-or-region-refactor)
+    ("c" "Code Change" aider-code-change)
+    ("r" "Refactor Function or Region" aider-function-or-region-refactor)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
@@ -89,7 +88,7 @@ This function can be customized or redefined by the user."
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
-    ("h" "Help" aider-help) ;; Menu item for help command
+    ("h" "Help" aider-help)
     ]
    ])
 
