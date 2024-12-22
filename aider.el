@@ -364,6 +364,14 @@ The command will be formatted as \"/architect \" followed by the user command an
         (aider--send-command command t))
     (message "No region selected.")))
 
+;;;###autoload
+(defun aider-function-or-region-refactor ()
+  "Call aider-function-refactor when no region is selected, otherwise call aider-region-refactor."
+  (interactive)
+  (if (region-active-p)
+      (aider-region-refactor)
+    (aider-function-refactor)))
+
 ;; New function to explain the code in the selected region
 ;;;###autoload
 (defun aider-region-explain ()
