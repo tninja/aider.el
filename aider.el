@@ -210,13 +210,14 @@ COMMAND should be a string representing the command to send."
              (aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
-          ;; Send the command to the aider process
-          (aider--comint-send-large-string aider-buffer (concat command "\n"))
-          ;; Provide feedback to the user
-          ;; (message "Sent command to aider buffer: %s" (string-trim command))
-          (when switch-to-buffer
-            (aider-switch-to-buffer)))
-        (message "No active process found in buffer %s." (aider-buffer-name)))
+            (progn
+              ;; Send the command to the aider process
+              (aider--comint-send-large-string aider-buffer (concat command "\n"))
+              ;; Provide feedback to the user
+              ;; (message "Sent command to aider buffer: %s" (string-trim command))
+              (when switch-to-buffer
+                (aider-switch-to-buffer)))
+          (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
     ))
 
