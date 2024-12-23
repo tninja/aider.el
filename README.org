@@ -15,7 +15,11 @@
 
 [[file:./transient_menu.png]]
 
-- Git Repository-Specific Aider Sessions in Emacs: Automatically identify the Git repository of the current file and create a new Aider session for it. Multiple Aider sessions can exist for different Git repositories.
+- Aider session management:
+  - (`aider-run-aider`): Create a comint-based, git repo specific buffer and run "aider" for interactive conversation.
+    - Git repository identification is based on the file path of of the current file
+    - Multiple Aider sessions can exist for different Git repositories
+  - (`aider-switch-to-buffer`): Switch to the Aider buffer.
 
 - More ways to add files to the Aider buffer:
   - (`aider-add-current-file`): Add the current buffer file.
@@ -82,7 +86,7 @@ The aider prefix is "A".
 
 - Start and open the aider buffer: =[SPC] A o=
 - Add the current file with =[SPC] A a c=
-
+- Reset the aider session with =[SPC] A a s=
 [[file:./doom-menus.png]]
 
 ** Optional
