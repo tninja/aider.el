@@ -283,11 +283,14 @@ COMMAND should be a string representing the command to send."
 If a region is active, append the region text to the question."
   (interactive)
   (let ((question (aider-read-string "Enter question to ask: "))
-        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
+        (region-text (and (region-active-p)
+                           (replace-regexp-in-string "\n" "\\\\n"
+                                                     (buffer-substring-no-properties (region-beginning) (region-end))))))
     (let ((command (if region-text
                        (format "/ask %s: %s" question region-text)
                      (format "/ask %s" question))))
-    (aider-send-command-with-prefix "/ask " command)))
+      (aider-add-current-file)
+      (aider--send-command command t))))
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
