@@ -511,8 +511,8 @@ This function assumes the cursor is on or inside a test function."
       (let ((end (point)))
         (while (< start end)          
           (let ((line (string-trim-right (buffer-substring-no-properties start (line-end-position)))))
+            (message "line: %s" line)
             (when (not (string-empty-p line)))
-              (message "line: %s" line)
               (aider--send-command (string-trim-right line) t)
             (setq start (line-end-position 1))))))))
 
