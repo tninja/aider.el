@@ -20,8 +20,8 @@
 - More ways to add files to the Aider buffer:
   - (`aider-add-current-file`): Add the current buffer file.
   - (`aider-current-file-read-only`): Add the current buffer file as read-only.
-  - (`aider-add-same-type-files-under-dir`): Add all files with the same suffix as the current file under the current directory to Aider.
   - (`aider-add-files-in-current-window`): Add all buffers in the current window.
+  - (`aider-add-same-type-files-under-dir`): Add all files with the same suffix as the current file under the current directory to Aider.
   - (`aider-batch-add-dired-marked-files`): Add multiple Dired marked files to the Aider buffer.
 
 - Refactor code:
