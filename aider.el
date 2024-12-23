@@ -12,9 +12,9 @@
 ;;; Code:
 
 (require 'comint)
+(require 'dired)
 (require 'transient)
 (require 'which-func)
-(require 'dired)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -42,13 +42,16 @@
   "Font lock keywords for aider buffer.")
 
 
+(defun aider--escape-string-for-aider (str)
+  "Escape special characters in STR for sending to Aider.
+Currently, this function replaces newlines with \\\\n."
+  (replace-regexp-in-string "\n" "\\\\n" str))
+
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (let* ((input (read-string prompt initial-input))
-         (processed-input (replace-regexp-in-string "\n" "\\\\n" input)))
-    processed-input))
+  (read-string prompt initial-input))
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
@@ -74,24 +77,21 @@ This function can be customized or redefined by the user."
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ]
    ["Code Change"
-    ("c" "Code Change" aider-code-change)
     ("t" "Architect Discuss and Change" aider-architect-discussion)
-    ("r" "Refactor Code in Selected Region" aider-region-refactor)
-    ("R" "Refactor Function Under Cursor" aider-function-refactor)
+    ("c" "Code Change" aider-code-change)
+    ("r" "Refactor Function or Region" aider-function-or-region-refactor)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("e" "Explain Code in Selected Region" aider-region-explain)
-    ("E" "Explain Function Under Cursor" aider-function-explain)
-    ("p" "Explain Symbol Under Cursor" aider-explain-symbol-under-point)
+    ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
-    ("h" "Help" aider-help) ;; Menu item for help command
+    ("h" "Help" aider-help)
     ]
    ])
 
@@ -205,21 +205,20 @@ If not in a git repository, an error is raised."
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
-      (let ((aider-process (get-buffer-process aider-buffer)))
+      (let* ((command (aider--escape-string-for-aider command))
+             (aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
-              ;; Ensure the command ends with a newline
-              (unless (string-suffix-p "\n" command)
-                (setq command (concat command "\n")))
               ;; Send the command to the aider process
-              (aider--comint-send-large-string aider-buffer command)
+              (aider--comint-send-large-string aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               ;; (message "Sent command to aider buffer: %s" (string-trim command))
               (when switch-to-buffer
                 (aider-switch-to-buffer)))
           (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
+    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
+    ))
 
 ;;;###autoload
 (defun aider-add-or-read-current-file (command-prefix)
@@ -282,10 +281,16 @@ COMMAND should be a string representing the command to send."
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
 (defun aider-ask-question ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
+If a region is active, append the region text to the question."
   (interactive)
-  (let ((command (aider-read-string "Enter question to ask: ")))
-    (aider-send-command-with-prefix "/ask " command)))
+  (let ((question (aider-read-string "Enter question to ask: "))
+        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
+    (let ((command (if region-text
+                       (format "/ask %s: %s" question region-text)
+                     (format "/ask %s" question))))
+      (aider-add-current-file)
+      (aider--send-command command t))))
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
@@ -331,7 +336,7 @@ If Magit is not installed, report that it is required."
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
-  (let ((processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text)))
+  (let ((processed-region-text region-text))
     (if function-name
         (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
                 function-name user-command processed-region-text)
@@ -366,6 +371,14 @@ The command will be formatted as \"/architect \" followed by the user command an
         (aider--send-command command t))
     (message "No region selected.")))
 
+;;;###autoload
+(defun aider-function-or-region-refactor ()
+  "Call aider-function-refactor when no region is selected, otherwise call aider-region-refactor."
+  (interactive)
+  (if (region-active-p)
+      (aider-region-refactor)
+    (aider-function-refactor)))
+
 ;; New function to explain the code in the selected region
 ;;;###autoload
 (defun aider-region-explain ()
@@ -375,7 +388,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
              (function-name (which-function))
-             (processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text))
+             (processed-region-text region-text)
              (command (if function-name
                           (format "/ask in function %s, explain the following code block: %s"
                                   function-name
@@ -396,6 +409,14 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No function found at cursor position.")))
+
+;;;###autoload
+(defun aider-function-or-region-explain ()
+  "Call aider-function-explain when no region is selected, otherwise call aider-region-explain."
+  (interactive)
+  (if (region-active-p)
+      (aider-region-explain)
+    (aider-function-explain)))
 
 ;; New function to explain the symbol at line
 ;;;###autoload
@@ -480,16 +501,19 @@ This function assumes the cursor is on or inside a test function."
 ;;; New function to send the current paragraph to the Aider buffer
 ;;;###autoload
 (defun aider-send-paragraph ()
-  "Send the current paragraph to the Aider buffer."
+  "Get the whole text of the current paragraph, split them into lines,
+   strip the newline character from each line,
+   for each non-empty line, send it to aider session"
   (interactive)
-  (let ((paragraph (buffer-substring-no-properties
-                    (save-excursion
-                      (backward-paragraph)
-                      (point))
-                    (save-excursion
-                      (forward-paragraph)
-                      (point)))))
-    (aider--send-command (string-trim paragraph) t)))
+  (let ((paragraph (save-excursion
+                     (backward-paragraph)
+                     (let ((start (point)))
+                       (forward-paragraph)
+                       (buffer-substring-no-properties start (point))))))
+    (mapc (lambda (line)
+            (unless (string-empty-p line)
+              (aider--send-command line t)))
+          (split-string paragraph "\n" t))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
