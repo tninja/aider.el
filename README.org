@@ -21,7 +21,7 @@
   - (`aider-add-current-file`): Add the current buffer file.
   - (`aider-current-file-read-only`): Add the current buffer file as read-only.
   - (`aider-add-files-in-current-window`): Add all buffers in the current window.
-  - Batch add files from the Dired buffer: (`aider-batch-add-dired-marked-files`) Add multiple Dired marked files to the Aider buffer.
+  - (`aider-batch-add-dired-marked-files`): Add multiple Dired marked files to the Aider buffer.
 
 - Refactor code:
   - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to refactor the function under the cursor.
@@ -31,7 +31,7 @@
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
 - Support for Test Driven Development:
-  - Fix Tests: (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
+  - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
 - And More: Add your own Elisp functions to support your use case. You can certainly ask Aider / `aider.el` to do that.
 
