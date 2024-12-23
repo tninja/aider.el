@@ -42,13 +42,16 @@
   "Font lock keywords for aider buffer.")
 
 
+(defun aider--escape-string-for-aider (str)
+  "Escape special characters in STR for sending to Aider.
+Currently, this function replaces newlines with \\\\n."
+  (replace-regexp-in-string "\n" "\\\\n" str))
+
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (let* ((input (read-string prompt initial-input))
-         (processed-input (replace-regexp-in-string "\n" "\\\\n" input)))
-    processed-input))
+  (read-string prompt initial-input))
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
@@ -283,9 +286,7 @@ COMMAND should be a string representing the command to send."
 If a region is active, append the region text to the question."
   (interactive)
   (let ((question (aider-read-string "Enter question to ask: "))
-        (region-text (and (region-active-p)
-                           (replace-regexp-in-string "\n" "\\\\n"
-                                                     (buffer-substring-no-properties (region-beginning) (region-end))))))
+        (region-text (and (region-active-p) (aider--escape-string-for-aider (buffer-substring-no-properties (region-beginning) (region-end))))))
     (let ((command (if region-text
                        (format "/ask %s: %s" question region-text)
                      (format "/ask %s" question))))
@@ -314,7 +315,7 @@ If a region is active, append the region text to the question."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/debug \",
 replacing all newline characters except for the one at the end."
   (interactive)
-  (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
+  (let ((command (aider--escape-string-for-aider (aider-plain-read-string "Enter exception, can be multiple lines: "))))
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
 
 ;; New function to show the last commit using magit
@@ -336,7 +337,7 @@ If Magit is not installed, report that it is required."
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
-  (let ((processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text)))
+  (let ((processed-region-text (aider--escape-string-for-aider region-text)))
     (if function-name
         (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
                 function-name user-command processed-region-text)
@@ -388,7 +389,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
              (function-name (which-function))
-             (processed-region-text (replace-regexp-in-string "\n" "\\\\n" region-text))
+             (processed-region-text (aider--escape-string-for-aider region-text))
              (command (if function-name
                           (format "/ask in function %s, explain the following code block: %s"
                                   function-name
