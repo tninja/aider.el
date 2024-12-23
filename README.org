@@ -18,8 +18,9 @@
 - Git Repository-Specific Aider Sessions in Emacs: Automatically identify the Git repository of the current file and create a new Aider session for it. Multiple Aider sessions can exist for different Git repositories.
 
 - More ways to add files to the Aider buffer:
-  - Add the current buffer file: (`aider-add-current-file`)
-  - Add all buffers in the current window: (`aider-add-files-in-current-window`)
+  - (`aider-add-current-file`): Add the current buffer file.
+  - (`aider-current-file-read-only`): Add the current buffer file as read-only.
+  - (`aider-add-files-in-current-window`): Add all buffers in the current window.
   - Batch add files from the Dired buffer: (`aider-batch-add-dired-marked-files`) Add multiple Dired marked files to the Aider buffer.
 
 - Refactor code:
