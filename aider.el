@@ -204,22 +204,19 @@ If not in a git repository, an error is raised."
   "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
-  (if-let ((aider-buffer (get-buffer (aider-buffer-name)))
-           (command (aider--escape-string-for-aider command)))
-      (let ((aider-process (get-buffer-process aider-buffer)))
+  (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
+      (let* ((command (aider--escape-string-for-aider command))
+             (aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
-            (progn
-              ;; Ensure the command ends with a newline
-                (setq command (concat command "\n")))
-              ;; Send the command to the aider process
-              (aider--comint-send-large-string aider-buffer command)
-              ;; Provide feedback to the user
-              ;; (message "Sent command to aider buffer: %s" (string-trim command))
-              (when switch-to-buffer
-                (aider-switch-to-buffer)))
-          (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name)))
+          ;; Send the command to the aider process
+          (aider--comint-send-large-string aider-buffer (concat command "\n"))
+          ;; Provide feedback to the user
+          ;; (message "Sent command to aider buffer: %s" (string-trim command))
+          (when switch-to-buffer
+            (aider-switch-to-buffer)))
+        (message "No active process found in buffer %s." (aider-buffer-name))))
+  (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name)))
 
 ;;;###autoload
 (defun aider-add-or-read-current-file (command-prefix)
@@ -285,7 +282,7 @@ COMMAND should be a string representing the command to send."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
 If a region is active, append the region text to the question."
   (interactive)
-  (let ((question (aider-plain-read-string "Enter question to ask: "))
+  (let ((question (aider-read-string "Enter question to ask: "))
         (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
     (let ((command (if region-text
                        (format "/ask %s: %s" question region-text)
