@@ -502,19 +502,19 @@ This function assumes the cursor is on or inside a test function."
 ;;; New function to send the current paragraph to the Aider buffer
 ;;;###autoload
 (defun aider-send-paragraph ()
-  "Send each non-empty line of the current paragraph to the Aider buffer, each as a separate command."
+  "Get the whole text of the current paragraph, split them into lines,
+   strip the newline character from each line,
+   for each non-empty line, send it to aider session"
   (interactive)
-  (save-excursion
-    (backward-paragraph)
-    (let ((start (point)))
-      (forward-paragraph)
-      (let ((end (point)))
-        (while (< start end)          
-          (let ((line (string-trim-right (buffer-substring-no-properties start (line-end-position)))))
-            (message "line: %s" line)
-            (when (not (string-empty-p line)))
-              (aider--send-command (string-trim-right line) t)
-            (setq start (line-end-position 1))))))))
+  (let ((paragraph (save-excursion
+                     (backward-paragraph)
+                     (let ((start (point)))
+                       (forward-paragraph)
+                       (buffer-substring-no-properties start (point))))))
+    (mapc (lambda (line)
+            (unless (string-empty-p line)
+              (aider--send-command line t)))
+          (split-string paragraph "\n" t))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
