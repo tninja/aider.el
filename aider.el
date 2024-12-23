@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
-;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "25.1") (transient "0.3.0") (dash "1.8.1"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -12,9 +12,10 @@
 ;;; Code:
 
 (require 'comint)
+(require 'dash)
+(require 'dired)
 (require 'transient)
 (require 'which-func)
-(require 'dired)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -507,7 +508,9 @@ This function assumes the cursor is on or inside a test function."
     (->> (buffer-substring-no-properties paragraph-start paragraph-end)
          (split-string "\n")
          (remove (lambda (line) (string-empty-p line)))
-         (mapcar (lambda (line) (aider--send-command line t))))))
+         (mapcar (lambda (line) (aider--send-command line t)))
+         ;; (mapcar (lambda (line) (message line)))
+         )))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
