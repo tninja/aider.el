@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
-;; Package-Requires: ((emacs "25.1") (transient "0.3.0") (dash "1.8.1"))
+;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -12,7 +12,6 @@
 ;;; Code:
 
 (require 'comint)
-(require 'dash)
 (require 'dired)
 (require 'transient)
 (require 'which-func)
