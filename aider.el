@@ -513,7 +513,7 @@ Correctly handles paragraphs ending with or without a newline."
         (while (< start end)
           (let ((line (buffer-substring-no-properties start (line-end-position))))
             (aider--send-command (string-trim-right line) t)
-            (setq start (line-end-position 1)))))))
+            (setq start (line-end-position 1))))))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
