@@ -215,8 +215,9 @@ COMMAND should be a string representing the command to send."
           ;; (message "Sent command to aider buffer: %s" (string-trim command))
           (when switch-to-buffer
             (aider-switch-to-buffer)))
-        (message "No active process found in buffer %s." (aider-buffer-name))))
-  (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name)))
+        (message "No active process found in buffer %s." (aider-buffer-name)))
+    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
+    ))
 
 ;;;###autoload
 (defun aider-add-or-read-current-file (command-prefix)
