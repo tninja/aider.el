@@ -204,13 +204,13 @@ If not in a git repository, an error is raised."
   "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
-  (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
+  (if-let ((aider-buffer (get-buffer (aider-buffer-name)))
+           (command (aider--escape-string-for-aider command)))
       (let ((aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Ensure the command ends with a newline
-              (unless (string-suffix-p "\n" command)
                 (setq command (concat command "\n")))
               ;; Send the command to the aider process
               (aider--comint-send-large-string aider-buffer command)
@@ -285,8 +285,8 @@ COMMAND should be a string representing the command to send."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
 If a region is active, append the region text to the question."
   (interactive)
-  (let ((question (aider-read-string "Enter question to ask: "))
-        (region-text (and (region-active-p) (aider--escape-string-for-aider (buffer-substring-no-properties (region-beginning) (region-end))))))
+  (let ((question (aider-plain-read-string "Enter question to ask: "))
+        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
     (let ((command (if region-text
                        (format "/ask %s: %s" question region-text)
                      (format "/ask %s" question))))
@@ -315,7 +315,7 @@ If a region is active, append the region text to the question."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/debug \",
 replacing all newline characters except for the one at the end."
   (interactive)
-  (let ((command (aider--escape-string-for-aider (aider-plain-read-string "Enter exception, can be multiple lines: "))))
+  (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
 
 ;; New function to show the last commit using magit
@@ -337,7 +337,7 @@ If Magit is not installed, report that it is required."
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
   "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
-  (let ((processed-region-text (aider--escape-string-for-aider region-text)))
+  (let ((processed-region-text region-text))
     (if function-name
         (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
                 function-name user-command processed-region-text)
@@ -389,7 +389,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
              (function-name (which-function))
-             (processed-region-text (aider--escape-string-for-aider region-text))
+             (processed-region-text region-text)
              (command (if function-name
                           (format "/ask in function %s, explain the following code block: %s"
                                   function-name
