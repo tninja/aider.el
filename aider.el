@@ -279,9 +279,14 @@ COMMAND should be a string representing the command to send."
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
 (defun aider-ask-question ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
+  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
+If a region is active, append the region text to the question."
   (interactive)
-  (let ((command (aider-read-string "Enter question to ask: ")))
+  (let ((question (aider-read-string "Enter question to ask: "))
+        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
+    (let ((command (if region-text
+                       (format "/ask %s: %s" question region-text)
+                     (format "/ask %s" question))))
     (aider-send-command-with-prefix "/ask " command)))
 
 ;; New function to get command from user and send it prefixed with "/help "
