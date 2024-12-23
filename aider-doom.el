@@ -16,40 +16,44 @@
           (:prefix ("A" . "Aider")
                    (:prefix ("a" . "Add")
                     :desc "Current file" "c" #'aider-add-current-file
+                    :desc "File read-only" "f" #'aider-current-file-read-only
                     :desc "Files in window" "w" #'aider-add-files-in-current-window
+                    :desc "Add Same Type Files under dir" "d" #'aider-add-same-type-files-under-dir
                     :desc "Batch direct marked files" "b" #'aider-batch-add-dired-marked-files
-                    :desc "Find files in repo" "g" #'aider-repo-find-name-dired
-                    :desc "Open repo root" "d" #'aider-git-repo-root-dired)
+                    )
 
                    (:prefix ("b" . "Buffer")
+                    :desc "Open Aider" "o" #'aider-run-aider
                     :desc "Switch to Aider" "b" #'aider-switch-to-buffer
-                    :desc "Clear Aider" "c" #'aider-clear)
+                    :desc "Clear Aider" "c" #'aider-clear
+                    :desc "Reset Aider" "r" #'aider-reset
+                    :desc "Exit Aider" "x" #'aider-exit
+                    )
 
                    (:prefix ("s" . "Send")
-                    :desc "File read-only" "f" #'aider-current-file-read-only
                     :desc "Line at cursor" "l" #'aider-send-line-under-cursor
-                    :desc "Paragraph at cursor" "p" #'aider-send-paragraph)
+                    :desc "Paragraph at cursor" "p" #'aider-send-paragraph
+                    )
 
                    (:prefix ("c" . "Code")
+                    :desc "Architecture" "d" #'aider-architect-discussion
                     :desc "Change" "c" #'aider-code-change
-                    :desc "Refactor region or function" "r" #'aider-function-or-region-refactor
-                    :desc "Undo change" "u" #'aider-undo-last-change)
+                    :desc "Refactor Function or Region" "r" #'aider-function-or-region-refactor
+                    :desc "Undo change" "u" #'aider-undo-last-change
+                    :desc "Show last commit" "g" #'aider-magit-show-last-commit
+                    )
 
                    (:prefix ("d" . "Discuss")
                     :desc "Ask question" "a" #'aider-ask-question
-                    :desc "Architecture" "d" #'aider-architect-discussion
-                    :desc "Region explanation" "r" #'aider-region-explain
-                    :desc "Exception debugggin" "e" #'aider-debug-exception)
+                    :desc "Explain Function or Region" "r" #'aider-function-or-region-explain
+                    :desc "Exception debugging" "e" #'aider-debug-exception
+                    )
 
                    (:prefix ("z" . "Other")
                     :desc "General command" "c" #'aider-general-command
                     :desc "Help" "h" #'aider-help
-                    :desc "Show last commit" "g" #'aider-magit-show-last-commit)
-
-
-                   :desc "Open Aider" "o" #'aider-run-aider
-                   :desc "Reset Aider" "r" #'aider-reset
-                   :desc "Exit Aider" "x" #'aider-exit))))
+                   )
+                   ))))
 
 ;; Add the setup function to appropriate hooks
 (add-hook 'find-file-hook #'aider-doom-setup-keys)
