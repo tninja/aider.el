@@ -87,6 +87,7 @@ This function can be customized or redefined by the user."
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
+    ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
     ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
