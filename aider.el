@@ -37,6 +37,11 @@
   "Face for command separator in aider."
   :group 'aider)
 
+(defface aider-command-text
+  '((t :inherit bold))
+  "Face for commands sent to aider buffer."
+  :group 'aider)
+
 (defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
@@ -233,10 +238,10 @@ COMMAND should be a string representing the command to send."
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
-              ;; Send the command to the aider process
-              (aider--comint-send-large-string aider-buffer (concat command "\n"))
-              ;; Provide feedback to the user
-              ;; (message "Sent command to aider buffer: %s" (string-trim command))
+              ;; Add text properties for highlighting
+              (let ((highlighted-command (propertize command 'face 'aider-command-text)))
+                ;; Send the command to the aider process
+                (aider--comint-send-large-string aider-buffer (concat highlighted-command "\n")))
               (when switch-to-buffer
                 (aider-switch-to-buffer)))
           (message "No active process found in buffer %s." (aider-buffer-name))))
