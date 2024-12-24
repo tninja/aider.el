@@ -55,23 +55,13 @@ This function can be customized or redefined by the user."
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
-;; (defclass aider-lisp-variable (transient-lisp-variable)
-;;   ((display-nil :initarg :display-nil)  ;String to display if value if nil
-;;    (display-map :initarg :display-map :initform nil)) ;Display string from alist display-map
-;;   "Lisp variables that show :display-nil instead of nil.")
-
-;; (defclass aider--switches (aider-lisp-variable)
-;;   ((display-if-true :initarg :display-if-true :initform "True")
-;;    (display-if-false :initarg :display-if-false :initform "False"))
-;;   "Boolean lisp variable class for aider-transient.")
-
 (defvar aider--add-file-read-only nil
   "Set model parameters from `aider-menu' buffer-locally.
 Affects the system message too.")
 
 (defclass aider--add-file-type (transient-lisp-variable)
   ((variable :initform 'aider--add-file-read-only)
-   (format :initform "%k Read only mode: %v")
+   (format :initform "%k %d %v")
    (reader :initform #'transient-lisp-variable--read-value))
   "Class for toggling aider--add-file-read-only.")
 
@@ -79,7 +69,7 @@ Affects the system message too.")
   "Toggle aider--add-file-read-only between nil and t."
   :class 'aider--add-file-type
   :key "="
-  :description "Read-only"
+  :description "Read-only mode"
   :reader (lambda (_prompt _initial-input _history)
            (not aider--add-file-read-only)))
 
@@ -100,7 +90,6 @@ Affects the system message too.")
    ["Add File to Aider"
     (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
-    ("o" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
