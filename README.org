@@ -19,7 +19,7 @@
 
 *** Aider session management:
   - (`aider-run-aider`): Create a comint-based, *git repo specific aider session* for interactive conversation.
-    - Git repository identification is based on the file path of of the current file
+    - Git repository identification is based on the file path of the current file
     - Multiple Aider sessions can exist for different Git repositories
   - (`aider-switch-to-buffer`): Switch to the Aider buffer.
 
