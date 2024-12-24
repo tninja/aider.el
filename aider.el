@@ -223,17 +223,17 @@ Ensure proper highlighting of the text in the buffer."
     (while (< pos (length text))
       (let* ((end-pos (min (+ pos chunk-size) (length text)))
              (chunk (substring text pos end-pos)))
-        ;; 在buffer中插入文本并确保高亮
+        ;; Insert text into buffer and ensure highlighting
         (with-current-buffer buffer
           (let ((inhibit-read-only t)
                 (current-point (process-mark process)))
             (goto-char current-point)
-            ;; 使用 comint-output-filter 来确保正确的文本属性处理
+            ;; Use comint-output-filter to ensure proper text property handling
             (comint-output-filter process (propertize chunk 
                                                      'face 'aider-command-text
                                                      'font-lock-face 'aider-command-text
                                                      'rear-nonsticky t))))
-        ;; 发送原始文本到进程
+        ;; Send raw text to process
         (process-send-string process chunk)
         (sleep-for 0.1)
         (message "Sent command to aider buffer: %s" chunk)
