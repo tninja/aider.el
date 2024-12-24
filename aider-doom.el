@@ -56,6 +56,13 @@
                    :desc "Exit Aider" "x" #'aider-exit
                    ))))
 
+;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
+;;;###autoload
+(defun aider-current-file-read-only ()
+  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer. This is only useful for doom menu now"
+  (interactive)
+  (aider-add-or-read-current-file "/read-only"))
+
 ;; Add the setup function to appropriate hooks
 (add-hook 'find-file-hook #'aider-doom-setup-keys)
 (add-hook 'dired-mode-hook #'aider-doom-setup-keys)
