@@ -26,7 +26,7 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-args '("--model" "gpt-4o-mini")
+(defcustom aider-args '("--model" "gemini/gemini-exp-1206")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
@@ -259,13 +259,6 @@ COMMAND should be a string representing the command to send."
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
   (aider-add-or-read-current-file "/add"))
-
-;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
-;;;###autoload
-(defun aider-current-file-read-only ()
-  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer. This is only useful for doom menu now"
-  (interactive)
-  (aider-add-or-read-current-file "/read-only"))
 
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload

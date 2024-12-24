@@ -15,7 +15,7 @@
 
 [[file:./transient_menu.png]]
 
-- Following command integrated to aider session
+- Following command integrated to aider menu
 
 *** Aider session management:
   - (`aider-run-aider`): Create a comint-based, *git repo specific aider session* for interactive conversation.
