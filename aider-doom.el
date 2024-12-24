@@ -23,11 +23,8 @@
                     )
 
                    (:prefix ("b" . "Buffer")
-                    :desc "Open Aider" "o" #'aider-run-aider
                     :desc "Switch to Aider" "b" #'aider-switch-to-buffer
                     :desc "Clear Aider" "c" #'aider-clear
-                    :desc "Reset Aider" "r" #'aider-reset
-                    :desc "Exit Aider" "x" #'aider-exit
                     )
 
                    (:prefix ("s" . "Send")
@@ -52,7 +49,11 @@
                    (:prefix ("z" . "Other")
                     :desc "General command" "c" #'aider-general-command
                     :desc "Help" "h" #'aider-help
-                   )
+                    )
+
+                   :desc "Open Aider" "o" #'aider-run-aider
+                   :desc "Reset Aider" "r" #'aider-reset
+                   :desc "Exit Aider" "x" #'aider-exit
                    ))))
 
 ;; Add the setup function to appropriate hooks

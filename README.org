@@ -88,7 +88,7 @@ The aider prefix is "A".
 
 - Start and open the aider buffer: =[SPC] A o=
 - Add the current file with =[SPC] A a c=
-- Reset the aider session with =[SPC] A a s=
+- Reset the aider session with =[SPC] A r=
 [[file:./doom-menus.png]]
 
 ** Optional
