@@ -55,6 +55,28 @@ This function can be customized or redefined by the user."
 
 (defalias 'aider-read-string 'aider-plain-read-string)
 
+(defvar aider--add-file-read-only nil
+  "Set model parameters from `aider-menu' buffer-locally.
+Affects the system message too.")
+
+(defun aider--get-add-command-prefix ()
+  "Return the appropriate command prefix based on aider--add-file-read-only."
+  (if aider--add-file-read-only "/read-only" "/add"))
+
+(defclass aider--add-file-type (transient-lisp-variable)
+  ((variable :initform 'aider--add-file-read-only)
+   (format :initform "%k %d %v")
+   (reader :initform #'transient-lisp-variable--read-value))
+  "Class for toggling aider--add-file-read-only.")
+
+(transient-define-infix aider--infix-add-file-read-only ()
+  "Toggle aider--add-file-read-only between nil and t."
+  :class 'aider--add-file-type
+  :key "="
+  :description "Read-only mode"
+  :reader (lambda (_prompt _initial-input _history)
+           (not aider--add-file-read-only)))
+
 ;; Transient menu for Aider commands
 ;; The instruction in the autoload comment is needed, see
 ;; https://github.com/magit/transient/issues/280.
@@ -70,8 +92,8 @@ This function can be customized or redefined by the user."
     ("x" "Exit Aider" aider-exit)
     ]
    ["Add File to Aider"
+    (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
-    ("o" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
@@ -227,7 +249,7 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((command (format "%s %s" command-prefix (expand-file-name buffer-file-name))))
+    (let ((command (format "%s %s" (aider--get-add-command-prefix) (expand-file-name buffer-file-name))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
@@ -241,7 +263,7 @@ COMMAND should be a string representing the command to send."
 ;; Function to send "/read <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-current-file-read-only ()
-  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer. This is only useful for doom menu now"
   (interactive)
   (aider-add-or-read-current-file "/read-only"))
 
@@ -257,7 +279,7 @@ COMMAND should be a string representing the command to send."
                        (mapcar 'window-buffer (window-list)))))
     (setq files (delq nil files))
     (if files
-        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'identity files " "))))
           (aider--send-command command nil))
       (message "No files found in the current window."))))
 
@@ -447,7 +469,7 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
   (interactive)
   (let ((files (dired-get-marked-files)))
     (if files
-        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
+        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'expand-file-name files " "))))
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
@@ -468,7 +490,7 @@ If there are more than 40 files, refuse to add and show warning message."
       (if (> (length files) max-files)
           (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
                    (length files) max-files current-suffix)
-        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'identity files " "))))
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
