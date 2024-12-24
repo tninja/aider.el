@@ -223,13 +223,16 @@ Ensure proper highlighting of the text in the buffer."
     (while (< pos (length text))
       (let* ((end-pos (min (+ pos chunk-size) (length text)))
              (chunk (substring text pos end-pos)))
-        ;; 直接在 buffer 中插入带有face属性的文本
+        ;; 在buffer中插入文本并确保高亮
         (with-current-buffer buffer
           (let ((inhibit-read-only t)
                 (current-point (process-mark process)))
             (goto-char current-point)
-            (insert (propertize chunk 'face 'aider-command-text))
-            (set-marker (process-mark process) (point))))
+            ;; 使用 comint-output-filter 来确保正确的文本属性处理
+            (comint-output-filter process (propertize chunk 
+                                                     'face 'aider-command-text
+                                                     'font-lock-face 'aider-command-text
+                                                     'rear-nonsticky t))))
         ;; 发送原始文本到进程
         (process-send-string process chunk)
         (sleep-for 0.1)
