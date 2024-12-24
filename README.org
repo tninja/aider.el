@@ -15,26 +15,32 @@
 
 [[file:./transient_menu.png]]
 
-- Git Repository-Specific Aider Sessions in Emacs: Automatically identify the Git repository of the current file and create a new Aider session for it. Multiple Aider sessions can exist for different Git repositories.
+- Following command integrated to aider session
 
-- More ways to add files to the Aider buffer:
-  - Add the current buffer file: (`aider-add-current-file`)
-  - Add all buffers in the current window: (`aider-add-files-in-current-window`)
-  - Batch add files from the Dired buffer: (`aider-batch-add-dired-marked-files`) Add multiple Dired marked files to the Aider buffer.
+*** Aider session management:
+  - (`aider-run-aider`): Create a comint-based, *git repo specific aider session* for interactive conversation.
+    - Git repository identification is based on the file path of of the current file
+    - Multiple Aider sessions can exist for different Git repositories
+  - (`aider-switch-to-buffer`): Switch to the Aider buffer.
 
-- Refactor region / function:
-  - (`aider-region-refactor`): Ask Aider to refactor it given your input instruction.
-  - (`aider-function-refactor`): Ask Aider to refactor the function under the cursor given your instruction.
+*** More ways to add files to the Aider buffer:
+  - (`aider-add-current-file`): Add the current buffer file.
+  - (`aider-current-file-read-only`): Add the current buffer file as read-only.
+  - (`aider-add-files-in-current-window`): Add all buffers in the current window.
+  - (`aider-add-same-type-files-under-dir`): Add all files with the same suffix as the current file under the current directory to Aider.
+  - (`aider-batch-add-dired-marked-files`): Add multiple Dired marked files to the Aider buffer.
 
-- Explain code
-  - (`aider-region-explain`): Select a region (e.g., a code block) in a file and ask Aider to explain it.
-  - (`aider-function-explain`): Place the cursor on a function and ask Aider to explain it.
+*** Refactor code:
+  - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to refactor the function under the cursor.
+
+*** Explain code:
+  - (`aider-function-or-region-explain`): If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
-- Support for Test Driven Development:
-  - Fix Tests: (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
+*** Support for Test Driven Development:
+  - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
-- And More: Add your own Elisp functions to support your use case. You can certainly ask Aider / `aider.el` to do that.
+*** And More: Add your own Elisp functions to support your use case. You can certainly ask Aider / `aider.el` to do that.
 
 * Installation
 
@@ -67,7 +73,7 @@
 - Add the following code to your doom/packages.el
 
 #+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("*.el")))
+(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-doom.el")))
 #+END_SRC
 
 - Adjust and add the following code to your doom/config.el
@@ -82,7 +88,7 @@ The aider prefix is "A".
 
 - Start and open the aider buffer: =[SPC] A o=
 - Add the current file with =[SPC] A a c=
-
+- Reset the aider session with =[SPC] A r=
 [[file:./doom-menus.png]]
 
 ** Optional
