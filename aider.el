@@ -216,15 +216,22 @@ If not in a git repository, an error is raised."
 ;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-large-string (buffer text)
   "Send large TEXT to the comint buffer in chunks of 1000 characters.
-Apply highlighting to the text in the buffer."
+Ensure proper highlighting of the text in the buffer."
   (let ((chunk-size 1000)
         (pos 0)
         (process (get-buffer-process buffer)))
     (while (< pos (length text))
       (let* ((end-pos (min (+ pos chunk-size) (length text)))
-             (chunk (substring text pos end-pos))
-             (highlighted-chunk (propertize chunk 'face 'aider-command-text)))
-        (process-send-string process highlighted-chunk)
+             (chunk (substring text pos end-pos)))
+        ;; 直接在 buffer 中插入带有face属性的文本
+        (with-current-buffer buffer
+          (let ((inhibit-read-only t)
+                (current-point (process-mark process)))
+            (goto-char current-point)
+            (insert (propertize chunk 'face 'aider-command-text))
+            (set-marker (process-mark process) (point))))
+        ;; 发送原始文本到进程
+        (process-send-string process chunk)
         (sleep-for 0.1)
         (message "Sent command to aider buffer: %s" chunk)
         (setq pos end-pos)))))
