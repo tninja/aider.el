@@ -37,6 +37,11 @@
   "Face for command separator in aider."
   :group 'aider)
 
+(defface aider-command-text
+  '((t :inherit bold))
+  "Face for commands sent to aider buffer."
+  :group 'aider)
+
 (defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
@@ -210,17 +215,29 @@ If not in a git repository, an error is raised."
 
 ;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-large-string (buffer text)
-  "Send large TEXT to the comint buffer in chunks of 1000 characters."
+  "Send large TEXT to the comint buffer in chunks of 1000 characters.
+Ensure proper highlighting of the text in the buffer."
   (let ((chunk-size 1000)
         (pos 0)
         (process (get-buffer-process buffer)))
     (while (< pos (length text))
-      (process-send-string
-       process
-       (substring text pos (min (+ pos chunk-size) (length text))))
-      (sleep-for 0.1)
-      (message "Sent command to aider buffer: %s" (substring text pos (min (+ pos chunk-size) (length text))))
-      (setq pos (+ pos chunk-size)))))
+      (let* ((end-pos (min (+ pos chunk-size) (length text)))
+             (chunk (substring text pos end-pos)))
+        ;; Insert text into buffer and ensure highlighting
+        (with-current-buffer buffer
+          (let ((inhibit-read-only t)
+                (current-point (process-mark process)))
+            (goto-char current-point)
+            ;; Use comint-output-filter to ensure proper text property handling
+            (comint-output-filter process (propertize chunk 
+                                                     'face 'aider-command-text
+                                                     'font-lock-face 'aider-command-text
+                                                     'rear-nonsticky t))))
+        ;; Send raw text to process
+        (process-send-string process chunk)
+        (sleep-for 0.1)
+        (message "Sent command to aider buffer: %s" chunk)
+        (setq pos end-pos)))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional switch-to-buffer)
