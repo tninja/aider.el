@@ -24,8 +24,8 @@
   - (`aider-switch-to-buffer`): Switch to the Aider buffer.
 
 *** More ways to add files to the Aider buffer:
+  - use "=" in the menu to toggle add file between read-write mode and read-only mode
   - (`aider-add-current-file`): Add the current buffer file.
-  - (`aider-current-file-read-only`): Add the current buffer file as read-only.
   - (`aider-add-files-in-current-window`): Add all buffers in the current window.
   - (`aider-add-same-type-files-under-dir`): Add all files with the same suffix as the current file under the current directory to Aider.
   - (`aider-batch-add-dired-marked-files`): Add multiple Dired marked files to the Aider buffer.
