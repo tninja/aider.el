@@ -31,6 +31,12 @@
   :type '(repeat string)
   :group 'aider)
 
+(defcustom aider--switch-to-buffer-other-frame nil
+  "When non-nil, open Aider buffer in a new frame using `switch-to-buffer-other-frame'.
+When nil, use standard `display-buffer' behavior."
+  :type 'boolean
+  :group 'aider)
+
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -45,7 +51,6 @@
 (defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
-
 
 (defun aider--escape-string-for-aider (str)
   "Escape special characters in STR for sending to Aider.
@@ -74,13 +79,27 @@ Affects the system message too.")
    (reader :initform #'transient-lisp-variable--read-value))
   "Class for toggling aider--add-file-read-only.")
 
+(defclass aider--switch-to-buffer-type (transient-lisp-variable)
+  ((variable :initform 'aider--switch-to-buffer-other-frame)
+   (format :initform "%k %d %v")
+   (reader :initform #'transient-lisp-variable--read-value))
+  "Class for toggling aider--switch-to-buffer-other-frame.")
+
 (transient-define-infix aider--infix-add-file-read-only ()
   "Toggle aider--add-file-read-only between nil and t."
   :class 'aider--add-file-type
-  :key "="
+  :key "@"
   :description "Read-only mode"
   :reader (lambda (_prompt _initial-input _history)
            (not aider--add-file-read-only)))
+
+(transient-define-infix aider--infix-switch-to-buffer-other-frame ()
+  "Toggle aider--switch-to-buffer-other-frame between nil and t."
+  :class 'aider--switch-to-buffer-type
+  :key "^"
+  :description "Open in new frame"
+  :reader (lambda (_prompt _initial-input _history)
+           (not aider--switch-to-buffer-other-frame)))
 
 ;; Transient menu for Aider commands
 ;; The instruction in the autoload comment is needed, see
@@ -90,6 +109,7 @@ Affects the system message too.")
   "Transient menu for Aider commands."
   ["Aider: AI Pair Programming"
    ["Aider Process"
+    (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear)
@@ -187,12 +207,14 @@ If not in a git repository, an error is raised."
 ;; Function to switch to the Aider buffer
 ;;;###autoload
 (defun aider-switch-to-buffer ()
-  "Switch to the Aider buffer."
+  "Switch to the Aider buffer.
+When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame."
   (interactive)
-  (let ((buffer (get-buffer (aider-buffer-name))))
-    (if buffer
-        (pop-to-buffer buffer)
-      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+  (if-let ((buffer (get-buffer (aider-buffer-name))))
+      (if aider--switch-to-buffer-other-frame
+          (switch-to-buffer-other-frame buffer)
+        (pop-to-buffer buffer))
+    (message "Aider buffer '%s' does not exist." (aider-buffer-name))))
 
 ;; Function to reset the Aider buffer
 ;;;###autoload
