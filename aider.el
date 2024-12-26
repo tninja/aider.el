@@ -457,10 +457,13 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 ;; New function to ask Aider to explain the function under the cursor
 ;;;###autoload
 (defun aider-function-explain ()
-  "Ask Aider to explain the function under the cursor."
+  "Ask Aider to explain the function under the cursor.
+Prompts user for specific questions about the function."
   (interactive)
   (if-let ((function-name (which-function)))
-      (let ((command (format "/ask Please explain the function: %s" function-name)))
+      (let* ((initial-input (format "explain %s: " function-name))
+             (user-question (aider-read-string "Enter your question about the function: " initial-input))
+             (command (format "/ask %s" user-question)))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No function found at cursor position.")))
