@@ -22,9 +22,10 @@
     - Git repository identification is based on the current file's path
     - Multiple Aider sessions can run simultaneously for different Git repositories
   - (`aider-switch-to-buffer`): Switch to the Aider buffer.
+    - use "^" in the menu to toggle open aider session in other window inside current frame, or open a dedicate frame for aider session
 
 *** More ways to add files to the Aider buffer:
-  - use "=" in the menu to toggle add file between read-write mode and read-only mode
+  - use "@" in the menu to toggle add file between read-write mode and read-only mode
   - (`aider-add-current-file`): Add the current buffer file.
   - (`aider-add-files-in-current-window`): Add all buffers in the current window.
   - (`aider-add-same-type-files-under-dir`): Add all files with the same suffix as the current file under the current directory to Aider.
@@ -34,6 +35,7 @@
   - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to refactor the function under the cursor.
 
 *** Explain code:
+  - (`aider-ask-question`): Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
   - (`aider-function-or-region-explain`): If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 

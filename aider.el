@@ -31,6 +31,12 @@
   :type '(repeat string)
   :group 'aider)
 
+(defcustom aider--switch-to-buffer-other-frame nil
+  "When non-nil, open Aider buffer in a new frame using `switch-to-buffer-other-frame'.
+When nil, use standard `display-buffer' behavior."
+  :type 'boolean
+  :group 'aider)
+
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -46,11 +52,14 @@
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
-
-(defun aider--escape-string-for-aider (str)
-  "Escape special characters in STR for sending to Aider.
-Currently, this function replaces newlines with \\\\n."
-  (replace-regexp-in-string "\n" "\\\\n" str))
+(defun aider--process-message-if-multi-line (str)
+  "Entering multi-line chat messages
+https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
+If STR contains newlines, wrap it in {aider.el\\nstr\\naider.el}.
+Otherwise return STR unchanged."
+  (if (string-match-p "\n" str)
+      (format "{aider\n%s\naider}" str)
+    str))
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
@@ -74,13 +83,27 @@ Affects the system message too.")
    (reader :initform #'transient-lisp-variable--read-value))
   "Class for toggling aider--add-file-read-only.")
 
+(defclass aider--switch-to-buffer-type (transient-lisp-variable)
+  ((variable :initform 'aider--switch-to-buffer-other-frame)
+   (format :initform "%k %d %v")
+   (reader :initform #'transient-lisp-variable--read-value))
+  "Class for toggling aider--switch-to-buffer-other-frame.")
+
 (transient-define-infix aider--infix-add-file-read-only ()
   "Toggle aider--add-file-read-only between nil and t."
   :class 'aider--add-file-type
-  :key "="
+  :key "@"
   :description "Read-only mode"
   :reader (lambda (_prompt _initial-input _history)
            (not aider--add-file-read-only)))
+
+(transient-define-infix aider--infix-switch-to-buffer-other-frame ()
+  "Toggle aider--switch-to-buffer-other-frame between nil and t."
+  :class 'aider--switch-to-buffer-type
+  :key "^"
+  :description "Open in new frame"
+  :reader (lambda (_prompt _initial-input _history)
+           (not aider--switch-to-buffer-other-frame)))
 
 ;; Transient menu for Aider commands
 ;; The instruction in the autoload comment is needed, see
@@ -90,6 +113,7 @@ Affects the system message too.")
   "Transient menu for Aider commands."
   ["Aider: AI Pair Programming"
    ["Aider Process"
+    (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear)
@@ -187,12 +211,14 @@ If not in a git repository, an error is raised."
 ;; Function to switch to the Aider buffer
 ;;;###autoload
 (defun aider-switch-to-buffer ()
-  "Switch to the Aider buffer."
+  "Switch to the Aider buffer.
+When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame."
   (interactive)
-  (let ((buffer (get-buffer (aider-buffer-name))))
-    (if buffer
-        (pop-to-buffer buffer)
-      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+  (if-let ((buffer (get-buffer (aider-buffer-name))))
+      (if aider--switch-to-buffer-other-frame
+          (switch-to-buffer-other-frame buffer)
+        (pop-to-buffer buffer))
+    (message "Aider buffer '%s' does not exist." (aider-buffer-name))))
 
 ;; Function to reset the Aider buffer
 ;;;###autoload
@@ -236,7 +262,7 @@ Ensure proper highlighting of the text in the buffer."
         ;; Send raw text to process
         (process-send-string process chunk)
         (sleep-for 0.1)
-        (message "Sent command to aider buffer: %s" chunk)
+        ;; (message "Sent command to aider buffer: %s" chunk)
         (setq pos end-pos)))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
@@ -245,7 +271,7 @@ Ensure proper highlighting of the text in the buffer."
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
-      (let* ((command (aider--escape-string-for-aider command))
+      (let* ((command (aider--process-message-if-multi-line command))
              (aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
@@ -435,10 +461,13 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 ;; New function to ask Aider to explain the function under the cursor
 ;;;###autoload
 (defun aider-function-explain ()
-  "Ask Aider to explain the function under the cursor."
+  "Ask Aider to explain the function under the cursor.
+Prompts user for specific questions about the function."
   (interactive)
   (if-let ((function-name (which-function)))
-      (let ((command (format "/ask Please explain the function: %s" function-name)))
+      (let* ((initial-input (format "explain %s: " function-name))
+             (user-question (aider-read-string "Enter your question about the function: " initial-input))
+             (command (format "/ask %s" user-question)))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No function found at cursor position.")))
