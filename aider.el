@@ -52,10 +52,14 @@ When nil, use standard `display-buffer' behavior."
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
-(defun aider--escape-string-for-aider (str)
-  "Escape special characters in STR for sending to Aider.
-Currently, this function replaces newlines with \\\\n."
-  (replace-regexp-in-string "\n" "\\\\n" str))
+(defun aider--process-message-if-multi-line (str)
+  "Entering multi-line chat messages
+https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
+If STR contains newlines, wrap it in {aider.el\\nstr\\naider.el}.
+Otherwise return STR unchanged."
+  (if (string-match-p "\n" str)
+      (format "{aider\n%s\naider}" str)
+    str))
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
@@ -258,7 +262,7 @@ Ensure proper highlighting of the text in the buffer."
         ;; Send raw text to process
         (process-send-string process chunk)
         (sleep-for 0.1)
-        (message "Sent command to aider buffer: %s" chunk)
+        ;; (message "Sent command to aider buffer: %s" chunk)
         (setq pos end-pos)))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
@@ -267,7 +271,7 @@ Ensure proper highlighting of the text in the buffer."
 COMMAND should be a string representing the command to send."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
-      (let* ((command (aider--escape-string-for-aider command))
+      (let* ((command (aider--process-message-if-multi-line command))
              (aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
