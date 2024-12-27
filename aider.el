@@ -252,7 +252,7 @@ Ensure proper highlighting of the text in the buffer."
                                                      'rear-nonsticky t))))
         ;; Send raw text to process
         (process-send-string process chunk)
-        (sleep-for 0.1)
+        (sleep-for 0.2)
         ;; (message "Sent command to aider buffer: %s" chunk)
         (setq pos end-pos)))))
 
