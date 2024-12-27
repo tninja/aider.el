@@ -52,15 +52,6 @@ When nil, use standard `display-buffer' behavior."
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
-(defun aider--process-message-if-multi-line (str)
-  "Entering multi-line chat messages
-https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
-If STR contains newlines, wrap it in {aider.el\\nstr\\naider.el}.
-Otherwise return STR unchanged."
-  (if (string-match-p "\n" str)
-      (format "{aider\n%s\naider}" str)
-    str))
-
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
@@ -264,6 +255,15 @@ Ensure proper highlighting of the text in the buffer."
         (sleep-for 0.1)
         ;; (message "Sent command to aider buffer: %s" chunk)
         (setq pos end-pos)))))
+
+(defun aider--process-message-if-multi-line (str)
+  "Entering multi-line chat messages
+https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
+If STR contains newlines, wrap it in {aider\\nstr\\naider}.
+Otherwise return STR unchanged."
+  (if (string-match-p "\n" str)
+      (format "{aider\n%s\naider}" str)
+    str))
 
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional switch-to-buffer)
