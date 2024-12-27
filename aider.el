@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
-;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -292,7 +292,8 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((command (format "%s %s" (aider--get-add-command-prefix) (expand-file-name buffer-file-name))))
+    (let ((command (format "%s %s" (aider--get-add-command-prefix)
+                           (file-local-name (expand-file-name buffer-file-name)))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 

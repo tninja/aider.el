@@ -47,6 +47,8 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
 * Installation
 
+- Emacs need to be >= 2.61
+
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
