@@ -47,6 +47,8 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
 * Installation
 
+- Emacs need to be >= 26.1
+
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
@@ -100,27 +102,11 @@ The aider prefix is "A".
 
 Helm enables fuzzy searching functionality for command history prompts
 
-You can enable Helm-based completion in two ways:
-
-- 1. Using use-package:
+You can enable Helm-based completion with the following code:
 
 #+BEGIN_SRC emacs-lisp
-  ;; Basic aider installation
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el")))
-
-  ;; Optional helm support
-  (use-package aider-helm
-    :straight (:host github :repo "tninja/aider.el" :files ("aider-helm.el"))
-    :after (aider helm))
-#+END_SRC
-
-- 2. Manual loading:
-
-#+BEGIN_SRC emacs-lisp
-  ;; Load helm support after both aider and helm are loaded
-  (with-eval-after-load 'helm
-    (require 'aider-helm))
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-helm.el")))
 #+END_SRC
   
 *** Aider script interactive mode: aider-minor-mode

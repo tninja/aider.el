@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
-;; Package-Requires: ((emacs "25.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -252,7 +252,7 @@ Ensure proper highlighting of the text in the buffer."
                                                      'rear-nonsticky t))))
         ;; Send raw text to process
         (process-send-string process chunk)
-        (sleep-for 0.1)
+        (sleep-for 0.2)
         ;; (message "Sent command to aider buffer: %s" chunk)
         (setq pos end-pos)))))
 
@@ -292,7 +292,8 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((command (format "%s %s" (aider--get-add-command-prefix) (expand-file-name buffer-file-name))))
+    (let ((command (format "%s %s" (aider--get-add-command-prefix)
+                           (file-local-name (expand-file-name buffer-file-name)))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
