@@ -292,7 +292,7 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((command (format "%s %s" (aider--get-add-command-prefix)
+    (let ((command (format "%s %s" command-prefix
                            (file-local-name (expand-file-name buffer-file-name)))))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
@@ -302,7 +302,7 @@ COMMAND should be a string representing the command to send."
 (defun aider-add-current-file ()
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file "/add"))
+  (aider-add-or-read-current-file (aider--get-add-command-prefix)))
 
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
