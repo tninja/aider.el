@@ -203,13 +203,16 @@ If not in a git repository, an error is raised."
 ;;;###autoload
 (defun aider-switch-to-buffer ()
   "Switch to the Aider buffer.
-When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame."
+When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame.
+If the current buffer is already the Aider buffer, do nothing."
   (interactive)
-  (if-let ((buffer (get-buffer (aider-buffer-name))))
-      (if aider--switch-to-buffer-other-frame
-          (switch-to-buffer-other-frame buffer)
-        (pop-to-buffer buffer))
-    (message "Aider buffer '%s' does not exist." (aider-buffer-name))))
+  (if (string= (buffer-name) (aider-buffer-name))
+      (message "Already in Aider buffer")
+    (if-let ((buffer (get-buffer (aider-buffer-name))))
+        (if aider--switch-to-buffer-other-frame
+            (switch-to-buffer-other-frame buffer)
+          (pop-to-buffer buffer))
+      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;; Function to reset the Aider buffer
 ;;;###autoload
