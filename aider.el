@@ -128,6 +128,7 @@ Affects the system message too.")
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
+    ("y" "Go Ahead" aider-go-ahead)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
     ("D" "Debug Exception" aider-debug-exception)
@@ -379,6 +380,12 @@ replacing all newline characters except for the one at the end."
   (interactive)
   (let ((command (aider-plain-read-string "Enter exception, can be multiple lines: ")))
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
+
+;;;###autoload
+(defun aider-go-ahead ()
+  "Send the command \"go ahead\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider--send-command "go ahead" t))
 
 ;; New function to show the last commit using magit
 ;;;###autoload
