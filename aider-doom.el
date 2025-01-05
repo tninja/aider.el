@@ -30,7 +30,6 @@
                    (:prefix ("s" . "Send")
                     :desc "Line at cursor" "l" #'aider-send-line-under-cursor
                     :desc "Paragraph at cursor, line by line" "p" #'aider-send-paragraph-by-line
-                    :desc "Paragraph at cursor as block" "b" #'aider-send-block
                     :desc "Region as block" "r" #'aider-send-region
                     )
 
