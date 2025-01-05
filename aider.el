@@ -561,7 +561,19 @@ This function assumes the cursor is on or inside a test function."
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
 
-;;; functions for .aider file related
+;;; functions for sending text blocks
+
+;;;###autoload
+(defun aider-send-block ()
+  "Get the whole text of the current paragraph and send it as a single block to aider session."
+  (interactive)
+  (let ((paragraph (save-excursion
+                    (backward-paragraph)
+                    (let ((start (point)))
+                      (forward-paragraph)
+                      (buffer-substring-no-properties start (point))))))
+    (unless (string-empty-p paragraph)
+      (aider--send-command paragraph t))))
 
 ;; New function to send "<line under cursor>" to the Aider buffer
 ;;;###autoload
@@ -593,6 +605,7 @@ This function assumes the cursor is on or inside a test function."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
     (define-key map (kbd "C-c C-c") 'aider-send-paragraph-by-line)
+    (define-key map (kbd "C-c C-b") 'aider-send-block)
     map)
   "Keymap for Aider Minor Mode.")
 
