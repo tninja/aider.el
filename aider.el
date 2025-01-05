@@ -563,18 +563,6 @@ This function assumes the cursor is on or inside a test function."
 
 ;;; functions for sending text blocks
 
-;;;###autoload
-(defun aider-send-block ()
-  "Get the whole text of the current paragraph and send it as a single block to aider session."
-  (interactive)
-  (let ((paragraph (save-excursion
-                    (backward-paragraph)
-                    (let ((start (point)))
-                      (forward-paragraph)
-                      (buffer-substring-no-properties start (point))))))
-    (unless (string-empty-p paragraph)
-      (aider--send-command paragraph t))))
-
 ;; New function to send "<line under cursor>" to the Aider buffer
 ;;;###autoload
 (defun aider-send-line-under-cursor ()
@@ -599,6 +587,18 @@ This function assumes the cursor is on or inside a test function."
             (unless (string-empty-p line)
               (aider--send-command line t)))
           (split-string paragraph "\n" t))))
+
+;;;###autoload
+(defun aider-send-block ()
+  "Get the whole text of the current paragraph and send it as a single block to aider session."
+  (interactive)
+  (let ((paragraph (save-excursion
+                    (backward-paragraph)
+                    (let ((start (point)))
+                      (forward-paragraph)
+                      (buffer-substring-no-properties start (point))))))
+    (unless (string-empty-p paragraph)
+      (aider--send-command paragraph t))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
