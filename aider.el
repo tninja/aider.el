@@ -588,6 +588,15 @@ This function assumes the cursor is on or inside a test function."
               (aider--send-command line t)))
           (split-string paragraph "\n" t))))
 
+;;;###autoload
+(defun aider-send-region ()
+  "Send the current active region text as a whole block to aider session."
+  (interactive)
+  (if (region-active-p)
+      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+        (unless (string-empty-p region-text)
+          (aider--send-command region-text t)))
+    (message "No region selected.")))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
@@ -607,16 +616,6 @@ This function assumes the cursor is on or inside a test function."
 
 (when (featurep 'doom)
   (require 'aider-doom))
-
-;;;###autoload
-(defun aider-send-region ()
-  "Send the current active region text as a whole block to aider session."
-  (interactive)
-  (if (region-active-p)
-      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
-        (unless (string-empty-p region-text)
-          (aider--send-command region-text t)))
-    (message "No region selected.")))
 
 (provide 'aider)
 
