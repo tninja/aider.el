@@ -573,7 +573,7 @@ This function assumes the cursor is on or inside a test function."
 
 ;;; New function to send the current paragraph to the Aider buffer
 ;;;###autoload
-(defun aider-send-paragraph ()
+(defun aider-send-paragraph-by-line ()
   "Get the whole text of the current paragraph, split them into lines,
    strip the newline character from each line,
    for each non-empty line, send it to aider session"
@@ -592,7 +592,7 @@ This function assumes the cursor is on or inside a test function."
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
-    (define-key map (kbd "C-c C-c") 'aider-send-paragraph)
+    (define-key map (kbd "C-c C-c") 'aider-send-paragraph-by-line)
     map)
   "Keymap for Aider Minor Mode.")
 
