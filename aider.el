@@ -606,6 +606,7 @@ This function assumes the cursor is on or inside a test function."
     (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
     (define-key map (kbd "C-c C-c") 'aider-send-paragraph-by-line)
     (define-key map (kbd "C-c C-b") 'aider-send-block)
+    (define-key map (kbd "C-c C-r") 'aider-send-region)
     map)
   "Keymap for Aider Minor Mode.")
 
@@ -618,6 +619,16 @@ This function assumes the cursor is on or inside a test function."
 
 (when (featurep 'doom)
   (require 'aider-doom))
+
+;;;###autoload
+(defun aider-send-region ()
+  "Send the current active region text as a whole block to aider session."
+  (interactive)
+  (if (region-active-p)
+      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+        (unless (string-empty-p region-text)
+          (aider--send-command region-text t)))
+    (message "No region selected.")))
 
 (provide 'aider)
 

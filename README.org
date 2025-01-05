@@ -115,6 +115,7 @@ You can enable Helm-based completion with the following code:
   - C-c C-n: Send current line to aider session
   - C-c C-c: Send current paragraph line by line to aider session
   - C-c C-b: Send current paragraph as a single block to aider session
+  - C-c C-r: Send current region as a single block to aider session
   - Enable aider-minor-mode for your editing buffer
   - To automatically enable aider-minor-mode for any file with "aider" in its filename:
 
