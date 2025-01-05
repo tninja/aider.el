@@ -111,7 +111,7 @@ You can enable Helm-based completion with the following code:
   
 *** Aider script interactive mode: aider-minor-mode
 
-- If you prefer writing Aider commands in a separate file and sending them to an Aider session (similar to working with Python or R scripts and sending code blocks to a REPL), you might want to try aider-minor-mode. It by default bind C-c C-n to send current line to aider session, and C-c C-c to send current region to aider session.
+- If you prefer writing Aider commands in a separate file and sending them to an Aider session (similar to working with Python or R scripts and sending code blocks to a REPL), you might want to try aider-minor-mode. It by default bind C-c C-n to send current line to aider session, and C-c C-c to send current paragraph line by line to aider session.
   - Enable aider-minor-mode for your editing buffer
   - To automatically enable aider-minor-mode for any file with "aider" in its filename:
 
