@@ -561,7 +561,7 @@ This function assumes the cursor is on or inside a test function."
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
 
-;;; functions for .aider file related
+;;; functions for sending text blocks
 
 ;; New function to send "<line under cursor>" to the Aider buffer
 ;;;###autoload
@@ -573,7 +573,7 @@ This function assumes the cursor is on or inside a test function."
 
 ;;; New function to send the current paragraph to the Aider buffer
 ;;;###autoload
-(defun aider-send-paragraph ()
+(defun aider-send-paragraph-by-line ()
   "Get the whole text of the current paragraph, split them into lines,
    strip the newline character from each line,
    for each non-empty line, send it to aider session"
@@ -588,11 +588,22 @@ This function assumes the cursor is on or inside a test function."
               (aider--send-command line t)))
           (split-string paragraph "\n" t))))
 
+;;;###autoload
+(defun aider-send-region ()
+  "Send the current active region text as a whole block to aider session."
+  (interactive)
+  (if (region-active-p)
+      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+        (unless (string-empty-p region-text)
+          (aider--send-command region-text t)))
+    (message "No region selected.")))
+
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
-    (define-key map (kbd "C-c C-c") 'aider-send-paragraph)
+    (define-key map (kbd "C-c C-c") 'aider-send-paragraph-by-line)
+    (define-key map (kbd "C-c C-r") 'aider-send-region)
     map)
   "Keymap for Aider Minor Mode.")
 
