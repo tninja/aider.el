@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -14,6 +14,7 @@
 (require 'comint)
 (require 'dired)
 (require 'transient)
+(require 'magit)
 (require 'which-func)
 
 (defgroup aider nil
@@ -142,20 +143,13 @@ Affects the system message too.")
 ;; Removed the default key binding
 ;; (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
-(defun aider-buffer-name-from-git-repo-path (git-repo-path home-path)
-  "Generate the Aider buffer name based on the GIT-REPO-PATH and HOME-PATH.
-If not in a git repository, an error is raised."
-  (let* ((relative-path (substring git-repo-path (length home-path))))
-    (format "*aider:%s*" (concat "~" (replace-regexp-in-string "\n" "" relative-path)))))
-
 (defun aider-buffer-name ()
-  "Generate the Aider buffer name based on the path from the home folder to the git repo of the current active buffer using a git command.
+  "Generate the Aider buffer name based on the git repo of the current active buffer using a git command.
 If not in a git repository, an error is raised."
-  (let* ((git-repo-path (shell-command-to-string "git rev-parse --show-toplevel"))
-         (home-path (expand-file-name "~")))
+  (let ((git-repo-path (magit-toplevel)))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
-      (aider-buffer-name-from-git-repo-path git-repo-path home-path))))
+      (format "*aider:~%s*" git-repo-path))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
@@ -195,7 +189,7 @@ If not in a git repository, an error is raised."
           (aider--inherit-source-highlighting source-buffer)
           (font-lock-mode 1)
           (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s" 
+          (message "Aider buffer syntax highlighting inherited from %s"
                    (with-current-buffer source-buffer major-mode)))
         ))
     (aider-switch-to-buffer)))
@@ -250,7 +244,7 @@ Ensure proper highlighting of the text in the buffer."
                 (current-point (process-mark process)))
             (goto-char current-point)
             ;; Use comint-output-filter to ensure proper text property handling
-            (comint-output-filter process (propertize chunk 
+            (comint-output-filter process (propertize chunk
                                                      'face 'aider-command-text
                                                      'font-lock-face 'aider-command-text
                                                      'rear-nonsticky t))))
@@ -553,7 +547,7 @@ If there are more than 40 files, refuse to add and show warning message."
 This function assumes the cursor is on or inside a test function."
   (interactive)
   (if-let ((test-function-name (which-function)))
-      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test" 
+      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test"
                                    test-function-name))
              (test-output (aider-read-string "Architect question: " initial-input))
              (command (format "/architect %s" test-output)))

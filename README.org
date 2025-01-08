@@ -1,4 +1,4 @@
-#+TITLE: aider.el : aider (AI Pair Programming) Inside Emacs 
+#+TITLE: aider.el : aider (AI Pair Programming) Inside Emacs
 
 * Introduction
 
@@ -42,7 +42,7 @@
 *** Support for Test Driven Development:
   - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
-*** And More: 
+*** And More:
 You can add your own Elisp functions to support your specific use cases. Feel free to ask Aider/`aider.el` to help you create them.
 
 * Installation
@@ -52,13 +52,14 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
+- Install the dependency [[https://github.com/magit/magit][Magit]] using your package manager.
 - Install aider.el with the following code:
 
 #+BEGIN_SRC emacs-lisp
   (use-package aider
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
     :config
-    ;; Use claude-3-5-sonnet cause it is best in aider benchmark 
+    ;; Use claude-3-5-sonnet cause it is best in aider benchmark
     (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or use chatgpt model since it is most well known
@@ -108,7 +109,7 @@ You can enable Helm-based completion with the following code:
   (use-package aider
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-helm.el")))
 #+END_SRC
-  
+
 *** Aider script interactive mode: aider-minor-mode
 
 - If you prefer writing Aider commands in a separate file and sending them to an Aider session (similar to working with Python or R scripts and sending code blocks to a REPL), you might want to try aider-minor-mode. It provides the following key bindings:
@@ -142,4 +143,3 @@ You can enable Helm-based completion with the following code:
   - [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]: ChatGPT and DALL-E Emacs shells + Org Babel
   - [[https://github.com/copilot-emacs/copilot.el][copilot.el]]: Emacs plugin for GitHub Copilot
   - [[https://github.com/chep/copilot-chat.el][copilot-chat.el]]: Chat with GitHub Copilot in Emacs
-    
