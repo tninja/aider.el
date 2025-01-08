@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.2.0
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "4.0.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 
@@ -14,6 +14,7 @@
 (require 'comint)
 (require 'dired)
 (require 'transient)
+(require 'magit)
 (require 'which-func)
 
 (defgroup aider nil
@@ -142,19 +143,13 @@ Affects the system message too.")
 ;; Removed the default key binding
 ;; (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
-(defun aider-buffer-name-from-git-repo-path (git-repo-path)
-  "Generate the Aider buffer name based on the GIT-REPO-PATH.
-If not in a git repository, an error is raised."
-  (let ((hash8 (substring (secure-hash 'md5 git-repo-path) 0 8)))
-    (format "*aider:~%s%s*" git-repo-path hash8)))
-
 (defun aider-buffer-name ()
   "Generate the Aider buffer name based on the git repo of the current active buffer using a git command.
 If not in a git repository, an error is raised."
   (let ((git-repo-path (magit-toplevel)))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
-      (aider-buffer-name-from-git-repo-path git-repo-path))))
+      (format "*aider:~%s*" git-repo-path))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
