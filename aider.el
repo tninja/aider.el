@@ -149,7 +149,7 @@ If not in a git repository, an error is raised."
   (let ((git-repo-path (magit-toplevel)))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
-      (format "*aider:~%s*" git-repo-path))))
+      (format "*aider:%s*" git-repo-path))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
