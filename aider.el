@@ -341,13 +341,23 @@ COMMAND should be a string representing the command to send."
 ;;;###autoload
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
-If a region is active, append the region text to the question."
+If a region is active, append the region text to the question.
+If cursor is inside a function, include the function name as context."
   (interactive)
   (let ((question (aider-read-string "Enter question to ask: "))
-        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
-    (let ((command (if region-text
-                       (format "/ask %s: %s" question region-text)
-                     (format "/ask %s" question))))
+        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end))))
+        (function-name (which-function)))
+    (let ((command 
+           (cond
+            ;; If region is active, use region text
+            (region-text
+             (format "/ask %s: %s" question region-text))
+            ;; If inside a function, include function name as context
+            (function-name
+             (format "/ask In the context of function '%s': %s" function-name question))
+            ;; Otherwise just ask the question
+            (t
+             (format "/ask %s" question)))))
       (aider-add-current-file)
       (aider--send-command command t))))
 
