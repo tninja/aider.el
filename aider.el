@@ -124,6 +124,7 @@ Affects the system message too.")
     ("c" "Code Change" aider-code-change)
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
+    ("w" "Write Test" aider-write-test)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
@@ -607,6 +608,30 @@ This function assumes the cursor is on or inside a test function."
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
   :keymap aider-minor-mode-map)
+
+;;;###autoload
+(defun aider-write-test ()
+  "Generate test code for current buffer.
+Do nothing if current buffer is not visiting a file.
+If current buffer filename contains 'test', do nothing.
+If cursor is on a function, generate test for that function.
+Otherwise, generate tests for the entire file."
+  (interactive)
+  (if (not buffer-file-name)
+      (message "Current buffer is not visiting a file.")
+    (if (string-match-p "test" (file-name-nondirectory buffer-file-name))
+        (message "Current buffer appears to be a test file.")
+      (let* ((function-name (which-function))
+             (initial-input
+              (if function-name
+                  (format "Please write test code for function '%s'. Include both normal cases and edge cases. Make the test comprehensive but maintainable." 
+                         function-name)
+                (format "Please write test code for file '%s'. Include both normal cases and edge cases for all functions. Make the tests comprehensive but maintainable." 
+                       (file-name-nondirectory buffer-file-name))))
+             (user-command (aider-read-string "Test generation instruction: " initial-input))
+             (command (format "/architect %s" user-command)))
+        (aider-add-current-file)
+        (aider--send-command command t)))))
 
 (when (featurep 'doom)
   (require 'aider-doom))

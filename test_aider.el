@@ -77,6 +77,32 @@
   (should (equal (nth 2 (cadr aider-font-lock-keywords))
                  '(face nil display (space :width 2)))))
 
+(ert-deftest aider-write-test-behavior ()
+  "Test the behavior of aider-write-test function."
+  ;; Test when buffer is not visiting a file
+  (with-temp-buffer
+    (should (progn (aider-write-test)
+                   (equal (current-message) "Current buffer is not visiting a file."))))
+  
+  ;; Test when buffer is a test file
+  (with-temp-buffer
+    (let ((buffer-file-name "test_something.py"))
+      (should (progn (aider-write-test)
+                    (equal (current-message) "Current buffer appears to be a test file.")))))
+  
+  ;; Test when buffer is a regular file with no function under cursor
+  (with-temp-buffer
+    (let ((buffer-file-name "regular.py")
+          (aider-read-string-result "modified prompt"))
+      (cl-letf (((symbol-function 'which-function) (lambda () nil))
+                ((symbol-function 'aider-read-string) 
+                 (lambda (prompt initial) aider-read-string-result))
+                ((symbol-function 'aider-add-current-file) (lambda () t))
+                ((symbol-function 'aider--send-command) (lambda (cmd switch) t)))
+        (aider-write-test)
+        (should (not (equal (current-message) "Current buffer is not visiting a file.")))
+        (should (not (equal (current-message) "Current buffer appears to be a test file.")))))))
+
 (ert-deftest aider-faces-test ()
   "Test that aider faces are properly defined."
   ;; Test aider-command-separator face
