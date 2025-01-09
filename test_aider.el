@@ -1,16 +1,16 @@
 
 (require 'ert)
 
-(ert-deftest aider-buffer-name-from-git-repo-path-test ()
-  "Test the aider-buffer-name-from-git-repo-path function."
-  (should (equal (aider-buffer-name-from-git-repo-path "/Users/username/git/repo" "/Users/username")
-                 "*aider:~/git/repo*"))
-  (should (equal (aider-buffer-name-from-git-repo-path "/home/username/git/repo" "/home/username")
-                 "*aider:~/git/repo*"))
-  (should (equal (aider-buffer-name-from-git-repo-path "/Users/username/git/repo/subdir" "/Users/username")
-                 "*aider:~/git/repo/subdir*"))
-  (should (equal (aider-buffer-name-from-git-repo-path "/home/username/git/repo/subdir" "/home/username")
-                 "*aider:~/git/repo/subdir*")))
+(ert-deftest aider-buffer-name-test ()
+  "Test the aider-buffer-name function."
+  (cl-letf (((symbol-function 'magit-toplevel)
+             (lambda () "/path/to/git/repo")))
+    (should (equal (aider-buffer-name) "*aider:/path/to/git/repo*")))
+  
+  ;; Test error case when not in a git repo
+  (cl-letf (((symbol-function 'magit-toplevel)
+             (lambda () "fatal: not a git repository")))
+    (should-error (aider-buffer-name) :type 'error)))
 
 (ert-deftest test-aider-region-refactor-generate-command ()
   "Test the aider-region-refactor-generate-command function."
