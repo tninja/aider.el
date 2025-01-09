@@ -346,13 +346,13 @@ If cursor is inside a function, include the function name as context."
   (interactive)
   (let* ((function-name (which-function))
          (initial-input (when function-name 
-                         (format "About function '%s': " function-name)))
+                          (format "About function '%s': " function-name)))
          (question (aider-read-string "Enter question to ask: " initial-input))
          (region-text (and (region-active-p) 
-                          (buffer-substring-no-properties (region-beginning) (region-end))))
+                           (buffer-substring-no-properties (region-beginning) (region-end))))
          (command (if region-text
-                     (format "/ask %s: %s" question region-text)
-                   (format "/ask %s" question))))
+                      (format "/ask %s: %s" question region-text)
+                    (format "/ask %s" question))))
     (aider-add-current-file)
     (aider--send-command command t)))
 
