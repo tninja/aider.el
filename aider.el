@@ -130,6 +130,7 @@ Affects the system message too.")
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
+    ("Q" "Ask General Question" aider-general-question)
     ("y" "Go Ahead" aider-go-ahead)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
@@ -348,6 +349,14 @@ If a region is active, append the region text to the question."
                        (format "/ask %s: %s" question region-text)
                      (format "/ask %s" question))))
       (aider-add-current-file)
+      (aider--send-command command t))))
+
+;;;###autoload
+(defun aider-general-question ()
+  "Prompt the user for a general question and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
+  (interactive)
+  (let ((question (aider-read-string "Enter general question to ask: ")))
+    (let ((command (format "/ask %s" question)))
       (aider--send-command command t))))
 
 ;; New function to get command from user and send it prefixed with "/help "
