@@ -123,12 +123,13 @@ Affects the system message too.")
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("c" "Code Change" aider-code-change)
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
+    ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
-    ("q" "Ask Question" aider-ask-question)
+    ("q" "Ask Question given Context" aider-ask-question)
     ("y" "Go Ahead" aider-go-ahead)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
@@ -136,6 +137,7 @@ Affects the system message too.")
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
+    ("Q" "Ask General Question" aider-general-question)
     ("h" "Help" aider-help)
     ]
    ])
@@ -149,7 +151,7 @@ If not in a git repository, an error is raised."
   (let ((git-repo-path (magit-toplevel)))
     (if (string-match-p "fatal" git-repo-path)
         (error "Not in a git repository")
-      (format "*aider:~%s*" git-repo-path))))
+      (format "*aider:%s*" git-repo-path))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
@@ -325,7 +327,6 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 ;; New function to get command from user and send it prefixed with "/code "
@@ -340,14 +341,27 @@ COMMAND should be a string representing the command to send."
 ;;;###autoload
 (defun aider-ask-question ()
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
-If a region is active, append the region text to the question."
+If a region is active, append the region text to the question.
+If cursor is inside a function, include the function name as context."
   (interactive)
-  (let ((question (aider-read-string "Enter question to ask: "))
-        (region-text (and (region-active-p) (buffer-substring-no-properties (region-beginning) (region-end)))))
-    (let ((command (if region-text
-                       (format "/ask %s: %s" question region-text)
-                     (format "/ask %s" question))))
-      (aider-add-current-file)
+  (let* ((function-name (which-function))
+         (initial-input (when function-name 
+                          (format "About function '%s': " function-name)))
+         (question (aider-read-string "Enter question to ask: " initial-input))
+         (region-text (and (region-active-p) 
+                           (buffer-substring-no-properties (region-beginning) (region-end))))
+         (command (if region-text
+                      (format "/ask %s: %s" question region-text)
+                    (format "/ask %s" question))))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+;;;###autoload
+(defun aider-general-question ()
+  "Prompt the user for a general question and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
+  (interactive)
+  (let ((question (aider-read-string "Enter general question to ask: ")))
+    (let ((command (format "/ask %s" question)))
       (aider--send-command command t))))
 
 ;; New function to get command from user and send it prefixed with "/help "
@@ -540,6 +554,38 @@ If there are more than 40 files, refuse to add and show warning message."
                  (length files) current-suffix)))))
 
 ;;; functions for test fixing
+
+;;;###autoload
+(defun aider-write-unit-test ()
+  "Generate unit test code for current buffer.
+Do nothing if current buffer is not visiting a file.
+If current buffer filename contains 'test', do nothing.
+If cursor is on a function, generate unit test for that function.
+Otherwise, generate unit tests for the entire file."
+  (interactive)
+  (if (not buffer-file-name)
+      (message "Current buffer is not visiting a file.")
+    (if (string-match-p "test" (file-name-nondirectory buffer-file-name))
+        (message "Current buffer appears to be a test file.")
+      (let* ((function-name (which-function))
+             (initial-input
+              (if function-name
+                  (format "Please write unit test code for function '%s'. Include test cases for:
+1. Normal input/output scenarios
+2. Edge cases and boundary conditions
+3. Error handling and invalid inputs
+Make the test comprehensive but maintainable. Follow standard unit testing practices." 
+                         function-name)
+                (format "Please write unit test code for file '%s'. For each function include test cases for:
+1. Normal input/output scenarios
+2. Edge cases and boundary conditions
+3. Error handling and invalid inputs
+Make the tests comprehensive but maintainable. Follow standard unit testing practices." 
+                       (file-name-nondirectory buffer-file-name))))
+             (user-command (aider-read-string "Unit test generation instruction: " initial-input))
+             (command (format "/architect %s" user-command)))
+        (aider-add-current-file)
+        (aider--send-command command t)))))
 
 ;;;###autoload
 (defun aider-fix-failing-test-under-cursor ()
