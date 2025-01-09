@@ -40,6 +40,7 @@
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
 *** Support for Test Driven Development:
+  - (`aider-write-unit-test`): Generate comprehensive unit tests for the current function or file. The generated tests will include normal cases, edge cases, and error handling scenarios.
   - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
 *** And More:
