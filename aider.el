@@ -129,7 +129,7 @@ Affects the system message too.")
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
-    ("q" "Ask Question" aider-ask-question)
+    ("q" "Ask Question given Context" aider-ask-question)
     ("y" "Go Ahead" aider-go-ahead)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
