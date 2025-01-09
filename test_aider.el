@@ -77,11 +77,11 @@
   (should (equal (nth 2 (cadr aider-font-lock-keywords))
                  '(face nil display (space :width 2)))))
 
-(ert-deftest aider-write-test-behavior ()
-  "Test the behavior of aider-write-test function."
+(ert-deftest aider-write-unit-test-behavior ()
+  "Test the behavior of aider-write-unit-test function."
   ;; Test when buffer is not visiting a file
   (with-temp-buffer
-    (should (progn (aider-write-test)
+    (should (progn (aider-write-unit-test)
                    (equal (current-message) "Current buffer is not visiting a file."))))
   
   ;; Test when buffer is a test file

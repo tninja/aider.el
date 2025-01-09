@@ -123,7 +123,7 @@ Affects the system message too.")
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("c" "Code Change" aider-code-change)
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
-    ("w" "Write Test" aider-write-test)
+    ("w" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
@@ -543,12 +543,12 @@ If there are more than 40 files, refuse to add and show warning message."
 ;;; functions for test fixing
 
 ;;;###autoload
-(defun aider-write-test ()
-  "Generate test code for current buffer.
+(defun aider-write-unit-test ()
+  "Generate unit test code for current buffer.
 Do nothing if current buffer is not visiting a file.
 If current buffer filename contains 'test', do nothing.
-If cursor is on a function, generate test for that function.
-Otherwise, generate tests for the entire file."
+If cursor is on a function, generate unit test for that function.
+Otherwise, generate unit tests for the entire file."
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
@@ -557,11 +557,19 @@ Otherwise, generate tests for the entire file."
       (let* ((function-name (which-function))
              (initial-input
               (if function-name
-                  (format "Please write test code for function '%s'. Include both normal cases and edge cases. Make the test comprehensive but maintainable." 
+                  (format "Please write unit test code for function '%s'. Include test cases for:
+1. Normal input/output scenarios
+2. Edge cases and boundary conditions
+3. Error handling and invalid inputs
+Make the test comprehensive but maintainable. Follow standard unit testing practices." 
                          function-name)
-                (format "Please write test code for file '%s'. Include both normal cases and edge cases for all functions. Make the tests comprehensive but maintainable." 
+                (format "Please write unit test code for file '%s'. For each function include test cases for:
+1. Normal input/output scenarios
+2. Edge cases and boundary conditions
+3. Error handling and invalid inputs
+Make the tests comprehensive but maintainable. Follow standard unit testing practices." 
                        (file-name-nondirectory buffer-file-name))))
-             (user-command (aider-read-string "Test generation instruction: " initial-input))
+             (user-command (aider-read-string "Unit test generation instruction: " initial-input))
              (command (format "/architect %s" user-command)))
         (aider-add-current-file)
         (aider--send-command command t)))))
