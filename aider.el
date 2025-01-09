@@ -326,7 +326,6 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 ;; New function to get command from user and send it prefixed with "/code "
