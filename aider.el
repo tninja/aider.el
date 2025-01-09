@@ -130,7 +130,6 @@ Affects the system message too.")
     ]
    ["Discussion"
     ("q" "Ask Question" aider-ask-question)
-    ("Q" "Ask General Question" aider-general-question)
     ("y" "Go Ahead" aider-go-ahead)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
     ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
@@ -138,6 +137,7 @@ Affects the system message too.")
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
+    ("Q" "Ask General Question" aider-general-question)
     ("h" "Help" aider-help)
     ]
    ])
