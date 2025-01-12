@@ -292,8 +292,12 @@ COMMAND should be a string representing the command to send."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let ((command (format "%s %s" command-prefix
-                           (file-local-name (expand-file-name buffer-file-name)))))
+    (let* ((local-name (file-local-name
+                       (expand-file-name buffer-file-name)))
+           (formatted-path (if (string-match-p " " local-name)
+                             (format "\"%s\"" local-name)
+                           local-name))
+           (command (format "%s %s" command-prefix formatted-path)))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
 
