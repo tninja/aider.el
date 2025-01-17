@@ -613,7 +613,7 @@ This function assumes the cursor is on or inside a test function."
   "Send the command \"ask <line under cursor>\" to the Aider buffer."
   (interactive)
   (let ((line (thing-at-point 'line t)))
-    (aider--send-command (string-trim line) t)))
+    (aider--send-command (string-trim line) nil)))
 
 ;;; New function to send the current paragraph to the Aider buffer
 ;;;###autoload
@@ -629,7 +629,7 @@ This function assumes the cursor is on or inside a test function."
                        (buffer-substring-no-properties start (point))))))
     (mapc (lambda (line)
             (unless (string-empty-p line)
-              (aider--send-command line t)))
+              (aider--send-command line nil)))
           (split-string paragraph "\n" t))))
 
 ;;;###autoload
