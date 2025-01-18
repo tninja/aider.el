@@ -607,13 +607,16 @@ This function assumes the cursor is on or inside a test function."
 
 ;;; functions for sending text blocks
 
-;; New function to send "<line under cursor>" to the Aider buffer
+;; New function to send "<line under cursor>" or region line by line to the Aider buffer
 ;;;###autoload
 (defun aider-send-line-under-cursor ()
-  "Send the command \"ask <line under cursor>\" to the Aider buffer."
+  "If region is active, send the selected region line by line to the Aider buffer.
+Otherwise, send the line under cursor to the Aider buffer."
   (interactive)
-  (let ((line (thing-at-point 'line t)))
-    (aider--send-command (string-trim line) nil)))
+  (if (region-active-p)
+      (aider-send-region-by-line)
+    (let ((line (thing-at-point 'line t)))
+      (aider--send-command (string-trim line) nil))))
 
 ;;; New function to send the current selected region line by line to the Aider buffer
 ;;;###autoload
