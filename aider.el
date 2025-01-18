@@ -615,22 +615,23 @@ This function assumes the cursor is on or inside a test function."
   (let ((line (thing-at-point 'line t)))
     (aider--send-command (string-trim line) nil)))
 
-;;; New function to send the current paragraph to the Aider buffer
+;;; New function to send the current selected region line by line to the Aider buffer
 ;;;###autoload
-(defun aider-send-paragraph-by-line ()
-  "Get the whole text of the current paragraph, split them into lines,
-   strip the newline character from each line,
-   for each non-empty line, send it to aider session"
+(defun aider-send-region-by-line ()
+  "Get the text of the current selected region, split them into lines,
+strip the newline character from each line,
+for each non-empty line, send it to aider session.
+If no region is selected, show a message."
   (interactive)
-  (let ((paragraph (save-excursion
-                     (backward-paragraph)
-                     (let ((start (point)))
-                       (forward-paragraph)
-                       (buffer-substring-no-properties start (point))))))
-    (mapc (lambda (line)
-            (unless (string-empty-p line)
-              (aider--send-command line nil)))
-          (split-string paragraph "\n" t))))
+  (if (region-active-p)
+      (let ((region-text (buffer-substring-no-properties 
+                         (region-beginning) 
+                         (region-end))))
+        (mapc (lambda (line)
+                (unless (string-empty-p line)
+                  (aider--send-command line nil)))
+              (split-string region-text "\n" t)))
+    (message "No region selected.")))
 
 ;;;###autoload
 (defun aider-send-region ()
@@ -646,7 +647,7 @@ This function assumes the cursor is on or inside a test function."
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
-    (define-key map (kbd "C-c C-c") 'aider-send-paragraph-by-line)
+    (define-key map (kbd "C-c C-c") 'aider-send-region-by-line)
     (define-key map (kbd "C-c C-r") 'aider-send-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
