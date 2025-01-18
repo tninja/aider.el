@@ -648,6 +648,7 @@ This function assumes the cursor is on or inside a test function."
     (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
     (define-key map (kbd "C-c C-c") 'aider-send-paragraph-by-line)
     (define-key map (kbd "C-c C-r") 'aider-send-region)
+    (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
 
