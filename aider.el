@@ -230,7 +230,6 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (aider--send-command "/exit"))
 
-;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send large TEXT to the comint buffer reliably with syntax highlighting.
 This function ensures proper syntax highlighting by inheriting face properties
