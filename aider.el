@@ -245,7 +245,7 @@ If the current buffer is already the Aider buffer, do nothing."
                            'rear-nonsticky t))
         ;; Update process mark
         (set-marker (process-mark process) (point))
-        ;; 直接发送文本
+        ;; Send text directly
         (comint-send-string process (concat text "\n"))))))
 
 (defun aider--process-message-if-multi-line (str)
