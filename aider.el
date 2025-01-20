@@ -231,23 +231,21 @@ If the current buffer is already the Aider buffer, do nothing."
   (aider--send-command "/exit"))
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
-  "Send large TEXT to the comint buffer reliably with syntax highlighting.
+  "Send TEXT to the comint BUFFER with syntax highlighting.
 This function ensures proper syntax highlighting by inheriting face properties
 from the source buffer and maintaining proper process markers."
-  (let ((process (get-buffer-process buffer)))
-    (with-current-buffer buffer
-      (let ((inhibit-read-only t)
-            (current-point (process-mark process)))
-        (goto-char current-point)
-        ;; Insert text with proper face properties
-        (insert (propertize text
-                           'face 'aider-command-text
-                           'font-lock-face 'aider-command-text
-                           'rear-nonsticky t))
-        ;; Update process mark
-        (set-marker (process-mark process) (point))
-        ;; Send text directly
-        (comint-send-string process (concat text "\n"))))))
+  (with-current-buffer buffer
+    (let ((process (get-buffer-process buffer))
+          (inhibit-read-only t))
+      (goto-char (process-mark process))
+      ;; Insert text with proper face properties
+      (insert (propertize text
+                         'face 'aider-command-text
+                         'font-lock-face 'aider-command-text
+                         'rear-nonsticky t))
+      ;; Update process mark and send text
+      (set-marker (process-mark process) (point))
+      (comint-send-string process (concat text "\n")))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages
