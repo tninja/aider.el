@@ -232,8 +232,7 @@ If the current buffer is already the Aider buffer, do nothing."
 
 ;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-large-string (buffer text)
-  "Send large TEXT to the comint buffer reliably.
-Uses comint's built-in mechanisms for handling large inputs."
+  "Send large TEXT to the comint buffer reliably."
   (let ((process (get-buffer-process buffer)))
     (with-current-buffer buffer
       (let ((inhibit-read-only t)
@@ -246,11 +245,8 @@ Uses comint's built-in mechanisms for handling large inputs."
                            'rear-nonsticky t))
         ;; Update process mark
         (set-marker (process-mark process) (point))
-        ;; Use comint's send-input to properly handle the input
-        (comint-send-input nil t)
-        ;; Send an extra newline to trigger aider execution for multi-line input
-        (when (string-match-p "\n" text)
-          (comint-send-input))))))
+        ;; 直接发送文本
+        (comint-send-string process (concat text "\n"))))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages
