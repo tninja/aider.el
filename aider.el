@@ -247,7 +247,10 @@ Uses comint's built-in mechanisms for handling large inputs."
         ;; Update process mark
         (set-marker (process-mark process) (point))
         ;; Use comint's send-input to properly handle the input
-        (comint-send-input nil t)))))
+        (comint-send-input nil t)
+        ;; Send an extra newline to trigger aider execution for multi-line input
+        (when (string-match-p "\n" text)
+          (comint-send-input))))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages
