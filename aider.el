@@ -231,8 +231,10 @@ If the current buffer is already the Aider buffer, do nothing."
   (aider--send-command "/exit"))
 
 ;; Function to send large text (> 1024 chars) to the Aider buffer
-(defun aider--comint-send-large-string (buffer text)
-  "Send large TEXT to the comint buffer reliably."
+(defun aider--comint-send-string-syntax-highlight (buffer text)
+  "Send large TEXT to the comint buffer reliably with syntax highlighting.
+This function ensures proper syntax highlighting by inheriting face properties
+from the source buffer and maintaining proper process markers."
   (let ((process (get-buffer-process buffer)))
     (with-current-buffer buffer
       (let ((inhibit-read-only t)
@@ -269,7 +271,7 @@ COMMAND should be a string representing the command to send."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-large-string aider-buffer (concat command "\n"))
+              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               ;; (message "Sent command to aider buffer: %s" (string-trim command))
               (when switch-to-buffer
