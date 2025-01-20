@@ -232,29 +232,22 @@ If the current buffer is already the Aider buffer, do nothing."
 
 ;; Function to send large text (> 1024 chars) to the Aider buffer
 (defun aider--comint-send-large-string (buffer text)
-  "Send large TEXT to the comint buffer in chunks of 1000 characters.
-Ensure proper highlighting of the text in the buffer."
-  (let ((chunk-size 1000)
-        (pos 0)
-        (process (get-buffer-process buffer)))
-    (while (< pos (length text))
-      (let* ((end-pos (min (+ pos chunk-size) (length text)))
-             (chunk (substring text pos end-pos)))
-        ;; Insert text into buffer and ensure highlighting
-        (with-current-buffer buffer
-          (let ((inhibit-read-only t)
-                (current-point (process-mark process)))
-            (goto-char current-point)
-            ;; Use comint-output-filter to ensure proper text property handling
-            (comint-output-filter process (propertize chunk
-                                                     'face 'aider-command-text
-                                                     'font-lock-face 'aider-command-text
-                                                     'rear-nonsticky t))))
-        ;; Send raw text to process
-        (process-send-string process chunk)
-        (sleep-for 0.2)
-        ;; (message "Sent command to aider buffer: %s" chunk)
-        (setq pos end-pos)))))
+  "Send large TEXT to the comint buffer reliably.
+Uses comint's built-in mechanisms for handling large inputs."
+  (let ((process (get-buffer-process buffer)))
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t)
+            (current-point (process-mark process)))
+        (goto-char current-point)
+        ;; Insert text with proper face properties
+        (insert (propertize text
+                           'face 'aider-command-text
+                           'font-lock-face 'aider-command-text
+                           'rear-nonsticky t))
+        ;; Update process mark
+        (set-marker (process-mark process) (point))
+        ;; Use comint's send-input to properly handle the input
+        (comint-send-input nil t)))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages
