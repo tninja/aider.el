@@ -274,7 +274,8 @@ COMMAND should be a string representing the command to send."
               ;; Provide feedback to the user
               ;; (message "Sent command to aider buffer: %s" (string-trim command))
               (when switch-to-buffer
-                (aider-switch-to-buffer)))
+                (aider-switch-to-buffer))
+              (sleep-for 0.2))
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
     ))
