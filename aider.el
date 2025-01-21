@@ -245,7 +245,7 @@ from the source buffer and maintaining proper process markers."
                          'rear-nonsticky t))
       ;; Update process mark and send text
       (set-marker (process-mark process) (point))
-      (comint-send-string process (concat text "\n")))))
+      (comint-send-string process text))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages
