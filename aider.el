@@ -230,31 +230,22 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (aider--send-command "/exit"))
 
-;; Function to send large text (> 1024 chars) to the Aider buffer
-(defun aider--comint-send-large-string (buffer text)
-  "Send large TEXT to the comint buffer in chunks of 1000 characters.
-Ensure proper highlighting of the text in the buffer."
-  (let ((chunk-size 1000)
-        (pos 0)
-        (process (get-buffer-process buffer)))
-    (while (< pos (length text))
-      (let* ((end-pos (min (+ pos chunk-size) (length text)))
-             (chunk (substring text pos end-pos)))
-        ;; Insert text into buffer and ensure highlighting
-        (with-current-buffer buffer
-          (let ((inhibit-read-only t)
-                (current-point (process-mark process)))
-            (goto-char current-point)
-            ;; Use comint-output-filter to ensure proper text property handling
-            (comint-output-filter process (propertize chunk
-                                                     'face 'aider-command-text
-                                                     'font-lock-face 'aider-command-text
-                                                     'rear-nonsticky t))))
-        ;; Send raw text to process
-        (process-send-string process chunk)
-        (sleep-for 0.2)
-        ;; (message "Sent command to aider buffer: %s" chunk)
-        (setq pos end-pos)))))
+(defun aider--comint-send-string-syntax-highlight (buffer text)
+  "Send TEXT to the comint BUFFER with syntax highlighting.
+This function ensures proper syntax highlighting by inheriting face properties
+from the source buffer and maintaining proper process markers."
+  (with-current-buffer buffer
+    (let ((process (get-buffer-process buffer))
+          (inhibit-read-only t))
+      (goto-char (process-mark process))
+      ;; Insert text with proper face properties
+      (insert (propertize text
+                         'face 'aider-command-text
+                         'font-lock-face 'aider-command-text
+                         'rear-nonsticky t))
+      ;; Update process mark and send text
+      (set-marker (process-mark process) (point))
+      (comint-send-string process text))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages
@@ -277,11 +268,12 @@ COMMAND should be a string representing the command to send."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-large-string aider-buffer (concat command "\n"))
+              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               ;; (message "Sent command to aider buffer: %s" (string-trim command))
               (when switch-to-buffer
-                (aider-switch-to-buffer)))
+                (aider-switch-to-buffer))
+              (sleep-for 0.2))
           (message "No active process found in buffer %s." (aider-buffer-name))))
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
     ))
