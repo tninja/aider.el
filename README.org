@@ -56,6 +56,8 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 - Install the dependency [[https://github.com/magit/magit][Magit]] using your package manager.
 - Install aider.el with the following code:
 
+*** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
+If you have Straight installed
 #+BEGIN_SRC emacs-lisp
   (use-package aider
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
@@ -70,10 +72,31 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
     ;; (setq aider-args '("--model" "gemini/gemini-exp-1206"))
     ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; ;;
-    Optional: Set a key binding for the transient menu
+    ;; Optional: Set a key binding for the transient menu
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
-
+*** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]
+Install Aider.el by running the following code within Emacs
+#+BEGIN_SRC emacs-lisp
+(package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
+#+END_SRC
+Add the config
+#+BEGIN_SRC emacs-lisp
+  (use-package aider
+    :config
+    ;; Use claude-3-5-sonnet cause it is best in aider benchmark
+    (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
+    (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+    ;; Or use chatgpt model since it is most well known
+    ;; (setq aider-args '("--model" "gpt-4o-mini"))
+    ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+    ;; Or use gemini v2 model since it is very good and free
+    ;; (setq aider-args '("--model" "gemini/gemini-exp-1206"))
+    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
+    ;; ;;
+    ;; Optional: Set a key binding for the transient menu
+    (global-set-key (kbd "C-c a") 'aider-transient-menu))
+#+END_SRC
 
 ** Doom Installation and Configuration
 
