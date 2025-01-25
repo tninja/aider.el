@@ -174,27 +174,27 @@ If not in a git repository, an error is raised."
               font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
 
 ;;;###autoload
-(defun aider-run-aider ()
-  "Create a comint-based buffer and run \"aider\" for interactive conversation."
-  (interactive)
+(defun aider-run-aider (&optional edit-args)
+  "Create a comint-based buffer and run \"aider\" for interactive conversation.
+With the universal argument, prompt to edit aider-args before running."
+  (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
-         (source-buffer (window-buffer (selected-window))))
+	 (current-args (if edit-args
+			   (split-string 
+			    (read-string "Edit aider arguments: "
+					 (mapconcat 'identity aider-args " ")))
+			 aider-args)))
+    ;; Check if the buffer already has a running process
     (unless (comint-check-proc buffer-name)
-      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil aider-args)
+      ;; Create a new comint buffer and start the process
+      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
+      ;; Optionally, you can set the mode or add hooks here
       (with-current-buffer buffer-name
         (comint-mode)
-        (font-lock-add-keywords nil aider-font-lock-keywords t)
-        ;; Only inherit syntax highlighting when source buffer is in prog-mode
-        (when (with-current-buffer source-buffer
-                (derived-mode-p 'prog-mode))
-          (aider--inherit-source-highlighting source-buffer)
-          (font-lock-mode 1)
-          (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))
-        ))
-    (aider-switch-to-buffer)))
+        (font-lock-add-keywords nil aider-font-lock-keywords t)))
+    ;; Switch to the buffer
+    (pop-to-buffer buffer-name)))
 
 ;; Function to switch to the Aider buffer
 ;;;###autoload
