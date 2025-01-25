@@ -340,6 +340,11 @@ COMMAND should be a string representing the command to send."
 If a region is active, append the region text to the question.
 If cursor is inside a function, include the function name as context."
   (interactive)
+  ;; Dispatch to general question if in aider buffer
+  (when (string= (buffer-name) (aider-buffer-name))
+    (call-interactively 'aider-general-question)
+    (cl-return-from aider-ask-question))
+  
   (let* ((function-name (which-function))
          (initial-input (when function-name 
                           (format "About function '%s': " function-name)))
