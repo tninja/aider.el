@@ -569,20 +569,17 @@ Otherwise, generate unit tests for the entire file."
     (if (string-match-p "test" (file-name-nondirectory buffer-file-name))
         (message "Current buffer appears to be a test file.")
       (let* ((function-name (which-function))
+             (common-instructions "Include test cases for:
+1. Normal input/output scenarios
+2. Edge cases and boundary conditions
+3. Error handling and invalid inputs
+Make the test comprehensive but maintainable. Follow standard unit testing practices.")
              (initial-input
               (if function-name
-                  (format "Please write unit test code for function '%s'. Include test cases for:
-1. Normal input/output scenarios
-2. Edge cases and boundary conditions
-3. Error handling and invalid inputs
-Make the test comprehensive but maintainable. Follow standard unit testing practices." 
-                         function-name)
-                (format "Please write unit test code for file '%s'. For each function include test cases for:
-1. Normal input/output scenarios
-2. Edge cases and boundary conditions
-3. Error handling and invalid inputs
-Make the tests comprehensive but maintainable. Follow standard unit testing practices." 
-                       (file-name-nondirectory buffer-file-name))))
+                  (format "Please write unit test code for function '%s'. %s" 
+                         function-name common-instructions)
+                (format "Please write unit test code for file '%s'. For each function %s" 
+                       (file-name-nondirectory buffer-file-name) common-instructions)))
              (user-command (aider-read-string "Unit test generation instruction: " initial-input))
              (command (format "/architect %s" user-command)))
         (aider-add-current-file)
