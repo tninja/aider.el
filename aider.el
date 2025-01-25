@@ -573,7 +573,7 @@ Otherwise, generate unit tests for the entire file."
 1. Normal input/output scenarios
 2. Edge cases and boundary conditions
 3. Error handling and invalid inputs
-Make the test comprehensive but maintainable. Follow standard unit testing practices.")
+Make the test comprehensive but maintainable. Do not use Mock if possible. Follow standard unit testing practices.")
              (initial-input
               (if function-name
                   (format "Please write unit test code for function '%s'. %s" 
