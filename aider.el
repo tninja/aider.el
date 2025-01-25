@@ -27,6 +27,14 @@
   :type 'string
   :group 'aider)
 
+(defcustom aider-models '("r1" 
+                         "anthropic/claude-3-5-sonnet-20241022"
+                         "gemini/gemini-exp-1206")
+  "List of available AI models for selection.
+Each model should be in the format expected by the aider command line interface."
+  :type '(repeat string)
+  :group 'aider)
+
 (defcustom aider-args '("--model" "gemini/gemini-exp-1206")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
@@ -107,6 +115,7 @@ Affects the system message too.")
    ["Aider Process"
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
+    ("m" "Select Model" aider-change-model)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
@@ -598,6 +607,19 @@ This function assumes the cursor is on or inside a test function."
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
+
+;;; Model selection functions
+;;;###autoload
+(defun aider-change-model ()
+  "Interactively select and change AI model in current aider session."
+  (interactive)
+  (let ((model (aider--select-model)))
+    (when model
+      (aider--send-command (format "/model %s" model) t))))
+
+(defun aider--select-model ()
+  "Private function for model selection with completion."
+  (completing-read "Select AI model: " aider-models nil t nil nil (car aider-models)))
 
 ;;; functions for sending text blocks
 
