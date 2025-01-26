@@ -127,6 +127,7 @@ Affects the system message too.")
    ["Add File to Aider"
     (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
+    ("r" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
