@@ -27,14 +27,6 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-models '("r1" 
-                         "anthropic/claude-3-5-sonnet-20241022"
-                         "gemini/gemini-exp-1206")
-  "List of available AI models for selection.
-Each model should be in the format expected by the aider command line interface."
-  :type '(repeat string)
-  :group 'aider)
-
 (defcustom aider-args '("--model" "gemini/gemini-exp-1206")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
@@ -44,6 +36,17 @@ Each model should be in the format expected by the aider command line interface.
   "When non-nil, open Aider buffer in a new frame using `switch-to-buffer-other-frame'.
 When nil, use standard `display-buffer' behavior."
   :type 'boolean
+  :group 'aider)
+
+(defcustom aider-popular-models '("gemini/gemini-exp-1206"  ;; free
+                                  "anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+                                  "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
+                                  "deepseek/deepseek-chat"  ;; chatgpt-4o level performance, price is 1/100. weakness: small context
+                                  "gpt-4o-mini"
+                                  )
+  "List of available AI models for selection.
+Each model should be in the format expected by the aider command line interface."
+  :type '(repeat string)
   :group 'aider)
 
 (defface aider-command-separator
@@ -115,8 +118,8 @@ Affects the system message too.")
    ["Aider Process"
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
-    ("m" "Select Model" aider-change-model)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("o" "Select Model" aider-change-model)
     ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
     ("x" "Exit Aider" aider-exit)
@@ -619,7 +622,7 @@ This function assumes the cursor is on or inside a test function."
 
 (defun aider--select-model ()
   "Private function for model selection with completion."
-  (completing-read "Select AI model: " aider-models nil t nil nil (car aider-models)))
+  (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-models)))
 
 ;;; functions for sending text blocks
 
