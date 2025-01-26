@@ -45,7 +45,8 @@ When nil, use standard `display-buffer' behavior."
                                   "gpt-4o-mini"
                                   )
   "List of available AI models for selection.
-Each model should be in the format expected by the aider command line interface."
+Each model should be in the format expected by the aider command line interface.
+Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :type '(repeat string)
   :group 'aider)
 
@@ -127,7 +128,7 @@ Affects the system message too.")
    ["Add File to Aider"
     (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
-    ("r" "Add Current File Read-Only" aider-current-file-read-only)
+    ("R" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
