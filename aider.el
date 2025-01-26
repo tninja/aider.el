@@ -174,14 +174,20 @@ If not in a git repository, an error is raised."
               font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
 
 ;;;###autoload
-(defun aider-run-aider ()
-  "Create a comint-based buffer and run \"aider\" for interactive conversation."
-  (interactive)
+(defun aider-run-aider (&optional edit-args)
+  "Create a comint-based buffer and run \"aider\" for interactive conversation.
+With the universal argument, prompt to edit aider-args before running."
+  (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
+         (current-args (if edit-args
+                           (split-string
+                            (read-string "Edit aider arguments: "
+					 (mapconcat 'identity aider-args " ")))
+                         aider-args))
          (source-buffer (window-buffer (selected-window))))
     (unless (comint-check-proc buffer-name)
-      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil aider-args)
+      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (comint-mode)
         (font-lock-add-keywords nil aider-font-lock-keywords t)
@@ -192,8 +198,7 @@ If not in a git repository, an error is raised."
           (font-lock-mode 1)
           (font-lock-ensure)
           (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))
-        ))
+                   (with-current-buffer source-buffer major-mode)))))
     (aider-switch-to-buffer)))
 
 ;; Function to switch to the Aider buffer
