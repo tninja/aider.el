@@ -312,6 +312,12 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (aider-add-or-read-current-file (aider--get-add-command-prefix)))
 
+;;;###autoload
+(defun aider-current-file-read-only ()
+  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider-add-or-read-current-file "/read-only"))
+
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
 (defun aider-add-files-in-current-window ()
