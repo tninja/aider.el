@@ -38,6 +38,18 @@ When nil, use standard `display-buffer' behavior."
   :type 'boolean
   :group 'aider)
 
+(defcustom aider-popular-models '("gemini/gemini-exp-1206"  ;; free
+                                  "anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+                                  "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
+                                  "deepseek/deepseek-chat"  ;; chatgpt-4o level performance, price is 1/100. weakness: small context
+                                  "gpt-4o-mini"
+                                  )
+  "List of available AI models for selection.
+Each model should be in the format expected by the aider command line interface.
+Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
+  :type '(repeat string)
+  :group 'aider)
+
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -108,6 +120,7 @@ Affects the system message too.")
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("o" "Select Model" aider-change-model)
     ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
     ("x" "Exit Aider" aider-exit)
@@ -115,6 +128,7 @@ Affects the system message too.")
    ["Add File to Aider"
     (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
+    ("R" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
@@ -305,6 +319,12 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (aider-add-or-read-current-file (aider--get-add-command-prefix)))
 
+;;;###autoload
+(defun aider-current-file-read-only ()
+  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider-add-or-read-current-file "/read-only"))
+
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
 (defun aider-add-files-in-current-window ()
@@ -345,6 +365,11 @@ COMMAND should be a string representing the command to send."
 If a region is active, append the region text to the question.
 If cursor is inside a function, include the function name as context."
   (interactive)
+  ;; Dispatch to general question if in aider buffer
+  (when (string= (buffer-name) (aider-buffer-name))
+    (call-interactively 'aider-general-question)
+    (cl-return-from aider-ask-question))
+  
   (let* ((function-name (which-function))
          (initial-input (when function-name 
                           (format "About function '%s': " function-name)))
@@ -569,20 +594,17 @@ Otherwise, generate unit tests for the entire file."
     (if (string-match-p "test" (file-name-nondirectory buffer-file-name))
         (message "Current buffer appears to be a test file.")
       (let* ((function-name (which-function))
+             (common-instructions "Include test cases for:
+1. Normal input/output scenarios
+2. Edge cases and boundary conditions
+3. Error handling and invalid inputs
+Make the test comprehensive but maintainable. Do not use Mock if possible. Follow standard unit testing practices.")
              (initial-input
               (if function-name
-                  (format "Please write unit test code for function '%s'. Include test cases for:
-1. Normal input/output scenarios
-2. Edge cases and boundary conditions
-3. Error handling and invalid inputs
-Make the test comprehensive but maintainable. Follow standard unit testing practices." 
-                         function-name)
-                (format "Please write unit test code for file '%s'. For each function include test cases for:
-1. Normal input/output scenarios
-2. Edge cases and boundary conditions
-3. Error handling and invalid inputs
-Make the tests comprehensive but maintainable. Follow standard unit testing practices." 
-                       (file-name-nondirectory buffer-file-name))))
+                  (format "Please write unit test code for function '%s'. %s" 
+                         function-name common-instructions)
+                (format "Please write unit test code for file '%s'. For each function %s" 
+                       (file-name-nondirectory buffer-file-name) common-instructions)))
              (user-command (aider-read-string "Unit test generation instruction: " initial-input))
              (command (format "/architect %s" user-command)))
         (aider-add-current-file)
@@ -601,6 +623,19 @@ This function assumes the cursor is on or inside a test function."
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
+
+;;; Model selection functions
+;;;###autoload
+(defun aider-change-model ()
+  "Interactively select and change AI model in current aider session."
+  (interactive)
+  (let ((model (aider--select-model)))
+    (when model
+      (aider--send-command (format "/model %s" model) t))))
+
+(defun aider--select-model ()
+  "Private function for model selection with completion."
+  (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models)))
 
 ;;; functions for sending text blocks
 
