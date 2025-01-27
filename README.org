@@ -24,6 +24,15 @@
   - (`aider-switch-to-buffer`): Switch to the Aider buffer.
     - use "^" in the menu to toggle open aider session in other window inside current frame, or open a dedicate frame for aider session
 
+*** Model Selection:
+  - (`aider-change-model`): Interactively select and change AI model in current aider session
+  - Customize `aider-popular-models` to define your preferred models list. Default models are:
+    - gemini/gemini-exp-1206 (free)
+    - anthropic/claude-3-5-sonnet-20241022 (best performance in aider benchmark)
+    - r1 (performance matches o1, price << claude sonnet. weakness: small context)
+    - deepseek/deepseek-chat (chatgpt-4o level performance, price is 1/100. weakness: small context)
+    - gpt-4o-mini
+
 *** More ways to add files to the Aider buffer:
   - use "@" in the menu to toggle add file between read-write mode and read-only mode
   - (`aider-add-current-file`): Add the current buffer file.
