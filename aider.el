@@ -630,7 +630,7 @@ This function assumes the cursor is on or inside a test function."
 
 (defun aider--select-model ()
   "Private function for model selection with completion."
-  (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-models)))
+  (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models)))
 
 ;;; functions for sending text blocks
 
