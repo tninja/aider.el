@@ -26,9 +26,9 @@
 
 *** Model Selection:
   - (`aider-change-model`): Interactively select and change AI model in current aider session
-  - Customize `aider-popular-models` to define your preferred models list. Default models are:
+  - Customize `aider-popular-models` to define your preferred models list. Default models are (as date of 2025-01-26):
     - gemini/gemini-exp-1206 (free)
-    - anthropic/claude-3-5-sonnet-20241022 (best performance in aider benchmark)
+    - anthropic/claude-3-5-sonnet-20241022 (really good in practical)
     - r1 (performance matches o1, price << claude sonnet. weakness: small context)
     - deepseek/deepseek-chat (chatgpt-4o level performance, price is 1/100. weakness: small context)
     - gpt-4o-mini
