@@ -594,11 +594,7 @@ Otherwise, generate unit tests for the entire file."
     (if (string-match-p "test" (file-name-nondirectory buffer-file-name))
         (message "Current buffer appears to be a test file.")
       (let* ((function-name (which-function))
-             (common-instructions "Include test cases for:
-1. Normal input/output scenarios
-2. Edge cases and boundary conditions
-3. Error handling and invalid inputs
-Make the test comprehensive but maintainable. Do not use Mock if possible. Follow standard unit testing practices.")
+             (common-instructions "Keep existing tests if there are. Do not use Mock if possible. Follow standard unit testing practices.")
              (initial-input
               (if function-name
                   (format "Please write unit test code for function '%s'. %s" 
