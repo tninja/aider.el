@@ -139,6 +139,7 @@ Affects the system message too.")
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
+    ("i" "Implement TODOs" aider-implement-todo)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
@@ -619,6 +620,26 @@ This function assumes the cursor is on or inside a test function."
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
+
+;;;###autoload
+(defun aider-implement-todo ()
+  "Implement TODO comments in current context.
+If cursor is inside a function, implement TODOs for that function.
+Otherwise implement TODOs for the entire current file."
+  (interactive)
+  (if (not buffer-file-name)
+      (message "Current buffer is not visiting a file.")
+    (let* ((function-name (which-function))
+           (initial-input
+            (if function-name
+                (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
+                       function-name)
+              (format "Please implement all TODO items in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
+                     (file-name-nondirectory buffer-file-name))))
+           (user-command (aider-read-string "TODO implementation instruction: " initial-input))
+           (command (format "/architect %s" user-command)))
+      (aider-add-current-file)
+      (aider--send-command command t))))
 
 ;;; Model selection functions
 ;;;###autoload

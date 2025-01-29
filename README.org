@@ -41,8 +41,9 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
   - (`aider-add-same-type-files-under-dir`): Add all files with the same suffix as the current file under the current directory to Aider.
   - (`aider-batch-add-dired-marked-files`): Add multiple Dired marked files to the Aider buffer.
 
-*** Refactor code:
-  - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to refactor the function under the cursor.
+*** Write code:
+  - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to change / refactor the function under the cursor.
+  - (`aider-implement-todo`): Implement TODO comments in current context. If cursor is inside a function, implement TODOs for that function. Otherwise implement TODOs for the entire current file.
 
 *** Explain code:
   - (`aider-ask-question`): Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
