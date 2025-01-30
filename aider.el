@@ -27,7 +27,7 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-args '("--model" "gemini/gemini-exp-1206")
+(defcustom aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
