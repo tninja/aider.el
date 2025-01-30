@@ -27,7 +27,7 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-args '("--model" "gemini/gemini-exp-1206")
+(defcustom aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
@@ -624,18 +624,27 @@ This function assumes the cursor is on or inside a test function."
 ;;;###autoload
 (defun aider-implement-todo ()
   "Implement TODO comments in current context.
+If cursor is on a comment line, implement that specific comment.
 If cursor is inside a function, implement TODOs for that function.
 Otherwise implement TODOs for the entire current file."
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
-    (let* ((function-name (which-function))
+    (let* ((current-line (string-trim (thing-at-point 'line t)))
+           (is-comment (and comment-start 
+                            (string-prefix-p comment-start (string-trim-left current-line))))
+           (function-name (which-function))
            (initial-input
-            (if function-name
-                (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
-                       function-name)
+            (cond
+             (is-comment
+              (format "Please implement this comment: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific comment." 
+                      current-line))
+             (function-name
+              (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
+                      function-name))
+             (t
               (format "Please implement all TODO items in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
-                     (file-name-nondirectory buffer-file-name))))
+                      (file-name-nondirectory buffer-file-name)))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input))
            (command (format "/architect %s" user-command)))
       (aider-add-current-file)
