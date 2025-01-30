@@ -632,19 +632,19 @@ Otherwise implement TODOs for the entire current file."
       (message "Current buffer is not visiting a file.")
     (let* ((current-line (string-trim (thing-at-point 'line t)))
            (is-comment (and comment-start 
-                           (string-prefix-p comment-start (string-trim-left current-line))))
+                            (string-prefix-p comment-start (string-trim-left current-line))))
            (function-name (which-function))
            (initial-input
             (cond
              (is-comment
-              (format "Please implement this comment: '%s'. Keep the existing code structure and implement just this specific comment." 
-                     current-line))
+              (format "Please implement this comment: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific comment." 
+                      current-line))
              (function-name
               (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
-                     function-name))
+                      function-name))
              (t
               (format "Please implement all TODO items in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
-                     (file-name-nondirectory buffer-file-name)))))
+                      (file-name-nondirectory buffer-file-name)))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input))
            (command (format "/architect %s" user-command)))
       (aider-add-current-file)
