@@ -631,8 +631,13 @@ Otherwise implement TODOs for the entire current file."
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
     (let* ((current-line (string-trim (thing-at-point 'line t)))
+           ;; Improved comment detection - trim space from comment-start
+           (comment-char (string-trim-right comment-start))
            (is-comment (and comment-start 
-                            (string-prefix-p comment-start (string-trim-left current-line))))
+                           (string-match-p (concat "^[ \t]*" 
+                                                 (regexp-quote comment-char)
+                                                 "+") 
+                                         (string-trim-left current-line))))
            (function-name (which-function))
            (initial-input
             (cond
