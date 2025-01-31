@@ -621,6 +621,17 @@ This function assumes the cursor is on or inside a test function."
         (aider--send-command command t))
     (message "No test function found at cursor position.")))
 
+(defun aider--is-comment-line (line)
+  "Check if LINE is a comment line based on current buffer's comment syntax.
+Returns non-nil if LINE starts with one or more comment characters,
+ignoring leading whitespace."
+  (when comment-start
+    (let ((comment-str (string-trim-right comment-start)))
+      (string-match-p (concat "^[ \t]*"
+                             (regexp-quote comment-str)
+                             "+")
+                     (string-trim-left line)))))
+
 ;;;###autoload
 (defun aider-implement-todo ()
   "Implement TODO comments in current context.
@@ -631,8 +642,7 @@ Otherwise implement TODOs for the entire current file."
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
     (let* ((current-line (string-trim (thing-at-point 'line t)))
-           (is-comment (and comment-start 
-                            (string-prefix-p comment-start (string-trim-left current-line))))
+           (is-comment (aider--is-comment-line current-line))
            (function-name (which-function))
            (initial-input
             (cond
