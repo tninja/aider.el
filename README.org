@@ -28,11 +28,11 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 *** Model Selection:
   - (`aider-change-model`): Interactively select and change AI model in current aider session
   - Customize `aider-popular-models` to define your preferred models list. Default models are (as date of 2025-01-26):
-    - gemini/gemini-exp-1206 (free)
     - anthropic/claude-3-5-sonnet-20241022 (really good in practical)
+    - gpt-4o-mini
+    - gemini/gemini-exp-1206 (free)
     - r1 (performance matches o1, price << claude sonnet. weakness: small context)
     - deepseek/deepseek-chat (chatgpt-4o level performance, price is 1/100. weakness: small context)
-    - gpt-4o-mini
 
 *** More ways to add files to the Aider buffer:
   - use "@" in the menu to toggle add file between read-write mode and read-only mode
@@ -43,7 +43,10 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 
 *** Write code:
   - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to change / refactor the function under the cursor.
-  - (`aider-implement-todo`): Implement TODO comments in current context. If cursor is inside a function, implement TODOs for that function. Otherwise implement TODOs for the entire current file.
+  - (`aider-implement-todo`): Implement TODO comments in current context.
+    - If cursor is on a comment line, implement that specific comment.
+    - If cursor is inside a function, implement TODOs for that function.
+    - Otherwise implement TODOs for the entire current file.
 
 *** Explain code:
   - (`aider-ask-question`): Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
