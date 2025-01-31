@@ -116,3 +116,39 @@
   (let ((face-props (face-all-attributes face nil))
         (default-props (face-all-attributes 'default nil)))
     (not (equal face-props default-props))))
+
+(ert-deftest aider--is-comment-line-test ()
+  "Test the aider--is-comment-line function."
+  ;; Test with semicolon comment style (Lisp)
+  (let ((comment-start ";"))
+    ;; Basic comment cases
+    (should (aider--is-comment-line "; comment"))
+    (should (aider--is-comment-line ";; double comment"))
+    (should (aider--is-comment-line ";;; triple comment"))
+    
+    ;; Comments with leading whitespace
+    (should (aider--is-comment-line "   ; indented comment"))
+    (should (aider--is-comment-line "\t; tabbed comment"))
+    
+    ;; Non-comment cases
+    (should-not (aider--is-comment-line "code ; with comment"))
+    (should-not (aider--is-comment-line "regular code"))
+    (should-not (aider--is-comment-line "")))
+
+  ;; Test with hash comment style (Python)
+  (let ((comment-start "#"))
+    (should (aider--is-comment-line "# python comment"))
+    (should (aider--is-comment-line "   # indented python comment"))
+    (should-not (aider--is-comment-line "code # with comment")))
+
+  ;; Test with double slash comment style (C/Java)
+  (let ((comment-start "//"))
+    (should (aider--is-comment-line "// c style comment"))
+    (should (aider--is-comment-line "   // indented c comment"))
+    (should-not (aider--is-comment-line "code // with comment")))
+
+  ;; Test with nil comment-start
+  (let ((comment-start nil))
+    (should-not (aider--is-comment-line "; not a comment when no comment-start"))
+    (should-not (aider--is-comment-line "# not a comment when no comment-start"))
+    (should-not (aider--is-comment-line "// not a comment when no comment-start"))))
