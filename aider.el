@@ -71,6 +71,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 This function can be customized or redefined by the user."
   (read-string prompt initial-input))
 
+;;;###autoload
 (defalias 'aider-read-string 'aider-plain-read-string)
 
 (defvar aider--add-file-read-only nil
