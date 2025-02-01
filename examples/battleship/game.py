@@ -157,11 +157,6 @@ class HumanPlayer(Player):
         print("=====================================")
         return hit_result
 
-    def decodeLoc(self, loc):
-        x = ord(loc[0].upper()) - ord('A')
-        y = int(loc[1:]) - 1
-        return x, y
-
 
 class ComputerPlayer(Player):
 
@@ -248,6 +243,88 @@ class ComputerPlayer(Player):
         return random.choice(possible_hits)
 
 
+class HardComputerPlayer(ComputerPlayer):
+    """
+    Hard mode: use probability density strategy for selecting the best move
+    """
+
+    def input_and_hit(self, player):
+        # Get board size and hit history
+        board_size = self.board_size
+        hit_history = self.hit_history
+
+        # 获取对手非沉船的所有舰船长度
+        remaining_ships = [fleet.size for fleet in player.fleet_group.fleets if not fleet.is_sunk()]
+
+        # 初始化概率网格，全部单元置0
+        prob_grid = [[0] * board_size[1] for _ in range(board_size[0])]
+
+        # 记录已射击的坐标，hit_history中的元素形式为 (x, y, bool)
+        shot_cells = {(x, y): True for x, y, _ in hit_history}
+
+        # 对于每个剩余舰船的长度，尝试水平和垂直的放置，并累加概率分值
+        for size in remaining_ships:
+            for x in range(board_size[0]):
+                for y in range(board_size[1]):
+                    # 水平放置：检查从 (x, y) 到 (x, y+size-1) 是否在边界且未被射击
+                    if y + size <= board_size[1]:
+                        if all((x, y + offset) not in shot_cells for offset in range(size)):
+                            for offset in range(size):
+                                prob_grid[x][y + offset] += size  # Increase weight based on ship size
+
+                    # 垂直放置：检查从 (x, y) 到 (x+size-1, y) 是否在边界且未被射击
+                    if x + size <= board_size[0]:
+                        if all((x + offset, y) not in shot_cells for offset in range(size)):
+                            for offset in range(size):
+                                prob_grid[x + offset][y] += size  # Increase weight based on ship size
+
+        # Add bonus for cells adjacent to unsunk hit cells
+        bonus = 3  # Bonus weight for adjacent cell
+        for x, y, hit in hit_history:
+            if hit:  # cell was a hit
+                # Check if this hit cell belongs to an unsunk fleet
+                unsunk = False
+                for fleet in player.fleet_group.fleets:
+                    if (x, y) in fleet.coordinates and not fleet.is_sunk():
+                        unsunk = True
+                        break
+                if unsunk:
+                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        nx, ny = x + dx, y + dy
+                        if 0 <= nx < board_size[0] and 0 <= ny < board_size[1] and (nx, ny) not in shot_cells:
+                            prob_grid[nx][ny] += bonus  # Boost adjacent cells near successful hit
+        max_prob = -1
+        candidates = []
+        for x in range(board_size[0]):
+            for y in range(board_size[1]):
+                if (x, y) not in shot_cells:
+                    cell_prob = prob_grid[x][y]
+                    if cell_prob > max_prob:
+                        max_prob = cell_prob
+                        candidates = [(x, y)]
+                    elif cell_prob == max_prob:
+                        candidates.append((x, y))
+
+        import random
+        if candidates:
+            x, y = random.choice(candidates)
+        else:
+            # 如果没有候选,退回到父类的随机策略
+            x, y = self._random_shot(board_size, hit_history)
+
+        hit_result = self.hit(player, x, y)
+        self.log_hit(x, y, hit_result)
+        print(f"{player.name}'s board: ")
+        player.show_myself()
+        print("=====================================")
+        return hit_result
+
+    def decodeLoc(self, loc):
+        x = ord(loc[0].upper()) - ord('A')
+        y = int(loc[1:]) - 1
+        return x, y
+
+
 class Game:
 
     def __init__(self, fleet_names, board_size):
@@ -281,6 +358,20 @@ class Game:
         player1.random_init(self.fleet_names)
         player2.random_init(self.fleet_names)
         self.add_players(player1, player2)
+        self.run()
+
+    def computer_vs_hard(self, normal_first=True):
+        """
+        # Start a game with ComputerPlayer vs HardComputerPlayer
+        """
+        player1 = ComputerPlayer("Normal CPU", self.board_size)
+        player2 = HardComputerPlayer("Hard CPU", self.board_size)
+        player1.random_init(self.fleet_names)
+        player2.random_init(self.fleet_names)
+        if normal_first:
+            self.add_players(player1, player2)
+        else:
+            self.add_players(player2, player1)
         self.run()
 
 
