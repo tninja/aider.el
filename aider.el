@@ -50,6 +50,16 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :type '(repeat string)
   :group 'aider)
 
+(defcustom aider-language-name-map '(("elisp" . "emacs-lisp")
+                                     ("bash" . "sh")
+                                     ("objective-c" . "objc")
+                                     ("objectivec" . "objc")
+                                     ("cpp" . "c++"))
+  "Map external language names to Emacs names."
+  :type '(alist :key-type (string :tag "Language Name/Alias")
+                :value-type (string :tag "Mode Name (without -mode)"))
+  :group 'aider)
+
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -61,8 +71,19 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   "Face for commands sent to aider buffer."
   :group 'aider)
 
-(defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
-                                   ("^\x2500+" 0 '(face nil display (space :width 2))))
+(defface aider-search-replace-block
+  '((t :inherit 'diff-refine-added :bold t))
+  "Face for search/replace block content."
+  :group 'aider)
+
+(defvar aider-font-lock-keywords
+  '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
+    ("^\x2500+" 0 '(face nil display (space :width 2)))
+    ("^\\([0-9]+\\). " 0 font-lock-constant-face)
+    ("^>>>>>>> REPLACE" 0 'aider-search-replace-block t)
+    ("^<<<<<<< SEARCH" 0 'aider-search-replace-block t)
+    ("^\\(```\\)\\([^[:space:]]*\\)" (1 'shadow t) (2 font-lock-builtin-face t))
+    ("^=======$" 0 'aider-search-replace-block t))
   "Font lock keywords for aider buffer.")
 
 ;;;###autoload
@@ -168,26 +189,6 @@ If not in a git repository, an error is raised."
         (error "Not in a git repository")
       (format "*aider:%s*" git-repo-path))))
 
-(defun aider--inherit-source-highlighting (source-buffer)
-  "Inherit syntax highlighting settings from SOURCE-BUFFER."
-  (with-current-buffer source-buffer
-    (let ((source-keywords font-lock-keywords)
-          (source-keywords-only font-lock-keywords-only)
-          (source-keywords-case-fold-search font-lock-keywords-case-fold-search)
-          ;; (source-syntax-table (syntax-table))
-          (source-defaults font-lock-defaults))
-      (with-current-buffer (aider-buffer-name)
-        ;; (set-syntax-table source-syntax-table)
-        (setq font-lock-defaults
-              (if source-defaults
-                  source-defaults
-                `((,source-keywords)
-                  nil
-                  ,source-keywords-case-fold-search)))
-        (setq font-lock-keywords source-keywords
-              font-lock-keywords-only source-keywords-only
-              font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
-
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
   "Create a comint-based buffer and run \"aider\" for interactive conversation.
@@ -205,16 +206,96 @@ With the universal argument, prompt to edit aider-args before running."
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (comint-mode)
-        (font-lock-add-keywords nil aider-font-lock-keywords t)
-        ;; Only inherit syntax highlighting when source buffer is in prog-mode
-        (when (with-current-buffer source-buffer
-                (derived-mode-p 'prog-mode))
-          (aider--inherit-source-highlighting source-buffer)
-          (font-lock-mode 1)
-          (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))))
+        (setq-local comint-input-sender 'aider-input-sender)
+        (add-hook 'comint-output-filter-functions #'aider--fontify-blocks 100 t)
+        (font-lock-add-keywords nil aider-font-lock-keywords t)))
     (aider-switch-to-buffer)))
+
+(defun aider-input-sender (proc string)
+  "Handle multi-line inputs being sent to Aider."
+  (comint-simple-send proc (aider--process-message-if-multi-line string)))
+
+(defun aider--fontify-blocks (_output)
+  "Process search/replace blocks in comint OUTPUT.
+Finds blocks between <<<<<<< SEARCH and >>>>>>> REPLACE markers,
+extracts the content, fontifies it, and replaces the original text."
+  (let ((start-marker "<<<<<<< SEARCH")
+        (end-marker ">>>>>>> REPLACE")
+        (diff-marker "=======")
+        (fence-marker "```")
+        (buffer (current-buffer))
+        (inhibit-read-only t))
+    (save-excursion
+      (goto-char comint-last-output-start)
+      (beginning-of-line)
+      (while (re-search-forward (format "^\\(%s\\|%s\\|%s\\)$" diff-marker end-marker fence-marker) nil t)
+        (save-excursion
+          (when-let* ((marker (match-string 1))
+                      (paired-marker (if (equal end-marker marker)
+                                         diff-marker
+                                       start-marker))
+                      (block-end (line-beginning-position))
+                      (data (if (equal marker fence-marker)
+                                   (aider--get-code-block)
+                                 (aider--get-change-block paired-marker)))
+                      (block-start (car data))
+                      (lang-mode (cdr data))
+                      (content (buffer-substring-no-properties block-start block-end))
+                      (temp-buffer (generate-new-buffer " *aider-fontify*"))
+                      (fontified
+                       (with-current-buffer temp-buffer
+                         (let ((inhibit-modification-hooks nil)
+                               (inhibit-message t))
+                           (erase-buffer)
+                           ;; Additional space ensures property change.
+                           (insert content " ")
+                           (funcall lang-mode)
+                           (font-lock-ensure)
+                           (buffer-substring (point-min) (1- (point-max))))))
+                      (end (+ block-start (length fontified)))
+                      (pos block-start))
+           (kill-buffer temp-buffer)
+           (delete-region block-start block-end)
+           (goto-char block-start)
+           (insert fontified)
+           (goto-char block-start)
+           (while (< pos end)
+             (let ((next-pos (or (next-property-change pos) end))
+                   (face (get-text-property pos 'face)))
+               (ansi-color-apply-overlay-face pos next-pos face)
+               (setq pos next-pos)))))))))
+
+(defun aider--get-change-block (paired-marker)
+  (let ((block-start (when (re-search-backward (format "^%s$" paired-marker) nil t)
+                       (line-end-position))))
+    (end-of-line) ;; if we are already on start-marker we need to backup
+    (re-search-backward "^<<<<<<< SEARCH$" nil t)
+    (forward-line -1) ;; there might be a code fence before the search marker
+    (cons block-start (aider--guess-major-mode))))
+
+(defun aider--get-code-block ()
+  (unless (save-excursion
+            ;; make sure we don't re-highlight search/replace blocks in code
+            ;; fences.
+            (forward-line -1)
+            (looking-at-p ">>>>>>> REPLACE"))
+    (beginning-of-line)
+    (let ((block-start (when (re-search-backward "^```" nil t)
+                         (line-end-position))))
+      (cons block-start (aider--guess-major-mode)))))
+
+(defun aider--guess-major-mode ()
+  "Extract the major mode from fence markers or filename."
+  (or
+   ;; check if the block has a language id
+   (when (looking-at "^```\\([^[:space:]]+\\)")
+     (let* ((lang (downcase (match-string 1)))
+            (mode (map-elt aider-language-name-map lang lang)))
+       (intern-soft (concat mode "-mode"))))
+   ;; check the file extension in auto-mode-alist
+   (when (re-search-backward "^\\([^[:space:]]+\\)" (line-beginning-position -3) t)
+     (let ((file (match-string 1)))
+       (cdr (cl-assoc-if (lambda (re) (string-match re file)) auto-mode-alist))))))
 
 ;; Function to switch to the Aider buffer
 ;;;###autoload
