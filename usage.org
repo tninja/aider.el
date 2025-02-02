@@ -35,8 +35,13 @@ To develop new features effectively with aider.el, follow these steps:
 
      - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
 
-   - For code change in existing function / class / code block 
-     # explain how to use aider-function-or-region-refactor to make the change
+   - For refactoring changes in existing code:
+     When you need to adjust an existing function, class, or code block, do the following:
+     1. If you wish to change only a part of the code, select that region; otherwise, simply place the cursor inside the target function or block.
+     2. Run “aider-function-or-region-refactor”.
+     3. When prompted, enter a clear refactoring instruction (for example, “Rename variable 'temp' to 'result'” or “Replace this loop with a list comprehension for efficiency”).
+     4. Aider will process your instruction and return a revised version of the code with your changes applied in place while preserving the overall structure.
+     5. Review the output and, if needed, refine your instructions further (e.g., by using “Ask Question”) to get the desired result.
 
 4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
 
