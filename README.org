@@ -213,6 +213,8 @@ To develop new features effectively with aider.el, follow these steps:
      4. Aider will process your instruction and return a revised version of the code with your changes applied in place while preserving the overall structure.
      5. Review the output and, if needed, refine your instructions further (e.g., by using “Ask Question”) to get the desired result.
 
+   - aider-architect-discussion and aider-code-change are also helpful, but it is less context aware than the above two commands.
+
 4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
 
 AI-generated code is beneficial for quickly implementing features but can sometimes introduce subtle bugs or inconsistencies. That’s why Unit Test (or even more, Test-Driven Development) is critical: by writing tests before and after integrating AI-generated changes, you ensure that each incremental improvement is validated immediately. Implement your tests in small iteration steps—running your full test suite after each change—to catch issues early and maintain robust control over your codebase.
