@@ -165,19 +165,19 @@ class ComputerPlayer(Player):
         board_size = self.board_size
         hit_history = self.hit_history
         
-        # 获取未击沉的船只大小列表
+        # get sizes of unsunk ships
         remaining_sizes = []
         for fleet in player.fleet_group.fleets:
             if not fleet.is_sunk():
                 remaining_sizes.append(fleet.size)
         
-        # 找出所有连续命中但未击沉的点
+        # get all consecutive hit points that are not sunk
         hits_in_progress = []
         hits_only = [(x, y) for x, y, hit in hit_history if hit]
         
-        # 分析连续命中点的方向
+        # Analyze the orientation of consecutive hit points
         for x, y in hits_only:
-            # 检查是否已经是已击沉的船只的一部分
+            # check if this hit is part of a sunk ship
             is_sunk = False
             for fleet in player.fleet_group.fleets:
                 if fleet.is_sunk() and (x, y) in fleet.coordinates:
@@ -187,38 +187,38 @@ class ComputerPlayer(Player):
                 hits_in_progress.append((x, y))
         
         if hits_in_progress:
-            # 如果有连续命中点,分析可能的方向
+            # If there are multiple consecutive hit points, analyze possible orientation
             if len(hits_in_progress) > 1:
-                # 确定方向
+                # Determine the orientation
                 points = sorted(hits_in_progress)
-                if points[0][0] == points[1][0]:  # 水平方向
+                if points[0][0] == points[1][0]:  # horizontal direction
                     direction = 'horizontal'
                     x = points[0][0]
                     possible_y = [points[0][1]-1, points[-1][1]+1]
                     candidates = [(x, y) for y in possible_y if 0 <= y < board_size[1]]
-                else:  # 垂直方向
+                else:  # vertical direction
                     direction = 'vertical'
                     y = points[0][1]
                     possible_x = [points[0][0]-1, points[-1][0]+1]
                     candidates = [(x, y) for x in possible_x if 0 <= x < board_size[0]]
             else:
-                # 单个命中点,尝试四个方向
+                # For a single hit point, try all four directions
                 x, y = hits_in_progress[0]
                 candidates = [(x-1,y), (x+1,y), (x,y-1), (x,y+1)]
                 candidates = [(x,y) for x,y in candidates 
                              if 0 <= x < board_size[0] and 0 <= y < board_size[1]]
             
-            # 过滤掉已经打击过的位置
+            # Filter out positions that have already been targeted
             candidates = [(x,y) for x,y in candidates 
                          if (x,y,True) not in hit_history and (x,y,False) not in hit_history]
             
             if candidates:
                 x, y = random.choice(candidates)
             else:
-                # 如果没有合适的相邻点,随机选择
+                # If no valid adjacent cell is available, choose randomly
                 x, y = self._random_shot(board_size, hit_history)
         else:
-            # 没有进行中的命中,使用概率分布选择
+            # If there are no ongoing hit sequences, use a random shot
             x, y = self._random_shot(board_size, hit_history)
         
         hit_result = self.hit(player, x, y)
@@ -253,26 +253,26 @@ class HardComputerPlayer(ComputerPlayer):
         board_size = self.board_size
         hit_history = self.hit_history
 
-        # 获取对手非沉船的所有舰船长度
+        # get lengths of all opponent's unsunk ships
         remaining_ships = [fleet.size for fleet in player.fleet_group.fleets if not fleet.is_sunk()]
 
-        # 初始化概率网格，全部单元置0
+        # initialize probability grid with zeros
         prob_grid = [[0] * board_size[1] for _ in range(board_size[0])]
 
-        # 记录已射击的坐标，hit_history中的元素形式为 (x, y, bool)
+        # record shot coordinates; elements in hit_history are tuples (x, y, bool)
         shot_cells = {(x, y): True for x, y, _ in hit_history}
 
         # 对于每个剩余舰船的长度，尝试水平和垂直的放置，并累加概率分值
         for size in remaining_ships:
             for x in range(board_size[0]):
                 for y in range(board_size[1]):
-                    # 水平放置：检查从 (x, y) 到 (x, y+size-1) 是否在边界且未被射击
+                    # horizontal placement: check if cells from (x, y) to (x, y+size-1) are within boundaries and not shot
                     if y + size <= board_size[1]:
                         if all((x, y + offset) not in shot_cells for offset in range(size)):
                             for offset in range(size):
                                 prob_grid[x][y + offset] += size  # Increase weight based on ship size
 
-                    # 垂直放置：检查从 (x, y) 到 (x+size-1, y) 是否在边界且未被射击
+                    # vertical placement: check if cells from (x, y) to (x+size-1, y) are within boundaries and not shot
                     if x + size <= board_size[0]:
                         if all((x + offset, y) not in shot_cells for offset in range(size)):
                             for offset in range(size):
