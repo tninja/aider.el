@@ -1,0 +1,12 @@
+
+* How to integrate aider.el into development workflow
+
+- Here I just share my own experience. You might have better way to use aider.el.
+
+** Feature development
+
+# introduce the best practice to use commands provided by aider.el, and description in README.org, to do feature development
+
+** Bug fixes / exception investigation
+
+** Code reading
