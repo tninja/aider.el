@@ -12,7 +12,19 @@ To develop new features effectively with aider.el, follow these steps:
 2. Add relevant files to the session using commands such as “aider-add-current-file”, “aider-add-files-in-current-window”, or “aider-add-same-type-files-under-dir” so that the AI has access to the complete codebase.
 
 3. Use the in-place implementation commands—for example, “aider-implement-todo” to implement requirements directly in comments or “aider-function-or-region-refactor” to refactor existing code—since these approaches are preferred for feature development as they apply minimal, context-aware changes.
-   - For inline one-line comment implementations: When you have a single-line TODO comment (e.g. “// TODO: improve error handling”), place the cursor on that comment and run “aider-implement-todo”. This command sends just that inline comment to Aider, which then implements the requested change in-place while preserving the surrounding code structure.
+   - For inline one-line comment implementations:  
+         For example, if you have the following Python code:
+         
+         #+BEGIN_SRC python :eval never
+         def process_data(data):
+             # TODO: Replace this loop with a list comprehension for better performance
+             result = []
+             for item in data:
+                 result.append(item * 2)
+             return result
+         #+END_SRC  
+         
+         Place the cursor on the TODO comment line and run “aider-implement-todo”. This command will send only that inline comment to Aider, which then transforms the loop into a list comprehension directly in-place—all while preserving the remaining code structure.
 
 4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
 
