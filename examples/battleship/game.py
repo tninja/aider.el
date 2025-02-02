@@ -157,6 +157,11 @@ class HumanPlayer(Player):
         print("=====================================")
         return hit_result
 
+    def decodeLoc(self, loc):
+        x = ord(loc[0].upper()) - ord('A')
+        y = int(loc[1:]) - 1
+        return x, y
+
 
 class ComputerPlayer(Player):
 
@@ -318,12 +323,6 @@ class HardComputerPlayer(ComputerPlayer):
         player.show_myself()
         print("=====================================")
         return hit_result
-
-    def decodeLoc(self, loc):
-        x = ord(loc[0].upper()) - ord('A')
-        y = int(loc[1:]) - 1
-        return x, y
-
 
 class Game:
 
