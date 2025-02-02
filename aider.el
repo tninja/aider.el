@@ -24,8 +24,11 @@
 
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
-(with-eval-after-load 'savehist
-  (add-to-list 'savehist-additional-variables 'aider-read-string-history))
+(if (bound-and-true-p savehist-loaded)
+    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
+  (add-hook 'savehist-mode-hook
+            (lambda ()
+              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
 
 (defcustom aider-program "aider"
   "The name or path of the aider program."
