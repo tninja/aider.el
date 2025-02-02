@@ -66,8 +66,7 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
-- Install the dependency [[https://github.com/magit/magit][Magit]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], and [[https://github.com/magit/magit][Magit]] using your package manager.
 - Install aider.el with the following code:
 
 *** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
