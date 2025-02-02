@@ -43,8 +43,8 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 
 *** Write code:
   - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to change / refactor the function under the cursor.
-  - (`aider-implement-todo`): Implement TODO comments in current context.
-    - If cursor is on a comment line, implement that specific comment.
+  - *(`aider-implement-todo`): Implement requirement in comments in-place, in current context.*
+    - If cursor is on a comment line, implement that specific comment in-place.
     - If cursor is inside a function, implement TODOs for that function.
     - Otherwise implement TODOs for the entire current file.
 
@@ -66,8 +66,7 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the dependency [[https://github.com/magit/transient][Transient]] using your package manager.
-- Install the dependency [[https://github.com/magit/magit][Magit]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], and [[https://github.com/magit/magit][Magit]] using your package manager.
 - Install aider.el with the following code:
 
 *** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
@@ -91,7 +90,8 @@ If you have Straight installed
     ;; Optional: Set a key binding for the transient menu
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
-*** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]
+
+*** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
 Install Aider.el by running the following code within Emacs
 #+BEGIN_SRC emacs-lisp
 (package-vc-install '(aider :url "https://github.com/tninja/aider.el"))

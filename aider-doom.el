@@ -37,6 +37,7 @@
                     :desc "Architecture" "d" #'aider-architect-discussion
                     :desc "Change" "c" #'aider-code-change
                     :desc "Refactor Function or Region" "r" #'aider-function-or-region-refactor
+                    :desc "Implement Requirement in-place" "i" #'aider-implement-todo
                     :desc "Undo change" "u" #'aider-undo-last-change
                     :desc "Show last commit" "g" #'aider-magit-show-last-commit
                     )

@@ -140,7 +140,7 @@ Affects the system message too.")
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
-    ("i" "Implement TODOs" aider-implement-todo)
+    ("i" "Implement Requirement in-place" aider-implement-todo)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]

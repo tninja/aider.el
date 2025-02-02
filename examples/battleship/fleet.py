@@ -57,5 +57,5 @@ class FleetGroup:
     def show(self):
         for fleet in self.fleets:
             fleet.show()
-            print()  # 添加一个空行以分隔不同的舰队
+            print()  # add an empty line to separate fleets
 
