@@ -219,9 +219,6 @@ To develop new features effectively with aider.el, follow these steps:
 
 AI-generated code is beneficial for quickly implementing features but can sometimes introduce subtle bugs or inconsistencies. That’s why Unit Test (or even more, Test-Driven Development) is critical: by writing tests before and after integrating AI-generated changes, you ensure that each incremental improvement is validated immediately. Implement your tests in small iteration steps—running your full test suite after each change—to catch issues early and maintain robust control over your codebase.
 
-** TODO Bug fixes / exception investigation
-
-** TODO Code reading
 * Screenshot
 
 [[file:./screenshot.png]]
