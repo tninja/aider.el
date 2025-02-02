@@ -22,6 +22,9 @@
   :prefix "aider-"
   :group 'convenience)
 
+(defvar aider-read-string-history nil
+  "History list for aider read string inputs.")
+
 (defcustom aider-program "aider"
   "The name or path of the aider program."
   :type 'string
@@ -69,7 +72,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (read-string prompt initial-input))
+  (read-string prompt initial-input 'aider-read-string-history))
 
 ;;;###autoload
 (defalias 'aider-read-string 'aider-plain-read-string)
