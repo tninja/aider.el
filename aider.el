@@ -38,11 +38,11 @@ When nil, use standard `display-buffer' behavior."
   :type 'boolean
   :group 'aider)
 
-(defcustom aider-popular-models '("gemini/gemini-exp-1206"  ;; free
-                                  "anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+(defcustom aider-popular-models '("anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+                                  "o3-mini" ;; very powerful
+                                  "gemini/gemini-exp-1206"  ;; free
                                   "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
                                   "deepseek/deepseek-chat"  ;; chatgpt-4o level performance, price is 1/100. weakness: small context
-                                  "gpt-4o-mini"
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.

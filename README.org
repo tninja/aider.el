@@ -29,7 +29,7 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
   - (`aider-change-model`): Interactively select and change AI model in current aider session
   - Customize `aider-popular-models` to define your preferred models list. Default models are (as date of 2025-01-26):
     - anthropic/claude-3-5-sonnet-20241022 (really good in practical)
-    - gpt-4o-mini
+    - o3-mini (new released. very powerful, not expensive)
     - gemini/gemini-exp-1206 (free)
     - r1 (performance matches o1, price << claude sonnet. weakness: small context)
     - deepseek/deepseek-chat (chatgpt-4o level performance, price is 1/100. weakness: small context)
@@ -80,7 +80,7 @@ If you have Straight installed
     (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or use chatgpt model since it is most well known
-    ;; (setq aider-args '("--model" "gpt-4o-mini"))
+    ;; (setq aider-args '("--model" "o3-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
     ;; Or use gemini v2 model since it is very good and free
     ;; (setq aider-args '("--model" "gemini/gemini-exp-1206"))
@@ -105,7 +105,7 @@ Add the config
     (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or use chatgpt model since it is most well known
-    ;; (setq aider-args '("--model" "gpt-4o-mini"))
+    ;; (setq aider-args '("--model" "o3-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
     ;; Or use gemini v2 model since it is very good and free
     ;; (setq aider-args '("--model" "gemini/gemini-exp-1206"))
@@ -130,7 +130,7 @@ Add the config
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--model" "gpt-4o-mini")))
+  (setq aider-args '("--model" "o3-mini")))
 #+END_SRC
 
 The aider prefix is "A".
