@@ -9,7 +9,7 @@ To develop new features effectively with aider.el, follow these steps:
 
 1. Start an Aider session specific to your current git repository by running the command “aider-run-aider”. This links your session to your project context.
 
-2. Add relevant files to the session using commands such as “aider-add-current-file”, “aider-add-files-in-current-window”, or “aider-add-same-type-files-under-dir” so that the AI has access to the complete codebase.
+2. Add relevant files to the session using commands such as “aider-add-current-file”, “aider-add-files-in-current-window”, etc, so that the AI has access to the complete codebase.
 
 3. Use the in-place implementation commands—for example, “aider-implement-todo” to implement requirements directly in comments or “aider-function-or-region-refactor” to refactor existing code—since these approaches are preferred for feature development as they apply minimal, context-aware changes.
    - For inline one-line comment implementations:  
@@ -34,6 +34,9 @@ To develop new features effectively with aider.el, follow these steps:
          This revised example demonstrates using aider-implement-todo to generate entirely new code rather than modifying existing code.
 
      - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
+
+   - For code change in existing function / class / code block 
+     # explain how to use aider-function-or-region-refactor to make the change
 
 4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
 
