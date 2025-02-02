@@ -1,7 +1,7 @@
 
 * How to integrate aider.el into development workflow
 
-- Here I just share my own experience. You might have better way to use aider.el.
+- Here I just share my personal experience. You might have different / better way to use aider.el.
 
 ** Feature development
 
@@ -25,6 +25,8 @@ To develop new features effectively with aider.el, follow these steps:
          #+END_SRC  
          
          Place the cursor on the TODO comment line and run “aider-implement-todo”. This command will send only that inline comment to Aider, which then transforms the loop into a list comprehension directly in-place—all while preserving the remaining code structure.
+
+     - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
 
 4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
 
