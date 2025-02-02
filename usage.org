@@ -13,18 +13,25 @@ To develop new features effectively with aider.el, follow these steps:
 
 3. Use the in-place implementation commands—for example, “aider-implement-todo” to implement requirements directly in comments or “aider-function-or-region-refactor” to refactor existing code—since these approaches are preferred for feature development as they apply minimal, context-aware changes.
    - For inline one-line comment implementations:  
-         For example, if you have the following Python code:
-         
+         For example, if you have the following Python code snippet:
+
          #+BEGIN_SRC python :eval never
-         def process_data(data):
-             # TODO: Replace this loop with a list comprehension for better performance
-             result = []
-             for item in data:
-                 result.append(item * 2)
-             return result
+         # TODO: Implement a function that checks if a number is prime
          #+END_SRC  
-         
-         Place the cursor on the TODO comment line and run “aider-implement-todo”. This command will send only that inline comment to Aider, which then transforms the loop into a list comprehension directly in-place—all while preserving the remaining code structure.
+
+         Place the cursor on the TODO comment line and run “aider-implement-todo”. This command will send only that inline comment to Aider, which will then generate new code—for example, a complete implementation of an is_prime function—while leaving existing code unchanged. A possible generated output might be:
+
+         #+BEGIN_SRC python :eval never
+         def is_prime(n):
+             if n <= 1:
+                 return False
+             for i in range(2, int(n ** 0.5) + 1):
+                 if n % i == 0:
+                     return False
+             return True
+         #+END_SRC  
+
+         This revised example demonstrates using aider-implement-todo to generate entirely new code rather than modifying existing code.
 
      - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
 
