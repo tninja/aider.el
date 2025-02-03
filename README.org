@@ -204,7 +204,7 @@ To develop new features effectively with aider.el, follow these steps:
 
          This example demonstrates using aider-implement-todo to generate entirely new code rather than modifying existing code.
 
-         Actually, you can also use this function to write doc. Eg. in org-mode document.
+         Actually, this function can also help writing document.
 
      - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
 
