@@ -234,6 +234,7 @@ Right now I am using projectile function to jump between main code and test code
 
 - Inspired by, and Thanks to:
   - [[https://github.com/shouya/ancilla.el][ancilla.el]]: AI Coding Assistant support code generation / code rewrite / discussion
-  - [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]: ChatGPT and DALL-E Emacs shells + Org Babel
+  - [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]: ChatGPT and DALL-E Emacs shells + Org Babel, comint session based idea
   - [[https://github.com/copilot-emacs/copilot.el][copilot.el]]: Emacs plugin for GitHub Copilot
   - [[https://github.com/chep/copilot-chat.el][copilot-chat.el]]: Chat with GitHub Copilot in Emacs
+  - [[https://github.com/karthink/gptel][gptel]]: Most stared / widely used LLM client in Emacs 
