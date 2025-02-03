@@ -180,7 +180,7 @@ You can enable Helm-based completion with the following code:
 
 2. Next, consider adding relevant files to the session using commands such as “aider-add-current-file” or “aider-add-files-in-current-window”. This provides Aider with additional context that may prove useful.
 
-3. For making changes, it is recommended to use one of the in-place implementation commands—for example, “aider-implement-todo” to address requirements indicated in a comment, or “aider-function-or-region-refactor” to adjust or reorganize existing code. These approaches are designed to apply minimal, context-aware updates.
+3. For making changes, it might be either adding new code or changing existing code.
    - *Add new code* with one-line comment implementation:
          Suppose the following Python snippet is encountered:
 
@@ -200,7 +200,7 @@ You can enable Helm-based completion with the following code:
              return True
          #+END_SRC  
 
-         This example demonstrates how aider-implement-todo can assist in introducing new code without altering the current implementation. (This command may also be useful for some documentation tasks.)
+         This example demonstrates how aider-implement-todo can assist in introducing new code. (This command may also be useful for some documentation tasks.)
 
      - In cases where the suggested change is not entirely satisfactory, the option exists to decline it (for example, by entering N). Following that, the “Ask Question” command (or /ask within the aider session buffer) can be used to request a modification with more detailed guidance. Once an acceptable suggestion is obtained, confirmation via the “Go Ahead” command (or “go ahead” in the aider session buffer) is possible.
 
