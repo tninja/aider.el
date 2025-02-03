@@ -176,19 +176,19 @@ You can enable Helm-based completion with the following code:
 
 ** Feature development
 
-1. Start an Aider session specific to your current git repository by running the command “aider-run-aider”. This links your session to your project context.
+1. Begin an Aider session specific to the current git repository by running the command “aider-run-aider”. This command links the session with the project context.
 
-2. Add relevant files to the session using commands such as “aider-add-current-file”, “aider-add-files-in-current-window”, etc, so that the AI has access to them.
+2. Next, consider adding relevant files to the session using commands such as “aider-add-current-file” or “aider-add-files-in-current-window”. This provides Aider with additional context that may prove useful.
 
-3. Use the in-place implementation commands—for example, “aider-implement-todo” to implement requirements directly in comments or “aider-function-or-region-refactor” to make code change or refactor existing code—since these approaches are preferred for feature development as they apply minimal, context-aware changes.
-   - For inline one-line comment implementations:  
-         For example, if you have the following Python code snippet:
+3. For making changes, it is recommended to use one of the in-place implementation commands—for example, “aider-implement-todo” to address requirements indicated in a comment, or “aider-function-or-region-refactor” to adjust or reorganize existing code. These approaches are designed to apply minimal, context-aware updates.
+   - For a one-line comment implementation:
+         Suppose the following Python snippet is encountered:
 
          #+BEGIN_SRC python :eval never
          # TODO: Implement a function that checks if a number is prime
          #+END_SRC  
 
-         Place the cursor on the TODO comment line and run “aider-implement-todo”. This command will send only that inline comment to Aider, which will then generate new code—for example, a complete implementation of an is_prime function—while leaving existing code unchanged. A possible generated output might be:
+         With the cursor positioned on the TODO comment line, running “aider-implement-todo” will send only that inline comment to Aider, which may then generate revised code—for example, a complete implementation of an is_prime function—while preserving the existing code. For instance, Aider might produce:
 
          #+BEGIN_SRC python :eval never
          def is_prime(n):
@@ -200,28 +200,24 @@ You can enable Helm-based completion with the following code:
              return True
          #+END_SRC  
 
-         This example demonstrates using aider-implement-todo to generate entirely new code rather than modifying existing code.
+         This example demonstrates how aider-implement-todo can assist in introducing new code without altering the current implementation. (This command may also be useful for some documentation tasks.)
 
-         Actually, this function can also help writing document.
+   - In cases where the suggested change is not entirely satisfactory, the option exists to decline it (for example, by entering N). Following that, the “Ask Question” command (or /ask within the aider session buffer) can be used to request a modification with more detailed guidance. Once an acceptable suggestion is obtained, confirmation via the “Go Ahead” command (or “go ahead” in the aider session buffer) is possible.
 
-     - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
+   - When adjustments are needed for an existing function, class, or code block:
+     1. If only a portion of the code is to be modified, the relevant region may be selected; otherwise, placing the cursor within the target function or class will suffice.
+     2. Execute “aider-function-or-region-refactor”.
+     3. When prompted, provide a clear description of the intended change (for example, “Rename variable 'temp' to 'result'” or “Make the function static”).
+     4. A revised version of the code that incorporates these suggestions will then be generated while preserving the overall structure.
+     5. The output may be reviewed and, if further refinement is necessary, additional adjustments can be requested using “Ask Question” followed by confirmation with “Go Ahead”, until the desired result is achieved.
 
-   - When you need to adjust an existing function, class, or code block, do the following:
-     1. If you wish to change only a part of the code, select that region; otherwise, simply place the cursor inside the target function or class.
-     2. Run “aider-function-or-region-refactor”.
-     3. When prompted, enter a clear code change / refactoring instruction (for example, “Rename variable 'temp' to 'result'” or “Make the function static”).
-     4. Aider will process your instruction and return a revised version of the code with your changes applied in place while preserving the overall structure.
-     5. Review the output and, if needed, refine your instructions further (e.g., by using “Ask Question”, and go ahead) to get the desired result.
+   - Note that aider-architect-discussion and aider-code-change are available alternatives, although these may offer less context sensitivity than the aforementioned commands.
 
-   - aider-architect-discussion and aider-code-change are also helpful, but it is less context aware than the above two commands.
+4. It is advisable to validate and iteratively improve the feature using test-driven commands such as “aider-write-unit-test” and “aider-fix-failing-test-under-cursor”. Although AI-generated code can serve as a helpful starting point, it may occasionally introduce subtle issues. Running tests before and after integrating changes ensures that each incremental improvement is properly verified. Executing the full test suite after every change is recommended to catch any issues early.
 
-4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
+    (As an aside, a projectile function is currently employed to switch between the main code and test code and add them to the session—but further improvements to include test code seamlessly are always welcome.)
 
-    AI-generated code is beneficial for quickly implementing features but can sometimes introduce subtle bugs or inconsistencies. That’s why Unit Test (or even more, Test-Driven Development) is critical: by writing tests before and after integrating AI-generated changes, you ensure that each incremental improvement is validated immediately. Implement your tests in small iteration steps—running your full test suite after each change—to catch issues early and maintain robust control over your codebase.
-
-    Right now I am using projectile function to jump between main code and test code, and add them to session. It would be better if there is a way to easily add test code to session.
-
-5. Refactor the AI generated code and test, it can be done with proper prompt or manually.
+5. Finally, the AI-generated code and tests may be refactored further as necessary—either with additional prompts or manually—to best suit the project’s requirements.
 
 * Screenshot
 
