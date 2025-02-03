@@ -217,9 +217,9 @@ You can enable Helm-based completion with the following code:
 
 4. Validate and evolve your feature with test-driven commands like “aider-write-unit-test” and “aider-fix-failing-test-under-cursor” as needed.
 
-AI-generated code is beneficial for quickly implementing features but can sometimes introduce subtle bugs or inconsistencies. That’s why Unit Test (or even more, Test-Driven Development) is critical: by writing tests before and after integrating AI-generated changes, you ensure that each incremental improvement is validated immediately. Implement your tests in small iteration steps—running your full test suite after each change—to catch issues early and maintain robust control over your codebase.
+    AI-generated code is beneficial for quickly implementing features but can sometimes introduce subtle bugs or inconsistencies. That’s why Unit Test (or even more, Test-Driven Development) is critical: by writing tests before and after integrating AI-generated changes, you ensure that each incremental improvement is validated immediately. Implement your tests in small iteration steps—running your full test suite after each change—to catch issues early and maintain robust control over your codebase.
 
-Right now I am using projectile function to jump between main code and test code, and add them to session. It would be better if there is a way to easily add test code to session.
+    Right now I am using projectile function to jump between main code and test code, and add them to session. It would be better if there is a way to easily add test code to session.
 
 5. Refactor the AI generated code and test, it can be done with proper prompt or manually.
 
