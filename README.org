@@ -207,11 +207,11 @@ You can enable Helm-based completion with the following code:
      - If you are not satisfied with the change aider suggested. You can enter N to refuse accept that, and then use Ask Question (or /ask in aider session buffer) to ask aider modify the change given your more specific requirement. When you satisfy with that, use "Go Ahead" (or "go ahead" in aider session buffer)
 
    - When you need to adjust an existing function, class, or code block, do the following:
-     1. If you wish to change only a part of the code, select that region; otherwise, simply place the cursor inside the target function or block.
+     1. If you wish to change only a part of the code, select that region; otherwise, simply place the cursor inside the target function or class.
      2. Run “aider-function-or-region-refactor”.
      3. When prompted, enter a clear code change / refactoring instruction (for example, “Rename variable 'temp' to 'result'” or “Make the function static”).
      4. Aider will process your instruction and return a revised version of the code with your changes applied in place while preserving the overall structure.
-     5. Review the output and, if needed, refine your instructions further (e.g., by using “Ask Question”) to get the desired result.
+     5. Review the output and, if needed, refine your instructions further (e.g., by using “Ask Question”, and go ahead) to get the desired result.
 
    - aider-architect-discussion and aider-code-change are also helpful, but it is less context aware than the above two commands.
 
