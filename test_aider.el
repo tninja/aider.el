@@ -87,7 +87,7 @@
   ;; Test when buffer is a test file
   (with-temp-buffer
     (let ((buffer-file-name "test_something.py"))
-      (should (progn (aider-write-test)
+      (should (progn (aider-write-unit-test)
                     (equal (current-message) "Current buffer appears to be a test file.")))))
   
   ;; Test when buffer is a regular file with no function under cursor
@@ -99,7 +99,7 @@
                  (lambda (prompt initial) aider-read-string-result))
                 ((symbol-function 'aider-add-current-file) (lambda () t))
                 ((symbol-function 'aider--send-command) (lambda (cmd switch) t)))
-        (aider-write-test)
+        (aider-write-unit-test)
         (should (not (equal (current-message) "Current buffer is not visiting a file.")))
         (should (not (equal (current-message) "Current buffer appears to be a test file.")))))))
 
