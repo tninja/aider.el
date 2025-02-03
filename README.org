@@ -53,7 +53,7 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
   - (`aider-function-or-region-explain`): If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
-*** Support for Test Driven Development:
+*** Support for Unit Test / Test Driven Development:
   - (`aider-write-unit-test`): Generate comprehensive unit tests for the current function or file. The generated tests will include normal cases, edge cases, and error handling scenarios.
   - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
@@ -213,7 +213,7 @@ You can enable Helm-based completion with the following code:
 
    - Note that aider-architect-discussion and aider-code-change are available alternatives, although these may offer less context sensitivity than the aforementioned commands.
 
-4. *Generate test* It is advisable to validate and iteratively improve the feature using test-driven commands such as “aider-write-unit-test” and “aider-fix-failing-test-under-cursor”. Although AI-generated code can serve as a helpful starting point, it may occasionally introduce subtle issues. Running tests before and after integrating changes ensures that each incremental improvement is properly verified. Executing the full test suite after every change is recommended to catch any issues early.
+4. *Generate test* It is advisable to validate and iteratively improve the feature using unit test commands such as “aider-write-unit-test” and “aider-fix-failing-test-under-cursor”. Although AI-generated code can serve as a helpful starting point, it may occasionally introduce subtle issues. Running tests before and after integrating changes ensures that each incremental improvement is properly verified. Executing the full test suite after every change is recommended to catch any issues early.
 
     (As an aside, a projectile function is currently employed to switch between the main code and test code and add them to the session—but further improvements to include test code seamlessly are always welcome.)
 
