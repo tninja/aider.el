@@ -181,7 +181,7 @@ You can enable Helm-based completion with the following code:
 2. Next, consider adding relevant files to the session using commands such as “aider-add-current-file” or “aider-add-files-in-current-window”. This provides Aider with additional context that may prove useful.
 
 3. For making changes, it is recommended to use one of the in-place implementation commands—for example, “aider-implement-todo” to address requirements indicated in a comment, or “aider-function-or-region-refactor” to adjust or reorganize existing code. These approaches are designed to apply minimal, context-aware updates.
-   - For a one-line comment implementation:
+   - *Add new code* with one-line comment implementation:
          Suppose the following Python snippet is encountered:
 
          #+BEGIN_SRC python :eval never
@@ -202,9 +202,9 @@ You can enable Helm-based completion with the following code:
 
          This example demonstrates how aider-implement-todo can assist in introducing new code without altering the current implementation. (This command may also be useful for some documentation tasks.)
 
-   - In cases where the suggested change is not entirely satisfactory, the option exists to decline it (for example, by entering N). Following that, the “Ask Question” command (or /ask within the aider session buffer) can be used to request a modification with more detailed guidance. Once an acceptable suggestion is obtained, confirmation via the “Go Ahead” command (or “go ahead” in the aider session buffer) is possible.
+     - In cases where the suggested change is not entirely satisfactory, the option exists to decline it (for example, by entering N). Following that, the “Ask Question” command (or /ask within the aider session buffer) can be used to request a modification with more detailed guidance. Once an acceptable suggestion is obtained, confirmation via the “Go Ahead” command (or “go ahead” in the aider session buffer) is possible.
 
-   - When adjustments are needed for an existing function, class, or code block:
+   - *Change existing code* for an existing function, class, or code block:
      1. If only a portion of the code is to be modified, the relevant region may be selected; otherwise, placing the cursor within the target function or class will suffice.
      2. Execute “aider-function-or-region-refactor”.
      3. When prompted, provide a clear description of the intended change (for example, “Rename variable 'temp' to 'result'” or “Make the function static”).
