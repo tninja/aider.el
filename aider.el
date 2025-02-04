@@ -636,6 +636,7 @@ ignoring leading whitespace."
 ;;;###autoload
 (defun aider-implement-todo ()
   "Implement TODO comments in current context.
+If region is selected, implement that specific region.
 If cursor is on a comment line, implement that specific comment.
 If cursor is inside a function, implement TODOs for that function.
 Otherwise implement TODOs for the entire current file."
@@ -645,8 +646,15 @@ Otherwise implement TODOs for the entire current file."
     (let* ((current-line (string-trim (thing-at-point 'line t)))
            (is-comment (aider--is-comment-line current-line))
            (function-name (which-function))
+           (region-text (when (region-active-p)
+                         (buffer-substring-no-properties 
+                          (region-beginning) 
+                          (region-end))))
            (initial-input
             (cond
+             (region-text
+              (format "Please implement this code block: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific block." 
+                      region-text))
              (is-comment
               (format "Please implement this comment: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific comment." 
                       current-line))
