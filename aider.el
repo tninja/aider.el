@@ -604,7 +604,7 @@ Otherwise:
         (if function-name
             (if (string-match-p "test" function-name)
                 (let* ((initial-input 
-                       (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test." 
+                       (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible." 
                               function-name))
                       (user-command (aider-read-string "Test implementation instruction: " initial-input))
                       (command (format "/architect %s" user-command)))
@@ -612,10 +612,9 @@ Otherwise:
                   (aider--send-command command t))
               (message "Current function '%s' does not appear to be a test function." function-name))
           (message "Please place cursor inside a test function to implement.")))
-       
        ;; Non-test file case
        (t
-        (let* ((common-instructions "Keep existing tests if there are. Do not use Mock if possible. Follow standard unit testing practices.")
+        (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
                (initial-input
                 (if function-name
                     (format "Please write unit test code for function '%s'. %s" 
