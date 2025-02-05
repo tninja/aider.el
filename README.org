@@ -45,6 +45,7 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
   - (`aider-function-or-region-refactor`): If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to change / refactor the function under the cursor.
   - *(`aider-implement-todo`): Implement requirement in comments in-place, in current context.*
     - If cursor is on a comment line, implement that specific comment in-place.
+    - If there is a selection region of multi-line comments, implement code for those comments in-place.
     - If cursor is inside a function, implement TODOs for that function.
     - Otherwise implement TODOs for the entire current file.
 
@@ -54,7 +55,7 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
 *** Support for Unit Test / Test Driven Development:
-  - (`aider-write-unit-test`): Generate comprehensive unit tests for the current function or file. The generated tests will include normal cases, edge cases, and error handling scenarios.
+  - (`aider-write-unit-test`): Generate comprehensive unit tests for the current function or file. If the cursor is on a test function, implement the test function.
   - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
 
 *** And More:
