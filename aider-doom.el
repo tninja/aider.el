@@ -1,4 +1,4 @@
-;;; aider-doom.el --- Description -*- lexical-binding: t; -*-
+;;; aider-doom.el --- Description -*- lexical-binding: t; no-byte-compile: t -*-
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
