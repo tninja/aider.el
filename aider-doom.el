@@ -48,6 +48,11 @@
                     :desc "Exception debugging" "e" #'aider-debug-exception
                     )
 
+                   (:prefix ("t" . "Test")
+                    :desc "Write Unit Test" "w" #'aider-write-unit-test
+                    :desc "Fix Failed Test" "f" #'aider-fix-failing-test-under-cursor
+                    )
+
                    (:prefix ("z" . "Other")
                     :desc "General command" "c" #'aider-general-command
                     :desc "Help" "h" #'aider-help
