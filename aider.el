@@ -16,6 +16,7 @@
 (require 'transient)
 (require 'magit)
 (require 'which-func)
+(require 'ansi-color)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -207,95 +208,192 @@ With the universal argument, prompt to edit aider-args before running."
       (with-current-buffer buffer-name
         (comint-mode)
         (setq-local comint-input-sender 'aider-input-sender)
-        (add-hook 'comint-output-filter-functions #'aider--fontify-blocks 100 t)
+        (setq aider--font-lock-buffer
+              (get-buffer-create (concat " *aider-fontify" buffer-name)))
+        (add-hook 'kill-buffer-hook #'aider-kill-buffer nil t)
+        (add-hook 'comint-output-filter-functions #'aider-fontify-blocks 100 t)
         (font-lock-add-keywords nil aider-font-lock-keywords t)))
     (aider-switch-to-buffer)))
 
+(defun aider-kill-buffer ()
+  "Clean-up fontify buffer."
+  (when (bufferp aider--font-lock-buffer)
+    (kill-buffer aider--font-lock-buffer)))
+
 (defun aider-input-sender (proc string)
-  "Handle multi-line inputs being sent to Aider."
-  (comint-simple-send proc (aider--process-message-if-multi-line string)))
+  "Reset font-lock state before executing a command."
+  (aider-reset-font-lock-state)
+  (comint-simple-send proc string))
 
-(defun aider--fontify-blocks (_output)
-  "Process search/replace blocks in comint OUTPUT.
-Finds blocks between <<<<<<< SEARCH and >>>>>>> REPLACE markers,
-extracts the content, fontifies it, and replaces the original text."
-  (let ((start-marker "<<<<<<< SEARCH")
-        (end-marker ">>>>>>> REPLACE")
-        (diff-marker "=======")
-        (fence-marker "```")
-        (buffer (current-buffer))
-        (inhibit-read-only t))
-    (save-excursion
-      (goto-char comint-last-output-start)
-      (beginning-of-line)
-      (while (re-search-forward (format "^\\(%s\\|%s\\|%s\\)$" diff-marker end-marker fence-marker) nil t)
-        (save-excursion
-          (when-let* ((marker (match-string 1))
-                      (paired-marker (if (equal end-marker marker)
-                                         diff-marker
-                                       start-marker))
-                      (block-end (line-beginning-position))
-                      (data (if (equal marker fence-marker)
-                                   (aider--get-code-block)
-                                 (aider--get-change-block paired-marker)))
-                      (block-start (car data))
-                      (lang-mode (cdr data))
-                      (content (buffer-substring-no-properties block-start block-end))
-                      (temp-buffer (generate-new-buffer " *aider-fontify*"))
-                      (fontified
-                       (with-current-buffer temp-buffer
-                         (let ((inhibit-modification-hooks nil)
-                               (inhibit-message t))
-                           (erase-buffer)
-                           ;; Additional space ensures property change.
-                           (insert content " ")
-                           (funcall lang-mode)
-                           (font-lock-ensure)
-                           (buffer-substring (point-min) (1- (point-max))))))
-                      (end (+ block-start (length fontified)))
-                      (pos block-start))
-           (kill-buffer temp-buffer)
-           (delete-region block-start block-end)
-           (goto-char block-start)
-           (insert fontified)
-           (goto-char block-start)
-           (while (< pos end)
-             (let ((next-pos (or (next-property-change pos) end))
-                   (face (get-text-property pos 'face)))
-               (ansi-color-apply-overlay-face pos next-pos face)
-               (setq pos next-pos)))))))))
+;; Buffer-local variables for block processing state
+(defvar-local aider--block-end-marker nil
+  "The end marker for the current block being processed.")
 
-(defun aider--get-change-block (paired-marker)
-  (let ((block-start (when (re-search-backward (format "^%s$" paired-marker) nil t)
-                       (line-end-position))))
-    (end-of-line) ;; if we are already on start-marker we need to backup
-    (re-search-backward "^<<<<<<< SEARCH$" nil t)
-    (forward-line -1) ;; there might be a code fence before the search marker
-    (cons block-start (aider--guess-major-mode))))
+(defvar-local aider--block-start nil
+  "The starting position of the current block being processed.")
 
-(defun aider--get-code-block ()
-  (unless (save-excursion
-            ;; make sure we don't re-highlight search/replace blocks in code
-            ;; fences.
-            (forward-line -1)
-            (looking-at-p ">>>>>>> REPLACE"))
+(defvar-local aider--block-end nil
+  "The end position of the current block being processed.")
+
+(defvar-local aider--last-output-start nil
+  "an alternative to `comint-last-output-start' used in aider.")
+
+(defvar-local aider--block-mode nil
+  "The major mode for the current block being processed.")
+
+(defvar-local aider--font-lock-buffer nil
+  "Temporary buffer for fontification.")
+
+(defconst aider-search-marker "<<<<<<< SEARCH")
+(defconst aider-diff-marker "=======")
+(defconst aider-replace-marker ">>>>>>> REPLACE")
+(defconst aider-fence-marker "```")
+(defvar aider-block-re
+  (format "^\\(?:\\(?1:%s\\|%s\\)\\|\\(?1:%s\\).+\\)$" aider-search-marker aider-diff-marker aider-fence-marker))
+
+(defun aider-reset-font-lock-state ()
+  "Reset font lock state to default for processing another a new src block."
+  (unless (equal aider--block-end-marker aider-diff-marker)
+    ;; if we are processing the other half of a SEARCH/REPLACE block, we need to
+    ;; keep the mode
+    (setq aider--block-mode nil))
+  (setq aider--block-end-marker nil
+        aider--last-output-start nil
+        aider--block-start nil
+        aider--block-end nil))
+
+(defun aider-fontify-blocks (_output)
+  "fontify search/replace blocks in comint output."
+  (save-excursion
+    (goto-char (or aider--last-output-start
+                   comint-last-output-start))
     (beginning-of-line)
-    (let ((block-start (when (re-search-backward "^```" nil t)
-                         (line-end-position))))
-      (cons block-start (aider--guess-major-mode)))))
+
+    ;; Continue processing existing block if we're in one
+    (when aider--block-start
+      (aider--fontify-block))
+
+    (setq aider--last-output-start nil)
+    ;; Look for new blocks if we're not in one
+    (while (and (null aider--block-start)
+                (null aider--last-output-start)
+                (re-search-forward aider-block-re nil t))
+
+      ;; If it is code fence marker, we need to check if there is a SEARCH marker
+      ;; directly after it
+      (when (equal (match-string 1) aider-fence-marker)
+        (let* ((next-line (min (point-max) (1+ (line-end-position))))
+               (line-text (buffer-substring
+                           next-line
+                           (min (point-max) (+ next-line (length aider-search-marker))))))
+          (cond ((equal line-text aider-search-marker)
+                 ;; Next line is a SEARCH marker. use that instead of the fence marker
+                 (re-search-forward (format "^\\(%s\\)" aider-search-marker) nil t))
+                ((string-prefix-p line-text aider-search-marker)
+                 ;; Next line *might* be a SEARCH marker. Don't process more of
+                 ;; the buffer until we know for sure
+                 (setq aider--last-output-start comint-last-output-start)))))
+
+      (unless aider--last-output-start
+        ;; Set up new block state
+        (setq aider--block-end-marker
+              (pcase (match-string 1)
+                ((pred (equal aider-search-marker)) aider-diff-marker)
+                ((pred (equal aider-diff-marker)) aider-replace-marker)
+                ((pred (equal aider-fence-marker)) aider-fence-marker))
+              aider--block-start (line-end-position)
+              aider--block-end (line-end-position)
+              aider--block-mode (aider--guess-major-mode))
+
+        ;; Set the major-mode of the font lock buffer
+        (let ((mode aider--block-mode))
+          (with-current-buffer aider--font-lock-buffer
+            (erase-buffer)
+            (unless (eq mode major-mode)
+              (condition-case e
+                  (let ((inhibit-message t))
+                    (funcall mode))
+                (error (message "aider: failed to init major-mode `%s' for font-locking: %s" mode e))))))
+
+        ;; Process initial content
+        (aider--fontify-block)))))
+
+(defun aider--fontify-block ()
+  "Fontify as much of the current source block as possible."
+  (let* ((last-bol (save-excursion
+                     (goto-char (point-max))
+                     (line-beginning-position)))
+         (last-output-start aider--block-end)
+         end-of-block-p)
+
+    (setq aider--block-end
+          (cond ((re-search-forward (concat "^" aider--block-end-marker "$") nil t)
+                 ;; Found the end of the block
+                 (setq end-of-block-p t)
+                 (line-beginning-position))
+                ((string-prefix-p (buffer-substring last-bol (point-max)) aider--block-end-marker)
+                 ;; The end of the text *might* be the end marker. back up to
+                 ;; make sure we don't process it until we know for sure
+                 last-bol)
+                ;; We can process till the end of the text
+                (t (point-max))))
+
+  ;; Append new content to temp buffer and fontify
+  (let ((new-content (buffer-substring-no-properties
+                      last-output-start
+                      aider--block-end))
+        (pos aider--block-start)
+        (font-pos 0)
+        fontified)
+
+    ;; Insert the new text and get the fontified result
+    (with-current-buffer aider--font-lock-buffer
+      (goto-char (point-max))
+      (insert new-content)
+      (with-demoted-errors "aider block font lock error: %s"
+        (let ((inhibit-message t))
+          (font-lock-ensure)))
+      (setq fontified (buffer-string)))
+
+    ;; Apply the faces to the buffer
+    (remove-overlays aider--block-start aider--block-end)
+    (while (< pos aider--block-end)
+      (let* ((next-font-pos (or (next-property-change font-pos fontified) (length fontified)))
+             (next-pos (+ aider--block-start next-font-pos))
+             (face (get-text-property font-pos 'face fontified)))
+        (ansi-color-apply-overlay-face pos next-pos face)
+        (setq pos next-pos
+              font-pos next-font-pos))))
+
+  ;; If we found the end marker, finalize the block
+  (when end-of-block-p
+    (when (equal aider--block-end-marker aider-diff-marker)
+      ;; we will need to process the other half of the SEARCH/REPLACE block.
+      ;; Backup so it will get matched
+      (beginning-of-line))
+    (aider-reset-font-lock-state))))
 
 (defun aider--guess-major-mode ()
   "Extract the major mode from fence markers or filename."
-  (or
-   ;; check if the block has a language id
-   (when (looking-at "^```\\([^[:space:]]+\\)")
-     (let* ((lang (downcase (match-string 1)))
-            (mode (map-elt aider-language-name-map lang lang)))
-       (intern-soft (concat mode "-mode"))))
-   ;; check the file extension in auto-mode-alist
-   (when (re-search-backward "^\\([^[:space:]]+\\)" (line-beginning-position -3) t)
-     (let ((file (match-string 1)))
-       (cdr (cl-assoc-if (lambda (re) (string-match re file)) auto-mode-alist))))))
+  (save-excursion
+    (beginning-of-line)
+    (or
+     ;; check if the block has a language id
+     (when (let ((re "^```\\([^[:space:]]+\\)"))
+             (or (looking-at re)
+                 (save-excursion
+                   (forward-line -1)
+                   ;; check the previous line since this might be a SEARCH block
+                   (looking-at re))))
+       (let* ((lang (downcase (match-string 1)))
+              (mode (map-elt aider-language-name-map lang lang)))
+         (intern-soft (concat mode "-mode"))))
+     ;; check the file extension in auto-mode-alist
+     (when (re-search-backward "^\\([^[:space:]]+\\)" (line-beginning-position -3) t)
+       (let ((file (match-string 1)))
+         (cdr (cl-assoc-if (lambda (re) (string-match re file)) auto-mode-alist))))
+     aider--block-mode
+     'fundamental-mode)))
 
 ;; Function to switch to the Aider buffer
 ;;;###autoload
@@ -368,6 +466,7 @@ COMMAND should be a string representing the command to send."
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
+              (aider-reset-font-lock-state)
               ;; Send the command to the aider process
               (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
