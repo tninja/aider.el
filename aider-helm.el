@@ -54,7 +54,8 @@ INITIAL-INPUT is optional initial input string."
 
 ;;;###autoload
 (with-eval-after-load 'aider
-  (defalias 'aider-read-string 'aider-helm-read-string))
+  (when (featurep 'helm)
+    (defalias 'aider-read-string 'aider-helm-read-string)))
 
 (provide 'aider-helm)
 ;;; aider-helm.el ends here
