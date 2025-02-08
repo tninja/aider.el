@@ -183,12 +183,10 @@ If not in a git repository and no buffer file exists, an error is raised."
      ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
      (current-file
       (format "*aider:%s*" 
-              (file-name-directory
-               (directory-file-name
-                (file-name-directory current-file)))))
+              (file-name-directory current-file)))
      ;; Case 3: No git repo and no buffer file
      (t
-      (error "Not in a git repository and no buffer file available")))))
+      (error "Not in a git repository and current buffer is not associated with a file")))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
