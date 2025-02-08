@@ -183,9 +183,9 @@ If not in a git repository and no buffer file exists, an error is raised."
      ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
      (current-file
       (format "*aider:%s*" 
-              (directory-file-name 
-               (file-name-directory 
-                (directory-file-name (file-name-directory current-file))))))
+              (file-name-directory
+               (directory-file-name
+                (file-name-directory current-file)))))
      ;; Case 3: No git repo and no buffer file
      (t
       (error "Not in a git repository and no buffer file available")))))
