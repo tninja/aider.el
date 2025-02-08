@@ -176,6 +176,11 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 *** And More:
 You can add your own Elisp functions to support your specific use cases. Feel free to ask Aider/`aider.el` to help you create them.
 
+* FAQ
+
+- How to enter multi-line prompts in aider session buffer?
+  - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]]. I used the tag way and it works well for me.
+  - use a separate file for aider script to modify your multi-line prompts (you don't want them to go away right? especially if it is not perfect and need to be modified), and use aider-minor-mode to send the multi-line prompts to aider buffer.
 
 * My personal development experience using aider.el
 
