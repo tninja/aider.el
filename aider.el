@@ -170,12 +170,20 @@ Affects the system message too.")
 ;; (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
 (defun aider-buffer-name ()
-  "Generate the Aider buffer name based on the git repo of the current active buffer using a git command.
-If not in a git repository, an error is raised."
-  (let ((git-repo-path (magit-toplevel)))
-    (if (string-match-p "fatal" git-repo-path)
-        (error "Not in a git repository")
-      (format "*aider:%s*" git-repo-path))))
+  "Generate the Aider buffer name based on the git repo or current buffer file path.
+If not in a git repository and no buffer file exists, an error is raised."
+  (let ((git-repo-path (magit-toplevel))
+        (current-file (buffer-file-name)))
+    (cond
+     ;; Case 1: Valid git repo path
+     ((and git-repo-path (not (string-match-p "fatal" git-repo-path)))
+      (format "*aider:%s*" git-repo-path))
+     ;; Case 2: Has buffer file
+     (current-file
+      (format "*aider:%s*" (file-name-directory current-file)))
+     ;; Case 3: No git repo and no buffer file
+     (t
+      (error "Not in a git repository and no buffer file available")))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
