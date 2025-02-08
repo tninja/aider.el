@@ -175,12 +175,17 @@ If not in a git repository and no buffer file exists, an error is raised."
   (let ((git-repo-path (magit-toplevel))
         (current-file (buffer-file-name)))
     (cond
-     ;; Case 1: Valid git repo path
-     ((and git-repo-path (not (string-match-p "fatal" git-repo-path)))
+     ;; Case 1: Valid git repo path (not nil and not containing "fatal")
+     ((and git-repo-path 
+           (stringp git-repo-path)
+           (not (string-match-p "fatal" git-repo-path)))
       (format "*aider:%s*" git-repo-path))
-     ;; Case 2: Has buffer file
+     ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
      (current-file
-      (format "*aider:%s*" (file-name-directory current-file)))
+      (format "*aider:%s*" 
+              (directory-file-name 
+               (file-name-directory 
+                (directory-file-name (file-name-directory current-file))))))
      ;; Case 3: No git repo and no buffer file
      (t
       (error "Not in a git repository and no buffer file available")))))
