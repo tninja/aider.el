@@ -171,7 +171,7 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 
 *** Support for Unit Test / Test Driven Development:
   - (`aider-write-unit-test`): Generate comprehensive unit tests for the current function or file. If the cursor is on a test function, implement the test function.
-  - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
+  - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass. You can provide more information of failed test case to help aider figuring out how to fix the source code.
 
 *** And More:
 You can add your own Elisp functions to support your specific use cases. Feel free to ask Aider/`aider.el` to help you create them.
