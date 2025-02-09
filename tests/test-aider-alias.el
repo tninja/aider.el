@@ -1,6 +1,6 @@
 ;;; tests/test-aider-alias.el --- Tests for aider alias
 ;;
-;; Author: Your Name
+;; Author: Kang Tu
 ;; Version: 0.1
 ;; License: MIT
 ;;
