@@ -183,11 +183,11 @@ If not in a git repository and no buffer file exists, an error is raised."
      ((and git-repo-path 
            (stringp git-repo-path)
            (not (string-match-p "fatal" git-repo-path)))
-      (format "*aider:%s*" git-repo-path))
+      (format "*aider:%s*" (file-truename git-repo-path)))
      ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
      (current-file
       (format "*aider:%s*" 
-              (file-name-directory current-file)))
+              (file-truename (file-name-directory current-file))))
      ;; Case 3: No git repo and no buffer file
      (t
       (error "Not in a git repository and current buffer is not associated with a file")))))
