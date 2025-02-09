@@ -15,11 +15,11 @@
 
 [[file:./transient_menu.png]]
 
-- Operate directly on the code without switching; git repo specific aider session for current file.
+- Work directly on the code without switching contexts — each file is automatically linked to a Git repository-specific Aider session.
 
-- Send the context of emacs editing to aider, for example, which function or class is concerned about now? What are currently selected? This will allow the user to type less keyboard.
+- Pass your Emacs editing context to Aider, including details such as the active function or class and any selected code. This minimizes manual typing.
 
-- Aimed at daily application tasks that programmers are concerned about. For example, how to add/modify code with AI; how to test the correctness of AI code; how to read other people's code.
+- Designed for everyday programming tasks, such as adding or modifying code with AI assistance, verifying the accuracy of AI-generated code, and reviewing code written by others.
 
 * Installation
 
