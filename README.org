@@ -189,15 +189,12 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 ** Feature development
 
 1. Start an Aider session associated with the current Git repository by running the command “aider-run-aider”. This links the session to the project context.
-   ;; English: 'Start' and 'associated' provide a clearer, active tone
 
 2. Next, consider including relevant files in the session using commands like “aider-add-current-file” or “aider-add-files-in-current-window”. This supplies Aider with additional, useful context.
-   ;; English: Replaced "adding" with "including" and improved phrasing
 
 3. When making changes, you might be either adding new code or modifying existing code.
    - *Adding new code* via one-line comment implementation:
          For instance, suppose you encounter the following Python snippet:
-   ;; English: "modifying" is preferred over "changing" and "For instance" clarifies the example
 
          #+BEGIN_SRC python :eval never
          # TODO: Implement a function that checks if a number is prime
