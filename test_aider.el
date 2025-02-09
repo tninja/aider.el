@@ -2,14 +2,32 @@
 
 (ert-deftest aider-buffer-name-test ()
   "Test the aider-buffer-name function."
+  ;; Test normal git repo case
   (cl-letf (((symbol-function 'magit-toplevel)
-             (lambda () "/path/to/git/repo")))
-    (should (equal (aider-buffer-name) "*aider:/path/to/git/repo*")))
+             (lambda () "/path/to/git/repo/")))
+    (should (equal (aider-buffer-name) "*aider:/path/to/git/repo/*")))
   
-  ;; Test error case when not in a git repo
+  ;; Test when magit-toplevel returns nil but buffer has a file
   (cl-letf (((symbol-function 'magit-toplevel)
-             (lambda () "fatal: not a git repository")))
-    (should-error (aider-buffer-name) :type 'error)))
+             (lambda () nil))
+            ((symbol-function 'buffer-file-name)
+             (lambda () "/path/to/some/file.el")))
+    (should (equal (aider-buffer-name) "*aider:/path/to/some/*")))
+
+  ;; Test when magit-toplevel returns fatal message but buffer has a file
+  (cl-letf (((symbol-function 'magit-toplevel)
+             (lambda () "fatal: not a git repository"))
+            ((symbol-function 'buffer-file-name)
+             (lambda () "/another/path/file.txt")))
+    (should (equal (aider-buffer-name) "*aider:/another/path/*")))
+
+  ;; Test error case when not in git repo and no buffer file
+  (cl-letf (((symbol-function 'magit-toplevel)
+             (lambda () nil))
+            ((symbol-function 'buffer-file-name)
+             (lambda () nil)))
+    (should-error (aider-buffer-name) :type 'error))
+  )
 
 (ert-deftest aider--process-message-if-multi-line-test ()
   "Test the aider--process-message-if-multi-line function."
