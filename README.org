@@ -53,8 +53,8 @@ If you have Straight installed
 #+END_SRC
 
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
-Install Aider.el by running the following code within Emacs
-You'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
+- Install Aider.el by running the following code within Emacs
+  - You'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
 #+BEGIN_SRC emacs-lisp
 (package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
 #+END_SRC
