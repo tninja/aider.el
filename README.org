@@ -15,11 +15,11 @@
 
 [[file:./transient_menu.png]]
 
-- Operate directly on the code without switching; git repo specific aider session for current file.
+- Work directly on the code without switching contexts — each file is automatically linked to a Git repository-specific Aider session.
 
-- Send the context of emacs editing to aider, for example, which function or class is concerned about now? What are currently selected? This will allow the user to type less keyboard.
+- Pass your Emacs editing context to Aider, including details such as the active function or class and any selected code. This minimizes manual typing.
 
-- Aimed at daily application tasks that programmers are concerned about. For example, how to add/modify code with AI; how to test the correctness of AI code; how to read other people's code.
+- Designed for everyday programming tasks, such as adding or modifying code with AI assistance, verifying the accuracy of AI-generated code, and reviewing code written by others.
 
 * Installation
 
@@ -54,28 +54,12 @@ If you have Straight installed
 
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
 Install Aider.el by running the following code within Emacs
+But in this way, you'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
 #+BEGIN_SRC emacs-lisp
 (package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
 #+END_SRC
-Add the config
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :config
-    ;; Use claude-3-5-sonnet cause it is best in aider benchmark
-    (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
-    (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
-    ;; Or use chatgpt model since it is most well known
-    ;; (setq aider-args '("--model" "o3-mini"))
-    ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
-    ;; Or use gemini v2 model since it is very good and free
-    ;; (setq aider-args '("--model" "gemini/gemini-exp-1206"))
-    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
-    ;; Or use your personal config file
-    ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
-    ;; ;;
-    ;; Optional: Set a key binding for the transient menu
-    (global-set-key (kbd "C-c a") 'aider-transient-menu))
-#+END_SRC
+
+The config part is as same as above straight one
 
 ** Doom Installation and Configuration
 
@@ -171,7 +155,7 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 
 *** Support for Unit Test / Test Driven Development:
   - (`aider-write-unit-test`): Generate comprehensive unit tests for the current function or file. If the cursor is on a test function, implement the test function.
-  - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass.
+  - (`aider-fix-failing-test-under-cursor`): Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass. You can provide more information of failed test case to help aider figuring out how to fix the source code.
 
 *** And More:
 You can add your own Elisp functions to support your specific use cases. Feel free to ask Aider/`aider.el` to help you create them.
@@ -188,13 +172,13 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
 ** Feature development
 
-1. Begin an Aider session specific to the current git repository by running the command “aider-run-aider”. This command links the session with the project context.
+1. Start an Aider session associated with the current Git repository by running the command “aider-run-aider”. This links the session to the project context.
 
-2. Next, consider adding relevant files to the session using commands such as “aider-add-current-file” or “aider-add-files-in-current-window”. This provides Aider with additional context that may prove useful.
+2. Next, consider including relevant files in the session using commands like “aider-add-current-file” or “aider-add-files-in-current-window”. This supplies Aider with additional, useful context.
 
-3. For making changes, it might be either adding new code or changing existing code.
-   - *Add new code* with one-line comment implementation:
-         Suppose the following Python snippet is encountered:
+3. When making changes, you might be either adding new code or modifying existing code.
+   - *Adding new code* via one-line comment implementation:
+         For instance, suppose you encounter the following Python snippet:
 
          #+BEGIN_SRC python :eval never
          # TODO: Implement a function that checks if a number is prime
@@ -214,22 +198,24 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
          This example demonstrates how aider-implement-todo can assist in introducing new code. (This command may also be useful for some documentation tasks.)
 
-     - In cases where the suggested change is not entirely satisfactory, the option exists to decline it (for example, by entering N). Following that, the “Ask Question” command (or /ask within the aider session buffer) can be used to request a modification with more detailed guidance. Once an acceptable suggestion is obtained, confirmation via the “Go Ahead” command (or “go ahead” in the aider session buffer) is possible.
+     - If the suggested change is not completely satisfactory, you can decline it (for example, by entering "N"). After declining, use the “Ask Question” command (or type /ask in the aider session buffer) to request further modifications with detailed guidance. Once you receive an acceptable suggestion, confirm it using the “Go Ahead” command (or type "go ahead" in the aider session buffer).
 
    - *Change existing code* for an existing function, class, or code block:
-     1. If only a portion of the code is to be modified, the relevant region may be selected; otherwise, placing the cursor within the target function or class will suffice.
-     2. Execute “aider-function-or-region-refactor”.
-     3. When prompted, provide a clear description of the intended change (for example, “Rename variable 'temp' to 'result'” or “Make the function static”).
-     4. A revised version of the code that incorporates these suggestions will then be generated while preserving the overall structure.
-     5. The output may be reviewed and, if further refinement is necessary, additional adjustments can be requested using “Ask Question” followed by confirmation with “Go Ahead”, until the desired result is achieved.
+     1. If you only need to modify a portion of the code, select the relevant region; otherwise, simply place the cursor inside the target function or class.
+     2. Execute the “aider-function-or-region-refactor” command.
+     3. When prompted, provide a clear description of the intended change (e.g., “Rename variable 'temp' to 'result'” or “Make the function static”).
+     4. A revised version of the code, incorporating your suggestions, will be generated while preserving the overall structure.
+     5. Review the output; if further refinement is required, request additional adjustments using “Ask Question” and confirm them with “Go Ahead” until the desired result is achieved.
 
-   - Note that aider-architect-discussion and aider-code-change are available alternatives, although these may offer less context sensitivity than the aforementioned commands.
+   - Note: Alternative commands like `aider-architect-discussion` and `aider-code-change` are also available, though they may offer less context sensitivity than the commands described above.
 
-4. *Generate test* It is advisable to validate and iteratively improve the feature using unit test commands such as “aider-write-unit-test” and “aider-fix-failing-test-under-cursor”. Although AI-generated code can serve as a helpful starting point, it may occasionally introduce subtle issues. Running tests before and after integrating changes ensures that each incremental improvement is properly verified. Executing the full test suite after every change is recommended to catch any issues early.
+4. *Generate tests*  
+   It is recommended to validate and iteratively improve the feature using unit test commands such as “aider-write-unit-test” and “aider-fix-failing-test-under-cursor.” Although AI-generated code can provide a valuable starting point, it may sometimes introduce subtle issues. Running tests both before and after integrating changes ensures that each modification is verified. Running the full test suite after every change is advised to catch any issues early.
 
     (As an aside, a projectile function is currently employed to switch between the main code and test code and add them to the session—but further improvements to include test code seamlessly are always welcome.)
 
-5. *Refactor code and test* Finally, the AI-generated code and tests may be refactored further as necessary—either with additional prompts or manually—to best suit the project’s requirements.
+5. *Refactor code and tests*  
+   Finally, you can further refactor the AI-generated code and tests as needed—either using additional prompts or manual adjustments—to best meet the project’s requirements.
 
 * Screenshot
 

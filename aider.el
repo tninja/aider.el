@@ -82,6 +82,10 @@ This function can be customized or redefined by the user."
 ;;;###autoload
 (defalias 'aider-read-string 'aider-plain-read-string)
 
+(eval-and-compile
+  ;; Ensure the alias is always available in both compiled and interpreted modes.
+  (defalias 'aider-read-string 'aider-plain-read-string))
+
 (defvar aider--add-file-read-only nil
   "Set model parameters from `aider-menu' buffer-locally.
 Affects the system message too.")
