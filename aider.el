@@ -16,6 +16,7 @@
 (require 'transient)
 (require 'magit)
 (require 'which-func)
+(require 'ansi-color)  ;; English: Require ansi-color to handle ANSI escape sequences
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -225,7 +226,7 @@ With the universal argument, prompt to edit aider-args before running."
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (comint-mode)
-        (font-lock-add-keywords nil aider-font-lock-keywords t)
+        (ansi-color-for-comint-mode-on)  ;; English: Enable ANSI color support in the comint buffer
         ;; Only inherit syntax highlighting when source buffer is in prog-mode
         (when (with-current-buffer source-buffer
                 (derived-mode-p 'prog-mode))
