@@ -80,8 +80,9 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 This function can be customized or redefined by the user."
   (read-string prompt initial-input 'aider-read-string-history))
 
-;;;###autoload
-(defalias 'aider-read-string 'aider-plain-read-string)
+(eval-and-compile
+  ;; Ensure the alias is always available in both compiled and interpreted modes.
+  (defalias 'aider-read-string 'aider-plain-read-string))
 
 (defvar aider--add-file-read-only nil
   "Set model parameters from `aider-menu' buffer-locally.
