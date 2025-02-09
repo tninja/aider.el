@@ -54,28 +54,12 @@ If you have Straight installed
 
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
 Install Aider.el by running the following code within Emacs
+But in this way, you'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
 #+BEGIN_SRC emacs-lisp
 (package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
 #+END_SRC
-Add the config
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :config
-    ;; Use claude-3-5-sonnet cause it is best in aider benchmark
-    (setq aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022"))
-    (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
-    ;; Or use chatgpt model since it is most well known
-    ;; (setq aider-args '("--model" "o3-mini"))
-    ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
-    ;; Or use gemini v2 model since it is very good and free
-    ;; (setq aider-args '("--model" "gemini/gemini-exp-1206"))
-    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
-    ;; Or use your personal config file
-    ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
-    ;; ;;
-    ;; Optional: Set a key binding for the transient menu
-    (global-set-key (kbd "C-c a") 'aider-transient-menu))
-#+END_SRC
+
+The config part is as same as above straight one
 
 ** Doom Installation and Configuration
 
