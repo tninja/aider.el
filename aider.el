@@ -319,8 +319,7 @@ COMMAND should be a string representing the command to send."
                 (aider-switch-to-buffer))
               (sleep-for 0.2))
           (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
-    ))
+    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
 (defun aider-add-or-read-current-file (command-prefix)

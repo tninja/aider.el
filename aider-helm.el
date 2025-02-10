@@ -15,7 +15,7 @@
 (require 'helm)
 (require 'cl-lib)  ; For `cl-subseq`
 
-(defun helm-read-string-with-history (prompt history-file-name &optional initial-input)
+(defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input)
   "Read a string with Helm completion using specified history file.
 PROMPT is the prompt string.
 HISTORY-FILE-NAME is the base name for history file.
@@ -48,7 +48,7 @@ INITIAL-INPUT is optional initial input string."
   "Read a string with Helm completion for aider, showing historical inputs.
 PROMPT is the prompt string.
 INITIAL-INPUT is optional initial input string."
-  (helm-read-string-with-history prompt "aider-helm-read-string-history.el" initial-input))
+  (aider-helm-read-string-with-history prompt "aider-helm-read-string-history.el" initial-input))
 
 (declare-function aider-read-string "aider")
 
@@ -56,8 +56,7 @@ INITIAL-INPUT is optional initial input string."
 (with-eval-after-load 'aider
   (if (featurep 'helm)
     (defalias 'aider-read-string 'aider-helm-read-string)
-    (message "Helm is not available. Please install helm package to use aider-helm features")
-    ))
+    (message "Helm is not available. Please install helm package to use aider-helm features")))
 
 (provide 'aider-helm)
 ;;; aider-helm.el ends here
