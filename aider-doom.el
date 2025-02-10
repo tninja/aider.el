@@ -1,4 +1,4 @@
-;;; aider-doom.el --- Description -*- lexical-binding: t; -*-
+;;; aider-doom.el --- Description -*- lexical-binding: t; no-byte-compile: t -*-
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -37,6 +37,7 @@
                     :desc "Architecture" "d" #'aider-architect-discussion
                     :desc "Change" "c" #'aider-code-change
                     :desc "Refactor Function or Region" "r" #'aider-function-or-region-refactor
+                    :desc "Implement Requirement in-place" "i" #'aider-implement-todo
                     :desc "Undo change" "u" #'aider-undo-last-change
                     :desc "Show last commit" "g" #'aider-magit-show-last-commit
                     )
@@ -45,6 +46,11 @@
                     :desc "Ask question" "a" #'aider-ask-question
                     :desc "Explain Function or Region" "r" #'aider-function-or-region-explain
                     :desc "Exception debugging" "e" #'aider-debug-exception
+                    )
+
+                   (:prefix ("t" . "Test")
+                    :desc "Write Unit Test" "w" #'aider-write-unit-test
+                    :desc "Fix Failed Test" "f" #'aider-fix-failing-test-under-cursor
                     )
 
                    (:prefix ("z" . "Other")

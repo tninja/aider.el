@@ -39,11 +39,11 @@ When nil, use standard `display-buffer' behavior."
   :type 'boolean
   :group 'aider)
 
-(defcustom aider-popular-models '("gemini/gemini-exp-1206"  ;; free
-                                  "anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+(defcustom aider-popular-models '("anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+                                  "o3-mini" ;; very powerful
+                                  "gemini/gemini-exp-1206"  ;; free
                                   "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
                                   "deepseek/deepseek-chat"  ;; chatgpt-4o level performance, price is 1/100. weakness: small context
-                                  "gpt-4o-mini"
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.
@@ -60,6 +60,20 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :type '(alist :key-type (string :tag "Language Name/Alias")
                 :value-type (string :tag "Mode Name (without -mode)"))
   :group 'aider)
+
+(defcustom aider-prompt-file-name ".aider.prompt.org"
+  "File name that will automatically enable aider-minor-mode when opened.
+This is the file name without path."
+  :type 'string
+  :group 'aider)
+
+(defvar aider-read-string-history nil
+  "History list for aider read string inputs.")
+(if (bound-and-true-p savehist-loaded)
+    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
+  (add-hook 'savehist-mode-hook
+            (lambda ()
+              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
 
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
@@ -91,9 +105,14 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (read-string prompt initial-input))
+  (read-string prompt initial-input 'aider-read-string-history))
 
+;;;###autoload
 (defalias 'aider-read-string 'aider-plain-read-string)
+
+(eval-and-compile
+  ;; Ensure the alias is always available in both compiled and interpreted modes.
+  (defalias 'aider-read-string 'aider-plain-read-string))
 
 (defvar aider--add-file-read-only nil
   "Set model parameters from `aider-menu' buffer-locally.
@@ -159,9 +178,9 @@ Affects the system message too.")
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("c" "Code Change" aider-code-change)
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
+    ("i" "Implement Requirement in-place" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
-    ("i" "Implement TODOs" aider-implement-todo)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
@@ -175,6 +194,7 @@ Affects the system message too.")
    ["Other"
     ("g" "General Command" aider-general-command)
     ("Q" "Ask General Question" aider-general-question)
+    ("p" "Open Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ]
    ])
@@ -183,12 +203,23 @@ Affects the system message too.")
 ;; (global-set-key (kbd "C-c a") 'aider-transient-menu)
 
 (defun aider-buffer-name ()
-  "Generate the Aider buffer name based on the git repo of the current active buffer using a git command.
-If not in a git repository, an error is raised."
-  (let ((git-repo-path (magit-toplevel)))
-    (if (string-match-p "fatal" git-repo-path)
-        (error "Not in a git repository")
-      (format "*aider:%s*" git-repo-path))))
+  "Generate the Aider buffer name based on the git repo or current buffer file path.
+If not in a git repository and no buffer file exists, an error is raised."
+  (let ((git-repo-path (magit-toplevel))
+        (current-file (buffer-file-name)))
+    (cond
+     ;; Case 1: Valid git repo path (not nil and not containing "fatal")
+     ((and git-repo-path 
+           (stringp git-repo-path)
+           (not (string-match-p "fatal" git-repo-path)))
+      (format "*aider:%s*" (file-truename git-repo-path)))
+     ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
+     (current-file
+      (format "*aider:%s*" 
+              (file-truename (file-name-directory current-file))))
+     ;; Case 3: No git repo and no buffer file
+     (t
+      (error "Not in a git repository and current buffer is not associated with a file")))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
@@ -475,8 +506,7 @@ COMMAND should be a string representing the command to send."
                 (aider-switch-to-buffer))
               (sleep-for 0.2))
           (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
-    ))
+    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
 (defun aider-add-or-read-current-file (command-prefix)
@@ -766,26 +796,44 @@ If there are more than 40 files, refuse to add and show warning message."
 (defun aider-write-unit-test ()
   "Generate unit test code for current buffer.
 Do nothing if current buffer is not visiting a file.
-If current buffer filename contains 'test', do nothing.
-If cursor is on a function, generate unit test for that function.
-Otherwise, generate unit tests for the entire file."
+If current buffer filename contains 'test':
+  - If cursor is inside a test function, implement that test
+  - Otherwise show message asking to place cursor inside a test function
+Otherwise:
+  - If cursor is on a function, generate unit test for that function
+  - Otherwise generate unit tests for the entire file"
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
-    (if (string-match-p "test" (file-name-nondirectory buffer-file-name))
-        (message "Current buffer appears to be a test file.")
-      (let* ((function-name (which-function))
-             (common-instructions "Keep existing tests if there are. Do not use Mock if possible. Follow standard unit testing practices.")
-             (initial-input
-              (if function-name
-                  (format "Please write unit test code for function '%s'. %s" 
-                         function-name common-instructions)
-                (format "Please write unit test code for file '%s'. For each function %s" 
-                       (file-name-nondirectory buffer-file-name) common-instructions)))
-             (user-command (aider-read-string "Unit test generation instruction: " initial-input))
-             (command (format "/architect %s" user-command)))
-        (aider-add-current-file)
-        (aider--send-command command t)))))
+    (let ((is-test-file (string-match-p "test" (file-name-nondirectory buffer-file-name)))
+          (function-name (which-function)))
+      (cond
+       ;; Test file case
+       (is-test-file
+        (if function-name
+            (if (string-match-p "test" function-name)
+                (let* ((initial-input 
+                       (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible." 
+                              function-name))
+                      (user-command (aider-read-string "Test implementation instruction: " initial-input))
+                      (command (format "/architect %s" user-command)))
+                  (aider-add-current-file)
+                  (aider--send-command command t))
+              (message "Current function '%s' does not appear to be a test function." function-name))
+          (message "Please place cursor inside a test function to implement.")))
+       ;; Non-test file case
+       (t
+        (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
+               (initial-input
+                (if function-name
+                    (format "Please write unit test code for function '%s'. %s" 
+                           function-name common-instructions)
+                  (format "Please write unit test code for file '%s'. For each function %s" 
+                         (file-name-nondirectory buffer-file-name) common-instructions)))
+               (user-command (aider-read-string "Unit test generation instruction: " initial-input))
+               (command (format "/architect %s" user-command)))
+          (aider-add-current-file)
+          (aider--send-command command t)))))))
 
 ;;;###autoload
 (defun aider-fix-failing-test-under-cursor ()
@@ -815,6 +863,7 @@ ignoring leading whitespace."
 ;;;###autoload
 (defun aider-implement-todo ()
   "Implement TODO comments in current context.
+If region is selected, implement that specific region.
 If cursor is on a comment line, implement that specific comment.
 If cursor is inside a function, implement TODOs for that function.
 Otherwise implement TODOs for the entire current file."
@@ -824,8 +873,15 @@ Otherwise implement TODOs for the entire current file."
     (let* ((current-line (string-trim (thing-at-point 'line t)))
            (is-comment (aider--is-comment-line current-line))
            (function-name (which-function))
+           (region-text (when (region-active-p)
+                         (buffer-substring-no-properties 
+                          (region-beginning) 
+                          (region-end))))
            (initial-input
             (cond
+             (region-text
+              (format "Please implement this code block: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific block." 
+                      region-text))
              (is-comment
               (format "Please implement this comment: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific comment." 
                       current-line))
@@ -857,14 +913,15 @@ Otherwise implement TODOs for the entire current file."
 
 ;; New function to send "<line under cursor>" or region line by line to the Aider buffer
 ;;;###autoload
-(defun aider-send-line-under-cursor ()
-  "If region is active, send the selected region line by line to the Aider buffer.
-Otherwise, send the line under cursor to the Aider buffer."
+(defun aider-send-line-or-region ()
+  "Send text to the Aider buffer.
+If region is active, send the selected region line by line.
+Otherwise, send the line under cursor."
   (interactive)
   (if (region-active-p)
       (aider-send-region-by-line)
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) nil))))
+      (aider--send-command (string-trim line) t))))
 
 ;;; New function to send the current selected region line by line to the Aider buffer
 ;;;###autoload
@@ -880,26 +937,56 @@ If no region is selected, show a message."
                          (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
-                  (aider--send-command line nil)))
+                  (aider--send-command line t)))
               (split-string region-text "\n" t)))
     (message "No region selected.")))
 
 ;;;###autoload
-(defun aider-send-region ()
-  "Send the current active region text as a whole block to aider session."
+(defun aider-send-block-or-region ()
+  "Send the current active region text or, if no region is active, send the current paragraph content to the aider session.
+When sending paragraph content, preserve cursor position and deactivate mark afterwards."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
         (unless (string-empty-p region-text)
           (aider--send-command region-text t)))
-    (message "No region selected.")))
+    (save-excursion  ; preserve cursor position
+      (let ((region-text
+             (progn
+               (mark-paragraph)  ; mark paragraph
+               (buffer-substring-no-properties (region-beginning) (region-end)))))
+        (unless (string-empty-p region-text)
+          (aider--send-command region-text t))
+        (deactivate-mark)))))  ; deactivate mark after sending
+
+;;;###autoload
+(defun aider-open-prompt-file ()
+  "Open aider prompt file under git repo root.
+If file doesn't exist, create it with command binding help and sample prompt."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (prompt-file (when git-root
+                       (expand-file-name aider-prompt-file-name git-root))))
+    (if prompt-file
+        (progn
+          (find-file-other-window prompt-file)
+          (unless (file-exists-p prompt-file)
+            ;; Insert initial content for new file
+            (insert "# Aider Prompt File - Command Reference:\n")
+            (insert "# C-c C-n or C-<return>: Send current line or selected region line by line\n")
+            (insert "# C-c C-c: Send current block or selected region as a whole\n")
+            (insert "# C-c C-z: Switch to aider buffer\n\n")
+            (insert "* Sample task:\n\n")
+            (insert "/ask what this repo is about?\n")
+            (save-buffer)))
+      (message "Not in a git repository"))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
-    (define-key map (kbd "C-c C-c") 'aider-send-region-by-line)
-    (define-key map (kbd "C-c C-r") 'aider-send-region)
+    (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
+    (define-key map (kbd "C-<return>") 'aider-send-line-or-region)
+    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
@@ -909,7 +996,15 @@ If no region is selected, show a message."
 (define-minor-mode aider-minor-mode
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
-  :keymap aider-minor-mode-map)
+  :keymap aider-minor-mode-map
+  :override t)
+
+(add-hook 'find-file-hook
+          (lambda ()
+            (when (and (buffer-file-name)
+                      (or (string-match-p "aider" (buffer-file-name))
+                          (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name)))))
+              (aider-minor-mode 1))))
 
 (when (featurep 'doom)
   (require 'aider-doom))
