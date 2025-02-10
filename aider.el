@@ -22,14 +22,6 @@
   :prefix "aider-"
   :group 'convenience)
 
-(defvar aider-read-string-history nil
-  "History list for aider read string inputs.")
-(if (bound-and-true-p savehist-loaded)
-    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
-  (add-hook 'savehist-mode-hook
-            (lambda ()
-              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
-
 (defcustom aider-program "aider"
   "The name or path of the aider program."
   :type 'string
@@ -57,6 +49,20 @@ Each model should be in the format expected by the aider command line interface.
 Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :type '(repeat string)
   :group 'aider)
+
+(defcustom aider-prompt-file-name ".aider.prompt.org"
+  "File name that will automatically enable aider-minor-mode when opened.
+This is the file name without path."
+  :type 'string
+  :group 'aider)
+
+(defvar aider-read-string-history nil
+  "History list for aider read string inputs.")
+(if (bound-and-true-p savehist-loaded)
+    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
+  (add-hook 'savehist-mode-hook
+            (lambda ()
+              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
 
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
@@ -166,6 +172,7 @@ Affects the system message too.")
    ["Other"
     ("g" "General Command" aider-general-command)
     ("Q" "Ask General Question" aider-general-question)
+    ("p" "Open Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ]
    ])
@@ -726,14 +733,15 @@ Otherwise implement TODOs for the entire current file."
 
 ;; New function to send "<line under cursor>" or region line by line to the Aider buffer
 ;;;###autoload
-(defun aider-send-line-under-cursor ()
-  "If region is active, send the selected region line by line to the Aider buffer.
-Otherwise, send the line under cursor to the Aider buffer."
+(defun aider-send-line-or-region ()
+  "Send text to the Aider buffer.
+If region is active, send the selected region line by line.
+Otherwise, send the line under cursor."
   (interactive)
   (if (region-active-p)
       (aider-send-region-by-line)
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) nil))))
+      (aider--send-command (string-trim line) t))))
 
 ;;; New function to send the current selected region line by line to the Aider buffer
 ;;;###autoload
@@ -749,26 +757,56 @@ If no region is selected, show a message."
                          (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
-                  (aider--send-command line nil)))
+                  (aider--send-command line t)))
               (split-string region-text "\n" t)))
     (message "No region selected.")))
 
 ;;;###autoload
-(defun aider-send-region ()
-  "Send the current active region text as a whole block to aider session."
+(defun aider-send-block-or-region ()
+  "Send the current active region text or, if no region is active, send the current paragraph content to the aider session.
+When sending paragraph content, preserve cursor position and deactivate mark afterwards."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
         (unless (string-empty-p region-text)
           (aider--send-command region-text t)))
-    (message "No region selected.")))
+    (save-excursion  ; preserve cursor position
+      (let ((region-text
+             (progn
+               (mark-paragraph)  ; mark paragraph
+               (buffer-substring-no-properties (region-beginning) (region-end)))))
+        (unless (string-empty-p region-text)
+          (aider--send-command region-text t))
+        (deactivate-mark)))))  ; deactivate mark after sending
+
+;;;###autoload
+(defun aider-open-prompt-file ()
+  "Open aider prompt file under git repo root.
+If file doesn't exist, create it with command binding help and sample prompt."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (prompt-file (when git-root
+                       (expand-file-name aider-prompt-file-name git-root))))
+    (if prompt-file
+        (progn
+          (find-file-other-window prompt-file)
+          (unless (file-exists-p prompt-file)
+            ;; Insert initial content for new file
+            (insert "# Aider Prompt File - Command Reference:\n")
+            (insert "# C-c C-n or C-<return>: Send current line or selected region line by line\n")
+            (insert "# C-c C-c: Send current block or selected region as a whole\n")
+            (insert "# C-c C-z: Switch to aider buffer\n\n")
+            (insert "* Sample task:\n\n")
+            (insert "/ask what this repo is about?\n")
+            (save-buffer)))
+      (message "Not in a git repository"))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
-    (define-key map (kbd "C-c C-c") 'aider-send-region-by-line)
-    (define-key map (kbd "C-c C-r") 'aider-send-region)
+    (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
+    (define-key map (kbd "C-<return>") 'aider-send-line-or-region)
+    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
@@ -778,7 +816,15 @@ If no region is selected, show a message."
 (define-minor-mode aider-minor-mode
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
-  :keymap aider-minor-mode-map)
+  :keymap aider-minor-mode-map
+  :override t)
+
+(add-hook 'find-file-hook
+          (lambda ()
+            (when (and (buffer-file-name)
+                      (or (string-match-p "aider" (buffer-file-name))
+                          (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name)))))
+              (aider-minor-mode 1))))
 
 (when (featurep 'doom)
   (require 'aider-doom))

@@ -88,7 +88,7 @@ The aider prefix is "A".
 
 *** Helm Support
 
-Helm enables fuzzy searching functionality for command history prompts.
+Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing.
 
 You can have helm-based completion with run the following code, after install helm library:
 
@@ -97,22 +97,13 @@ You can have helm-based completion with run the following code, after install he
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-helm.el")))
 #+END_SRC
 
-*** Aider script interactive mode: aider-minor-mode
+*** Aider prompt file
 
-- If you prefer writing Aider commands in a separate file and sending them to an Aider session (similar to working with Python or R scripts and sending code blocks to a REPL), you might want to try aider-minor-mode. It provides the following key bindings:
-  - C-c C-n: If region is active, send selected region line by line; otherwise, send current line
-  - C-c C-c: Send current region line by line to aider session
-  - C-c C-r: Send current region as a single block to aider session
-  - Enable aider-minor-mode for your editing buffer
-  - To automatically enable aider-minor-mode for any file with "aider" in its filename:
+- Use C-c a p to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
 
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'find-file-hook
-            (lambda ()
-              (when (and (buffer-file-name)
-                         (string-match-p "aider" (buffer-file-name)))
-                (aider-minor-mode 1))))
-#+END_SRC
+- The following example shows C-c C-c key pressed when cursor is on the prompt.
+
+[[file:./aider_prompt_file.png]]
 
 * Most used features (integrated into the aider menu)
 
@@ -159,12 +150,6 @@ When being called with the universal argument (`C-u`), a prompt will offer the u
 
 *** And More:
 You can add your own Elisp functions to support your specific use cases. Feel free to ask Aider/`aider.el` to help you create them.
-
-* FAQ
-
-- How to enter multi-line prompts in aider session buffer?
-  - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]]. I used the tag way and it works well for me.
-  - use a separate file for aider script to modify your multi-line prompts (you don't want them to go away right? especially if it is not perfect and need to be modified), and use aider-minor-mode to send the multi-line prompts to aider buffer.
 
 * My personal development experience using aider.el
 
@@ -225,6 +210,12 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 - Aider successfully received the command and generated the appropriate commit (bottom left).
 
 * [[./examples][Example Application Written with aider.el]]
+
+* FAQ
+
+- How to enter multi-line prompts in aider session buffer?
+  - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]]. I used the tag way and it works well for me.
+  - use aider prompt file (C-c a p) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
 
 * Other Emacs AI coding tool
 
