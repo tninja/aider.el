@@ -153,7 +153,7 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
 
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]]. I used the tag way and it works well for me.
-  - use a separate file for aider script to modify your multi-line prompts (you don't want them to go away right? especially if it is not perfect and need to be modified), and use aider-minor-mode to send the multi-line prompts to aider buffer.
+  - use aider prompt file (C-c a p) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
 
 * My personal development experience using aider.el
 
