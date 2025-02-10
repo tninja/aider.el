@@ -776,6 +776,7 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
+    (define-key map (kbd "C-<return>") 'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") 'aider-send-region-or-block)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
