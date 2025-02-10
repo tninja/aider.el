@@ -792,9 +792,9 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
 (add-hook 'find-file-hook
           (lambda ()
             (when (and (buffer-file-name)
-                      (or (string-match-p "aider" (buffer-file-name))
-                          (string= "aider.prompt.org" (file-name-nondirectory (buffer-file-name)))))
+                       (string= "aider.prompt.org" (file-name-nondirectory (buffer-file-name))))
               (aider-minor-mode 1))))
+
 
 (when (featurep 'doom)
   (require 'aider-doom))
