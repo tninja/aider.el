@@ -50,7 +50,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :type '(repeat string)
   :group 'aider)
 
-(defcustom aider-prompt-file-name "aider.prompt.org"
+(defcustom aider-prompt-file-name ".aider.prompt.org"
   "File name that will automatically enable aider-minor-mode when opened.
 This is the file name without path."
   :type 'string
@@ -741,7 +741,7 @@ Otherwise, send the line under cursor."
   (if (region-active-p)
       (aider-send-region-by-line)
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) nil))))
+      (aider--send-command (string-trim line) t))))
 
 ;;; New function to send the current selected region line by line to the Aider buffer
 ;;;###autoload
@@ -757,7 +757,7 @@ If no region is selected, show a message."
                          (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
-                  (aider--send-command line nil)))
+                  (aider--send-command line t)))
               (split-string region-text "\n" t)))
     (message "No region selected.")))
 
@@ -796,7 +796,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "# C-c C-n or C-<return>: Send current line or selected region line by line\n")
             (insert "# C-c C-c: Send current region or paragraph as a block\n")
             (insert "# C-c C-z: Switch to aider buffer\n\n")
-            (insert "# Sample prompt:\n")
+            (insert "* Sample task:\n\n")
             (insert "/ask what this repo is about?\n")
             (save-buffer)))
       (message "Not in a git repository"))))
@@ -816,7 +816,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (define-minor-mode aider-minor-mode
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
-  :keymap aider-minor-mode-map)
+  :keymap aider-minor-mode-map
+  :override t)
 
 (add-hook 'find-file-hook
           (lambda ()
