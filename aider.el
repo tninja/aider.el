@@ -762,7 +762,7 @@ If no region is selected, show a message."
     (message "No region selected.")))
 
 ;;;###autoload
-(defun aider-send-region-or-block ()
+(defun aider-send-block-or-region ()
   "Send the current active region text or, if no region is active, send the current paragraph content to the aider session.
 When sending paragraph content, preserve cursor position and deactivate mark afterwards."
   (interactive)
@@ -806,7 +806,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
     (define-key map (kbd "C-<return>") 'aider-send-line-or-region)
-    (define-key map (kbd "C-c C-c") 'aider-send-region-or-block)
+    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
