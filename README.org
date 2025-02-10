@@ -97,22 +97,11 @@ You can have helm-based completion with run the following code, after install he
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-helm.el")))
 #+END_SRC
 
-*** Aider script interactive mode: aider-minor-mode
+*** Aider prompt file
 
-- If you prefer writing Aider commands in a separate file and sending them to an Aider session (similar to working with Python or R scripts and sending code blocks to a REPL), you might want to try aider-minor-mode. It provides the following key bindings:
-  - C-c C-n or C-<return>: If region is active, send selected region line by line; otherwise, send current line
-  - C-c C-c: Send current region or paragraph as a single block to aider session
-  - C-c C-z: Switch to aider buffer
-  - Enable aider-minor-mode for your editing buffer
-  - To automatically enable aider-minor-mode for any file with "aider" in its filename:
+- Use C-c a p to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
 
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'find-file-hook
-            (lambda ()
-              (when (and (buffer-file-name)
-                         (string-match-p "aider" (buffer-file-name)))
-                (aider-minor-mode 1))))
-#+END_SRC
+[[file:./aider_prompt_file.png]]
 
 * Most used features (integrated into the aider menu)
 
