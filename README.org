@@ -100,9 +100,9 @@ You can have helm-based completion with run the following code, after install he
 *** Aider script interactive mode: aider-minor-mode
 
 - If you prefer writing Aider commands in a separate file and sending them to an Aider session (similar to working with Python or R scripts and sending code blocks to a REPL), you might want to try aider-minor-mode. It provides the following key bindings:
-  - C-c C-n: If region is active, send selected region line by line; otherwise, send current line
-  - C-c C-c: Send current region line by line to aider session
-  - C-c C-r: Send current region as a single block to aider session
+  - C-c C-n or C-<return>: If region is active, send selected region line by line; otherwise, send current line
+  - C-c C-c: Send current region or paragraph as a single block to aider session
+  - C-c C-z: Switch to aider buffer
   - Enable aider-minor-mode for your editing buffer
   - To automatically enable aider-minor-mode for any file with "aider" in its filename:
 
