@@ -726,9 +726,10 @@ Otherwise implement TODOs for the entire current file."
 
 ;; New function to send "<line under cursor>" or region line by line to the Aider buffer
 ;;;###autoload
-(defun aider-send-line-under-cursor ()
-  "If region is active, send the selected region line by line to the Aider buffer.
-Otherwise, send the line under cursor to the Aider buffer."
+(defun aider-send-line-or-region ()
+  "Send text to the Aider buffer.
+If region is active, send the selected region line by line.
+Otherwise, send the line under cursor."
   (interactive)
   (if (region-active-p)
       (aider-send-region-by-line)
@@ -774,7 +775,7 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") 'aider-send-line-under-cursor)
+    (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") 'aider-send-region-or-block)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
