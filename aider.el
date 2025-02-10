@@ -789,6 +789,12 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
   :lighter " Aider"
   :keymap aider-minor-mode-map)
 
+(add-hook 'find-file-hook
+          (lambda ()
+            (when (and (buffer-file-name)
+                       (string-match-p "aider" (buffer-file-name)))
+              (aider-minor-mode 1))))
+
 (when (featurep 'doom)
   (require 'aider-doom))
 
