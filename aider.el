@@ -755,17 +755,21 @@ If no region is selected, show a message."
 
 ;;;###autoload
 (defun aider-send-region-or-block ()
-  "Send the current active region text or, if no region is active, mark the current paragraph as a block and send its content to the aider session."
+  "Send the current active region text or, if no region is active, send the current paragraph content to the aider session.
+When sending paragraph content, preserve cursor position and deactivate mark afterwards."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
         (unless (string-empty-p region-text)
           (aider--send-command region-text t)))
-    (progn
-      (mark-paragraph)
-      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+    (save-excursion  ; preserve cursor position
+      (let ((region-text
+             (progn
+               (mark-paragraph)  ; mark paragraph
+               (buffer-substring-no-properties (region-beginning) (region-end)))))
         (unless (string-empty-p region-text)
-          (aider--send-command region-text t))))))
+          (aider--send-command region-text t))
+        (deactivate-mark)))))  ; deactivate mark after sending
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
