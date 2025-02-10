@@ -22,20 +22,6 @@
   :prefix "aider-"
   :group 'convenience)
 
-(defcustom aider-prompt-file-name "aider.prompt.org"
-  "File name that will automatically enable aider-minor-mode when opened.
-This is the file name without path."
-  :type 'string
-  :group 'aider)
-
-(defvar aider-read-string-history nil
-  "History list for aider read string inputs.")
-(if (bound-and-true-p savehist-loaded)
-    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
-  (add-hook 'savehist-mode-hook
-            (lambda ()
-              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
-
 (defcustom aider-program "aider"
   "The name or path of the aider program."
   :type 'string
@@ -63,6 +49,20 @@ Each model should be in the format expected by the aider command line interface.
 Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :type '(repeat string)
   :group 'aider)
+
+(defcustom aider-prompt-file-name "aider.prompt.org"
+  "File name that will automatically enable aider-minor-mode when opened.
+This is the file name without path."
+  :type 'string
+  :group 'aider)
+
+(defvar aider-read-string-history nil
+  "History list for aider read string inputs.")
+(if (bound-and-true-p savehist-loaded)
+    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
+  (add-hook 'savehist-mode-hook
+            (lambda ()
+              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
 
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
@@ -801,7 +801,6 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
                       (or (string-match-p "aider" (buffer-file-name))
                           (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name)))))
               (aider-minor-mode 1))))
-
 
 (when (featurep 'doom)
   (require 'aider-doom))
