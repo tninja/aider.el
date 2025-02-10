@@ -22,6 +22,12 @@
   :prefix "aider-"
   :group 'convenience)
 
+(defcustom aider-prompt-file-name "aider.prompt.org"
+  "File name that will automatically enable aider-minor-mode when opened.
+This is the file name without path."
+  :type 'string
+  :group 'aider)
+
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
 (if (bound-and-true-p savehist-loaded)
@@ -792,7 +798,8 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
 (add-hook 'find-file-hook
           (lambda ()
             (when (and (buffer-file-name)
-                       (string= "aider.prompt.org" (file-name-nondirectory (buffer-file-name))))
+                      (or (string-match-p "aider" (buffer-file-name))
+                          (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name)))))
               (aider-minor-mode 1))))
 
 
