@@ -172,6 +172,7 @@ Affects the system message too.")
    ["Other"
     ("g" "General Command" aider-general-command)
     ("Q" "Ask General Question" aider-general-question)
+    ("p" "Open Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ]
    ])
@@ -777,6 +778,28 @@ When sending paragraph content, preserve cursor position and deactivate mark aft
         (unless (string-empty-p region-text)
           (aider--send-command region-text t))
         (deactivate-mark)))))  ; deactivate mark after sending
+
+;;;###autoload
+(defun aider-open-prompt-file ()
+  "Open aider prompt file under git repo root.
+If file doesn't exist, create it with command binding help and sample prompt."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (prompt-file (when git-root
+                       (expand-file-name aider-prompt-file-name git-root))))
+    (if prompt-file
+        (progn
+          (find-file prompt-file)
+          (unless (file-exists-p prompt-file)
+            ;; Insert initial content for new file
+            (insert "# Aider Prompt File - Command Reference:\n")
+            (insert "# C-c C-n or C-<return>: Send current line or selected region line by line\n")
+            (insert "# C-c C-c: Send current region or paragraph as a block\n")
+            (insert "# C-c C-z: Switch to aider buffer\n\n")
+            (insert "# Sample prompt:\n")
+            (insert "/ask what this repo is about?\n")
+            (save-buffer)))
+      (message "Not in a git repository"))))
 
 ;; Define the keymap for Aider Minor Mode
 (defvar aider-minor-mode-map
