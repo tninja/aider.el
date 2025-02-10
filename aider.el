@@ -789,7 +789,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
                        (expand-file-name aider-prompt-file-name git-root))))
     (if prompt-file
         (progn
-          (find-file prompt-file)
+          (find-file-other-window prompt-file)
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
