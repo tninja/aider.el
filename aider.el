@@ -822,8 +822,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (add-hook 'find-file-hook
           (lambda ()
             (when (and (buffer-file-name)
-                      (or (string-match-p "aider" (buffer-file-name))
-                          (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name)))))
+                       (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name))))
               (aider-minor-mode 1))))
 
 (when (featurep 'doom)
