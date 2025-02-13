@@ -92,33 +92,11 @@ This function can be customized or redefined by the user."
   ;; Ensure the alias is always available in both compiled and interpreted modes.
   (defalias 'aider-read-string 'aider-plain-read-string))
 
-(defvar aider--add-file-read-only nil
-  "Set model parameters from `aider-menu' buffer-locally.
-Affects the system message too.")
-
-(defun aider--get-add-command-prefix ()
-  "Return the appropriate command prefix based on aider--add-file-read-only."
-  (if aider--add-file-read-only "/read-only" "/add"))
-
-(defclass aider--add-file-type (transient-lisp-variable)
-  ((variable :initform 'aider--add-file-read-only)
-   (format :initform "%k %d %v")
-   (reader :initform #'transient-lisp-variable--read-value))
-  "Class for toggling aider--add-file-read-only.")
-
 (defclass aider--switch-to-buffer-type (transient-lisp-variable)
   ((variable :initform 'aider--switch-to-buffer-other-frame)
    (format :initform "%k %d %v")
    (reader :initform #'transient-lisp-variable--read-value))
   "Class for toggling aider--switch-to-buffer-other-frame.")
-
-(transient-define-infix aider--infix-add-file-read-only ()
-  "Toggle aider--add-file-read-only between nil and t."
-  :class 'aider--add-file-type
-  :key "@"
-  :description "Read-only mode"
-  :reader (lambda (_prompt _initial-input _history)
-           (not aider--add-file-read-only)))
 
 (transient-define-infix aider--infix-switch-to-buffer-other-frame ()
   "Toggle aider--switch-to-buffer-other-frame between nil and t."
