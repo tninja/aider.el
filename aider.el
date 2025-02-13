@@ -145,7 +145,6 @@ Affects the system message too.")
     ("x" "Exit Aider" aider-exit)
     ]
    ["Add File to Aider"
-    (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
     ("R" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
@@ -348,7 +347,7 @@ COMMAND should be a string representing the command to send."
 (defun aider-add-current-file ()
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file (aider--get-add-command-prefix)))
+  (aider-add-or-read-current-file "/add"))
 
 ;;;###autoload
 (defun aider-current-file-read-only ()
@@ -368,7 +367,7 @@ COMMAND should be a string representing the command to send."
                        (mapcar 'window-buffer (window-list)))))
     (setq files (delq nil files))
     (if files
-        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'identity files " "))))
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
           (aider--send-command command nil))
       (message "No files found in the current window."))))
 
@@ -584,7 +583,7 @@ Prompts user for specific questions about the function."
   (interactive)
   (let ((files (dired-get-marked-files)))
     (if files
-        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'expand-file-name files " "))))
+        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
@@ -605,7 +604,7 @@ If there are more than 40 files, refuse to add and show warning message."
       (if (> (length files) max-files)
           (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
                    (length files) max-files current-suffix)
-        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'identity files " "))))
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
