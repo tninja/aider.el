@@ -99,7 +99,7 @@ You can have helm-based completion with run the following code, after install he
 
 *** Aider prompt file
 
-- Use C-c a p to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
+- Use C-c a P to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
 
 - The following example shows C-c C-c key pressed when cursor is on the prompt.
 
