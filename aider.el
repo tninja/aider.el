@@ -92,33 +92,11 @@ This function can be customized or redefined by the user."
   ;; Ensure the alias is always available in both compiled and interpreted modes.
   (defalias 'aider-read-string 'aider-plain-read-string))
 
-(defvar aider--add-file-read-only nil
-  "Set model parameters from `aider-menu' buffer-locally.
-Affects the system message too.")
-
-(defun aider--get-add-command-prefix ()
-  "Return the appropriate command prefix based on aider--add-file-read-only."
-  (if aider--add-file-read-only "/read-only" "/add"))
-
-(defclass aider--add-file-type (transient-lisp-variable)
-  ((variable :initform 'aider--add-file-read-only)
-   (format :initform "%k %d %v")
-   (reader :initform #'transient-lisp-variable--read-value))
-  "Class for toggling aider--add-file-read-only.")
-
 (defclass aider--switch-to-buffer-type (transient-lisp-variable)
   ((variable :initform 'aider--switch-to-buffer-other-frame)
    (format :initform "%k %d %v")
    (reader :initform #'transient-lisp-variable--read-value))
   "Class for toggling aider--switch-to-buffer-other-frame.")
-
-(transient-define-infix aider--infix-add-file-read-only ()
-  "Toggle aider--add-file-read-only between nil and t."
-  :class 'aider--add-file-type
-  :key "@"
-  :description "Read-only mode"
-  :reader (lambda (_prompt _initial-input _history)
-           (not aider--add-file-read-only)))
 
 (transient-define-infix aider--infix-switch-to-buffer-other-frame ()
   "Toggle aider--switch-to-buffer-other-frame between nil and t."
@@ -145,12 +123,12 @@ Affects the system message too.")
     ("x" "Exit Aider" aider-exit)
     ]
    ["Add File to Aider"
-    (aider--infix-add-file-read-only)
     ("f" "Add Current File" aider-add-current-file)
     ("R" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
+    ("O" "Drop Current File" aider-drop-current-file)
     ]
    ["Code Change"
     ("t" "Architect Discuss and Change" aider-architect-discussion)
@@ -172,7 +150,7 @@ Affects the system message too.")
    ["Other"
     ("g" "General Command" aider-general-command)
     ("Q" "Ask General Question" aider-general-question)
-    ("p" "Open Prompt File" aider-open-prompt-file)
+    ("P" "Open Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ]
    ])
@@ -329,7 +307,7 @@ COMMAND should be a string representing the command to send."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
-(defun aider-add-or-read-current-file (command-prefix)
+(defun aider-action-current-file (command-prefix)
   "Send the command \"COMMAND-PREFIX <current buffer file full path>\" to the corresponding aider comint buffer."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
@@ -348,13 +326,19 @@ COMMAND should be a string representing the command to send."
 (defun aider-add-current-file ()
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file (aider--get-add-command-prefix)))
+  (aider-action-current-file "/add"))
 
 ;;;###autoload
 (defun aider-current-file-read-only ()
   "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file "/read-only"))
+  (aider-action-current-file "/read-only"))
+
+;;;###autoload
+(defun aider-drop-current-file ()
+  "Send the command \"/drop <current buffer file full path>\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider-action-current-file "/drop"))
 
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
@@ -368,7 +352,7 @@ COMMAND should be a string representing the command to send."
                        (mapcar 'window-buffer (window-list)))))
     (setq files (delq nil files))
     (if files
-        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'identity files " "))))
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
           (aider--send-command command nil))
       (message "No files found in the current window."))))
 
@@ -584,7 +568,7 @@ Prompts user for specific questions about the function."
   (interactive)
   (let ((files (dired-get-marked-files)))
     (if files
-        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'expand-file-name files " "))))
+        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
@@ -605,7 +589,7 @@ If there are more than 40 files, refuse to add and show warning message."
       (if (> (length files) max-files)
           (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
                    (length files) max-files current-suffix)
-        (let ((command (concat (aider--get-add-command-prefix) " " (mapconcat 'identity files " "))))
+        (let ((command (concat "/add " (mapconcat 'identity files " "))))
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
