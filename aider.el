@@ -442,9 +442,7 @@ replacing all newline characters except for the one at the end."
   "Show the last commit message using Magit.
 If Magit is not installed, report that it is required."
   (interactive)
-  (if (require 'magit nil 'noerror)
-      (magit-show-commit "HEAD")
-    (message "Magit is required to show the last commit.")))
+  (magit-show-commit "HEAD"))
 
 ;; Modified function to get command from user and send it based on selected region
 ;;;###autoload
