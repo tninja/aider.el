@@ -149,7 +149,7 @@ This function can be customized or redefined by the user."
    ["Other"
     ("g" "General Command" aider-general-command)
     ("Q" "Ask General Question" aider-general-question)
-    ("p" "Open Prompt File" aider-open-prompt-file)
+    ("P" "Open Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ]
    ])
