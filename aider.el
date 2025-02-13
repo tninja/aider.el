@@ -306,7 +306,7 @@ COMMAND should be a string representing the command to send."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
-(defun aider-add-or-read-current-file (command-prefix)
+(defun aider-action-current-file (command-prefix)
   "Send the command \"COMMAND-PREFIX <current buffer file full path>\" to the corresponding aider comint buffer."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
@@ -325,19 +325,19 @@ COMMAND should be a string representing the command to send."
 (defun aider-add-current-file ()
   "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file "/add"))
+  (aider-action-current-file "/add"))
 
 ;;;###autoload
 (defun aider-current-file-read-only ()
   "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file "/read-only"))
+  (aider-action-current-file "/read-only"))
 
 ;;;###autoload
 (defun aider-drop-current-file ()
   "Send the command \"/drop <current buffer file full path>\" to the corresponding aider comint buffer."
   (interactive)
-  (aider-add-or-read-current-file "/drop"))
+  (aider-action-current-file "/drop"))
 
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
