@@ -333,6 +333,12 @@ COMMAND should be a string representing the command to send."
   (interactive)
   (aider-add-or-read-current-file "/read-only"))
 
+;;;###autoload
+(defun aider-drop-current-file ()
+  "Send the command \"/drop <current buffer file full path>\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider-add-or-read-current-file "/drop"))
+
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
 (defun aider-add-files-in-current-window ()
