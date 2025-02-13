@@ -128,6 +128,7 @@ This function can be customized or redefined by the user."
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
+    ("O" "Drop Current File" aider-drop-current-file)
     ]
    ["Code Change"
     ("t" "Architect Discuss and Change" aider-architect-discussion)
