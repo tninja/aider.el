@@ -128,6 +128,8 @@ This function can be customized or redefined by the user."
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
+    ("m" "Show Last Commit" aider-magit-show-last-commit)
+    ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Code Change"
     ("t" "Architect Discuss" aider-architect-discussion)
@@ -136,8 +138,6 @@ This function can be customized or redefined by the user."
     ("i" "Implement Requirement" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
-    ("m" "Show Last Commit" aider-magit-show-last-commit)
-    ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question given Context" aider-ask-question)
