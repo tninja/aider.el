@@ -117,41 +117,42 @@ This function can be customized or redefined by the user."
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("C" "Clear Aider Buffer" aider-clear-buffer)
     ("o" "Select Model" aider-change-model)
-    ("l" "Clear Aider" aider-clear)
     ("s" "Reset Aider" aider-reset)
+    ("l" "Select Other Command" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
     ]
-   ["Add File to Aider"
-    ("f" "Add Current File" aider-add-current-file)
-    ("R" "Add Current File Read-Only" aider-current-file-read-only)
+   ["File Operation"
+    ("f" "Add Current/Marked File" aider-add-current-file-or-dired-marked-files)
+    ("R" "Add Current/Marked File Read-Only" aider-add-current-file-or-dired-marked-files-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
-    ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("O" "Drop Current File" aider-drop-current-file)
     ]
    ["Code Change"
-    ("t" "Architect Discuss and Change" aider-architect-discussion)
-    ("c" "Code Change" aider-code-change)
-    ("r" "Refactor Function or Region" aider-function-or-region-refactor)
-    ("i" "Implement Requirement in-place" aider-implement-todo)
+    ("t" "Architect Discuss" aider-architect-discussion)
+    ("c" "Direct Code Change" aider-code-change)
+    ("r" "Refactor Function / Region" aider-function-or-region-refactor)
+    ("i" "Implement Requirement" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
-    ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
-    ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
+    ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
+    ("m" "Show Last Commit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question given Context" aider-ask-question)
-    ("y" "Go Ahead" aider-go-ahead)
-    ("e" "Explain Function or Region" aider-function-or-region-explain)
-    ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
+    ("y" "Then Go Ahead" aider-go-ahead)
+    ("e" "Explain Function / Region" aider-function-or-region-explain)
+    ;; ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point) ;; not worth take your token to explain a symbol
     ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
-    ("Q" "Ask General Question" aider-general-question)
-    ("P" "Open Prompt File" aider-open-prompt-file)
+    ("Q" "General Question" aider-general-question)
+    ("p" "Repo Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
+    ("H" "Aider Home Page" aider-open-aider-home)
     ]
    ])
 
@@ -207,7 +208,7 @@ With the universal argument, prompt to edit aider-args before running."
          (current-args (if edit-args
                            (split-string
                             (read-string "Edit aider arguments: "
-					 (mapconcat 'identity aider-args " ")))
+                                         (mapconcat 'identity aider-args " ")))
                          aider-args))
          (source-buffer (window-buffer (selected-window))))
     (unless (comint-check-proc buffer-name)
@@ -245,13 +246,18 @@ If the current buffer is already the Aider buffer, do nothing."
           (pop-to-buffer buffer))
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
-;; Function to reset the Aider buffer
-;;;###autoload
-(defun aider-clear ()
-  "Send the command \"/clear\" to the Aider buffer."
-  (interactive)
-  (aider--send-command "/clear"))
 
+;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
+;;;###autoload
+(defun aider-clear-buffer ()
+  "Switch to the Aider buffer and clear its contents."
+  (interactive)
+  (when-let ((buffer (get-buffer (aider-buffer-name))))
+    (with-current-buffer buffer
+      (comint-clear-buffer))
+    (aider-switch-to-buffer)))
+
+;; Function to reset the Aider buffer
 ;;;###autoload
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
@@ -263,6 +269,26 @@ If the current buffer is already the Aider buffer, do nothing."
   "Send the command \"/exit\" to the Aider buffer."
   (interactive)
   (aider--send-command "/exit"))
+
+;;;###autoload
+(defun aider-other-process-command ()
+  "Send process control commands to aider.
+Prompts user to select from a list of available commands:
+- /clear: Clear the chat history
+- /copy: Copy the last chat message
+- /drop: Drop all files
+- /ls: List tracked files
+- /lint: Run linter on tracked files
+- /map: Show file map
+- /map-refresh: Refresh file map
+- /paste: Paste the last copied chat message
+- /settings: Show current settings
+- /tokens: Show token usage"
+  (interactive)
+  (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map" 
+                     "/map-refresh" "/paste" "/settings" "/tokens"))
+         (command (completing-read "Select command: " commands nil t)))
+    (aider--send-command command t)))
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER with syntax highlighting.
@@ -418,6 +444,12 @@ If cursor is inside a function, include the function name as context."
   (let ((command (aider-read-string "Enter help question: ")))
     (aider-send-command-with-prefix "/help " command)))
 
+;;;###autoload
+(defun aider-open-aider-home ()
+  "Open the Aider home page in the default browser."
+  (interactive)
+  (browse-url "https://aider.chat"))
+
 ;; New function to get command from user and send it prefixed with "/architect "
 ;;;###autoload
 (defun aider-architect-discussion ()
@@ -565,15 +597,26 @@ Prompts user for specific questions about the function."
 ;;; functions for dired related
 
 ;; New function to add multiple Dired marked files to Aider buffer
+(defun aider--batch-add-dired-marked-files-with-command (command-prefix)
+  "Add multiple Dired marked files to the Aider buffer with COMMAND-PREFIX.
+COMMAND-PREFIX should be either \"/add\" or \"/read-only\"."
+  (let ((files (dired-get-marked-files)))
+    (if files
+        (let ((command (concat command-prefix " " (mapconcat 'expand-file-name files " "))))
+          (aider--send-command command t))
+      (message "No files marked in Dired."))))
+
 ;;;###autoload
 (defun aider-batch-add-dired-marked-files ()
   "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
   (interactive)
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (let ((command (concat "/add " (mapconcat 'expand-file-name files " "))))
-          (aider--send-command command t))
-      (message "No files marked in Dired."))))
+  (aider--batch-add-dired-marked-files-with-command "/add"))
+
+;;;###autoload
+(defun aider-batch-add-dired-marked-files-read-only ()
+  "Add multiple Dired marked files to the Aider buffer with the \"/read-only\" command."
+  (interactive)
+  (aider--batch-add-dired-marked-files-with-command "/read-only"))
 
 ;; New function to add all files with same suffix as current file under current directory
 ;;;###autoload
@@ -596,6 +639,26 @@ If there are more than 40 files, refuse to add and show warning message."
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
+
+;;;###autoload
+(defun aider-add-current-file-or-dired-marked-files ()
+  "Add files to Aider based on current context.
+If current buffer is a dired buffer, add all marked files.
+Otherwise, add the current file."
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (aider-batch-add-dired-marked-files)
+    (aider-add-current-file)))
+
+;;;###autoload
+(defun aider-add-current-file-or-dired-marked-files-read-only ()
+  "Add files to Aider as read-only based on current context.
+If current buffer is a dired buffer, add all marked files as read-only.
+Otherwise, add the current file as read-only."
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (aider-batch-add-dired-marked-files-read-only)
+    (aider-current-file-read-only)))
 
 ;;; functions for test fixing
 
@@ -687,10 +750,10 @@ Otherwise implement TODOs for the entire current file."
            (initial-input
             (cond
              (region-text
-              (format "Please implement this code block: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific block." 
+              (format "Please implement this code block in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific block." 
                       region-text))
              (is-comment
-              (format "Please implement this comment: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific comment." 
+              (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment." 
                       current-line))
              (function-name
               (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
@@ -780,8 +843,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
-            (insert "# C-c C-n or C-<return>: Send current line or selected region line by line\n")
-            (insert "# C-c C-c: Send current block or selected region as a whole\n")
+            (insert "# C-c C-n: Send current line or selected region line by line\n")
+            (insert "# C-c C-r: Send current block or selected region as a whole\n")
             (insert "# C-c C-z: Switch to aider buffer\n\n")
             (insert "* Sample task:\n\n")
             (insert "/ask what this repo is about?\n")
@@ -792,8 +855,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
-    (define-key map (kbd "C-<return>") 'aider-send-line-or-region)
-    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
+    (define-key map (kbd "C-c C-r") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
