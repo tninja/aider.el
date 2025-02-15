@@ -19,7 +19,7 @@
 
 - Pass your Emacs editing context to Aider, including details such as the active function or class and any selected code. This minimizes manual typing.
 
-- Designed for everyday programming tasks, such as adding or modifying code with AI assistance, verifying the accuracy of AI-generated code, and reviewing code written by others.
+- Designed for everyday programming tasks, such as adding or modifying code with AI assistance, write unit-test / TDD assist, and help reading code written by others.
 
 * Installation
 
