@@ -122,7 +122,7 @@ This function can be customized or redefined by the user."
     ("s" "Reset Aider" aider-reset)
     ("x" "Exit Aider" aider-exit)
     ]
-   ["Add File to Aider"
+   ["File Operation"
     ("f" "Add Current File" aider-add-current-file)
     ("R" "Add Current File Read-Only" aider-current-file-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
@@ -207,7 +207,7 @@ With the universal argument, prompt to edit aider-args before running."
          (current-args (if edit-args
                            (split-string
                             (read-string "Edit aider arguments: "
-					 (mapconcat 'identity aider-args " ")))
+                                         (mapconcat 'identity aider-args " ")))
                          aider-args))
          (source-buffer (window-buffer (selected-window))))
     (unless (comint-check-proc buffer-name)
