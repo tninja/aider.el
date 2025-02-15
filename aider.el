@@ -123,17 +123,16 @@ This function can be customized or redefined by the user."
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add Current File" aider-add-current-file)
-    ("R" "Add Current File Read-Only" aider-current-file-read-only)
+    ("f" "Add Current/Marked File" aider-add-current-file-or-dired-marked-files)
+    ("R" "Add Current/Marked File Read-Only" aider-add-current-file-or-dired-marked-files-read-only)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
-    ("b" "Batch Add Dired Marked Files" aider-batch-add-dired-marked-files)
     ("O" "Drop Current File" aider-drop-current-file)
     ]
    ["Code Change"
     ("t" "Architect Discuss and Change" aider-architect-discussion)
     ("c" "Direct Code Change" aider-code-change)
-    ("r" "Refactor Function or Region" aider-function-or-region-refactor)
+    ("r" "Refactor Function / Region" aider-function-or-region-refactor)
     ("i" "Implement Requirement in-place" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
@@ -143,7 +142,7 @@ This function can be customized or redefined by the user."
    ["Discussion"
     ("q" "Ask Question given Context" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
-    ("e" "Explain Function or Region" aider-function-or-region-explain)
+    ("e" "Explain Function / Region" aider-function-or-region-explain)
     ;; ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point) ;; not worth take your token to explain a symbol
     ("D" "Debug Exception" aider-debug-exception)
     ]
@@ -244,6 +243,9 @@ If the current buffer is already the Aider buffer, do nothing."
             (switch-to-buffer-other-frame buffer)
           (pop-to-buffer buffer))
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+
+
+;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
 
 ;; Function to reset the Aider buffer
 ;;;###autoload
