@@ -641,14 +641,17 @@ If there are more than 40 files, refuse to add and show warning message."
                  (length files) current-suffix)))))
 
 ;;;###autoload
-(defun aider-add-current-file-or-dired-marked-files ()
+(defun aider-add-current-file-or-dired-marked-files (&optional read-only)
   "Add files to Aider based on current context.
 If current buffer is a dired buffer, add all marked files.
-Otherwise, add the current file."
-  (interactive)
-  (if (eq major-mode 'dired-mode)
-      (aider-batch-add-dired-marked-files)
-    (aider-add-current-file)))
+Otherwise, add the current file.
+With prefix argument (C-u), add files as read-only."
+  (interactive "P")
+  (if read-only
+      (aider-add-current-file-or-dired-marked-files-read-only)
+    (if (eq major-mode 'dired-mode)
+        (aider-batch-add-dired-marked-files)
+      (aider-add-current-file))))
 
 ;;;###autoload
 (defun aider-add-current-file-or-dired-marked-files-read-only ()
