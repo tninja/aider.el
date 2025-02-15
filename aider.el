@@ -118,7 +118,7 @@ This function can be customized or redefined by the user."
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("o" "Select Model" aider-change-model)
-    ("l" "Clear Aider" aider-clear)
+    ;; ("l" "Clear Aider" aider-clear) -- not quite useful?
     ("s" "Reset Aider" aider-reset)
     ("x" "Exit Aider" aider-exit)
     ]
@@ -132,25 +132,25 @@ This function can be customized or redefined by the user."
     ]
    ["Code Change"
     ("t" "Architect Discuss and Change" aider-architect-discussion)
-    ("c" "Code Change" aider-code-change)
+    ("c" "Direct Code Change" aider-code-change)
     ("r" "Refactor Function or Region" aider-function-or-region-refactor)
     ("i" "Implement Requirement in-place" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
-    ("T" "Fix Failing Test Under Cursor" aider-fix-failing-test-under-cursor)
+    ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
     ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question given Context" aider-ask-question)
-    ("y" "Go Ahead" aider-go-ahead)
+    ("y" "Then Go Ahead" aider-go-ahead)
     ("e" "Explain Function or Region" aider-function-or-region-explain)
-    ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point)
+    ;; ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point) ;; not worth take your token to explain a symbol
     ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
     ("g" "General Command" aider-general-command)
-    ("Q" "Ask General Question" aider-general-question)
-    ("P" "Open Prompt File" aider-open-prompt-file)
+    ("Q" "General Question" aider-general-question)
+    ("p" "Repo Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ]
    ])
@@ -792,8 +792,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
-    (define-key map (kbd "C-<return>") 'aider-send-line-or-region)
-    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
+    (define-key map (kbd "C-c C-b") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
