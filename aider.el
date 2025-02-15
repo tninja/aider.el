@@ -742,10 +742,10 @@ Otherwise implement TODOs for the entire current file."
            (initial-input
             (cond
              (region-text
-              (format "Please implement this code block: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific block." 
+              (format "Please implement this code block in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific block." 
                       region-text))
              (is-comment
-              (format "Please implement this comment: '%s'. It is already inside current code. Please do in-place implementation. Keep the existing code structure and implement just this specific comment." 
+              (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment." 
                       current-line))
              (function-name
               (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
@@ -757,6 +757,8 @@ Otherwise implement TODOs for the entire current file."
            (command (format "/architect %s" user-command)))
       (aider-add-current-file)
       (aider--send-command command t))))
+
+;; write a hellworld elisp function
 
 ;;; Model selection functions
 ;;;###autoload
