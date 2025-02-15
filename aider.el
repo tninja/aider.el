@@ -622,6 +622,16 @@ If there are more than 40 files, refuse to add and show warning message."
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
 
+;;;###autoload
+(defun aider-add-current-file-or-dired-marked-files ()
+  "Add files to Aider based on current context.
+If current buffer is a dired buffer, add all marked files.
+Otherwise, add the current file."
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (aider-batch-add-dired-marked-files)
+    (aider-add-current-file)))
+
 ;;; functions for test fixing
 
 ;;;###autoload
