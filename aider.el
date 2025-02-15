@@ -264,6 +264,25 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (aider--send-command "/exit"))
 
+;;;###autoload
+(defun aider-other-process-command ()
+  "Send process control commands to aider.
+Prompts user to select from a list of available commands:
+- /clear: Clear the chat history
+- /copy: Copy the last chat message
+- /ls: List tracked files
+- /lint: Run linter on tracked files
+- /map: Show file map
+- /map-refresh: Refresh file map
+- /paste: Paste the last copied chat message
+- /settings: Show current settings
+- /tokens: Show token usage"
+  (interactive)
+  (let* ((commands '("/clear" "/copy" "/ls" "/lint" "/map" 
+                     "/map-refresh" "/paste" "/settings" "/tokens"))
+         (command (completing-read "Select command: " commands nil t)))
+    (aider--send-command command t)))
+
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER with syntax highlighting.
 This function ensures proper syntax highlighting by inheriting face properties
