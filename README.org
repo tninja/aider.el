@@ -148,9 +148,6 @@ You can have helm-based completion with run the following code, after install he
   - (`aider-function-or-region-explain`): If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
-*** And More:
-You can add your own Elisp functions to support your specific use cases. Feel free to ask Aider/`aider.el` to help you create them.
-
 * My personal development experience using aider.el
 
 - Here I just share my personal experience. You might have different / better way to use aider.el.
