@@ -131,13 +131,13 @@ This function can be customized or redefined by the user."
     ("O" "Drop Current File" aider-drop-current-file)
     ]
    ["Code Change"
-    ("t" "Architect Discuss and Change" aider-architect-discussion)
+    ("t" "Architect Discuss" aider-architect-discussion)
     ("c" "Direct Code Change" aider-code-change)
     ("r" "Refactor Function / Region" aider-function-or-region-refactor)
-    ("i" "Implement Requirement in-place" aider-implement-todo)
+    ("i" "Implement Requirement" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
-    ("m" "Show Last Commit with Magit" aider-magit-show-last-commit)
+    ("m" "Show Last Commit" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
@@ -843,7 +843,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
-            (insert "# C-c C-n or C-<return>: Send current line or selected region line by line\n")
+            (insert "# C-c C-n: Send current line or selected region line by line\n")
             (insert "# C-c C-r: Send current block or selected region as a whole\n")
             (insert "# C-c C-z: Switch to aider buffer\n\n")
             (insert "* Sample task:\n\n")
