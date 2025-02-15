@@ -15,7 +15,7 @@
 
 [[file:./transient_menu.png]]
 
-- Work directly on the code without switching contexts — each file is automatically linked to a Git repository-specific Aider session.
+- Work directly on the code without switching contexts. Git repository-specific Aider session mapped to current buffer given git repo info.
 
 - Pass your Emacs editing context to Aider, including details such as the active function or class and any selected code. This minimizes manual typing.
 
