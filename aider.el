@@ -443,7 +443,11 @@ If cursor is inside a function, include the function name as context."
   (let ((command (aider-read-string "Enter help question: ")))
     (aider-send-command-with-prefix "/help " command)))
 
-;; add a new function aider-open-aider-home. It will open the Aider home page (https://aider.chat) in the default browser.
+;;;###autoload
+(defun aider-open-aider-home ()
+  "Open the Aider home page in the default browser."
+  (interactive)
+  (browse-url "https://aider.chat"))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 ;;;###autoload
