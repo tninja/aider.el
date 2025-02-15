@@ -118,8 +118,8 @@ This function can be customized or redefined by the user."
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("o" "Select Model" aider-change-model)
-    ;; ("l" "Clear Aider" aider-clear) -- not quite useful?
     ("s" "Reset Aider" aider-reset)
+    ("l" "Select Other Command" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
@@ -246,12 +246,6 @@ If the current buffer is already the Aider buffer, do nothing."
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;; Function to reset the Aider buffer
-;;;###autoload
-(defun aider-clear ()
-  "Send the command \"/clear\" to the Aider buffer."
-  (interactive)
-  (aider--send-command "/clear"))
-
 ;;;###autoload
 (defun aider-reset ()
   "Send the command \"/reset\" to the Aider buffer."
