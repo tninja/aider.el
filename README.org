@@ -148,17 +148,11 @@ You can have helm-based completion with run the following code, after install he
   - (`aider-function-or-region-explain`): If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
   - (`aider-explain-symbol-under-point`): Ask Aider to explain the symbol under cursor, given the line as context.
 
-* My personal development experience using aider.el
+* Be careful about AI generated code. Test it before merge.
 
-- Here I just share my personal experience. You might have different / better way to use aider.el.
+** A TDD similar workflow to improve code quality
 
-** Feature development
-
-1. Start an Aider session associated with the current Git repository by running the command “aider-run-aider”. This links the session to the project context.
-
-2. Next, consider including relevant files in the session using commands like “aider-add-current-file” or “aider-add-files-in-current-window”. This supplies Aider with additional, useful context.
-
-3. When making changes, you might be either adding new code or modifying existing code.
+1. When making changes, you might be either adding new code or modifying existing code.
    - *Adding new code* via one-line comment implementation:
          For instance, suppose you encounter the following Python snippet:
 
@@ -191,12 +185,12 @@ You can have helm-based completion with run the following code, after install he
 
    - Note: Alternative commands like `aider-architect-discussion` and `aider-code-change` are also available, though they may offer less context sensitivity than the commands described above.
 
-4. *Generate tests*  
+2. *Generate tests*  
    It is recommended to validate and iteratively improve the feature using unit test commands such as “aider-write-unit-test” and “aider-fix-failing-test-under-cursor.” Although AI-generated code can provide a valuable starting point, it may sometimes introduce subtle issues. Running tests both before and after integrating changes ensures that each modification is verified. Running the full test suite after every change is advised to catch any issues early.
 
     (As an aside, a projectile function is currently employed to switch between the main code and test code and add them to the session—but further improvements to include test code seamlessly are always welcome.)
 
-5. *Refactor code and tests*  
+3. *Refactor code and tests*  
    Finally, you can further refactor the AI-generated code and tests as needed—either using additional prompts or manual adjustments—to best meet the project’s requirements.
 
 * Screenshot
