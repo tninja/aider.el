@@ -115,7 +115,7 @@ This function can be customized or redefined by the user."
   ["Aider: AI Pair Programming"
    ["Aider Process"
     (aider--infix-switch-to-buffer-other-frame)
-    ("a" "Run Aider" aider-run-aider)
+    ("a" "Run Aider (C-u for args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("C" "Clear Aider Buffer" aider-clear-buffer)
     ("o" "Select Model" aider-change-model)
