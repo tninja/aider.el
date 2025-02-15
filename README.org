@@ -28,7 +28,7 @@
   - Would be great if someone can solve this problem, or make it better without introduce too many complexity.
 
 - Also, it is encouraged to generate and send prompt either from:
-  - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching.
+  - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
   - Aider prompt file (aider-open-prompt-file, C-c a p). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize large code change into several small prompts, and it is easy for multi-line prompts
 
 * Installation
