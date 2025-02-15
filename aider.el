@@ -115,7 +115,7 @@ This function can be customized or redefined by the user."
   ["Aider: AI Pair Programming"
    ["Aider Process"
     (aider--infix-switch-to-buffer-other-frame)
-    ("a" "Run Aider (C-u for args) " aider-run-aider)
+    ("a" "Run Aider (C-u: change args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("C" "Clear Aider Buffer" aider-clear-buffer)
     ("o" "Select Model" aider-change-model)
@@ -124,8 +124,7 @@ This function can be customized or redefined by the user."
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add Current/Marked File" aider-add-current-file-or-dired-marked-files)
-    ("R" "Add Current/Marked File Read-Only" aider-add-current-file-or-dired-marked-files-read-only)
+    ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
