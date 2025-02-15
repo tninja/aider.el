@@ -246,6 +246,14 @@ If the current buffer is already the Aider buffer, do nothing."
 
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
+;;;###autoload
+(defun aider-clear-buffer ()
+  "Switch to the Aider buffer and clear its contents."
+  (interactive)
+  (when-let ((buffer (get-buffer (aider-buffer-name))))
+    (with-current-buffer buffer
+      (comint-clear-buffer))
+    (aider-switch-to-buffer)))
 
 ;; Function to reset the Aider buffer
 ;;;###autoload
