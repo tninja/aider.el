@@ -26,7 +26,6 @@
 - The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider
   - Some work-around for code color was applied, but we still don't have a fundamental solution for this right now. Vterm is good but I don't want to depend on it at this moment.
   - Would be great if someone can solve this problem, or make it better without introduce too many complexity.
-  - This library just don't have better support for REPL input than aider CLI.
 
 - Also, it is encouraged to generate and send prompt either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching.
