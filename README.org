@@ -193,13 +193,6 @@ You can have helm-based completion with run the following code, after install he
 3. *Refactor code and tests*  
    Finally, you can further refactor the AI-generated code and tests as needed—either using additional prompts or manual adjustments—to best meet the project’s requirements.
 
-* Screenshot
-
-[[file:./screenshot.png]]
-
-- The screenshot above shows Aider being asked to generate an aider-help function and add its corresponding entry to the menu (top right window).
-- Aider successfully received the command and generated the appropriate commit (bottom left).
-
 * [[./examples][Example Application written with aider.el]]
 
 * FAQ
