@@ -632,6 +632,16 @@ Otherwise, add the current file."
       (aider-batch-add-dired-marked-files)
     (aider-add-current-file)))
 
+;;;###autoload
+(defun aider-add-current-file-or-dired-marked-files-read-only ()
+  "Add files to Aider as read-only based on current context.
+If current buffer is a dired buffer, add all marked files as read-only.
+Otherwise, add the current file as read-only."
+  (interactive)
+  (if (eq major-mode 'dired-mode)
+      (aider-batch-add-dired-marked-files-read-only)
+    (aider-current-file-read-only)))
+
 ;;; functions for test fixing
 
 ;;;###autoload
