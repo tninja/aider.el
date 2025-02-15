@@ -152,6 +152,7 @@ This function can be customized or redefined by the user."
     ("Q" "General Question" aider-general-question)
     ("p" "Repo Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
+    ("H" "Aider Home Page" aider-open-aider-home)
     ]
    ])
 
