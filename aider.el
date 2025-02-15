@@ -264,6 +264,7 @@ If the current buffer is already the Aider buffer, do nothing."
 Prompts user to select from a list of available commands:
 - /clear: Clear the chat history
 - /copy: Copy the last chat message
+- /drop: Drop all files
 - /ls: List tracked files
 - /lint: Run linter on tracked files
 - /map: Show file map
@@ -272,7 +273,7 @@ Prompts user to select from a list of available commands:
 - /settings: Show current settings
 - /tokens: Show token usage"
   (interactive)
-  (let* ((commands '("/clear" "/copy" "/ls" "/lint" "/map" 
+  (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map" 
                      "/map-refresh" "/paste" "/settings" "/tokens"))
          (command (completing-read "Select command: " commands nil t)))
     (aider--send-command command t)))
