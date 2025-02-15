@@ -117,6 +117,7 @@ This function can be customized or redefined by the user."
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider" aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("C" "Clear Aider Buffer" aider-clear-buffer)
     ("o" "Select Model" aider-change-model)
     ("s" "Reset Aider" aider-reset)
     ("l" "Select Other Command" aider-other-process-command)
@@ -442,6 +443,8 @@ If cursor is inside a function, include the function name as context."
   (let ((command (aider-read-string "Enter help question: ")))
     (aider-send-command-with-prefix "/help " command)))
 
+;; add a new function aider-open-aider-home. It will open the Aider home page (https://aider.chat) in the default browser.
+
 ;; New function to get command from user and send it prefixed with "/architect "
 ;;;###autoload
 (defun aider-architect-discussion ()
@@ -757,8 +760,6 @@ Otherwise implement TODOs for the entire current file."
            (command (format "/architect %s" user-command)))
       (aider-add-current-file)
       (aider--send-command command t))))
-
-;; write a hellworld elisp function
 
 ;;; Model selection functions
 ;;;###autoload
