@@ -227,7 +227,7 @@ You can add your own Elisp functions to support your specific use cases. Feel fr
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
   - use aider prompt file (C-c a p) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
 
-* TODO Future work [0/3]
+* TODO Future work [0/4]
 
 - [ ] More useful context sensitive code change / explaining commands
 - [ ] Better and stable color coding solution
