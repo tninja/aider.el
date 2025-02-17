@@ -115,21 +115,20 @@ This function can be customized or redefined by the user."
   ["Aider: AI Pair Programming"
    ["Aider Process"
     (aider--infix-switch-to-buffer-other-frame)
-    ("a" "Run Aider (C-u: change args) " aider-run-aider)
+    ("a" "Run Aider (C-u: args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("C" "Clear Aider Buffer" aider-clear-buffer)
     ("o" "Select Model" aider-change-model)
     ("s" "Reset Aider" aider-reset)
     ("l" "Select Other Command" aider-other-process-command)
-    ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
-    ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
-    ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
+    ("f" "Add File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
+    ("w" "Add All Files in Window" aider-add-files-in-current-window)
+    ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
     ("m" "Show Last Commit" aider-magit-show-last-commit)
-    ("u" "Undo Last Change" aider-undo-last-change)
+    ("M" "Show Commits History" magit-log-current)
     ]
    ["Code Change"
     ("t" "Architect Discuss" aider-architect-discussion)
@@ -138,6 +137,7 @@ This function can be customized or redefined by the user."
     ("i" "Implement Requirement" aider-implement-todo)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
+    ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Discussion"
     ("q" "Ask Question given Context" aider-ask-question)
@@ -147,11 +147,12 @@ This function can be customized or redefined by the user."
     ("D" "Debug Exception" aider-debug-exception)
     ]
    ["Other"
-    ("g" "General Command" aider-general-command)
+    ;; ("g" "General Command" aider-general-command)
     ("Q" "General Question" aider-general-question)
     ("p" "Repo Prompt File" aider-open-prompt-file)
     ("h" "Help" aider-help)
     ("H" "Aider Home Page" aider-open-aider-home)
+    ("x" "Exit Aider" aider-exit)
     ]
    ])
 

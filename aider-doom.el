@@ -28,9 +28,9 @@
                     )
 
                    (:prefix ("s" . "Send")
-                    :desc "Line at cursor" "l" #'aider-send-line-under-cursor
+                    :desc "Line at cursor" "l" #'aider-send-line-or-region
                     :desc "Paragraph at cursor, line by line" "p" #'aider-send-region-by-line
-                    :desc "Region as block" "r" #'aider-send-region
+                    :desc "Region as block" "r" #'aider-send-block-or-region
                     )
 
                    (:prefix ("c" . "Code")
