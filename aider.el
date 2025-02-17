@@ -115,24 +115,23 @@ This function can be customized or redefined by the user."
   ["Aider: AI Pair Programming"
    ["Aider Process"
     (aider--infix-switch-to-buffer-other-frame)
-    ("a" "Run Aider (C-u: change args) " aider-run-aider)
+    ("a" "Run Aider (C-u: args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("C" "Clear Aider Buffer" aider-clear-buffer)
     ("o" "Select Model" aider-change-model)
-    ("s" "Reset Aider" aider-reset)
-    ("l" "Select Other Command" aider-other-process-command)
+    ("s" "Reset Aider (C-u: clear)" aider-reset)
+    ("l" "Other Command" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
-    ("w" "Add All Files in Current Window" aider-add-files-in-current-window)
-    ("d" "Add Same Type Files under dir" aider-add-same-type-files-under-dir)
+    ("f" "Add File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
+    ("w" "Add All Files in Window" aider-add-files-in-current-window)
+    ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
-    ("m" "Show Last Commit" aider-magit-show-last-commit)
+    ("m" "Last Commit (C-u history)" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Code Change"
-    ("t" "Architect Discuss" aider-architect-discussion)
+    ("t" "Architect Discuss / Change" aider-architect-discussion)
     ("c" "Direct Code Change" aider-code-change)
     ("r" "Refactor Function / Region" aider-function-or-region-refactor)
     ("i" "Implement Requirement" aider-implement-todo)
@@ -140,18 +139,13 @@ This function can be customized or redefined by the user."
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
     ]
    ["Discussion"
-    ("q" "Ask Question given Context" aider-ask-question)
+    ("q" "Ask Question" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
+    ("p" "Repo Prompt File" aider-open-prompt-file)
     ("e" "Explain Function / Region" aider-function-or-region-explain)
     ;; ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point) ;; not worth take your token to explain a symbol
     ("D" "Debug Exception" aider-debug-exception)
-    ]
-   ["Other"
-    ("g" "General Command" aider-general-command)
-    ("Q" "General Question" aider-general-question)
-    ("p" "Repo Prompt File" aider-open-prompt-file)
-    ("h" "Help" aider-help)
-    ("H" "Aider Home Page" aider-open-aider-home)
+    ("h" "Help (C-u homepage)" aider-help)
     ]
    ])
 
@@ -253,15 +247,19 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (when-let ((buffer (get-buffer (aider-buffer-name))))
     (with-current-buffer buffer
-      (comint-clear-buffer))
+      (comint-clear-buffer)
+      (aider--send-command "/clear"))
     (aider-switch-to-buffer)))
 
 ;; Function to reset the Aider buffer
 ;;;###autoload
-(defun aider-reset ()
+(defun aider-reset (&optional clear)
   "Send the command \"/reset\" to the Aider buffer."
-  (interactive)
-  (aider--send-command "/reset"))
+  (interactive "P")
+  (if clear
+      (aider-clear-buffer)
+    (aider--send-command "/reset")
+    ))
 
 ;;;###autoload
 (defun aider-exit ()
@@ -437,11 +435,14 @@ If cursor is inside a function, include the function name as context."
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
-(defun aider-help ()
+(defun aider-help (&optional homepage)
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
-  (interactive)
-  (let ((command (aider-read-string "Enter help question: ")))
-    (aider-send-command-with-prefix "/help " command)))
+  (interactive "P")
+  (if homepage
+      (aider-open-aider-home) 
+    (let ((command (aider-read-string "Enter help question: ")))
+      (aider-send-command-with-prefix "/help " command))
+      ))
 
 ;;;###autoload
 (defun aider-open-aider-home ()
@@ -474,11 +475,14 @@ replacing all newline characters except for the one at the end."
 
 ;; New function to show the last commit using magit
 ;;;###autoload
-(defun aider-magit-show-last-commit ()
+(defun aider-magit-show-last-commit (&optional history)
   "Show the last commit message using Magit.
 If Magit is not installed, report that it is required."
-  (interactive)
-  (magit-show-commit "HEAD"))
+  (interactive "P")
+  (if history
+      (magit-log-current nil)
+    (magit-show-commit "HEAD")
+    ))
 
 ;; Modified function to get command from user and send it based on selected region
 ;;;###autoload
@@ -758,10 +762,10 @@ Otherwise implement TODOs for the entire current file."
               (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment." 
                       current-line))
              (function-name
-              (format "Please implement the TODO items in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
+              (format "Please implement the TODO items in-place in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
                       function-name))
              (t
-              (format "Please implement all TODO items in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
+              (format "Please implement all TODO items in-place in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
                       (file-name-nondirectory buffer-file-name)))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input))
            (command (format "/architect %s" user-command)))
