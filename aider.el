@@ -123,7 +123,7 @@ This function can be customized or redefined by the user."
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
+    ("f" "Add Current / Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
@@ -145,7 +145,7 @@ This function can be customized or redefined by the user."
     ("e" "Explain Function / Region" aider-function-or-region-explain)
     ;; ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point) ;; not worth take your token to explain a symbol
     ("D" "Debug Exception" aider-debug-exception)
-    ("h" "Help (C-u homepage)" aider-help)
+    ("h" "Help (C-u: homepage)" aider-help)
     ]
    ])
 
