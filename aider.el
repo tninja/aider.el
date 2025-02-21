@@ -119,7 +119,7 @@ This function can be customized or redefined by the user."
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("o" "Select Model" aider-change-model)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
-    ("l" "Other Command" aider-other-process-command)
+    ("l" "Other Command (C-u: manual)" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
@@ -127,7 +127,7 @@ This function can be customized or redefined by the user."
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
-    ("m" "Last Commit (C-u history)" aider-magit-show-last-commit)
+    ("m" "Last Commit (C-u: magit-log)" aider-magit-show-last-commit)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Code Change"
@@ -139,7 +139,7 @@ This function can be customized or redefined by the user."
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
     ]
    ["Discussion"
-    ("q" "Ask Question" aider-ask-question)
+    ("q" "Ask Question (C-u: no context)" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
     ("p" "Repo Prompt File" aider-open-prompt-file)
     ("e" "Explain Function / Region" aider-function-or-region-explain)
@@ -268,7 +268,7 @@ If the current buffer is already the Aider buffer, do nothing."
   (aider--send-command "/exit"))
 
 ;;;###autoload
-(defun aider-other-process-command ()
+(defun aider-other-process-command (&optional manual)
   "Send process control commands to aider.
 Prompts user to select from a list of available commands:
 - /clear: Clear the chat history
@@ -281,11 +281,14 @@ Prompts user to select from a list of available commands:
 - /paste: Paste the last copied chat message
 - /settings: Show current settings
 - /tokens: Show token usage"
-  (interactive)
-  (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map" 
-                     "/map-refresh" "/paste" "/settings" "/tokens"))
-         (command (completing-read "Select command: " commands nil t)))
-    (aider--send-command command t)))
+  (interactive "P")
+  (if manual
+      (aider-general-command)
+    (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map" 
+                       "/map-refresh" "/paste" "/settings" "/tokens"))
+           (command (completing-read "Select command: " commands nil t)))
+      (aider--send-command command t))
+    ))
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER with syntax highlighting.
@@ -403,27 +406,31 @@ COMMAND should be a string representing the command to send."
 
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
-(defun aider-ask-question ()
+(defun aider-ask-question (&optional no-context)
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
 If a region is active, append the region text to the question.
 If cursor is inside a function, include the function name as context."
-  (interactive)
+  (interactive "P")
   ;; Dispatch to general question if in aider buffer
-  (when (string= (buffer-name) (aider-buffer-name))
-    (call-interactively 'aider-general-question)
-    (cl-return-from aider-ask-question))
-  
-  (let* ((function-name (which-function))
-         (initial-input (when function-name 
-                          (format "About function '%s': " function-name)))
-         (question (aider-read-string "Enter question to ask: " initial-input))
-         (region-text (and (region-active-p) 
-                           (buffer-substring-no-properties (region-beginning) (region-end))))
-         (command (if region-text
-                      (format "/ask %s: %s" question region-text)
-                    (format "/ask %s" question))))
-    (aider-add-current-file)
-    (aider--send-command command t)))
+  (if (or no-context
+       (string= (buffer-name) (aider-buffer-name)))
+    (aider-general-question)
+    (let* ((function-name (which-function))
+           (prompt (if function-name 
+                       (format "About function '%s': " function-name)
+                     "Question for the selected region: "
+                     ))
+           (raw-question (aider-read-string prompt))
+           (question (if function-name
+                         (concat prompt raw-question)
+                       raw-question))
+           (region-text (and (region-active-p) 
+                             (buffer-substring-no-properties (region-beginning) (region-end))))
+           (command (if region-text
+                        (format "/ask %s: %s" question region-text)
+                      (format "/ask %s" question))))
+      (aider-add-current-file)
+      (aider--send-command command t))))
 
 ;;;###autoload
 (defun aider-general-question ()
@@ -475,11 +482,11 @@ replacing all newline characters except for the one at the end."
 
 ;; New function to show the last commit using magit
 ;;;###autoload
-(defun aider-magit-show-last-commit (&optional history)
+(defun aider-magit-show-last-commit (&optional log)
   "Show the last commit message using Magit.
 If Magit is not installed, report that it is required."
   (interactive "P")
-  (if history
+  (if log
       (magit-log-current nil)
     (magit-show-commit "HEAD")
     ))
@@ -507,9 +514,10 @@ The command will be formatted as \"/architect\" followed by refactoring instruct
 for the specified function."
   (interactive)
   (if-let ((function-name (which-function)))
-      (let* ((initial-input (format "refactor %s: " function-name))
-             (user-command (aider-read-string "Enter refactor instruction: " initial-input))
-             (command (format "/architect %s" user-command)))
+      (let* ((prefix (format "refactor %s: " function-name))
+             (prompt (format "Instruction to %s" prefix))
+             (instruction (aider-read-string prompt))
+             (command (format "/architect %s%s" prefix instruction)))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No function found at cursor position.")))
@@ -563,9 +571,10 @@ The command will be formatted as \"/ask \" followed by the text from the selecte
 Prompts user for specific questions about the function."
   (interactive)
   (if-let ((function-name (which-function)))
-      (let* ((initial-input (format "explain %s: " function-name))
-             (user-question (aider-read-string "Enter your question about the function: " initial-input))
-             (command (format "/ask %s" user-question)))
+      (let* ((prefix (format "explain %s: " function-name))
+             (prompt (format "Enter your question to %s" prefix))
+             (user-question (aider-read-string prompt))
+             (command (format "/ask %s%s" prefix user-question)))
         (aider-add-current-file)
         (aider--send-command command t))
     (message "No function found at cursor position.")))
