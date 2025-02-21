@@ -858,8 +858,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
-            (insert "# C-c C-n: Send current line or selected region line by line\n")
-            (insert "# C-c C-r: Send current block or selected region as a whole\n")
+            (insert "# C-c C-n: Single line prompt: Send current line or selected region line by line\n")
+            (insert "# C-c C-c: Multi-line prompt: Send current block or selected region as a whole\n")
             (insert "# C-c C-z: Switch to aider buffer\n\n")
             (insert "* Sample task:\n\n")
             (insert "/ask what this repo is about?\n")
@@ -870,10 +870,15 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (defvar aider-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
-    (define-key map (kbd "C-c C-r") 'aider-send-block-or-region)
+    ;; (define-key map (kbd "C-c C-r") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
   "Keymap for Aider Minor Mode.")
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (when aider-minor-mode
+              (define-key (current-local-map) (kbd "C-c C-c") 'aider-send-block-or-region))))
 
 ;; Define the Aider Minor Mode
 ;;;###autoload
@@ -887,7 +892,9 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (lambda ()
             (when (and (buffer-file-name)
                        (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name))))
-              (aider-minor-mode 1))))
+              (aider-minor-mode 1)
+              (define-key (current-local-map) (kbd "C-c C-c") 'aider-send-block-or-region)
+              )))
 
 (when (featurep 'doom)
   (require 'aider-doom))
