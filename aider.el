@@ -207,18 +207,13 @@ With the universal argument, prompt to edit aider-args before running."
                            (split-string
                             (read-string "Edit aider arguments: "
                                          (mapconcat 'identity aider-args " ")))
-                         aider-args))
-         (source-buffer (current-buffer)))
+                         aider-args)))
     (unless (comint-check-proc buffer-name)
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (comint-mode)
-        (setq-local comint-input-sender 'aider-input-sender) ;; this will only impact the prompt entered directly inside comint buffer. comint-send-string function won't be affected. so aider--process-message-if-multi-line won't be triggered twice.
-        (font-lock-add-keywords nil aider-font-lock-keywords t)
-        ;; Only inherit syntax highlighting when source buffer is in prog-mode
-        (when (with-current-buffer source-buffer
-                (derived-mode-p 'prog-mode))
-          (aider--inherit-source-highlighting source-buffer))))
+        (setq-local comint-input-sender 'aider-input-sender)
+        (font-lock-add-keywords nil aider-font-lock-keywords t)))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
