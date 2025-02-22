@@ -208,7 +208,7 @@ With the universal argument, prompt to edit aider-args before running."
                             (read-string "Edit aider arguments: "
                                          (mapconcat 'identity aider-args " ")))
                          aider-args))
-         (source-buffer (window-buffer (selected-window))))
+         (source-buffer (current-buffer)))
     (unless (comint-check-proc buffer-name)
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
