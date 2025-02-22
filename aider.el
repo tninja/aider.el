@@ -234,11 +234,16 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (if-let ((buffer (get-buffer (aider-buffer-name))))
-        (if aider--switch-to-buffer-other-frame
-            (switch-to-buffer-other-frame buffer)
-          (pop-to-buffer buffer))
-      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+    (let ((source-buffer (current-buffer)))
+      (if-let ((buffer (get-buffer (aider-buffer-name))))
+          (progn
+            (if aider--switch-to-buffer-other-frame
+                (switch-to-buffer-other-frame buffer)
+              (pop-to-buffer buffer))
+            (when (with-current-buffer source-buffer
+                    (derived-mode-p 'prog-mode))
+              (aider--inherit-source-highlighting source-buffer)))
+        (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
 
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
