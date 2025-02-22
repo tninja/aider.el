@@ -27,7 +27,7 @@
   - Some work-around for code color was applied, but we still don't have a fundamental solution for this right now. Vterm is good but I don't want to depend on it at this moment.
   - Would be great if someone can solve this problem, or make it better without introduce too many complexity.
 
-- *There is no advantage interacting with aider through this comint terminal.* But the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
+- *There is no advantage interacting with aider through this comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
   - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize large code change into several small prompts, and it is easy for multi-line prompts
 
@@ -114,6 +114,8 @@ You can have helm-based completion with run the following code, after install he
 - Use ~C-c a p~ to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
 
 - People happy with sending code from editor buffer to comint buffer (eg. ESS, python-mode, scala-mode) might like this. This is a interactive and reproducible way
+
+- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line. To my experience, this is the most used method in aider prompt file.
 
 - The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
 

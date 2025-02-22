@@ -189,7 +189,12 @@ If not in a git repository and no buffer file exists, an error is raised."
                   ,source-keywords-case-fold-search)))
         (setq font-lock-keywords source-keywords
               font-lock-keywords-only source-keywords-only
-              font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
+              font-lock-keywords-case-fold-search source-keywords-case-fold-search)
+        (font-lock-mode 1)
+        (font-lock-ensure)
+        (message "Aider buffer syntax highlighting inherited from %s"
+                 (with-current-buffer source-buffer major-mode))
+        ))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
@@ -213,11 +218,7 @@ With the universal argument, prompt to edit aider-args before running."
         ;; Only inherit syntax highlighting when source buffer is in prog-mode
         (when (with-current-buffer source-buffer
                 (derived-mode-p 'prog-mode))
-          (aider--inherit-source-highlighting source-buffer)
-          (font-lock-mode 1)
-          (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))))
+          (aider--inherit-source-highlighting source-buffer))))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
