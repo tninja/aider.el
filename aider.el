@@ -27,7 +27,7 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022")
+(defcustom aider-args '("--model" "sonnet")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
@@ -180,20 +180,23 @@ If not in a git repository and no buffer file exists, an error is raised."
           ;; (source-syntax-table (syntax-table))
           (source-defaults font-lock-defaults))
       (with-current-buffer (aider-buffer-name)
-        ;; (set-syntax-table source-syntax-table)
-        (setq font-lock-defaults
-              (if source-defaults
-                  source-defaults
-                `((,source-keywords)
-                  nil
-                  ,source-keywords-case-fold-search)))
-        (setq font-lock-keywords source-keywords
-              font-lock-keywords-only source-keywords-only
-              font-lock-keywords-case-fold-search source-keywords-case-fold-search)
-        (font-lock-mode 1)
-        (font-lock-ensure)
-        (message "Aider buffer syntax highlighting inherited from %s"
-                 (with-current-buffer source-buffer major-mode))
+        (when (not (string-equal (prin1-to-string source-keywords)
+                               (prin1-to-string font-lock-keywords)))
+            ;; (set-syntax-table source-syntax-table)
+            (setq font-lock-defaults
+                  (if source-defaults
+                      source-defaults
+                    `((,source-keywords)
+                      nil
+                      ,source-keywords-case-fold-search)))
+          (setq font-lock-keywords source-keywords
+                font-lock-keywords-only source-keywords-only
+                font-lock-keywords-case-fold-search source-keywords-case-fold-search)
+          (font-lock-mode 1)
+          (font-lock-ensure)
+          (message "Aider buffer syntax highlighting inherited from %s"
+                   (with-current-buffer source-buffer major-mode))
+          )
         ))))
 
 ;;;###autoload
@@ -212,7 +215,7 @@ With the universal argument, prompt to edit aider-args before running."
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (comint-mode)
-        (setq-local comint-input-sender 'aider-input-sender)
+        (setq-local comint-input-sender 'aider-input-sender) ;; this will only impact the prompt entered directly inside comint buffer. comint-send-string function won't be affected. so aider--process-message-if-multi-line won't be triggered twice.
         (font-lock-add-keywords nil aider-font-lock-keywords t)))
     (aider-switch-to-buffer)))
 
