@@ -38,7 +38,7 @@ When nil, use standard `display-buffer' behavior."
   :type 'boolean
   :group 'aider)
 
-(defcustom aider-popular-models '("anthropic/claude-3-5-sonnet-20241022"  ;; really good in practical
+(defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful
                                   "gemini/gemini-exp-1206"  ;; free
                                   "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
