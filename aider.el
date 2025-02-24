@@ -27,7 +27,7 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-args '("--model" "anthropic/claude-3-5-sonnet-20241022")
+(defcustom aider-args '("--model" "sonnet")
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
@@ -180,16 +180,24 @@ If not in a git repository and no buffer file exists, an error is raised."
           ;; (source-syntax-table (syntax-table))
           (source-defaults font-lock-defaults))
       (with-current-buffer (aider-buffer-name)
-        ;; (set-syntax-table source-syntax-table)
-        (setq font-lock-defaults
-              (if source-defaults
-                  source-defaults
-                `((,source-keywords)
-                  nil
-                  ,source-keywords-case-fold-search)))
-        (setq font-lock-keywords source-keywords
-              font-lock-keywords-only source-keywords-only
-              font-lock-keywords-case-fold-search source-keywords-case-fold-search)))))
+        (when (not (string-equal (prin1-to-string source-keywords)
+                               (prin1-to-string font-lock-keywords)))
+            ;; (set-syntax-table source-syntax-table)
+            (setq font-lock-defaults
+                  (if source-defaults
+                      source-defaults
+                    `((,source-keywords)
+                      nil
+                      ,source-keywords-case-fold-search)))
+          (setq font-lock-keywords source-keywords
+                font-lock-keywords-only source-keywords-only
+                font-lock-keywords-case-fold-search source-keywords-case-fold-search)
+          (font-lock-mode 1)
+          (font-lock-ensure)
+          (message "Aider buffer syntax highlighting inherited from %s"
+                   (with-current-buffer source-buffer major-mode))
+          )
+        ))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
@@ -202,22 +210,13 @@ With the universal argument, prompt to edit aider-args before running."
                            (split-string
                             (read-string "Edit aider arguments: "
                                          (mapconcat 'identity aider-args " ")))
-                         aider-args))
-         (source-buffer (window-buffer (selected-window))))
+                         aider-args)))
     (unless (comint-check-proc buffer-name)
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (comint-mode)
         (setq-local comint-input-sender 'aider-input-sender) ;; this will only impact the prompt entered directly inside comint buffer. comint-send-string function won't be affected. so aider--process-message-if-multi-line won't be triggered twice.
-        (font-lock-add-keywords nil aider-font-lock-keywords t)
-        ;; Only inherit syntax highlighting when source buffer is in prog-mode
-        (when (with-current-buffer source-buffer
-                (derived-mode-p 'prog-mode))
-          (aider--inherit-source-highlighting source-buffer)
-          (font-lock-mode 1)
-          (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))))
+        (font-lock-add-keywords nil aider-font-lock-keywords t)))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
@@ -233,11 +232,16 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (if-let ((buffer (get-buffer (aider-buffer-name))))
-        (if aider--switch-to-buffer-other-frame
-            (switch-to-buffer-other-frame buffer)
-          (pop-to-buffer buffer))
-      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+    (let ((source-buffer (current-buffer)))
+      (if-let ((buffer (get-buffer (aider-buffer-name))))
+          (progn
+            (if aider--switch-to-buffer-other-frame
+                (switch-to-buffer-other-frame buffer)
+              (pop-to-buffer buffer))
+            (when (with-current-buffer source-buffer
+                    (derived-mode-p 'prog-mode))
+              (aider--inherit-source-highlighting source-buffer)))
+        (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
 
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
