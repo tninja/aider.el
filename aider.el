@@ -406,7 +406,7 @@ COMMAND should be a string representing the command to send."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (aider-read-string "Enter code change requirement: ")))
-    (aider-send-command-with-prefix "/code " command)))
+    (aider-current-file-command-and-switch "/code " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
@@ -430,11 +430,11 @@ If cursor is inside a function, include the function name as context."
                        raw-question))
            (region-text (and (region-active-p) 
                              (buffer-substring-no-properties (region-beginning) (region-end))))
-           (command (if region-text
-                        (format "/ask %s: %s" question region-text)
-                      (format "/ask %s" question))))
-      (aider-add-current-file)
-      (aider--send-command command t))))
+           (question-context (if region-text
+                                 (format "%s: %s" question region-text)
+                               question)))
+      (aider-current-file-command-and-switch "/ask " question-context)
+      )))
 
 ;;;###autoload
 (defun aider-general-question ()
@@ -452,7 +452,7 @@ If cursor is inside a function, include the function name as context."
   (if homepage
       (aider-open-aider-home) 
     (let ((command (aider-read-string "Enter help question: ")))
-      (aider-send-command-with-prefix "/help " command))
+      (aider-current-file-command-and-switch "/help " command))
       ))
 
 ;;;###autoload
@@ -467,7 +467,7 @@ If cursor is inside a function, include the function name as context."
   "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (aider-read-string "Enter architect discussion question: ")))
-    (aider-send-command-with-prefix "/architect " command)))
+    (aider-current-file-command-and-switch "/architect " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
@@ -522,8 +522,7 @@ for the specified function."
              (prompt (format "Instruction to %s" prefix))
              (instruction (aider-read-string prompt))
              (command (format "/architect %s%s" prefix instruction)))
-        (aider-add-current-file)
-        (aider--send-command command t))
+        (aider-current-file-command-and-switch "/architect " (concat prefix instruction)))
     (message "No function found at cursor position.")))
 
 ;;;###autoload
@@ -579,8 +578,7 @@ Prompts user for specific questions about the function."
              (prompt (format "Enter your question to %s" prefix))
              (user-question (aider-read-string prompt))
              (command (format "/ask %s%s" prefix user-question)))
-        (aider-add-current-file)
-        (aider--send-command command t))
+        (aider-current-file-command-and-switch "/ask " (concat prefix user-question)))
     (message "No function found at cursor position.")))
 
 ;;;###autoload
@@ -591,21 +589,7 @@ Prompts user for specific questions about the function."
       (aider-region-explain)
     (aider-function-explain)))
 
-;; New function to explain the symbol at line
-;;;###autoload
-(defun aider-explain-symbol-under-point ()
-  "Ask Aider to explain symbol under point, given the code line as background info."
-  (interactive)
-  (let* ((symbol (thing-at-point 'symbol))
-         (line (buffer-substring-no-properties
-                (line-beginning-position)
-                (line-end-position)))
-         (prompt (format "/ask Please explain what '%s' means in the context of this code line: %s"
-                         symbol line)))
-    (aider-add-current-file)
-    (aider--send-command prompt t)))
-
-(defun aider-send-command-with-prefix (prefix command)
+(defun aider-current-file-command-and-switch (prefix command)
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
   (aider--send-command (concat prefix command) t))
@@ -704,10 +688,8 @@ Otherwise:
                 (let* ((initial-input 
                        (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible." 
                               function-name))
-                      (user-command (aider-read-string "Test implementation instruction: " initial-input))
-                      (command (format "/architect %s" user-command)))
-                  (aider-add-current-file)
-                  (aider--send-command command t))
+                      (user-command (aider-read-string "Test implementation instruction: " initial-input)))
+                  (aider-current-file-command-and-switch "/architect " user-command))
               (message "Current function '%s' does not appear to be a test function." function-name))
           (message "Please place cursor inside a test function to implement.")))
        ;; Non-test file case
@@ -719,10 +701,9 @@ Otherwise:
                            function-name common-instructions)
                   (format "Please write unit test code for file '%s'. For each function %s" 
                          (file-name-nondirectory buffer-file-name) common-instructions)))
-               (user-command (aider-read-string "Unit test generation instruction: " initial-input))
-               (command (format "/architect %s" user-command)))
-          (aider-add-current-file)
-          (aider--send-command command t)))))))
+               (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
+          (aider-current-file-command-and-switch "/architect " user-command))
+          ))))))
 
 ;;;###autoload
 (defun aider-fix-failing-test-under-cursor ()
@@ -734,8 +715,7 @@ This function assumes the cursor is on or inside a test function."
                                    test-function-name))
              (test-output (aider-read-string "Architect question: " initial-input))
              (command (format "/architect %s" test-output)))
-        (aider-add-current-file)
-        (aider--send-command command t))
+        (aider-current-file-command-and-switch "/architect " test-output))
     (message "No test function found at cursor position.")))
 
 (defun aider--is-comment-line (line)
@@ -782,8 +762,7 @@ Otherwise implement TODOs for the entire current file."
                       (file-name-nondirectory buffer-file-name)))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input))
            (command (format "/architect %s" user-command)))
-      (aider-add-current-file)
-      (aider--send-command command t))))
+      (aider-current-file-command-and-switch "/architect " user-command))))
 
 ;;; Model selection functions
 ;;;###autoload
