@@ -703,7 +703,7 @@ Otherwise:
                          (file-name-nondirectory buffer-file-name) common-instructions)))
                (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
           (aider-current-file-command-and-switch "/architect " user-command))
-          ))))))
+          )))))
 
 ;;;###autoload
 (defun aider-fix-failing-test-under-cursor ()
