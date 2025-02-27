@@ -858,11 +858,6 @@ If file doesn't exist, create it with command binding help and sample prompt."
     map)
   "Keymap for Aider Minor Mode.")
 
-(add-hook 'org-mode-hook
-          (lambda ()
-            (when aider-minor-mode
-              (define-key (current-local-map) (kbd "C-c C-c") 'aider-send-block-or-region))))
-
 ;; Define the Aider Minor Mode
 ;;;###autoload
 (define-minor-mode aider-minor-mode
@@ -876,7 +871,11 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (when (and (buffer-file-name)
                        (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name))))
               (aider-minor-mode 1)
-              (define-key (current-local-map) (kbd "C-c C-c") 'aider-send-block-or-region)
+              (let ((map (make-sparse-keymap)))
+                (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
+                (setq-local minor-mode-overriding-map-alist
+                            (cons (cons 'aider-minor-mode map)
+                                  (assq-delete-all 'aider-minor-mode minor-mode-overriding-map-alist))))
               )))
 
 (when (featurep 'doom)
