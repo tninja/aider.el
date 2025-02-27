@@ -39,8 +39,8 @@ When nil, use standard `display-buffer' behavior."
   :group 'aider)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
-                                  "o3-mini" ;; very powerful
-                                  "gemini/gemini-exp-1206"  ;; free
+                                  "o3-mini" ;; very powerful. good for difficult task
+                                  "gemini-2.0-flash-exp"  ;; free
                                   "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
                                   "deepseek/deepseek-chat"  ;; chatgpt-4o level performance, price is 1/100. weakness: small context
                                   )
@@ -771,7 +771,8 @@ Otherwise implement TODOs for the entire current file."
   (interactive)
   (let ((model (aider--select-model)))
     (when model
-      (aider--send-command (format "/model %s" model) t))))
+      (aider--send-command (format "/model %s" model) t)
+      (message "Model changed to %s, check https://aider.chat/docs/leaderboards/ for the benchmark" model))))
 
 (defun aider--select-model ()
   "Private function for model selection with completion."
