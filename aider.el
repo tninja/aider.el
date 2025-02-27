@@ -117,7 +117,7 @@ This function can be customized or redefined by the user."
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider (C-u: args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("o" "Select Model" aider-change-model)
+    ("o" "Select Model (C-u: leadboard)" aider-change-model)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
     ("l" "Other Command (C-u: manual)" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
@@ -766,11 +766,11 @@ Otherwise implement TODOs for the entire current file."
 
 ;;; Model selection functions
 ;;;###autoload
-(defun aider-change-model ()
+(defun aider-change-model (leaderboards)
   "Interactively select and change AI model in current aider session.
 With prefix argument (C-u), open the Aider LLM leaderboard in a browser."
   (interactive "P")
-  (if universal-argument
+  (if leaderboards
       (browse-url "https://aider.chat/docs/leaderboards/")
     (let ((model (aider--select-model)))
       (when model
