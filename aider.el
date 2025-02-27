@@ -767,12 +767,15 @@ Otherwise implement TODOs for the entire current file."
 ;;; Model selection functions
 ;;;###autoload
 (defun aider-change-model ()
-  "Interactively select and change AI model in current aider session."
-  (interactive)
-  (let ((model (aider--select-model)))
-    (when model
-      (aider--send-command (format "/model %s" model) t)
-      (message "Model changed to %s, customize aider-popular-models for the model candidates" model))))
+  "Interactively select and change AI model in current aider session.
+With prefix argument (C-u), open the Aider LLM leaderboard in a browser."
+  (interactive "P")
+  (if universal-argument
+      (browse-url "https://aider.chat/docs/leaderboards/")
+    (let ((model (aider--select-model)))
+      (when model
+        (aider--send-command (format "/model %s" model) t)
+        (message "Model changed to %s, customize aider-popular-models for the model candidates" model)))))
 
 (defun aider--select-model ()
   "Private function for model selection with completion."
