@@ -19,3 +19,17 @@
         (message "The current buffer is not in a Git repository.")
       (let ((repo-path (string-trim git-repo-path)))
         (dired-other-window repo-path)))))
+
+;; New function to explain the symbol at line
+;;;###autoload
+(defun aider-explain-symbol-under-point ()
+  "Ask Aider to explain symbol under point, given the code line as background info."
+  (interactive)
+  (let* ((symbol (thing-at-point 'symbol))
+         (line (buffer-substring-no-properties
+                (line-beginning-position)
+                (line-end-position)))
+         (question (format "Please explain what '%s' means in the context of this code line: %s"
+                         symbol line)))
+    (aider-current-file-command-and-switch "/ask " question)
+    ))
