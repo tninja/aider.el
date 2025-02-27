@@ -772,7 +772,7 @@ Otherwise implement TODOs for the entire current file."
   (let ((model (aider--select-model)))
     (when model
       (aider--send-command (format "/model %s" model) t)
-      (message "Model changed to %s, check https://aider.chat/docs/leaderboards/ for the benchmark" model))))
+      (message "Model changed to %s, customize aider-popular-models for the model candidates" model))))
 
 (defun aider--select-model ()
   "Private function for model selection with completion."
