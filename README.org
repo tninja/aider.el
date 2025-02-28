@@ -117,7 +117,7 @@ You can have helm-based completion with run the following code, after install he
 
 - ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line. To my experience, this is the most used method in aider prompt file.
 
-- The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
+- ~C-c C-c~ key is for multi-line prompt. The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
 
 [[file:./aider_prompt_file.png]]
 
