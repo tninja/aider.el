@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Algorithm Implementation
 # key: algorithm
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Implement a ${1:name of algorithm} in ${2:programming language}. Please include:

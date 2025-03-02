@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Generate Unit Tests
 # key: unit-tests
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Generate unit tests for the following function:

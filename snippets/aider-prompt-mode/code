@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Code Generation
 # key: code
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Generate ${1:language} code for ${2:specific functionality}. Include:

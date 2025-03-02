@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Unit Test Generation
 # key: tests
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Generate unit tests for the following code, ensuring comprehensive coverage:

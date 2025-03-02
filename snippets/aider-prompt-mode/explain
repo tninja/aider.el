@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Code Explanation
 # key: explain
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /ask
 Please explain how ${1:specific part of the code} works and why it was implemented this way.

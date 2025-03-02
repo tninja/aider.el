@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Explain Code
 # key: explain-code
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /ask
 Can you explain the following part of the code in detail:

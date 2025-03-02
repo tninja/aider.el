@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Merge Conflict Resolution
 # key: merge
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /ask
 I'm facing the following merge conflict. How should I resolve it while maintaining the intended functionality of both changes?

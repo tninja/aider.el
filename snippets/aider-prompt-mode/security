@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Security Review
 # key: security
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Review the following code/architecture for potential security vulnerabilities and suggest improvements:

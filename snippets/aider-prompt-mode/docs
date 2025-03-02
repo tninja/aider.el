@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Documentation Generation
 # key: docs
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Based on the code and our discussions, generate the following documentation:

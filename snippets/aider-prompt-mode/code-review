@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Detailed Code Review
 # key: code-review
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /ask
 Please review the following code:

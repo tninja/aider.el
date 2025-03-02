@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Project Initialization
 # key: init
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /ask
 ${1:Project overview and goals}

@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Database Schema
 # key: schema
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Generate a database schema for ${1:data model description}.

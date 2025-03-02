@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Component Design
 # key: design
-# contributor: LorestForest
+# contributor: LorestForest, Kang Tu
 # --
 /architect
 Think step-by-step about the design and architecture for ${1:component name}. Consider:
