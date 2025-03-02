@@ -1,8 +1,0 @@
-e# -*- mode: snippet -*-
-# name: Unit Test Generation For Code
-# key: tests
-# contributor: LorestForest, Kang Tu
-# --
-/architect
-Generate unit tests for the following code, ensuring comprehensive coverage:
-${1:code}
