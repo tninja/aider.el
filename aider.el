@@ -346,51 +346,6 @@ This function assumes the cursor is on or inside a test function."
         (aider-current-file-command-and-switch "/architect " test-output))
     (message "No test function found at cursor position.")))
 
-(defun aider--is-comment-line (line)
-  "Check if LINE is a comment line based on current buffer's comment syntax.
-Returns non-nil if LINE starts with one or more comment characters,
-ignoring leading whitespace."
-  (when comment-start
-    (let ((comment-str (string-trim-right comment-start)))
-      (string-match-p (concat "^[ \t]*"
-                             (regexp-quote comment-str)
-                             "+")
-                     (string-trim-left line)))))
-
-;;;###autoload
-(defun aider-implement-todo ()
-  "Implement TODO comments in current context.
-If region is selected, implement that specific region.
-If cursor is on a comment line, implement that specific comment.
-If cursor is inside a function, implement TODOs for that function.
-Otherwise implement TODOs for the entire current file."
-  (interactive)
-  (if (not buffer-file-name)
-      (message "Current buffer is not visiting a file.")
-    (let* ((current-line (string-trim (thing-at-point 'line t)))
-           (is-comment (aider--is-comment-line current-line))
-           (function-name (which-function))
-           (region-text (when (region-active-p)
-                         (buffer-substring-no-properties 
-                          (region-beginning) 
-                          (region-end))))
-           (initial-input
-            (cond
-             (region-text
-              (format "Please implement this code block in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific block." 
-                      region-text))
-             (is-comment
-              (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment." 
-                      current-line))
-             (function-name
-              (format "Please implement the TODO items in-place in function '%s'. Keep the existing code structure and only implement the TODOs in comments." 
-                      function-name))
-             (t
-              (format "Please implement all TODO items in-place in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
-                      (file-name-nondirectory buffer-file-name)))))
-           (user-command (aider-read-string "TODO implementation instruction: " initial-input))
-           (command (format "/architect %s" user-command)))
-      (aider-current-file-command-and-switch "/architect " user-command))))
 
 ;;; Model selection functions
 ;;;###autoload
