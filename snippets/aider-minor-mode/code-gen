@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Code Generation
+# key: codegen
+# contributor: LorestForest
+# --
+"Generate ${1:language} code for ${2:functionality}. Include:
+- Input/output types
+- Error handling
+- Detailed inline comments
+- Necessary imports/dependencies
+
+$0"

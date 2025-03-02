@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Documentation Generation
+# key: docgen
+# contributor: LorestForest
+# --
+"Based on the code and our discussions, generate the following documentation:
+- README file section for this component
+- API documentation (if applicable)
+- Usage examples
+
+$0"

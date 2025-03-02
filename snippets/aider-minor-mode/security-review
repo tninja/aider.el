@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Security Review
+# key: secrev
+# contributor: LorestForest
+# --
+"Review the following code/architecture for potential security vulnerabilities and suggest improvements:
+${1:`(yas-selected-text)`}
+
+Consider:
+- Input validation
+- Authentication/authorization
+- Data protection
+- Common vulnerabilities
+
+$0"

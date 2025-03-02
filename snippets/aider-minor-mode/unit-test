@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Unit Test Generation
+# key: unittest
+# contributor: LorestForest
+# --
+"Generate unit tests for the following code, ensuring comprehensive coverage:
+${1:`(yas-selected-text)`}
+
+Consider:
+- Edge cases
+- Error conditions
+- Performance benchmarks
+
+$0"

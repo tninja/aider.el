@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Project Initialization
+# key: projinit
+# contributor: LorestForest
+# --
+"Project Initialization for ${1:project name}
+
+Project Overview: ${2:brief description}
+Goals: ${3:main objectives}
+Tech Stack: ${4:technologies to be used}
+Requirements: ${5:key requirements}
+Constraints: ${6:known limitations}
+
+$0"

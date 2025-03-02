@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Commit Message
+# key: commitmsg
+# contributor: LorestForest
+# --
+"${1:type}(scope): ${2:short description}
+
+${3:longer description if needed}
+
+$0"

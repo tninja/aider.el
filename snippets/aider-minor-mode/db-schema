@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Database Schema
+# key: dbschema
+# contributor: LorestForest
+# --
+"Generate a database schema for ${1:data model description}. Include:
+- Table definitions
+- Relationships
+- Indexes
+- Constraints
+
+$0"
