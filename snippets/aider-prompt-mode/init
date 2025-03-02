@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Project Initialization
+# key: init
+# contributor: LorestForest
+# --
+/ask
+${1:Project overview and goals}
+${2:Intended tech stack}
+${3:Known requirements or constraints}
+Ask me any questions so you can give me the best possible response.

@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Documentation Generation
+# key: docs
+# contributor: LorestForest
+# --
+/architect
+Based on the code and our discussions, generate the following documentation:
+README file section for ${1:component}
+API documentation (if applicable)
+Usage examples

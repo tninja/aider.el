@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Debug Help
+# key: debug
+# contributor: LorestForest
+# --
+/ask
+I'm experiencing the following bug: ${1:describe the bug}
+Here's the relevant code: ${2:code}
+What could be causing this, and how can I fix it?

@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Best Practices
+# key: practices
+# contributor: LorestForest
+# --
+/ask
+What are the latest best practices for ${1:tech stack} as of ${2:current date}?
+How can I apply these to my current project?

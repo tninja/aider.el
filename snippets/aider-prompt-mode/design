@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Component Design
+# key: design
+# contributor: LorestForest
+# --
+/architect
+Think step-by-step about the design and architecture for ${1:component name}. Consider:
+Data flow
+Key functions or classes
+Potential challenges
+Integration with other components

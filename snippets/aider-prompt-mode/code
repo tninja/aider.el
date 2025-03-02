@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Code Generation
+# key: code
+# contributor: LorestForest
+# --
+/architect
+Generate ${1:language} code for ${2:specific functionality}. Include:
+Input/output types
+Error handling
+Detailed inline comments explaining the logic
+Any necessary imports or dependencies

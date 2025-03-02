@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Project Improvement
+# key: improve
+# contributor: LorestForest
+# --
+/architect
+Based on our work so far, what areas of the project could be improved?
+Consider code quality, architecture, and potential scalability issues.
