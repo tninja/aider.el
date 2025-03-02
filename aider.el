@@ -40,8 +40,8 @@ When nil, use standard `display-buffer' behavior."
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
-                                  "gemini-2.0-flash-exp"  ;; free
                                   "deepseek"  ;; low price, pretty good performance
+                                  "gemini-2.0-flash-exp"  ;; free
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.
@@ -116,10 +116,10 @@ This function can be customized or redefined by the user."
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider (C-u: args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
+    ("p" "Repo Prompt File" aider-open-prompt-file)
     ("o" "Select Model (C-u: leadboard)" aider-change-model)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
     ("l" "Other Command (C-u: manual)" aider-other-process-command)
-    ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
     ("f" "Add Current / Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
@@ -140,10 +140,10 @@ This function can be customized or redefined by the user."
    ["Discussion"
     ("q" "Ask Question (C-u: no context)" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
-    ("p" "Repo Prompt File" aider-open-prompt-file)
     ("e" "Explain Function / Region" aider-function-or-region-explain)
     ("D" "Debug Exception" aider-debug-exception)
     ("h" "Help (C-u: homepage)" aider-help)
+    ("x" "Exit Aider" aider-exit)
     ]
    ])
 
