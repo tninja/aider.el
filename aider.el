@@ -884,7 +884,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (with-eval-after-load 'aider-minor-mode
   (setq yas-snippet-dirs
         (append yas-snippet-dirs
-                '("./snippets/aider-minor-mode"))))
+                `(,(expand-file-name "snippets/aider-minor-mode"
+                                    (file-name-directory (locate-library "aider"))))))
 
 ;; doom
 (when (featurep 'doom)
