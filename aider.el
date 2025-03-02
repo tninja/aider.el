@@ -349,32 +349,6 @@ Prompts user for specific questions about the function."
   (aider-add-current-file)
   (aider--send-command (concat prefix command) t))
 
-;;; functions for dired related
-
-;; New function to add multiple Dired marked files to Aider buffer
-(defun aider--batch-add-dired-marked-files-with-command (command-prefix)
-  "Add multiple Dired marked files to the Aider buffer with COMMAND-PREFIX.
-COMMAND-PREFIX should be either \"/add\" or \"/read-only\"."
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (let ((command (concat command-prefix " " (mapconcat 'expand-file-name files " "))))
-          (aider--send-command command t))
-      (message "No files marked in Dired."))))
-
-;;;###autoload
-(defun aider-batch-add-dired-marked-files ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
-  (interactive)
-  (aider--batch-add-dired-marked-files-with-command "/add"))
-
-;;;###autoload
-(defun aider-batch-add-dired-marked-files-read-only ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/read-only\" command."
-  (interactive)
-  (aider--batch-add-dired-marked-files-with-command "/read-only"))
-
-
-
 ;;; functions for test fixing
 
 ;;;###autoload
