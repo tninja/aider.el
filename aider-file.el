@@ -147,6 +147,11 @@ Otherwise, add the current file as read-only."
       (aider-batch-add-dired-marked-files-read-only)
     (aider-current-file-read-only)))
 
+(defun aider-current-file-command-and-switch (prefix command)
+  "Send COMMAND to the Aider buffer prefixed with PREFIX."
+  (aider-add-current-file)
+  (aider--send-command (concat prefix command) t))
+
 (provide 'aider-file)
 
 ;;; aider-file.el ends here

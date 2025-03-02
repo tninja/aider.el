@@ -12,9 +12,7 @@
 ;;; Code:
 
 (require 'comint)
-(require 'dired)
 (require 'transient)
-(require 'magit)
 (require 'which-func)
 
 (require 'aider-core)
@@ -164,7 +162,6 @@ Prompts user to select from a list of available commands:
       (aider--send-command command t))
     ))
 
-
 ;; Function to send a custom command to corresponding aider buffer
 ;;;###autoload
 (defun aider-general-command ()
@@ -173,18 +170,6 @@ Prompts user to select from a list of available commands:
   (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
     (aider--send-command command t)))
-
-
-
-
-
-
-
-
-(defun aider-current-file-command-and-switch (prefix command)
-  "Send COMMAND to the Aider buffer prefixed with PREFIX."
-  (aider-add-current-file)
-  (aider--send-command (concat prefix command) t))
 
 ;;; Model selection functions
 ;;;###autoload
