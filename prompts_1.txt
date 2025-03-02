@@ -1,0 +1,128 @@
+
+Standard Operating Procedure (SOP): Software Development with Claude
+1. Project Initialization
+
+1.1. Create a new project in Claude or your preferred AI assistant.
+
+1.2. Add basic information about your project to the AI's knowledge base:
+
+    Project overview and goals
+
+    Intended tech stack (even if not finalized)
+
+    Any known requirements or constraints
+
+1.3. Break down the project into smaller, manageable components or features.
+
+1.4. Ask the AI to ask questions about the information povided so it may better understands your requirements:
+
+[Your basic information and goals].
+Ask me any questions so you can give me the best possible response.
+
+2. Design and Architecture
+
+2.1. For each component, use the "Think step-by-step" prompt to generate a detailed analysis:
+
+Think step-by-step about the design and architecture for [component name]. Consider:
+Data flow
+Key functions or classes
+Potential challenges
+Integration with other components
+
+2.2. Review and refine the AI's suggestions, asking for clarification or alternatives as needed.
+
+2.3. Document the final architecture decisions in your project's knowledge base.
+3. Code Generation
+
+3.1. Start a new AI session for each coding task to maintain a clean context.
+
+3.2. Provide clear and detailed prompts for code generation:
+
+Generate [language] code for [specific functionality]. Include:
+Input/output types
+Error handling
+Detailed inline comments explaining the logic
+Any necessary imports or dependencies
+
+3.3. Review the generated code and ask the AI to explain any parts you don't understand:
+
+Please explain how [specific part of the code] works and why it was implemented this way.
+
+3.4. Request a code review from the AI:
+
+Review the following code for potential improvements, bugs, or best practice violations:
+[Paste the code here]
+
+3.5. Implement the AI's suggestions as appropriate.
+4. Documentation
+
+4.1. After completing each component, ask the AI to generate documentation:
+
+Based on the code and our discussions, generate the following documentation:
+README file section for this component
+API documentation (if applicable)
+Usage examples
+
+4.2. Review and refine the documentation, ensuring it accurately represents your code.
+5. Database and Query Optimization
+
+5.1. Leverage AI for generating database schemas and complex queries:
+
+Generate a database schema for [describe your data model].
+Include:
+Table definitions
+Relationships
+Indexes
+Any necessary constraints
+
+5.2. For complex queries, provide the AI with your requirements and ask it to optimize:
+
+Generate an optimized SQL query to [describe the query goal].
+Consider performance and explain your optimization choices.
+
+6. Testing and Debugging
+
+6.1. Ask the AI to generate unit tests for your code:
+
+Generate unit tests for the following code, ensuring comprehensive coverage:
+[Paste your code here]
+
+6.2. When encountering bugs, describe the issue to the AI and ask for potential causes and solutions:
+
+I'm experiencing the following bug: [describe the bug]
+Here's the relevant code: [paste code]
+What could be causing this, and how can I fix it?
+
+7. Continuous Learning and Improvement
+
+7.1. Regularly update your project's knowledge base in the AI tool with new information, decisions, and changes.
+
+7.2. After completing major features or milestones, ask the AI for a project review:
+
+Based on our work so far, what areas of the project could be improved?
+Consider code quality, architecture, and potential scalability issues.
+
+7.3. Implement relevant suggestions and document lessons learned for future reference.
+8. Security and Best Practices
+
+8.1. Periodically ask the AI to review your project for security best practices:
+
+Review the following code/architecture for potential security vulnerabilities and suggest improvements:
+[Paste relevant information here]
+
+8.2. Stay updated on the latest best practices by asking the AI about recent developments in your tech stack:
+
+What are the latest best practices for [your tech stack] as of [current date]?
+How can I apply these to my current project?
+
+9. Version Control and Collaboration
+
+9.1. Use AI to generate meaningful commit messages:
+
+Based on the following code changes, generate a clear and informative git commit message:
+[Paste your code diff here]
+
+9.2. For complex merges or conflicts, ask the AI for assistance in resolving them:
+
+I'm facing the following merge conflict. How should I resolve it while maintaining the intended functionality of both changes?
+[Paste the conflict details here]
