@@ -12,3 +12,15 @@ Consider:
 - Performance benchmarks
 
 $0"
+# -*- mode: snippet -*-
+# name: Unit Test Generation
+# key: unittest
+# contributor: LorestForest
+# --
+"Generate unit tests for the following code:
+- Cover all main functionality
+- Include edge cases
+- Test error handling
+- Aim for high code coverage
+
+$0"

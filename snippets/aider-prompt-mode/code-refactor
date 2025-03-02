@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Code Refactoring
+# key: refactor
+# contributor: LorestForest
+# --
+"Refactor the following code to improve:
+- Readability
+- Performance
+- Maintainability
+- Error handling
+
+Keep the same functionality but make it better structured.
+
+$0"

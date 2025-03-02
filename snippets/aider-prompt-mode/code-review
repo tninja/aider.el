@@ -13,3 +13,16 @@ Consider:
 - Maintainability
 
 $0"
+# -*- mode: snippet -*-
+# name: Code Review
+# key: review
+# contributor: LorestForest
+# --
+"Review this code and provide feedback on:
+- Code quality
+- Potential bugs
+- Security issues
+- Performance concerns
+- Best practices violations
+
+$0"
