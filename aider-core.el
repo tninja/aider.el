@@ -31,20 +31,6 @@ When nil, use standard `display-buffer' behavior."
   :type 'boolean
   :group 'aider)
 
-(defcustom aider-prompt-file-name ".aider.prompt.org"
-  "File name that will automatically enable aider-minor-mode when opened.
-This is the file name without path."
-  :type 'string
-  :group 'aider)
-
-(defvar aider-read-string-history nil
-  "History list for aider read string inputs.")
-(if (bound-and-true-p savehist-loaded)
-    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
-  (add-hook 'savehist-mode-hook
-            (lambda ()
-              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
-
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
     (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
@@ -59,6 +45,14 @@ This is the file name without path."
 (defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
+
+(defvar aider-read-string-history nil
+  "History list for aider read string inputs.")
+(if (bound-and-true-p savehist-loaded)
+    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
+  (add-hook 'savehist-mode-hook
+            (lambda ()
+              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
@@ -185,14 +179,6 @@ If the current buffer is already the Aider buffer, do nothing."
                    (with-current-buffer source-buffer major-mode))
           )
         ))))
-
-(defun aider--setup-snippets ()
-  "Setup YASnippet directories for aider-prompt-mode."
-  (when (featurep 'yasnippet)
-    (let ((snippet-dir (expand-file-name "snippets"
-                                       (file-name-directory (file-truename (locate-library "aider"))))))
-      (add-to-list 'yas-snippet-dirs snippet-dir t)
-      (yas-load-directory snippet-dir))))
 
 (provide 'aider-core)
 

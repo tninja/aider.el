@@ -16,7 +16,9 @@
 (require 'transient)
 (require 'magit)
 (require 'which-func)
+
 (require 'aider-core)
+(require 'aider-prompt-mode)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
@@ -598,9 +600,6 @@ With prefix argument (C-u), open the Aider LLM leaderboard in a browser."
 (defun aider--select-model ()
   "Private function for model selection with completion."
   (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models)))
-
-;; Load the prompt mode
-(require 'aider-prompt-mode)
 
 ;; doom
 (when (featurep 'doom)
