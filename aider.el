@@ -20,6 +20,7 @@
 (require 'aider-core)
 (require 'aider-prompt-mode)
 (require 'aider-file)
+(require 'aider-code-change)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
@@ -172,13 +173,6 @@ Prompts user to select from a list of available commands:
     ;; Use the shared helper function to send the command
     (aider--send-command command t)))
 
-;; New function to get command from user and send it prefixed with "/code "
-;;;###autoload
-(defun aider-code-change ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
-  (interactive)
-  (let ((command (aider-read-string "Enter code change requirement: ")))
-    (aider-current-file-command-and-switch "/code " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
@@ -233,13 +227,6 @@ If cursor is inside a function, include the function name as context."
   (interactive)
   (browse-url "https://aider.chat"))
 
-;; New function to get command from user and send it prefixed with "/architect "
-;;;###autoload
-(defun aider-architect-discussion ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
-  (interactive)
-  (let ((command (aider-read-string "Enter architect discussion question: ")))
-    (aider-current-file-command-and-switch "/architect " command)))
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
@@ -256,51 +243,6 @@ replacing all newline characters except for the one at the end."
   (interactive)
   (aider--send-command "go ahead" t))
 
-
-(defun aider-region-refactor-generate-command (region-text function-name user-command)
-  "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
-  (let ((processed-region-text region-text))
-    (if function-name
-        (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
-                function-name user-command processed-region-text)
-      (format "/architect \"for the following code block, %s: %s\"\n"
-              user-command processed-region-text))))
-
-;;;###autoload
-(defun aider-function-refactor ()
-  "Get the function name under cursor and send refactor command to aider.
-The command will be formatted as \"/architect\" followed by refactoring instructions
-for the specified function."
-  (interactive)
-  (if-let ((function-name (which-function)))
-      (let* ((prefix (format "refactor %s: " function-name))
-             (prompt (format "Instruction to %s" prefix))
-             (instruction (aider-read-string prompt))
-             (command (format "/architect %s%s" prefix instruction)))
-        (aider-current-file-command-and-switch "/architect " (concat prefix instruction)))
-    (message "No function found at cursor position.")))
-
-;;;###autoload
-(defun aider-region-refactor ()
-  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
-The command will be formatted as \"/architect \" followed by the user command and the text from the selected region."
-  (interactive)
-  (if (use-region-p)
-      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (function-name (which-function))
-             (user-command (aider-read-string "Enter your refactor instruction: "))
-             (command (aider-region-refactor-generate-command region-text function-name user-command)))
-        (aider-add-current-file)
-        (aider--send-command command t))
-    (message "No region selected.")))
-
-;;;###autoload
-(defun aider-function-or-region-refactor ()
-  "Call aider-function-refactor when no region is selected, otherwise call aider-region-refactor."
-  (interactive)
-  (if (region-active-p)
-      (aider-region-refactor)
-    (aider-function-refactor)))
 
 ;; New function to explain the code in the selected region
 ;;;###autoload
