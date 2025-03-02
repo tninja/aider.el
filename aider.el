@@ -41,8 +41,7 @@ When nil, use standard `display-buffer' behavior."
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
                                   "gemini-2.0-flash-exp"  ;; free
-                                  "r1"  ;; performance match o1, price << claude sonnet. weakness: small context
-                                  "deepseek/deepseek-chat"  ;; chatgpt-4o level performance, price is 1/100. weakness: small context
+                                  "deepseek"  ;; low price, pretty good performance
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.
@@ -844,8 +843,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
-            (insert "# C-c C-n: Single line prompt: Send current line or selected region line by line\n")
-            (insert "# C-c C-c: Multi-line prompt: Send current block or selected region as a whole\n")
+            (insert "# C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
+            (insert "# C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
             (insert "# C-c C-z: Switch to aider buffer\n\n")
             (insert "* Sample task:\n\n")
             (insert "/ask what this repo is about?\n")
