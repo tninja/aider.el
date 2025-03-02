@@ -143,7 +143,6 @@ This function can be customized or redefined by the user."
     ("y" "Then Go Ahead" aider-go-ahead)
     ("p" "Repo Prompt File" aider-open-prompt-file)
     ("e" "Explain Function / Region" aider-function-or-region-explain)
-    ;; ("p" "Explain Symbol Under Point" aider-explain-symbol-under-point) ;; not worth take your token to explain a symbol
     ("D" "Debug Exception" aider-debug-exception)
     ("h" "Help (C-u: homepage)" aider-help)
     ]
@@ -882,6 +881,12 @@ If file doesn't exist, create it with command binding help and sample prompt."
                                   (assq-delete-all 'aider-minor-mode minor-mode-overriding-map-alist))))
               )))
 
+(with-eval-after-load 'aider-minor-mode
+  (setq yas-snippet-dirs
+        (append yas-snippet-dirs
+                '("./snippets/aider-minor-mode"))))
+
+;; doom
 (when (featurep 'doom)
   (require 'aider-doom))
 
