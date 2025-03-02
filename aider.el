@@ -852,55 +852,41 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (save-buffer)))
       (message "Not in a git repository"))))
 
-;; Define the keymap for Aider Minor Mode
-(defvar aider-minor-mode-map
+;; Define the keymap for Aider Prompt Mode
+(defvar aider-prompt-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
-    ;; (define-key map (kbd "C-c C-r") 'aider-send-block-or-region)
+    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     map)
-  "Keymap for Aider Minor Mode.")
+  "Keymap for Aider Prompt Mode.")
 
 (defun aider--setup-snippets ()
-  "Setup YASnippet directories for aider-minor-mode."
+  "Setup YASnippet directories for aider-prompt-mode."
   (when (featurep 'yasnippet)
     (let ((snippet-dir (expand-file-name "snippets"
                                        (file-name-directory (file-truename (locate-library "aider"))))))
       (add-to-list 'yas-snippet-dirs snippet-dir t)
       (yas-load-directory snippet-dir))))
 
-(defun aider--teardown-snippets ()
-  "Remove YASnippet directories when aider-minor-mode is disabled."
-  (when (featurep 'yasnippet)
-    (let ((snippet-dir (expand-file-name "snippets"
-                                       (file-name-directory (locate-library "aider")))))
-      (setq yas-snippet-dirs (remove snippet-dir yas-snippet-dirs)))))
-
-;; Define the Aider Minor Mode
+;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
-(define-minor-mode aider-minor-mode
-  "Minor mode for Aider with keybindings."
-  :lighter " Aider"
-  :keymap aider-minor-mode-map
-  :global nil
-  (if aider-minor-mode
-      (progn
-        (when (require 'yasnippet nil t)
-          (yas-minor-mode 1)
-          (aider--setup-snippets)))
-    (aider--teardown-snippets)))
+(define-derived-mode aider-prompt-mode org-mode "Aider"
+  "Major mode derived from org-mode for editing aider prompt files.
+Special commands:
+\\{aider-prompt-mode-map}"
+  ;; 设置语法高亮等
+  (setq-local comment-start "# ")
+  (setq-local comment-end "")
+  
+  ;; 启用 YASnippet
+  (when (require 'yasnippet nil t)
+    (yas-minor-mode 1)
+    (aider--setup-snippets)))
 
-(add-hook 'find-file-hook
-          (lambda ()
-            (when (and (buffer-file-name)
-                       (string= aider-prompt-file-name (file-name-nondirectory (buffer-file-name))))
-              (aider-minor-mode 1)
-              (let ((map (make-sparse-keymap)))
-                (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
-                (setq-local minor-mode-overriding-map-alist
-                            (cons (cons 'aider-minor-mode map)
-                                  (assq-delete-all 'aider-minor-mode minor-mode-overriding-map-alist))))
-              )))
+;;;###autoload
+(add-to-list 'auto-mode-alist 
+             `(,(concat "\\<" (regexp-quote aider-prompt-file-name) "\\'") . aider-prompt-mode))
 
 ;; doom
 (when (featurep 'doom)
