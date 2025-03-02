@@ -861,13 +861,30 @@ If file doesn't exist, create it with command binding help and sample prompt."
     map)
   "Keymap for Aider Minor Mode.")
 
+(defun aider--setup-snippets ()
+  "Setup YASnippet directories for aider-minor-mode."
+  (let ((snippet-dir (expand-file-name "snippets/aider-minor-mode"
+                                       (file-name-directory (file-truename (locate-library "aider"))))))
+    (add-to-list 'yas-snippet-dirs snippet-dir)
+    (yas-reload-all)))
+
+(defun aider--teardown-snippets ()
+  "Remove YASnippet directories when aider-minor-mode is disabled."
+  (let ((snippet-dir (expand-file-name "snippets/aider-minor-mode"
+                                     (file-name-directory (locate-library "aider")))))
+    (setq yas-snippet-dirs (remove snippet-dir yas-snippet-dirs))
+    (yas-reload-all)))
+
 ;; Define the Aider Minor Mode
 ;;;###autoload
 (define-minor-mode aider-minor-mode
   "Minor mode for Aider with keybindings."
   :lighter " Aider"
   :keymap aider-minor-mode-map
-  :override t)
+  :global nil
+  (if aider-minor-mode
+      (aider--setup-snippets)
+    (aider--teardown-snippets)))
 
 (add-hook 'find-file-hook
           (lambda ()
@@ -880,12 +897,6 @@ If file doesn't exist, create it with command binding help and sample prompt."
                             (cons (cons 'aider-minor-mode map)
                                   (assq-delete-all 'aider-minor-mode minor-mode-overriding-map-alist))))
               )))
-
-(with-eval-after-load 'aider-minor-mode
-  (setq yas-snippet-dirs
-        (append yas-snippet-dirs
-                `(,(expand-file-name "snippets/aider-minor-mode"
-                                    (file-name-directory (locate-library "aider"))))))
 
 ;; doom
 (when (featurep 'doom)
