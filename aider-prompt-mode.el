@@ -117,7 +117,7 @@ Special commands:
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 
-             `(,(concat "\\<" (regexp-quote aider-prompt-file-name) "\\'") . aider-prompt-mode))
+             `(,(concat "/" (regexp-quote aider-prompt-file-name) "\\'") . aider-prompt-mode))
 
 (provide 'aider-prompt-mode)
 
