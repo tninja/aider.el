@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: Generate Unit Tests
+# key: unit-tests
+# contributor: LorestForest
+# --
+/architect
+Generate unit tests for the following function:
+${1:function}
+Include tests for:
+1. Normal expected inputs
+2. Edge cases
+3. Invalid inputs
+Use ${2:preferred testing framework} syntax.

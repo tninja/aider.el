@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Class/Module Creation
+# key: class
+# contributor: LorestForest
+# --
+/architect
+Create a ${1:class/module} for ${2:specific functionality} in ${3:programming language}.
+Include:
+1. Constructor/initialization
+2. Main methods with clear docstrings
+3. Any necessary private helper methods
+4. Proper encapsulation and adherence to OOP principles
