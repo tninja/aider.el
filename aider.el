@@ -871,14 +871,13 @@ If file doesn't exist, create it with command binding help and sample prompt."
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
-(define-derived-mode aider-prompt-mode org-mode "Aider"
+(define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
   "Major mode derived from org-mode for editing aider prompt files.
 Special commands:
 \\{aider-prompt-mode-map}"
   ;; syntax highlighting
   (setq-local comment-start "# ")
   (setq-local comment-end "")
-  
   ;; use YASnippet
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)

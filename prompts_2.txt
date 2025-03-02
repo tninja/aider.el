@@ -1,3 +1,4 @@
+## from https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/
 
 I wrote an SOP recently for creating software with the help of LLMs like ChatGPT or Claude. A lot of people found it helpful so I wanted to share some more prompt-related ideas for generating code.
 

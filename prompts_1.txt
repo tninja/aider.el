@@ -1,3 +1,4 @@
+## from https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
 
 Standard Operating Procedure (SOP): Software Development with Claude
 1. Project Initialization
