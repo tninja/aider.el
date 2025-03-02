@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: 代码生成
+# key: codegen
+# contributor: LorestForest
+# --
+"生成${1:语言}代码，实现${2:功能}。包括:
+- 输入/输出类型
+- 错误处理
+- 详细的内联注释
+- 必要的导入/依赖项
+
+$0"
