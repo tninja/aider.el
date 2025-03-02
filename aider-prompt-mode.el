@@ -10,6 +10,12 @@
 (require 'org)
 (require 'aider-core)
 
+(defcustom aider-prompt-file-name ".aider.prompt.org"
+  "File name that will automatically enable aider-prompt-mode when opened.
+This is the file name without path."
+  :type 'string
+  :group 'aider)
+
 ;; Define the keymap for Aider Prompt Mode
 (defvar aider-prompt-mode-map
   (let ((map (make-sparse-keymap)))
@@ -86,6 +92,14 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "/ask what this repo is about?\n")
             (save-buffer)))
       (message "Not in a git repository"))))
+
+(defun aider--setup-snippets ()
+  "Setup YASnippet directories for aider-prompt-mode."
+  (when (featurep 'yasnippet)
+    (let ((snippet-dir (expand-file-name "snippets"
+                                       (file-name-directory (file-truename (locate-library "aider"))))))
+      (add-to-list 'yas-snippet-dirs snippet-dir t)
+      (yas-load-directory snippet-dir))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
