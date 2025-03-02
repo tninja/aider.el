@@ -875,11 +875,11 @@ If file doesn't exist, create it with command binding help and sample prompt."
   "Major mode derived from org-mode for editing aider prompt files.
 Special commands:
 \\{aider-prompt-mode-map}"
-  ;; 设置语法高亮等
+  ;; syntax highlighting
   (setq-local comment-start "# ")
   (setq-local comment-end "")
   
-  ;; 启用 YASnippet
+  ;; use YASnippet
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
     (aider--setup-snippets)))

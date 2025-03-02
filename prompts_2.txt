@@ -1,65 +1,91 @@
-# 常用提示模板
 
-## 代码解释
-"解释以下代码的详细内容:
-- 它的功能是什么?
-- 它是如何工作的?
-- 主要组件有哪些?
-- 有什么潜在问题或优化空间?"
+I wrote an SOP recently for creating software with the help of LLMs like ChatGPT or Claude. A lot of people found it helpful so I wanted to share some more prompt-related ideas for generating code.
 
-## 代码重构
-"重构以下代码以改进:
-- 可读性
-- 性能
-- 可维护性
-- 错误处理
+The prompts offered below work much better if you set up a proper foundation for your program before-hand (i.e. provide the AI with more context, as detailed in the SOP), so please be sure to take a look at that first if you haven't already.
+My Standard Prompt for Code Generation
 
-保持相同的功能但使其结构更好。"
+Here's my go-to template for requesting code:
 
-## 代码审查
-"审查此代码并提供有关以下方面的反馈:
-- 代码质量
-- 潜在的错误
-- 安全问题
-- 性能问题
-- 最佳实践违规"
+I need to implement [specific functionality] in [programming language].
+Key requirements:
+1. [Requirement 1]
+2. [Requirement 2]
+3. [Requirement 3]
+Please consider:
+- Error handling
+- Edge cases
+- Performance optimization
+- Best practices for [language/framework]
+Please do not unnecessarily remove any comments or code.
+Generate the code with clear comments explaining the logic.
 
-## 错误修复
-"修复代码中的以下错误:
+This structured approach helps the AI understand exactly what you need and consider important aspects that you might forget to mention explicitly.
+Reviewing and Understanding AI-Generated Code
 
-问题描述:
-[在此描述错误]
+Never, ever blindly copy-paste AI-generated code into your project. Ask for an explanation first. Trust me. This will save you considerable debugging time and you will also learn a thing or two in the process. 
 
-预期行为:
-[应该发生什么]
+Here's a prompt I use for getting explanations:
 
-当前行为:
-[实际发生什么]"
+Can you explain the following part of the code in detail:
+[paste code section]
+Specifically:
+1. What is the purpose of this section?
+2. How does it work step-by-step?
+3. Are there any potential issues or limitations with this approach?
 
-## 实现功能
-"实现以下功能:
+Using AI for Code Reviews and Improvements
 
-功能描述:
-[描述功能]
+AI is great for catching issues you might miss and suggesting improvements.
 
-需求:
-- [需求1]
-- [需求2]
-- [需求3]
+Try this prompt for code review:
 
-技术约束:
-[任何技术约束或考虑因素]"
+Please review the following code:
+[paste your code]
+Consider:
+1. Code quality and adherence to best practices
+2. Potential bugs or edge cases
+3. Performance optimizations
+4. Readability and maintainability
+5. Any security concerns
+Suggest improvements and explain your reasoning for each suggestion.
 
-## 单元测试生成
-"为以下代码生成单元测试:
-- 覆盖所有主要功能
-- 包括边缘情况
-- 测试错误处理
-- 目标是高代码覆盖率"
+Prompt Ideas for Various Coding Tasks
 
-## 代码生成
-"生成[语言]代码，实现[功能]。包括:
-- 输入/输出类型
-- 错误处理
-- 详细的内联注释
-- 必要的导入/依赖项"
+For implementing a specific algorithm:
+
+Implement a [name of algorithm] in [programming language]. Please include:
+1. The main function with clear parameter and return types
+2. Helper functions if necessary
+3. Time and space complexity analysis
+4. Example usage
+
+For creating a class or module:
+
+Create a [class/module] for [specific functionality] in [programming language].
+Include:
+1. Constructor/initialization
+2. Main methods with clear docstrings
+3. Any necessary private helper methods
+4. Proper encapsulation and adherence to OOP principles
+
+For optimizing existing code:
+
+Here's a piece of code that needs optimization:
+[paste code]
+Please suggest optimizations to improve its performance. For each suggestion, explain the expected improvement and any trade-offs.
+
+For writing unit tests:
+
+Generate unit tests for the following function:
+[paste function]
+Include tests for:
+1. Normal expected inputs
+2. Edge cases
+3. Invalid inputs
+Use [preferred testing framework] syntax.
+
+I've written a much more detailed guide on creating software with AI-assistance here which you might find more helpful.
+
+As always, I hope this lets you make the most out of your LLM of choice. If you have any suggestions on improving some of these prompts, do let me know!
+
+Happy coding! 
