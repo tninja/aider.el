@@ -94,7 +94,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "#   M-x yas-insert-snippet: Select a snippet and insert here\n")
             (insert "#   M-x yas-expand: Expand the snippet under cursor\n\n")
             (insert "* Sample task:\n\n")
-            (insert "/ask what this repo is about?\n")
+            (insert "/ask explain to me what this repo is about?\n")
             (save-buffer)))
       (message "Not in a git repository"))))
 
