@@ -13,8 +13,10 @@
     - https://github.com/tninja/aider.el/pull/94
   - Add snippets support to aider prompt file
     - Initial snippet came from reddit user LorestForest
+    - https://github.com/tninja/aider.el/pull/101
 
 - Developer side change
+  - https://github.com/tninja/aider.el/pull/101
   - Deprecate aider-minor-mode, use aider-prompt-mode (major-mode) instead
     - aider-prompt-mode inherit from org-mode
   - Large refactoring to aider.el, break it into several small files, to help future development and maintaining
