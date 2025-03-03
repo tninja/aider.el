@@ -91,7 +91,7 @@ The aider prefix is ~A~.
 - Start and open the aider buffer: =[SPC] A o=
 - Add the current file with =[SPC] A a c=
 - Reset the aider session with =[SPC] A r=
-[[file:./doom-menus.png]]
+[[file:./doom_menus.png]]
 
 - *However, transient menu is more recommended than doom menu*, cause I constantly use that one so it is better maintained.
   - Anyone want to contribute to doom menu, feel free to help on it. Thanks.
@@ -120,6 +120,19 @@ You can have helm-based completion with run the following code, after install he
 - ~C-c C-c~ key is for multi-line prompt. The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
 
 [[file:./aider_prompt_file.png]]
+
+** [[./snippets/aider-prompt-mode][Prompt Snippets]]
+
+- Prompts for aider might share similar structure. Yasnippet can be used to help reusing these prompts.
+
+- Aider prompt file now support yasnippet. Current snippets came from [[from https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][this reddit post]] and [[from https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][another reddit post.]]
+
+- You can use
+  - ~M-x yas-describe-tables~ to see the available snippets
+  - ~M-x yas-insert-snippet~ to insert a snippet.
+  - ~M-x yas-expand~ to expand the snippet under cursor.
+
+- Welcome to add more snippets to the [[./snippets/aider-prompt-mode][snippets folder]]!
 
 * Most used features (integrated into the aider menu)
 

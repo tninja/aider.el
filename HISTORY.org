@@ -1,0 +1,34 @@
+
+* Release history
+
+** v0.3.0
+
+- User side change
+  - Menu: Simplify menu to make it fit the screen: Thanks Spike-Leung
+    - Group operations into same menu item. Less used one bind to C-u
+    - https://github.com/tninja/aider.el/pull/93
+  - Improve the mini buffer prompt re-usability
+    - Make the use entered prompt in history more reusable across project.
+    - Highly recommend to use aider-helm.el for better prompt history search experience.
+    - https://github.com/tninja/aider.el/pull/94
+  - Add snippets support to aider prompt file
+    - Initial snippet came from reddit user LorestForest
+    - https://github.com/tninja/aider.el/pull/101
+
+- Developer side change
+  - https://github.com/tninja/aider.el/pull/101
+  - Deprecate aider-minor-mode, use aider-prompt-mode (major-mode) instead
+    - aider-prompt-mode inherit from org-mode
+  - Large refactoring to aider.el, break it into several small files, to help future development and maintaining
+    - aider-core.el: core comint aider session interaction function
+      - also have customize variables
+    - aider-file.el: file operation related functions
+      - depend on aider-core.el
+    - aider-code-change.el: code change related functions
+      - depend on aider-core.el and aider-file.el
+    - aider-discussion.el: discussion related functions
+      - depend on aider-core.el and aider-file.el
+    - aider-prompt-mode.el: major mode for aider prompt file
+      - depend on aider-core
+    - aider.el: aider session management and transient menu
+      - depend on files all above

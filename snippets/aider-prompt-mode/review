@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Code Review
+# key: review
+# contributor: LorestForest, Kang Tu
+# --
+/ask
+Review the following code for potential improvements, bugs, or best practice violations:
+${1:code}

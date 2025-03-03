@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Standard Code Generation
+# key: codegen
+# contributor: LorestForest, Kang Tu
+# --
+/architect
+I need to implement ${1:specific functionality} in ${2:programming language}.
+Key requirements:
+1. ${3:Requirement 1}
+2. ${4:Requirement 2}
+3. ${5:Requirement 3}
+Please consider:
+- Error handling
+- Edge cases
+- Performance optimization
+- Best practices for ${2:language/framework}
+Please do not unnecessarily remove any comments or code.
+Generate the code with clear comments explaining the logic.
