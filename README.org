@@ -91,7 +91,7 @@ The aider prefix is ~A~.
 - Start and open the aider buffer: =[SPC] A o=
 - Add the current file with =[SPC] A a c=
 - Reset the aider session with =[SPC] A r=
-[[file:./doom-menus.png]]
+[[file:./doom_menus.png]]
 
 - *However, transient menu is more recommended than doom menu*, cause I constantly use that one so it is better maintained.
   - Anyone want to contribute to doom menu, feel free to help on it. Thanks.
