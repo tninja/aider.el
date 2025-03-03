@@ -23,10 +23,11 @@ If cursor is inside a function, include the function name as context."
        (string= (buffer-name) (aider-buffer-name)))
     (aider-general-question)
     (let* ((function-name (which-function))
-           (prompt (if function-name 
-                       (format "About function '%s': " function-name)
-                     "Question for the selected region: "
-                     ))
+           (region-active (region-active-p))
+           (prompt (cond
+                    (function-name (format "About function '%s': " function-name))
+                    (region-active "Question for the selected region: ")
+                    (t "Question: ")))
            (raw-question (aider-read-string prompt))
            (question (if function-name
                          (concat prompt raw-question)
