@@ -1,0 +1,27 @@
+
+* Release history
+
+** v0.3.0
+
+- User side change
+  - Improve the prompts for functions.
+    - Make the use entered prompt in history more reusable for other functions.
+  - Add snippets support to aider prompt file
+    - Initial snippet came from reddit user LorestForest
+
+- Developer side change
+  - Deprecate aider-minor-mode, use aider-prompt-mode (major-mode) instead
+    - aider-prompt-mode inherit from org-mode
+  - Large refactoring to aider.el, break it into several small files, to help future development and maintaining
+    - aider-core.el: core comint aider session interaction function
+      - also have customize variables
+    - aider-file.el: file operation related functions
+      - depend on aider-core.el
+    - aider-code-change.el: code change related functions
+      - depend on aider-core.el and aider-file.el
+    - aider-discussion.el: discussion related functions
+      - depend on aider-core.el and aider-file.el
+    - aider-prompt-mode.el: major mode for aider prompt file
+      - depend on aider-core
+    - aider.el: aider session management and transient menu
+      - depend on files all above
