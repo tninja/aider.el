@@ -125,7 +125,7 @@ You can have helm-based completion with run the following code, after install he
 
 - Prompts for aider might share similar structure. Yasnippet can be used to help reusing these prompts.
 
-- Aider prompt file now support yasnippet. Current snippets came from [[from https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][this reddit post]] and [[from https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][another reddit post.]]
+- Aider prompt file now support yasnippet. Current snippets came from [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][this reddit post]] and [[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][another reddit post.]]
 
 - You can use
   - ~M-x yas-describe-tables~ to see the available snippets
