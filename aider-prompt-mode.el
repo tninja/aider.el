@@ -10,6 +10,7 @@
 (require 'org)
 (require 'aider-core)
 
+;;;###autoload
 (defcustom aider-prompt-file-name ".aider.prompt.org"
   "File name that will automatically enable aider-prompt-mode when opened.
 This is the file name without path."
@@ -17,6 +18,7 @@ This is the file name without path."
   :group 'aider)
 
 ;; Define the keymap for Aider Prompt Mode
+;;;###autoload
 (defvar aider-prompt-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)

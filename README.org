@@ -44,7 +44,7 @@
 If you have Straight installed
 #+BEGIN_SRC emacs-lisp
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
     :config
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet"))
@@ -75,7 +75,7 @@ The config part is as same as above straight one
 - Add the following code to your doom/packages.el
 
 #+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-doom.el")))
+(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el")))
 #+END_SRC
 
 - Adjust and add the following code to your doom/config.el
@@ -106,7 +106,7 @@ You can have helm-based completion with run the following code, after install he
 
 #+BEGIN_SRC emacs-lisp
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-helm.el")))
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el" "aider-helm.el")))
 #+END_SRC
 
 *** Aider prompt file
@@ -222,6 +222,9 @@ You can have helm-based completion with run the following code, after install he
 * [[./examples][Example Application written with aider.el]]
 
 * FAQ
+
+- How to review / accept the code change? 
+  - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
 
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
