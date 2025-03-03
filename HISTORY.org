@@ -4,8 +4,13 @@
 ** v0.3.0
 
 - User side change
-  - Improve the prompts for functions.
-    - Make the use entered prompt in history more reusable for other functions.
+  - Menu: Simplify menu to make it fit the screen: Thanks Spike-Leung
+    - Group operations into same menu item. Less used one bind to C-u
+    - https://github.com/tninja/aider.el/pull/93
+  - Improve the mini buffer prompt re-usability
+    - Make the use entered prompt in history more reusable across project.
+    - Highly recommend to use aider-helm.el for better prompt history search experience.
+    - https://github.com/tninja/aider.el/pull/94
   - Add snippets support to aider prompt file
     - Initial snippet came from reddit user LorestForest
 
