@@ -36,7 +36,32 @@ Otherwise, send the line under cursor."
   (if (region-active-p)
       (aider-send-region-by-line)
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) t))))
+      (aider--send-line-with-code-syntax line))))
+
+(defun aider--send-line-with-code-syntax (line)
+  "Trim LINE and send it to the Aider buffer.
+If command contains a filename, open that file in a temp buffer and switch to it."
+  (let ((trimmed-line (string-trim line))
+        (filename-buffer nil))
+    ;; Check if the command contains a filename
+    (let ((filename (aider--extract-filename-from-command trimmed-line)))
+      (when filename
+        ;; If filename found, open it in a temporary buffer
+        (setq filename-buffer (find-file-noselect filename))))
+    
+    ;; Send the command
+    (aider--send-command trimmed-line nil)
+    
+    ;; Switch to the appropriate buffer
+    (aider-switch-to-buffer filename-buffer)))
+
+(defun aider--extract-filename-from-command (command-str)
+  (let ((filename nil))
+    (when (string-match "^/[a-z]+ +\\([^ ]+\\)" (string-trim command-str))
+      (setq filename (match-string 1 command-str))
+      (if (file-exists-p filename)
+          filename
+        nil))))
 
 ;;;###autoload
 (defun aider-send-region-by-line ()
@@ -47,11 +72,11 @@ If no region is selected, show a message."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties 
-                         (region-beginning) 
-                         (region-end))))
+                          (region-beginning) 
+                          (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
-                  (aider--send-command line t)))
+                  (aider--send-line-with-code-syntax line)))
               (split-string region-text "\n" t)))
     (message "No region selected.")))
 
