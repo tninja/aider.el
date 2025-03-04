@@ -20,7 +20,7 @@
   :type 'string
   :group 'aider)
 
-(defcustom aider-args '("--model" "sonnet")
+(defcustom aider-args '()
   "Arguments to pass to the Aider command."
   :type '(repeat string)
   :group 'aider)
