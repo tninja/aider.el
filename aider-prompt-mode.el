@@ -48,10 +48,8 @@ If command contains a filename, open that file in a temp buffer and switch to it
       (when filename
         ;; If filename found, open it in a temporary buffer
         (setq filename-buffer (find-file-noselect filename))))
-    
     ;; Send the command
     (aider--send-command trimmed-line nil)
-    
     ;; Switch to the appropriate buffer
     (aider-switch-to-buffer filename-buffer)))
 
