@@ -40,18 +40,24 @@ Otherwise, send the line under cursor."
 
 (defun aider--send-line-with-code-syntax (line)
   "Trim LINE and send it to the Aider buffer.
-If command contains a filename, open that file in a temp buffer and switch to it."
+If command contains a filename, open that file in a temp buffer,
+inherit syntax highlighting, then close the temporary buffer."
   (let ((trimmed-line (string-trim line))
         (filename-buffer nil))
-    ;; Check if the command contains a filename
-    (let ((filename (aider--extract-filename-from-command trimmed-line)))
-      (when filename
-        ;; If filename found, open it in a temporary buffer
-        (setq filename-buffer (find-file-noselect filename))))
-    ;; Send the command
-    (aider--send-command trimmed-line nil)
-    ;; Switch to the appropriate buffer
-    (aider-switch-to-buffer filename-buffer)))
+    (unwind-protect
+        (progn
+          ;; Check if the command contains a filename
+          (let ((filename (aider--extract-filename-from-command trimmed-line)))
+            (when filename
+              ;; If filename found, open it in a temporary buffer
+              (setq filename-buffer (find-file-noselect filename))))
+          ;; Send the command
+          (aider--send-command trimmed-line nil)
+          ;; Switch to aider buffer with syntax highlighting from filename-buffer
+          (aider-switch-to-buffer filename-buffer))
+      ;; Clean up: kill the temporary buffer if it exists
+      (when (and filename-buffer (buffer-live-p filename-buffer))
+        (kill-buffer filename-buffer)))))
 
 (defun aider--extract-filename-from-command (command-str)
   (let ((filename nil))
