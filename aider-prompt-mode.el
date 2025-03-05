@@ -210,13 +210,14 @@ If the last character in the current line is '/', invoke completion-at-point."
 
 (defun aider-prompt--auto-trigger-file-path-insertion ()
   "Automatically trigger file path insertion in aider prompt mode.
-If the current line matches one of the file-related commands followed by a space,
+If the current line matches one of the file-related commands followed by a space or comma,
 invoke aider-prompt-insert-file-path."
   (when (and (not (minibufferp))
              (> (point) (line-beginning-position))
-             (eq (char-before) ?\s)) ; Check if last char is space
+             (or (eq (char-before) ?\s)  ; Check if last char is space
+                 (eq (char-before) ?,))) ; or comma
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) " line-content)
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
         (aider-prompt-insert-file-path)))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
