@@ -147,25 +147,17 @@ If file doesn't exist, create it with command binding help and sample prompt."
                          "/run" "/save" "/settings" "/test" "/tokens" "/undo" "/voice"
                          "/web")))
     
-    ;; Create font lock keywords
-    (setq-local font-lock-keywords
-                `(
-                  ;; Green commands
-                  (,(regexp-opt green-commands) 
-                   . 'font-lock-keyword-face)
-                  
-                  ;; Red commands
-                  (,(regexp-opt red-commands)
-                   . 'font-lock-warning-face)
-                   
-                  ;; Blue commands  
-                  (,(regexp-opt blue-commands)
-                   . 'font-lock-type-face)
-                  ))
+    ;; Append custom font lock keywords to org-mode's defaults
+    (font-lock-add-keywords nil
+     `((,(regexp-opt green-commands) . font-lock-keyword-face)
+       (,(regexp-opt red-commands) . font-lock-warning-face)
+       (,(regexp-opt blue-commands) . font-lock-type-face)))
     
-    ;; Force font lock to refresh
-    (font-lock-flush)
-    (font-lock-ensure)))
+    ;; Force font lock refresh
+    (when (fboundp 'font-lock-flush)
+      (font-lock-flush))
+    (when (fboundp 'font-lock-ensure)
+      (font-lock-ensure)))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
