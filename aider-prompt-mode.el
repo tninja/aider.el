@@ -140,12 +140,11 @@ If file doesn't exist, create it with command binding help and sample prompt."
 
 (defun aider-prompt-mode-setup-font-lock ()
   "Setup custom font lock for aider commands."
-  (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context" 
-                          "/drop" "/paste" "/help"
-                          "/chat-mode" "/diff" "/editor" "/git" "/load" "/ls" "/map"
-                          "/map-refresh" "/model" "/models" "/multiline-mode" "/report"
-                          "/run" "/save" "/settings" "/test" "/tokens" "/voice"
-                          "/web"))
+  (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
+                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
+                           "/tokens" "/voice" "/web"))
         (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
     
     ;; Append custom font lock keywords to org-mode's defaults
