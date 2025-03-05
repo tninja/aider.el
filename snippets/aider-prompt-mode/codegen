@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Standard Code Generation
 # key: codegen
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
 /architect
 I need to implement ${1:specific functionality} in ${2:programming language}.

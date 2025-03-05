@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Code Optimization
 # key: optimize
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
 /architect
 Here's a piece of code that needs optimization:
