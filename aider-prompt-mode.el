@@ -175,6 +175,36 @@ The user is presented with a find-file–like interface. Only existing files can
         (insert file)
       (message "No valid file selected."))))
 
+;; Insert command completion functions for aider-prompt-mode
+(defun aider-prompt--command-completion ()
+  "Provide auto completion for common commands in aider prompt files.
+When the current line starts with '/', this function returns a candidate list
+of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
+  (save-excursion
+    (let* ((line-start (line-beginning-position))
+           (line-end (line-end-position))
+           (line-str (buffer-substring-no-properties line-start line-end)))
+      (when (string-match "^/\\(\\w*\\)" line-str)
+        (let* ((beg (+ line-start (match-beginning 0)))
+               (end (+ line-start (match-end 0)))
+               (commands '("/add" "/ask" "/drop" "/clear" "/commit" "/exit" "/help" "/load" "/ls" "/map" "/run"))
+               (prefix (match-string 0 line-str))
+               (candidates (seq-filter (lambda (cmd)
+                                         (string-prefix-p prefix cmd))
+                                       commands)))
+          (when candidates
+            (list beg end candidates :exclusive 'no)))))))
+
+(defun aider-prompt--auto-trigger-command-completion ()
+  "Automatically trigger command completion in aider prompt mode.
+If the current line starts with '/' followed by word characters,
+this function will invoke completion-at-point."
+  (when (and (not (minibufferp))
+             (save-excursion
+               (beginning-of-line)
+               (looking-at "/\\w*")))
+    (completion-at-point)))
+
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
 (define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
