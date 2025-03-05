@@ -140,24 +140,23 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (defun aider-prompt-mode-setup-font-lock ()
   "Setup custom font lock for aider commands."
   (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context" 
-                          "/drop" "/paste" "/help" "/lint"))
-        (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset"))
-        (blue-commands '("/chat-mode" "/diff" "/editor" "/git" "/load" "/ls" "/map"
-                         "/map-refresh" "/model" "/models" "/multiline-mode" "/report"
-                         "/run" "/save" "/settings" "/test" "/tokens" "/undo" "/voice"
-                         "/web")))
+                          "/drop" "/paste" "/help"
+                          "/chat-mode" "/diff" "/editor" "/git" "/load" "/ls" "/map"
+                          "/map-refresh" "/model" "/models" "/multiline-mode" "/report"
+                          "/run" "/save" "/settings" "/test" "/tokens" "/voice"
+                          "/web"))
+        (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
     
     ;; Append custom font lock keywords to org-mode's defaults
     (font-lock-add-keywords nil
-     `((,(regexp-opt green-commands) . font-lock-keyword-face)
-       (,(regexp-opt red-commands) . font-lock-warning-face)
-       (,(regexp-opt blue-commands) . font-lock-type-face)))
+     `((,(regexp-opt green-commands) . font-lock-type-face)
+       (,(regexp-opt red-commands) . font-lock-warning-face)))
     
     ;; Force font lock refresh
     (when (fboundp 'font-lock-flush)
       (font-lock-flush))
     (when (fboundp 'font-lock-ensure)
-      (font-lock-ensure)))
+      (font-lock-ensure))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
