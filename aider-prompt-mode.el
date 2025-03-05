@@ -25,6 +25,10 @@ This is the file name without path."
     (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-i") 'aider-prompt-insert-file-path)
+    ;; Classic keybindings for Yasnippet functions:
+    (define-key map (kbd "C-c y d") 'yas-describe-tables)
+    (define-key map (kbd "C-c y i") 'yas-insert-snippet)
+    (define-key map (kbd "C-c y e") 'yas-expand)
     map)
   "Keymap for Aider Prompt Mode.")
 
