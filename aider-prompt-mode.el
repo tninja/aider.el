@@ -202,12 +202,10 @@ of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
 
 (defun aider-prompt--auto-trigger-command-completion ()
   "Automatically trigger command completion in aider prompt mode.
-If the current line starts with '/' followed by word characters,
-this function will invoke completion-at-point."
+If the last character in the current line is '/', invoke completion-at-point."
   (when (and (not (minibufferp))
-             (save-excursion
-               (beginning-of-line)
-               (looking-at "/\\w*")))
+             (> (point) (line-beginning-position))
+             (eq (char-before) ?/))
     (completion-at-point)))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
