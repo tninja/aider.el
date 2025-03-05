@@ -24,6 +24,7 @@ This is the file name without path."
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
+    (define-key map (kbd "C-c C-i") 'aider-prompt-insert-file-path)
     map)
   "Keymap for Aider Prompt Mode.")
 
@@ -116,6 +117,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
+            (insert "# Edit command:\n")
+            (insert "#   C-c C-i: Insert file path under cursor (eg. for command like /add, /read-only)\n")
             (insert "# Command to interact with aider session:\n")
             (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
