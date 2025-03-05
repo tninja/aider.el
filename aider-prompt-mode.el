@@ -215,10 +215,9 @@ invoke aider-prompt-insert-file-path."
   (when (and (not (minibufferp))
              (> (point) (line-beginning-position))
              (eq (char-before) ?\s)) ; Check if last char is space
-    (save-excursion
-      (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-        (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
-          (aider-prompt-insert-file-path))))))
+    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) " line-content)
+        (aider-prompt-insert-file-path)))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
