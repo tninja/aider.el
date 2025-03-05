@@ -151,7 +151,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
                            "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
                            "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-                           "/tokens" "/voice" "/web"))
+                           "/tokens" "/voice" "/web" "go ahead"))
         (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
     
     ;; Append custom font lock keywords to org-mode's defaults
