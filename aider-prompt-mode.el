@@ -137,39 +137,50 @@ If file doesn't exist, create it with command binding help and sample prompt."
       (add-to-list 'yas-snippet-dirs snippet-dir t)
       (yas-load-directory snippet-dir))))
 
+(defun aider-prompt-mode-setup-font-lock ()
+  "Setup custom font lock for aider commands."
+  (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context" 
+                          "/drop" "/paste" "/help" "/lint"))
+        (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset"))
+        (blue-commands '("/chat-mode" "/diff" "/editor" "/git" "/load" "/ls" "/map"
+                         "/map-refresh" "/model" "/models" "/multiline-mode" "/report"
+                         "/run" "/save" "/settings" "/test" "/tokens" "/undo" "/voice"
+                         "/web")))
+    
+    ;; Create font lock keywords
+    (setq-local font-lock-keywords
+                `(
+                  ;; Green commands
+                  (,(regexp-opt green-commands 'symbols) 
+                   . 'font-lock-keyword-face)
+                  
+                  ;; Red commands
+                  (,(regexp-opt red-commands 'symbols)
+                   . 'font-lock-warning-face)
+                   
+                  ;; Blue commands  
+                  (,(regexp-opt blue-commands 'symbols)
+                   . 'font-lock-type-face)
+                  ))
+    
+    ;; Force font lock to refresh
+    (font-lock-flush)
+    (font-lock-ensure)))
+
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
 (define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
   "Major mode derived from org-mode for editing aider prompt files.
 Special commands:
 \\{aider-prompt-mode-map}"
-  ;; syntax highlighting
+  ;; Basic setup
   (setq-local comment-start "# ")
   (setq-local comment-end "")
   
-  ;; Custom syntax highlighting for aider commands
-  (setq aider-prompt-mode-font-lock-keywords
-        `(
-          ;; Green commands
-          (,(regexp-opt '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context" 
-                          "/drop" "/paste" "/help" "/lint") 'words)
-          . font-lock-keyword-face)
-          
-          ;; Red commands  
-          (,(regexp-opt '("/clear" "/code" "/commit" "/exit" "/quit" "/reset") 'words)
-           . font-lock-warning-face)
-           
-          ;; Blue commands
-          (,(regexp-opt '("/chat-mode" "/diff" "/editor" "/git" "/load" "/ls" "/map"
-                          "/map-refresh" "/model" "/models" "/multiline-mode" "/report"
-                          "/run" "/save" "/settings" "/test" "/tokens" "/undo" "/voice"
-                          "/web") 'words)
-           . font-lock-type-face)
-          ))
+  ;; Setup font lock
+  (aider-prompt-mode-setup-font-lock)
   
-  (setq font-lock-defaults '(aider-prompt-mode-font-lock-keywords))
-  
-  ;; use YASnippet
+  ;; YASnippet support
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
     (aider--setup-snippets)))
