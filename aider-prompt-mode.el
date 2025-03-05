@@ -151,15 +151,15 @@ If file doesn't exist, create it with command binding help and sample prompt."
     (setq-local font-lock-keywords
                 `(
                   ;; Green commands
-                  (,(regexp-opt green-commands 'symbols) 
+                  (,(regexp-opt green-commands) 
                    . 'font-lock-keyword-face)
                   
                   ;; Red commands
-                  (,(regexp-opt red-commands 'symbols)
+                  (,(regexp-opt red-commands)
                    . 'font-lock-warning-face)
                    
                   ;; Blue commands  
-                  (,(regexp-opt blue-commands 'symbols)
+                  (,(regexp-opt blue-commands)
                    . 'font-lock-type-face)
                   ))
     
