@@ -208,6 +208,18 @@ If the last character in the current line is '/', invoke completion-at-point."
              (eq (char-before) ?/))
     (completion-at-point)))
 
+(defun aider-prompt--auto-trigger-file-path-insertion ()
+  "Automatically trigger file path insertion in aider prompt mode.
+If the current line matches one of the file-related commands followed by a space,
+invoke aider-prompt-insert-file-path."
+  (when (and (not (minibufferp))
+             (> (point) (line-beginning-position))
+             (eq (char-before) ?\s)) ; Check if last char is space
+    (save-excursion
+      (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+        (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
+          (aider-prompt-insert-file-path))))))
+
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
 (define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
@@ -228,7 +240,9 @@ Special commands:
   
   ;; Automatically add command completion for common commands.
   (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
-  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t))
+  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t)
+  ;; Automatically trigger file path insertion for file-related commands
+  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-file-path-insertion nil t))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 
