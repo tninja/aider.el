@@ -146,6 +146,29 @@ Special commands:
   ;; syntax highlighting
   (setq-local comment-start "# ")
   (setq-local comment-end "")
+  
+  ;; Custom syntax highlighting for aider commands
+  (setq aider-prompt-mode-font-lock-keywords
+        `(
+          ;; Green commands
+          (,(regexp-opt '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context" 
+                          "/drop" "/paste" "/help" "/lint") 'words)
+          . font-lock-keyword-face)
+          
+          ;; Red commands  
+          (,(regexp-opt '("/clear" "/code" "/commit" "/exit" "/quit" "/reset") 'words)
+           . font-lock-warning-face)
+           
+          ;; Blue commands
+          (,(regexp-opt '("/chat-mode" "/diff" "/editor" "/git" "/load" "/ls" "/map"
+                          "/map-refresh" "/model" "/models" "/multiline-mode" "/report"
+                          "/run" "/save" "/settings" "/test" "/tokens" "/undo" "/voice"
+                          "/web") 'words)
+           . font-lock-type-face)
+          ))
+  
+  (setq font-lock-defaults '(aider-prompt-mode-font-lock-keywords))
+  
   ;; use YASnippet
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
