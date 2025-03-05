@@ -158,7 +158,15 @@ If file doesn't exist, create it with command binding help and sample prompt."
     (when (fboundp 'font-lock-ensure)
       (font-lock-ensure))))
 
-;; I want to have an interactive function, when it got triggered, it will ask user to enter filename through function similar to find-file, and it support completion. after it selected a existing file, the function will insert the file name under cursor
+;;;###autoload
+(defun aider-prompt-insert-file-path ()
+  "Prompt for a file path with completion and insert the selected file name at point.
+The user is presented with a find-file–like interface. Only existing files can be selected."
+  (interactive)
+  (let ((file (read-file-name "Select file: " nil nil t)))
+    (if (and file (file-exists-p file))
+        (insert file)
+      (message "No valid file selected."))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
