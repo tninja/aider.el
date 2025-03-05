@@ -191,7 +191,11 @@ Special commands:
   ;; YASnippet support
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
-    (aider--setup-snippets)))
+    (aider--setup-snippets))
+  
+  ;; Automatically add command completion for common commands.
+  (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
+  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 
