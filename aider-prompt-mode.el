@@ -168,11 +168,16 @@ If file doesn't exist, create it with command binding help and sample prompt."
 ;;;###autoload
 (defun aider-prompt-insert-file-path ()
   "Prompt for a file path with completion and insert the selected file name at point.
-The user is presented with a find-file–like interface. Only existing files can be selected."
+The user is presented with a find-file–like interface. Only existing files can be selected.
+The path inserted will be relative to the git repository root."
   (interactive)
-  (let ((file (read-file-name "Select file: " nil nil t)))
+  (let* ((git-root (magit-toplevel))
+         (file (read-file-name "Select file: " git-root nil t)))
     (if (and file (file-exists-p file))
-        (insert file)
+        (let ((relative-path (if git-root
+                                (file-relative-name file git-root)
+                              file)))
+          (insert relative-path))
       (message "No valid file selected."))))
 
 ;; Insert command completion functions for aider-prompt-mode
