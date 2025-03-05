@@ -158,6 +158,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
     (when (fboundp 'font-lock-ensure)
       (font-lock-ensure))))
 
+;; I want to have an interactive function, when it got triggered, it will ask user to enter filename through function similar to find-file, and it support completion. after it selected a existing file, the function will insert the file name under cursor
+
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
 (define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
