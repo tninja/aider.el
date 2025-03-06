@@ -134,14 +134,16 @@ COMMAND should be a string representing the command to send."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
-(defun aider-switch-to-buffer ()
+(defun aider-switch-to-buffer (&optional source-buffer)
   "Switch to the Aider buffer.
 When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame.
-If the current buffer is already the Aider buffer, do nothing."
+If the current buffer is already the Aider buffer, do nothing.
+Optional SOURCE-BUFFER specifies the buffer to inherit syntax highlighting from;
+if nil, use current buffer."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (let ((source-buffer (current-buffer)))
+    (let ((source-buffer (or source-buffer (current-buffer))))
       (if-let ((buffer (get-buffer (aider-buffer-name))))
           (progn
             (if aider--switch-to-buffer-other-frame

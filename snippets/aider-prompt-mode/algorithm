@@ -1,9 +1,9 @@
 # -*- mode: snippet -*-
 # name: Algorithm Implementation
 # key: algorithm
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
-/architect
+/ask
 Implement a ${1:name of algorithm} in ${2:programming language}. Please include:
 1. The main function with clear parameter and return types
 2. Helper functions if necessary

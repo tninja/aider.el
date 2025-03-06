@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: refactor-code
+# key: refactor
+# contributor: Matic Vertačnik
+# --
+/ask I have a piece of code and I need you do a refactor of it:
+$0

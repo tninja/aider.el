@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: architecture-diagram
+# key: archdiagram
+# contributor: Matic Vertačnik
+# --
+/ask Write the Mermaid code for an architecture diagram for this solution:
+$0

@@ -24,6 +24,11 @@ This is the file name without path."
     (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
+    (define-key map (kbd "C-c C-i") 'aider-prompt-insert-file-path)
+    ;; Classic keybindings for Yasnippet functions:
+    (define-key map (kbd "C-c y d") 'yas-describe-tables)
+    (define-key map (kbd "C-c y i") 'yas-insert-snippet)
+    (define-key map (kbd "C-c y e") 'yas-expand)
     map)
   "Keymap for Aider Prompt Mode.")
 
@@ -36,7 +41,36 @@ Otherwise, send the line under cursor."
   (if (region-active-p)
       (aider-send-region-by-line)
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) t))))
+      (aider--send-line-with-code-syntax line))))
+
+(defun aider--send-line-with-code-syntax (line)
+  "Trim LINE and send it to the Aider buffer.
+If command contains a filename, open that file in a temp buffer,
+inherit syntax highlighting, then close the temporary buffer."
+  (let ((trimmed-line (string-trim line))
+        (filename-buffer nil))
+    (unwind-protect
+        (progn
+          ;; Check if the command contains a filename
+          (let ((filename (aider--extract-filename-from-command trimmed-line)))
+            (when filename
+              ;; If filename found, open it in a temporary buffer
+              (setq filename-buffer (find-file-noselect filename))))
+          ;; Send the command
+          (aider--send-command trimmed-line nil)
+          ;; Switch to aider buffer with syntax highlighting from filename-buffer
+          (aider-switch-to-buffer filename-buffer))
+      ;; Clean up: kill the temporary buffer if it exists
+      (when (and filename-buffer (buffer-live-p filename-buffer))
+        (kill-buffer filename-buffer)))))
+
+(defun aider--extract-filename-from-command (command-str)
+  (let ((filename nil))
+    (when (string-match "^/[a-z]+ +\\([^ ]+\\)" (string-trim command-str))
+      (setq filename (match-string 1 command-str))
+      (if (file-exists-p filename)
+          filename
+        nil))))
 
 ;;;###autoload
 (defun aider-send-region-by-line ()
@@ -47,11 +81,11 @@ If no region is selected, show a message."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties 
-                         (region-beginning) 
-                         (region-end))))
+                          (region-beginning) 
+                          (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
-                  (aider--send-command line t)))
+                  (aider--send-line-with-code-syntax line)))
               (split-string region-text "\n" t)))
     (message "No region selected.")))
 
@@ -87,14 +121,17 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (unless (file-exists-p prompt-file)
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
+            (insert "# Edit command:\n")
+            (insert "#   C-c C-i: Insert file path under cursor\n")
             (insert "# Command to interact with aider session:\n")
             (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
             (insert "#   C-c C-z: Switch to aider buffer\n")
-            (insert "# If you have yasnippet installed:\n")
-            (insert "#   M-x yas-describe-tables: Show available snippets\n")
-            (insert "#   M-x yas-insert-snippet: Select a snippet and insert here\n")
-            (insert "#   M-x yas-expand: Expand the snippet under cursor\n\n")
+            (insert "# If you have yasnippet installed, use these keybindings to access snippet functions in aider-prompt-mode:\n")
+            (insert "#   C-c y d: Show available snippets (yas-describe-tables)\n")
+            (insert "#   C-c y i: Insert a snippet (yas-insert-snippet)\n")
+            (insert "#   C-c y e: Expand snippet at cursor (yas-expand)\n")
+            (insert "# Aider command reference: https://aider.chat/docs/usage/commands.html\n\n")
             (insert "* Sample task:\n\n")
             (insert "/ask explain to me what this repo is about?\n")
             (save-buffer)))
@@ -108,19 +145,107 @@ If file doesn't exist, create it with command binding help and sample prompt."
       (add-to-list 'yas-snippet-dirs snippet-dir t)
       (yas-load-directory snippet-dir))))
 
+(defun aider-prompt-mode-setup-font-lock ()
+  "Setup custom font lock for aider commands."
+  (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
+                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
+                           "/tokens" "/voice" "/web" "go ahead"))
+        (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
+    
+    ;; Append custom font lock keywords to org-mode's defaults
+    (font-lock-add-keywords nil
+     `((,(regexp-opt green-commands) . font-lock-type-face)
+       (,(regexp-opt red-commands) . font-lock-warning-face)))
+    
+    ;; Force font lock refresh
+    (when (fboundp 'font-lock-flush)
+      (font-lock-flush))
+    (when (fboundp 'font-lock-ensure)
+      (font-lock-ensure))))
+
+;;;###autoload
+(defun aider-prompt-insert-file-path ()
+  "Prompt for a file path with completion and insert the selected file name at point.
+The user is presented with a find-file–like interface. Only existing files can be selected.
+The path inserted will be relative to the git repository root."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (file (read-file-name "Select file: " git-root nil t)))
+    (if (and file (file-exists-p file))
+        (let ((relative-path (if git-root
+                                (file-relative-name file git-root)
+                              file)))
+          (insert relative-path))
+      (message "No valid file selected."))))
+
+;; Insert command completion functions for aider-prompt-mode
+(defun aider-prompt--command-completion ()
+  "Provide auto completion for common commands in aider prompt files.
+When the current line starts with '/', this function returns a candidate list
+of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
+  (save-excursion
+    (let* ((line-start (line-beginning-position))
+           (line-end (line-end-position))
+           (line-str (buffer-substring-no-properties line-start line-end)))
+      (when (string-match "^/\\(\\w*\\)" line-str)
+        (let* ((beg (+ line-start (match-beginning 0)))
+               (end (+ line-start (match-end 0)))
+               (commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
+                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
+                           "/tokens" "/voice" "/web"
+                           "/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint"))
+               (prefix (match-string 0 line-str))
+               (candidates (seq-filter (lambda (cmd)
+                                         (string-prefix-p prefix cmd))
+                                       commands)))
+          (when candidates
+            (list beg end candidates :exclusive 'no)))))))
+
+(defun aider-prompt--auto-trigger-command-completion ()
+  "Automatically trigger command completion in aider prompt mode.
+If the last character in the current line is '/', invoke completion-at-point."
+  (when (and (not (minibufferp))
+             (> (point) (line-beginning-position))
+             (eq (char-before) ?/))
+    (completion-at-point)))
+
+(defun aider-prompt--auto-trigger-file-path-insertion ()
+  "Automatically trigger file path insertion in aider prompt mode.
+If the current line matches one of the file-related commands followed by a space or comma,
+invoke aider-prompt-insert-file-path."
+  (when (and (not (minibufferp))
+             (> (point) (line-beginning-position))
+             (or (eq (char-before) ?\s)  ; Check if last char is space
+                 (eq (char-before) ?,))) ; or comma
+    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
+        (aider-prompt-insert-file-path)))))
+
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
 (define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
   "Major mode derived from org-mode for editing aider prompt files.
 Special commands:
 \\{aider-prompt-mode-map}"
-  ;; syntax highlighting
+  ;; Basic setup
   (setq-local comment-start "# ")
   (setq-local comment-end "")
-  ;; use YASnippet
+  ;; Setup font lock
+  (aider-prompt-mode-setup-font-lock)
+  (setq-local truncate-lines nil)  ; Disable line truncation, allowing lines to wrap
+  ;; YASnippet support
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
-    (aider--setup-snippets)))
+    (aider--setup-snippets))
+  ;; Automatically add command completion for common commands.
+  (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
+  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t)
+  ;; Automatically trigger file path insertion for file-related commands
+  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-file-path-insertion nil t))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 

@@ -1,9 +1,9 @@
 # -*- mode: snippet -*-
 # name: Class/Module Creation
 # key: class
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
-/architect
+/ask
 Create a ${1:class/module} for ${2:specific functionality} in ${3:programming language}.
 Include:
 1. Constructor/initialization

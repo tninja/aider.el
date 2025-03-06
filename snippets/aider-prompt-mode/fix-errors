@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: fix-errors
+# key: fixerrors
+# contributor: Matic Vertačnik
+# --
+/ask Review this code for errors and refactor to fix any issues:
+$0

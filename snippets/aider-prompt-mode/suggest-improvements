@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: suggest-improvements
+# key: improve
+# contributor: Matic Vertačnik
+# --
+/ask I'm working on a project and I need you to review my code and suggest improvements:
+$0

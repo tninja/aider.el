@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: write-regex
+# key: regex
+# contributor: Matic Vertačnik
+# --
+/ask Write a regular expression that matches:
+$0

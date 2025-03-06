@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # name: Debug Help
 # key: debug
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
 /ask
 I'm experiencing the following bug: ${1:describe the bug}

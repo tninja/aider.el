@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: entity-relationship-diagram
+# key: erdiagram
+# contributor: Matic Vertačnik
+# --
+/ask Write the Mermaid code for an entity relationship diagram for these classes:
+$0

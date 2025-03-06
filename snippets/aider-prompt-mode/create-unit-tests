@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: create-unit-tests
+# key: unittest
+# contributor: Matic Vertačnik
+# --
+/ask Please write unit tests for the following code to ensure its proper functioning:
+$0

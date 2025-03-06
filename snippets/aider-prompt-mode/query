@@ -1,8 +1,8 @@
 # -*- mode: snippet -*-
 # name: SQL Query Optimization
 # key: query
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
-/architect
+/ask
 Generate an optimized SQL query to ${1:describe the query goal}.
 Consider performance and explain your optimization choices.

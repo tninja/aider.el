@@ -1,9 +1,9 @@
 # -*- mode: snippet -*-
 # name: Generate Unit Tests
 # key: unit-tests
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
-/architect
+/ask
 Generate unit tests for the following function:
 ${1:function}
 Include tests for:

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: generate-readme
+# key: readme
+# contributor: Matic Vertačnik
+# --
+/ask Generate documentation for the code below. You should include detailed instructions to allow a developer to run it on a local machine, explain what the code does, and list vulnerabilities that exist in this code.
+$0

@@ -1,9 +1,9 @@
 # -*- mode: snippet -*-
 # name: Database Schema
 # key: schema
-# contributor: LorestForest, Kang Tu
+# contributor: LorestForest
 # --
-/architect
+/ask
 Generate a database schema for ${1:data model description}.
 Include:
 Table definitions
