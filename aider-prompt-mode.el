@@ -219,8 +219,7 @@ If the current line matches one of the file-related commands followed by a space
 invoke aider-prompt-insert-file-path."
   (when (and (not (minibufferp))
              (> (point) (line-beginning-position))
-             (or (eq (char-before) ?\s)  ; Check if last char is space
-                 (eq (char-before) ?,))) ; or comma
+             (eq (char-before) ?\s))  ; Check if last char is space
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
         (aider-prompt-insert-file-path)))))
