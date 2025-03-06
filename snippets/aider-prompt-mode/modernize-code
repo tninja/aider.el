@@ -3,5 +3,5 @@
 # key: modernize
 # contributor: Matic Vertačnik
 # --
-/architect Review the following code and re-write it to modern es6 programming standards and formatting:
+/ask Review the following code and re-write it to modern es6 programming standards and formatting:
 $0

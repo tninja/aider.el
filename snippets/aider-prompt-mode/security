@@ -3,6 +3,6 @@
 # key: security
 # contributor: LorestForest
 # --
-/architect
-Review the following code/architecture for potential security vulnerabilities and suggest improvements:
+/ask
+Review the following code/askure for potential security vulnerabilities and suggest improvements:
 ${1:code or architecture description}

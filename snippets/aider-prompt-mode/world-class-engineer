@@ -3,5 +3,5 @@
 # key: engineer
 # contributor: Matic Vertačnik
 # --
-/architect You are a world-class software engineer. I need you to draft a technical software spec for building the following:
+/ask You are a world-class software engineer. I need you to draft a technical software spec for building the following:
 $0

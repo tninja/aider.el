@@ -3,5 +3,5 @@
 # key: transpile
 # contributor: Matic Vertačnik
 # --
-/architect Rewrite the following code in the target language:
+/ask Rewrite the following code in the target language:
 $0

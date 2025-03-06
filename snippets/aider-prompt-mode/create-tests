@@ -3,5 +3,5 @@
 # key: tests
 # contributor: Matic Vertačnik
 # --
-/architect Create two tests for the above function. One that is expected to pass and one that is expected to fail.
+/ask Create two tests for the above function. One that is expected to pass and one that is expected to fail.
 $0

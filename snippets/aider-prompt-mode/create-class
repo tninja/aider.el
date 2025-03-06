@@ -3,5 +3,5 @@
 # key: class
 # contributor: Matic Vertačnik
 # --
-/architect Create a class from this JSON object:
+/ask Create a class from this JSON object:
 $0

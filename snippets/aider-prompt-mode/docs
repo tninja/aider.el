@@ -3,7 +3,7 @@
 # key: docs
 # contributor: LorestForest
 # --
-/architect
+/ask
 Based on the code and our discussions, generate the following documentation:
 README file section for ${1:component}
 API documentation (if applicable)
