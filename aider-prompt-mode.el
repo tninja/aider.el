@@ -122,7 +122,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
             (insert "# Edit command:\n")
-            (insert "#   C-c C-i: Insert file path under cursor (eg. for command like /add, /read-only)\n")
+            (insert "#   C-c C-i: Insert file path under cursor\n")
             (insert "# Command to interact with aider session:\n")
             (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
