@@ -234,15 +234,13 @@ Special commands:
   ;; Basic setup
   (setq-local comment-start "# ")
   (setq-local comment-end "")
-  
   ;; Setup font lock
   (aider-prompt-mode-setup-font-lock)
-  
+  (setq-local truncate-lines nil)  ; Disable line truncation, allowing lines to wrap
   ;; YASnippet support
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
     (aider--setup-snippets))
-  
   ;; Automatically add command completion for common commands.
   (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t)
