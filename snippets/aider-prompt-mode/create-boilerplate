@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: create-boilerplate
+# key: boilerplate
+# contributor: Matic Vertačnik
+# --
+/ask Write me a boilerplate code that will:
+$0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: add-comments
+# key: comments
+# contributor: Matic Vertačnik
+# --
+/ask Add comments to the following code:
+$0

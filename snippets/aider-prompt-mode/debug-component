@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: debug-component
+# key: debug
+# contributor: Matic Vertačnik
+# --
+/ask Please find and fix the bug in the component that is causing the following issue:
+$0

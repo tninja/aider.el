@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: improve-performance
+# key: performance
+# contributor: Matic Vertačnik
+# --
+/ask Refactor the following code to improve performance:
+$0

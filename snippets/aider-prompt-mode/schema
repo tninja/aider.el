@@ -3,7 +3,7 @@
 # key: schema
 # contributor: LorestForest
 # --
-/architect
+/ask
 Generate a database schema for ${1:data model description}.
 Include:
 Table definitions

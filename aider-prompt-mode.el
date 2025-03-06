@@ -122,7 +122,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
             (insert "# Edit command:\n")
-            (insert "#   C-c C-i: Insert file path under cursor (eg. for command like /add, /read-only)\n")
+            (insert "#   C-c C-i: Insert file path under cursor\n")
             (insert "# Command to interact with aider session:\n")
             (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
@@ -219,8 +219,7 @@ If the current line matches one of the file-related commands followed by a space
 invoke aider-prompt-insert-file-path."
   (when (and (not (minibufferp))
              (> (point) (line-beginning-position))
-             (or (eq (char-before) ?\s)  ; Check if last char is space
-                 (eq (char-before) ?,))) ; or comma
+             (eq (char-before) ?\s))  ; Check if last char is space
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
         (aider-prompt-insert-file-path)))))
@@ -234,15 +233,13 @@ Special commands:
   ;; Basic setup
   (setq-local comment-start "# ")
   (setq-local comment-end "")
-  
   ;; Setup font lock
   (aider-prompt-mode-setup-font-lock)
-  
+  (setq-local truncate-lines nil)  ; Disable line truncation, allowing lines to wrap
   ;; YASnippet support
   (when (require 'yasnippet nil t)
     (yas-minor-mode 1)
     (aider--setup-snippets))
-  
   ;; Automatically add command completion for common commands.
   (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t)

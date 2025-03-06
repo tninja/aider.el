@@ -3,7 +3,7 @@
 # key: design
 # contributor: LorestForest
 # --
-/architect
+/ask
 Think step-by-step about the design and architecture for ${1:component name}. Consider:
 Data flow
 Key functions or classes

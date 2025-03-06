@@ -3,7 +3,7 @@
 # key: optimize
 # contributor: LorestForest
 # --
-/architect
+/ask
 Here's a piece of code that needs optimization:
 ${1:code}
 Please suggest optimizations to improve its performance. For each suggestion, explain the expected improvement and any trade-offs.

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: create-function
+# key: function
+# contributor: Matic Vertačnik
+# --
+/ask Create a function that does the following:
+$0

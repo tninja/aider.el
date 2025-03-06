@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: create-class
+# key: class
+# contributor: Matic Vertačnik
+# --
+/ask Create a class from this JSON object:
+$0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: add-parameter
+# key: addparam
+# contributor: Matic Vertačnik
+# --
+/ask Add a parameter to this function to do the following functionality:
+$0

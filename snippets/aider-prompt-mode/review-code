@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: review-code
+# key: review
+# contributor: Matic Vertačnik
+# --
+/ask Review the provided code for any logical or security concerns and provide a list of recommendations.
+$0
