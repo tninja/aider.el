@@ -130,8 +130,7 @@ With the universal argument, prompt to edit aider-args before running."
   (interactive "P")
   (if clear
       (aider-clear-buffer)
-    (aider--send-command "/reset")
-    ))
+    (aider--send-command "/reset")))
 
 ;;;###autoload
 (defun aider-exit ()
@@ -159,8 +158,7 @@ Prompts user to select from a list of available commands:
     (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map" 
                        "/map-refresh" "/paste" "/settings" "/tokens"))
            (command (completing-read "Select command: " commands nil t)))
-      (aider--send-command command t))
-    ))
+      (aider--send-command command t))))
 
 ;; Function to send a custom command to corresponding aider buffer
 ;;;###autoload
