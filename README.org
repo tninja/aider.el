@@ -1,5 +1,20 @@
 #+TITLE: aider.el : aider (AI Pair Programming) Inside Emacs
 
+* Table of Contents
+- [[#introduction][Introduction]]
+  - [[#pros-ui-context-awareness-ai-pair-programming][Pros: UI, Context Awareness AI Pair Programming]]
+  - [[#cons-aider-session-in-comint-is-not-fancy][Cons: aider session in comint is not fancy]]
+- [[#installation][Installation]]
+  - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
+  - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
+  - [[#optional][Optional]]
+- [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
+- [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
+- [[#example-application-written-with-aiderel][Example Application written with aider.el]]
+- [[#faq][FAQ]]
+- [[#future-work][Future work]]
+- [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
+
 * Introduction
 
 - Do you enjoy the AI features of the [[https://www.cursor.com/][Cursor AI Code Editor]] but prefer working within Emacs?
@@ -110,6 +125,8 @@ You can have helm-based completion with run the following code, after install he
 #+END_SRC
 
 *** Aider prompt file
+
+- Syntax highlight, aider command completion, file path completion supported
 
 - Use ~C-c a p~ to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
 
@@ -236,17 +253,28 @@ You can have helm-based completion with run the following code, after install he
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
   - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
 
-* TODO Future work [0/4]
+- Can aider.el work with tramp? (aider running on remote machine)
+  - (I didn't try) mgcyung said it can work in this way: https://github.com/tninja/aider.el/issues/85
+
+* TODO Future work
 
 ** Feature
 
-- [ ] More useful context sensitive code change / explaining commands
-- [ ] Better and stable color coding solution
-- [ ] Better support for aider prompt file
+- More context sensitive code change / code reading commands
+- Better support for aider prompt file
+  - [X] aider command syntax highlight
+  - [X] aider command completion
+  - [X] file path completion
+  - [X] yasnippet support
+- Better support for comint buffer
+  - Better comint syntax color solution
+    - [X] syntax color rendering can be triggered through aider-switch-to-buffer, given codeing buffer major mode
+    - [X] syntax color rendering can be triggered through /add, /read-only through aider-prompt-file
+  - [ ] Get enhancement from code in major mode of aider-prompt-file
 
 ** Code quality
  
-- [ ] Better unit-test / integration test of this package. Hopefully it is automated.
+- Better unit-test / integration test of this package. Hopefully it is automated.
 
 * Other Emacs AI coding tool
 
