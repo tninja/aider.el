@@ -1,7 +1,6 @@
 ;;; aider-helm.el --- Helm completion for aider.el -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Package-Requires: ((emacs "26.1") (helm "3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
