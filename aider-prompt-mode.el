@@ -2,6 +2,8 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 
+;; SPDX-License-Identifier: Apache-2.0
+
 ;;; Commentary:
 ;; This file provides a major mode for editing aider prompt files.
 

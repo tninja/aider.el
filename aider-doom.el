@@ -2,6 +2,8 @@
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
+;; SPDX-License-Identifier: Apache-2.0
+
 ;;; Commentary:
 ;;
 ;;  Doom integration for Aider
