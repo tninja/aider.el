@@ -25,10 +25,6 @@ This is the file name without path."
     (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-i") 'aider-prompt-insert-file-path)
-    ;; Classic keybindings for Yasnippet functions:
-    (define-key map (kbd "C-c y d") 'yas-describe-tables)
-    (define-key map (kbd "C-c y i") 'yas-insert-snippet)
-    (define-key map (kbd "C-c y e") 'yas-expand)
     map)
   "Keymap for Aider Prompt Mode.")
 
@@ -128,9 +124,9 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
             (insert "#   C-c C-z: Switch to aider buffer\n")
             (insert "# If you have yasnippet installed, use these keybindings to access snippet functions in aider-prompt-mode:\n")
-            (insert "#   C-c y d: Show available snippets (yas-describe-tables)\n")
-            (insert "#   C-c y i: Insert a snippet (yas-insert-snippet)\n")
-            (insert "#   C-c y e: Expand snippet at cursor (yas-expand)\n")
+            (insert "#   yas-describe-tables: Show available snippets\n")
+            (insert "#   yas-insert-snippet: Insert a snippet\n")
+            (insert "#   yas-expand: Expand snippet at cursor\n")
             (insert "# Aider command reference: https://aider.chat/docs/usage/commands.html\n\n")
             (insert "* Sample task:\n\n")
             (insert "/ask explain to me what this repo is about?\n")
