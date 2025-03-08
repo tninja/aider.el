@@ -10,7 +10,6 @@
   - [[#optional][Optional]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
-- [[#example-application-written-with-aiderel][Example Application written with aider.el]]
 - [[#faq][FAQ]]
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
@@ -235,8 +234,6 @@ You can have helm-based completion with run the following code, after install he
 
 3. *Refactor code and tests*
    Finally, you can further refactor the AI-generated code and tests as needed—either using additional prompts or manual adjustments—to best meet the project’s requirements.
-
-* [[./examples][Example Application written with aider.el]]
 
 * FAQ
 
