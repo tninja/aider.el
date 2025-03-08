@@ -77,6 +77,7 @@ If you have Straight installed
 #+END_SRC
 
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
+- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
 
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
 - Install aider.el by running the following code within Emacs
