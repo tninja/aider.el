@@ -27,6 +27,7 @@ This is the file name without path."
     (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
     (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-i") 'aider-prompt-insert-file-path)
+    (define-key map (kbd "C-i") #'aider-core-insert-prompt)
     map)
   "Keymap for Aider Prompt Mode.")
 
@@ -198,7 +199,10 @@ Special commands:
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
-  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t))
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  ;; Bind space key to aider-core-insert-prompt when evil package is available
+  (when (featurep 'evil)
+    (evil-define-key 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 
