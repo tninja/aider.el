@@ -48,6 +48,23 @@ When nil, use standard `display-buffer' behavior."
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
+(defvar aider-comint-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map comint-mode-map)
+    map)
+  "Keymap for `aider-comint-mode'.")
+
+(define-derived-mode aider-comint-mode comint-mode "Aider"
+  "Major mode for interacting with Aider.
+Inherits from `comint-mode' with some Aider-specific customizations.
+
+\\{aider-comint-mode-map}"
+  ;; Set up font-lock
+  (setq font-lock-defaults '(nil t))
+  (font-lock-add-keywords nil aider-font-lock-keywords t)
+  ;; Set up input sender for multi-line handling
+  (setq-local comint-input-sender 'aider-input-sender))
+
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
 (if (bound-and-true-p savehist-loaded)
@@ -199,9 +216,7 @@ With the universal argument, prompt to edit aider-args before running."
     (unless (comint-check-proc buffer-name)
       (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
-        (comint-mode)
-        (setq-local comint-input-sender 'aider-input-sender) ;; this will only impact the prompt entered directly inside comint buffer. comint-send-string function won't be affected. so aider--process-message-if-multi-line won't be triggered twice.
-        (font-lock-add-keywords nil aider-font-lock-keywords t)))
+        (aider-comint-mode)))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
