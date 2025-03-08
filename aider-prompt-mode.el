@@ -177,48 +177,6 @@ The path inserted will be relative to the git repository root."
       (message "No valid file selected."))))
 
 ;; Insert command completion functions for aider-prompt-mode
-(defun aider-prompt--command-completion ()
-  "Provide auto completion for common commands in aider prompt files.
-When the current line starts with '/', this function returns a candidate list
-of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
-  (save-excursion
-    (let* ((line-start (line-beginning-position))
-           (line-end (line-end-position))
-           (line-str (buffer-substring-no-properties line-start line-end)))
-      (when (string-match "^/\\(\\w*\\)" line-str)
-        (let* ((beg (+ line-start (match-beginning 0)))
-               (end (+ line-start (match-end 0)))
-               (commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
-                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
-                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-                           "/tokens" "/voice" "/web"
-                           "/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint"))
-               (prefix (match-string 0 line-str))
-               (candidates (seq-filter (lambda (cmd)
-                                         (string-prefix-p prefix cmd))
-                                       commands)))
-          (when candidates
-            (list beg end candidates :exclusive 'no)))))))
-
-(defun aider-prompt--auto-trigger-command-completion ()
-  "Automatically trigger command completion in aider prompt mode.
-If the last character in the current line is '/', invoke completion-at-point."
-  (when (and (not (minibufferp))
-             (> (point) (line-beginning-position))
-             (eq (char-before) ?/))
-    (completion-at-point)))
-
-(defun aider-prompt--auto-trigger-file-path-insertion ()
-  "Automatically trigger file path insertion in aider prompt mode.
-If the current line matches one of the file-related commands followed by a space or comma,
-invoke aider-prompt-insert-file-path."
-  (when (and (not (minibufferp))
-             (> (point) (line-beginning-position))
-             (eq (char-before) ?\s))  ; Check if last char is space
-    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
-        (aider-prompt-insert-file-path)))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
@@ -237,10 +195,10 @@ Special commands:
     (yas-minor-mode 1)
     (aider--setup-snippets))
   ;; Automatically add command completion for common commands.
-  (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
-  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t)
+  (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
-  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-file-path-insertion nil t))
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 
