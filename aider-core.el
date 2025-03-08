@@ -54,7 +54,7 @@ When nil, use standard `display-buffer' behavior."
     map)
   "Keymap for `aider-comint-mode'.")
 
-(define-derived-mode aider-comint-mode comint-mode "Aider"
+(define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
 

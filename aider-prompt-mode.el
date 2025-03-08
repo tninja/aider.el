@@ -151,12 +151,10 @@ If file doesn't exist, create it with command binding help and sample prompt."
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
                            "/tokens" "/voice" "/web" "go ahead"))
         (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
-    
     ;; Append custom font lock keywords to org-mode's defaults
     (font-lock-add-keywords nil
      `((,(regexp-opt green-commands) . font-lock-type-face)
        (,(regexp-opt red-commands) . font-lock-warning-face)))
-    
     ;; Force font lock refresh
     (when (fboundp 'font-lock-flush)
       (font-lock-flush))
