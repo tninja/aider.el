@@ -26,7 +26,7 @@
 
 ** Pros: UI, Context Awareness AI Pair Programming
 
-- Pop-up Menu: No need to remember commands. (~aider-transient-menu~)
+- Pop-up Menu (~aider-transient-menu~)
 
 [[file:./transient_menu.png]]
 
