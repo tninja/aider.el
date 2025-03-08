@@ -184,6 +184,30 @@ if nil, use current buffer."
           )
         ))))
 
+;;;###autoload
+(defun aider-run-aider (&optional edit-args)
+  "Create a comint-based buffer and run \"aider\" for interactive conversation.
+With the universal argument, prompt to edit aider-args before running."
+  (interactive "P")
+  (let* ((buffer-name (aider-buffer-name))
+         (comint-terminfo-terminal "dumb")
+         (current-args (if edit-args
+                           (split-string
+                            (read-string "Edit aider arguments: "
+                                         (mapconcat 'identity aider-args " ")))
+                         aider-args)))
+    (unless (comint-check-proc buffer-name)
+      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
+      (with-current-buffer buffer-name
+        (comint-mode)
+        (setq-local comint-input-sender 'aider-input-sender) ;; this will only impact the prompt entered directly inside comint buffer. comint-send-string function won't be affected. so aider--process-message-if-multi-line won't be triggered twice.
+        (font-lock-add-keywords nil aider-font-lock-keywords t)))
+    (aider-switch-to-buffer)))
+
+(defun aider-input-sender (proc string)
+  "Handle multi-line inputs being sent to Aider."
+  (comint-simple-send proc (aider--process-message-if-multi-line string)))
+
 (provide 'aider-core)
 
 ;;; aider-core.el ends here
