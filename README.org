@@ -10,7 +10,6 @@
   - [[#optional][Optional]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
-- [[#example-application-written-with-aiderel][Example Application written with aider.el]]
 - [[#faq][FAQ]]
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
@@ -44,7 +43,7 @@
 
 - *There is no advantage interacting with aider through this comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
-  - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize large code change into several small prompts, and it is easy for multi-line prompts
+  - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize large code change into several small prompts, and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
 
 * Installation
 
@@ -98,7 +97,7 @@ The config part is as same as above straight one
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--model" "o3-mini")))
+  (setq aider-args '("--model" "sonnet")))
 #+END_SRC
 
 The aider prefix is ~A~.
@@ -123,33 +122,6 @@ You can have helm-based completion with run the following code, after install he
   (use-package aider
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el" "aider-helm.el")))
 #+END_SRC
-
-*** Aider prompt file
-
-- Syntax highlight, aider command completion, file path completion supported
-
-- Use ~C-c a p~ to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
-
-- People happy with sending code from editor buffer to comint buffer (eg. ESS, python-mode, scala-mode) might like this. This is a interactive and reproducible way
-
-- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line. To my experience, this is the most used method in aider prompt file.
-
-- ~C-c C-c~ key is for multi-line prompt. The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
-
-[[file:./aider_prompt_file.png]]
-
-** [[./snippets/aider-prompt-mode][Prompt Snippets]]
-
-- Prompts for aider might share similar structure. Yasnippet can be used to help reusing these prompts.
-
-- Aider prompt file now support yasnippet. Current snippets came from [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][this reddit post]], [[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][another reddit post]], and a [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git repo]].
-
-- You can use
-  - ~M-x yas-describe-tables~ to see the available snippets
-  - ~M-x yas-insert-snippet~ to insert a snippet.
-  - ~M-x yas-expand~ to expand the snippet under cursor.
-
-- Welcome to add more snippets / improve existing snippets in the [[./snippets/aider-prompt-mode][snippets folder]]!
 
 * Most used features (integrated into the aider menu)
 
@@ -183,6 +155,33 @@ You can have helm-based completion with run the following code, after install he
     - aider-go-ahead :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
   - aider-function-or-region-explain :: If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
 
+*** Aider prompt file
+
+- Syntax highlight, aider command completion, file path completion supported
+
+- Use ~C-c a p~ to open the repo specific prompt file. You can use this file to organize tasks, and write prompt and send them to the Aider session. multi-line prompts are supported.
+
+- People happy with sending code from editor buffer to comint buffer (eg. ESS, python-mode, scala-mode) might like this. This is a interactive and reproducible way
+
+- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line. To my experience, this is the most used method in aider prompt file.
+
+- ~C-c C-c~ key is for multi-line prompt. The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
+
+[[file:./aider_prompt_file.png]]
+
+**** [[./snippets/aider-prompt-mode][Prompt Snippets]]
+
+- Prompts for aider might share similar structure. Yasnippet can be used to help reusing these prompts.
+
+- Aider prompt file now support yasnippet. Current snippets came from [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][this reddit post]], [[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][another reddit post]], and a [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git repo]].
+
+- You can use
+  - ~M-x yas-describe-tables~ to see the available snippets
+  - ~M-x yas-insert-snippet~ to insert a snippet.
+  - ~M-x yas-expand~ to expand the snippet under cursor.
+
+- Welcome to add more snippets / improve existing snippets in the [[./snippets/aider-prompt-mode][snippets folder]]!
+
 * Be careful about AI generated code
 
 - Thanks to LLM. It is so easy to generate bunch of code with AI. But generating code doesn't complete the work. 
@@ -193,50 +192,37 @@ You can have helm-based completion with run the following code, after install he
   - The AI generated test need to be manually checked / fixed. But generally test code is easier to understand.
   - Running the unit-tests can help verifying the correctness / identifying the bug of code. It also help developer better understanding how the AI generated code work, and it can give developer more confidence on the new code.
 
-** A TDD-like workflow for AI assisted programming given tool provided in this library
+** A [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]]-style AI programming workflow
 
-1. When making changes, you might be either adding new code or modifying existing code.
-   - *Adding new code* via one-line comment implementation:
-         For instance, suppose you encounter the following Python snippet:
+1. **Implement or modify code**:
+   - For existing code: Use ~aider-function-or-region-refactor~ with cursor in function or on selected region
+   - For new code: Use ~aider-implement-todo~ on TODO comments
+   
+   *Example of adding new code*:
+   
+   With cursor on this comment:
+   #+BEGIN_SRC python :eval never
+   # TODO: Implement a function that checks if a number is prime
+   #+END_SRC
+   
+   Running ~aider-implement-todo~ might generate:
+   #+BEGIN_SRC python :eval never
+   def is_prime(n):
+       if n <= 1:
+           return False
+       for i in range(2, int(n ** 0.5) + 1):
+           if n % i == 0:
+               return False
+       return True
+   #+END_SRC
+   
+   If suggestions aren't satisfactory, use ~Ask Question~ for refinements and ~Go Ahead~ to confirm changes.
 
-         #+BEGIN_SRC python :eval never
-         # TODO: Implement a function that checks if a number is prime
-         #+END_SRC
+2. **Generate tests**: Validate your implementation with ~aider-write-unit-test~ and ~aider-fix-failing-test-under-cursor~.
 
-         With the cursor positioned on the TODO comment line, running ~aider-implement-todo~ will send only that inline comment to Aider, which may then generate revised code—for example, a complete implementation of an ~is_prime~ function—while preserving the existing code. For instance, Aider might produce:
+3. **Refine code and tests**: Further refactor as needed using additional prompts or manual adjustments.
 
-         #+BEGIN_SRC python :eval never
-         def is_prime(n):
-             if n <= 1:
-                 return False
-             for i in range(2, int(n ** 0.5) + 1):
-                 if n % i == 0:
-                     return False
-             return True
-         #+END_SRC
-
-         This example demonstrates how ~aider-implement-todo~ can assist in introducing new code. (This command may also be useful for some documentation tasks.)
-
-     - If the suggested change is not completely satisfactory, you can decline it (for example, by entering ~N~). After declining, use the ~Ask Question~ command (or type ~/ask~ in the aider session buffer) to request further modifications with detailed guidance. Once you receive an acceptable suggestion, confirm it using the ~Go Ahead~ command (or type ~go ahead~ in the aider session buffer).
-
-   - *Change existing code* for an existing function, class, or code block:
-     1. If you only need to modify a portion of the code, select the relevant region; otherwise, simply place the cursor inside the target function or class.
-     2. Execute the ~aider-function-or-region-refactor~ command.
-     3. When prompted, provide a clear description of the intended change (e.g., "Rename variable 'temp' to 'result'" or "Make the function static").
-     4. A revised version of the code, incorporating your suggestions, will be generated while preserving the overall structure.
-     5. Review the output; if further refinement is required, request additional adjustments using ~Ask Question~ and confirm them with ~Go Ahead~ until the desired result is achieved.
-
-   - Note: Alternative commands like ~aider-architect-discussion~ and ~aider-code-change~ are also available, though they may offer less context sensitivity than the commands described above.
-
-2. *Generate tests*
-   It is recommended to validate and iteratively improve the feature using unit test commands such as ~aider-write-unit-test~ and ~aider-fix-failing-test-under-cursor~. Although AI-generated code can provide a valuable starting point, it may sometimes introduce subtle issues. Running tests both before and after integrating changes ensures that each modification is verified. Running the full test suite after every change is advised to catch any issues early.
-
-    (As an aside, a projectile function is currently employed to switch between the main code and test code and add them to the session—but further improvements to include test code seamlessly are always welcome.)
-
-3. *Refactor code and tests*
-   Finally, you can further refactor the AI-generated code and tests as needed—either using additional prompts or manual adjustments—to best meet the project’s requirements.
-
-* [[./examples][Example Application written with aider.el]]
+4. Goto 1
 
 * FAQ
 
@@ -271,6 +257,7 @@ You can have helm-based completion with run the following code, after install he
     - [X] syntax color rendering can be triggered through aider-switch-to-buffer, given codeing buffer major mode
     - [X] syntax color rendering can be triggered through /add, /read-only through aider-prompt-file
   - [ ] Get enhancement from code in major mode of aider-prompt-file
+- More thinking on how to simplify the menu / commands
 
 ** Code quality
  
