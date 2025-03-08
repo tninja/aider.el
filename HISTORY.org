@@ -8,9 +8,11 @@
     - aider command syntax highlight
     - aider command completion
     - file name completion
+    - prompt enter / completion from mini-buffer / helm
   - Aider session have
     - aider command completion
     - file name completion
+    - prompt enter / completion from mini-buffer / helm
 
 - Developer side change
   - Add aider-comint-mode major mode in aider-core.el, for aider comint buffer. It derived from comint-mode

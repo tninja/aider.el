@@ -76,7 +76,7 @@ If you have Straight installed
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
 
-- aider-args just passed directly to aider CLI, [[https://aider.chat/docs/config/options.html][aider options reference]]
+- *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
 
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
 - Install aider.el by running the following code within Emacs
@@ -257,12 +257,16 @@ You can have helm-based completion with run the following code, after install he
   - [X] aider command syntax highlight
   - [X] aider command completion
   - [X] file path completion
+  - [X] completion of prompt body - in sync with helm history
   - [X] yasnippet support
 - Better support for comint buffer
   - Better comint syntax color solution
     - [X] syntax color rendering can be triggered through aider-switch-to-buffer, given codeing buffer major mode
     - [X] syntax color rendering can be triggered through /add, /read-only through aider-prompt-file
-  - [ ] Get enhancement from code in major mode of aider-prompt-file
+  - Get enhancement from code in major mode of aider-prompt-file
+    - [X] aider command syntax highlight
+    - [X] aider command completion
+    - [X] completion of prompt body
 - More thinking on how to simplify the menu / commands
 
 ** Code quality

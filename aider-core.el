@@ -51,14 +51,14 @@ When nil, use standard `display-buffer' behavior."
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
-    (define-key map (kbd "C-i") #'aider-core-insert-prompt)
+    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
+    (define-key map (kbd "TAB") #'aider-core-insert-prompt)
     map)
   "Keymap for `aider-comint-mode'.")
 
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
-
 \\{aider-comint-mode-map}"
   ;; Set up font-lock
   (setq font-lock-defaults '(nil t))
