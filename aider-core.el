@@ -51,6 +51,7 @@ When nil, use standard `display-buffer' behavior."
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
+    (define-key map (kbd "C-i") #'aider-core-insert-prompt)
     map)
   "Keymap for `aider-comint-mode'.")
 
