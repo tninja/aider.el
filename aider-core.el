@@ -271,7 +271,13 @@ invoke aider-prompt-insert-file-path."
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
         (aider-prompt-insert-file-path)))))
 
-;; add a elisp interactive function: aider-core-insert-prompt. It call aider-read-string function to get user input, and insert it into the current buffer under cursor.
+;;;###autoload
+(defun aider-core-insert-prompt ()
+  "Get user input via `aider-read-string` and insert it at point."
+  (interactive)
+  (let ((input (aider-read-string "Enter prompt: ")))
+    (when input
+      (insert input))))
 
 (provide 'aider-core)
 
