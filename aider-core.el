@@ -224,6 +224,10 @@ With the universal argument, prompt to edit aider-args before running."
         (aider-comint-mode)))
     (aider-switch-to-buffer)))
 
+(defun aider-input-sender (proc string)
+  "Handle multi-line inputs being sent to Aider."
+  (comint-simple-send proc (aider--process-message-if-multi-line string)))
+
 (defun aider-core--command-completion ()
   "Provide auto completion for common commands in aider buffer.
 When the current line starts with '/', this function returns a candidate list
@@ -267,9 +271,7 @@ invoke aider-prompt-insert-file-path."
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
         (aider-prompt-insert-file-path)))))
 
-(defun aider-input-sender (proc string)
-  "Handle multi-line inputs being sent to Aider."
-  (comint-simple-send proc (aider--process-message-if-multi-line string)))
+;; add a elisp interactive function: aider-core-insert-prompt. It call aider-read-string function to get user input, and insert it into the current buffer under cursor.
 
 (provide 'aider-core)
 
