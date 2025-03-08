@@ -238,6 +238,9 @@ You can have helm-based completion with run the following code, after install he
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
 
+- How to diable to aider auto-commit?    
+  - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
+
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
   - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
