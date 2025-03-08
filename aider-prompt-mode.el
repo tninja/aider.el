@@ -23,9 +23,9 @@ This is the file name without path."
 ;;;###autoload
 (defvar aider-prompt-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
-    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
-    (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
+    (define-key map (kbd "C-c C-n") #'aider-send-line-or-region)
+    (define-key map (kbd "C-c C-c") #'aider-send-block-or-region)
+    (define-key map (kbd "C-c C-z") #'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "C-c C-i") #'aider-core-insert-prompt)
     map)
