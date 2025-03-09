@@ -30,9 +30,10 @@ INITIAL-INPUT is optional initial input string."
                  prompt
                  history
                  :must-match nil
-                 :name "Helm Read String"
+                 :name "Helm Read String, Use C-c C-y to edit selected command. C-b and C-f to move cursor during editing"
                  :fuzzy t
-                 :initial-input initial-input)))
+                 :initial-input initial-input
+                 )))
     ;; Add to history if non-empty and save
     (unless (string-empty-p input)
       (push input history)
