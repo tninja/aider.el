@@ -186,6 +186,12 @@ You can have helm-based completion with run the following code, after install he
 
 - Welcome to add more snippets / improve existing snippets in the [[./snippets/aider-prompt-mode][snippets folder]]!
 
+*** Inside comint buffer
+
+- / key to trigger aider command completion
+- file path completion will be triggered automatically after certain command
+- use TAB key to enter prompt from mini-buffer, or helm with completion
+
 * Be careful about AI generated code
 
 - Thanks to LLM. It is so easy to generate bunch of code with AI. But generating code doesn't complete the work. 
