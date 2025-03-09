@@ -1,7 +1,7 @@
 ;;; aider.el --- Aider package for interactive conversation with aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.3.0
+;; Version: 0.4.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (helm "3.0"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
@@ -88,30 +88,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("x" "Exit Aider" aider-exit)
     ]
    ])
-
-;;;###autoload
-(defun aider-run-aider (&optional edit-args)
-  "Create a comint-based buffer and run \"aider\" for interactive conversation.
-With the universal argument, prompt to edit aider-args before running."
-  (interactive "P")
-  (let* ((buffer-name (aider-buffer-name))
-         (comint-terminfo-terminal "dumb")
-         (current-args (if edit-args
-                           (split-string
-                            (read-string "Edit aider arguments: "
-                                         (mapconcat 'identity aider-args " ")))
-                         aider-args)))
-    (unless (comint-check-proc buffer-name)
-      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
-      (with-current-buffer buffer-name
-        (comint-mode)
-        (setq-local comint-input-sender 'aider-input-sender) ;; this will only impact the prompt entered directly inside comint buffer. comint-send-string function won't be affected. so aider--process-message-if-multi-line won't be triggered twice.
-        (font-lock-add-keywords nil aider-font-lock-keywords t)))
-    (aider-switch-to-buffer)))
-
-(defun aider-input-sender (proc string)
-  "Handle multi-line inputs being sent to Aider."
-  (comint-simple-send proc (aider--process-message-if-multi-line string)))
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
 ;;;###autoload

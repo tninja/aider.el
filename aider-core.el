@@ -48,6 +48,32 @@ When nil, use standard `display-buffer' behavior."
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
+(defvar aider-comint-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map comint-mode-map)
+    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
+    (define-key map (kbd "TAB") #'aider-core-insert-prompt)
+    map)
+  "Keymap for `aider-comint-mode'.")
+
+(define-derived-mode aider-comint-mode comint-mode "Aider Session"
+  "Major mode for interacting with Aider.
+Inherits from `comint-mode' with some Aider-specific customizations.
+\\{aider-comint-mode-map}"
+  ;; Set up font-lock
+  (setq font-lock-defaults '(nil t))
+  (font-lock-add-keywords nil aider-font-lock-keywords t)
+  ;; Set up input sender for multi-line handling
+  (setq-local comint-input-sender 'aider-input-sender)
+  ;; Add command completion hooks
+  (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
+  ;; Automatically trigger file path insertion for file-related commands
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  ;; Bind space key to aider-core-insert-prompt when evil package is available
+  (when (featurep 'evil)
+    (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
 (if (bound-and-true-p savehist-loaded)
@@ -183,6 +209,79 @@ if nil, use current buffer."
                    (with-current-buffer source-buffer major-mode))
           )
         ))))
+
+;;;###autoload
+(defun aider-run-aider (&optional edit-args)
+  "Create a comint-based buffer and run \"aider\" for interactive conversation.
+With the universal argument, prompt to edit aider-args before running."
+  (interactive "P")
+  (let* ((buffer-name (aider-buffer-name))
+         (comint-terminfo-terminal "dumb")
+         (current-args (if edit-args
+                           (split-string
+                            (read-string "Edit aider arguments: "
+                                         (mapconcat 'identity aider-args " ")))
+                         aider-args)))
+    (unless (comint-check-proc buffer-name)
+      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
+      (with-current-buffer buffer-name
+        (aider-comint-mode)))
+    (aider-switch-to-buffer)))
+
+(defun aider-input-sender (proc string)
+  "Handle multi-line inputs being sent to Aider."
+  (comint-simple-send proc (aider--process-message-if-multi-line string)))
+
+(defun aider-core--command-completion ()
+  "Provide auto completion for common commands in aider buffer.
+When the current line starts with '/', this function returns a candidate list
+of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
+  (save-excursion
+    (let* ((line-start (line-beginning-position))
+           (line-end (line-end-position))
+           (line-str (buffer-substring-no-properties line-start line-end)))
+      (when (string-match "^/\\(\\w*\\)" line-str)
+        (let* ((beg (+ line-start (match-beginning 0)))
+               (end (+ line-start (match-end 0)))
+               (commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
+                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
+                           "/tokens" "/voice" "/web"
+                           "/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint"))
+               (prefix (match-string 0 line-str))
+               (candidates (seq-filter (lambda (cmd)
+                                         (string-prefix-p prefix cmd))
+                                       commands)))
+          (when candidates
+            (list beg end candidates :exclusive 'no)))))))
+
+(defun aider-core--auto-trigger-command-completion ()
+  "Automatically trigger command completion in aider buffer.
+If the last character in the current line is '/', invoke completion-at-point."
+  (when (and (not (minibufferp))
+             (> (point) (line-beginning-position))
+             (eq (char-before) ?/))
+    (completion-at-point)))
+
+(defun aider-core--auto-trigger-file-path-insertion ()
+  "Automatically trigger file path insertion in aider buffer.
+If the current line matches one of the file-related commands followed by a space or comma,
+invoke aider-prompt-insert-file-path."
+  (when (and (not (minibufferp))
+             (> (point) (line-beginning-position))
+             (eq (char-before) ?\s))  ; Check if last char is space
+    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
+        (aider-prompt-insert-file-path)))))
+
+;;;###autoload
+(defun aider-core-insert-prompt ()
+  "Get user input via `aider-read-string` and insert it at point."
+  (interactive)
+  (let ((input (aider-read-string "Enter prompt: ")))
+    (when input
+      (insert input))))
 
 (provide 'aider-core)
 

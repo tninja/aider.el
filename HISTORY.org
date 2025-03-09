@@ -1,6 +1,23 @@
 
 * Release history
 
+** v0.4.0
+
+- User side change
+  - Aider prompt file have
+    - aider command syntax highlight
+    - aider command completion
+    - file name completion
+    - prompt enter / completion from mini-buffer / helm
+  - Aider session have
+    - aider command completion
+    - file name completion
+    - prompt enter / completion from mini-buffer / helm
+
+- Developer side change
+  - Add aider-comint-mode major mode in aider-core.el, for aider comint buffer. It derived from comint-mode
+  - Move aider command completion and file name completion to aider-core.el since they are used in both aider prompt file and aider comint buffer
+
 ** v0.3.0
 
 - User side change

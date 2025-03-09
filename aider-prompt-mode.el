@@ -23,10 +23,11 @@ This is the file name without path."
 ;;;###autoload
 (defvar aider-prompt-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") 'aider-send-line-or-region)
-    (define-key map (kbd "C-c C-c") 'aider-send-block-or-region)
-    (define-key map (kbd "C-c C-z") 'aider-switch-to-buffer)
-    (define-key map (kbd "C-c C-i") 'aider-prompt-insert-file-path)
+    (define-key map (kbd "C-c C-n") #'aider-send-line-or-region)
+    (define-key map (kbd "C-c C-c") #'aider-send-block-or-region)
+    (define-key map (kbd "C-c C-z") #'aider-switch-to-buffer)
+    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
+    (define-key map (kbd "C-c C-i") #'aider-core-insert-prompt)
     map)
   "Keymap for Aider Prompt Mode.")
 
@@ -120,7 +121,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
             ;; Insert initial content for new file
             (insert "# Aider Prompt File - Command Reference:\n")
             (insert "# Edit command:\n")
-            (insert "#   C-c C-i: Insert file path under cursor\n")
+            (insert "#   C-c C-i (or SPACE in evil-normal-mode): Insert prompt in mini buffer or with helm (if you use aider-helm.el)\n")
+            (insert "#   C-c C-f: Insert file path under cursor\n")
             (insert "# Command to interact with aider session:\n")
             (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
@@ -151,12 +153,10 @@ If file doesn't exist, create it with command binding help and sample prompt."
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
                            "/tokens" "/voice" "/web" "go ahead"))
         (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
-    
     ;; Append custom font lock keywords to org-mode's defaults
     (font-lock-add-keywords nil
      `((,(regexp-opt green-commands) . font-lock-type-face)
        (,(regexp-opt red-commands) . font-lock-warning-face)))
-    
     ;; Force font lock refresh
     (when (fboundp 'font-lock-flush)
       (font-lock-flush))
@@ -179,48 +179,6 @@ The path inserted will be relative to the git repository root."
       (message "No valid file selected."))))
 
 ;; Insert command completion functions for aider-prompt-mode
-(defun aider-prompt--command-completion ()
-  "Provide auto completion for common commands in aider prompt files.
-When the current line starts with '/', this function returns a candidate list
-of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
-  (save-excursion
-    (let* ((line-start (line-beginning-position))
-           (line-end (line-end-position))
-           (line-str (buffer-substring-no-properties line-start line-end)))
-      (when (string-match "^/\\(\\w*\\)" line-str)
-        (let* ((beg (+ line-start (match-beginning 0)))
-               (end (+ line-start (match-end 0)))
-               (commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
-                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
-                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-                           "/tokens" "/voice" "/web"
-                           "/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint"))
-               (prefix (match-string 0 line-str))
-               (candidates (seq-filter (lambda (cmd)
-                                         (string-prefix-p prefix cmd))
-                                       commands)))
-          (when candidates
-            (list beg end candidates :exclusive 'no)))))))
-
-(defun aider-prompt--auto-trigger-command-completion ()
-  "Automatically trigger command completion in aider prompt mode.
-If the last character in the current line is '/', invoke completion-at-point."
-  (when (and (not (minibufferp))
-             (> (point) (line-beginning-position))
-             (eq (char-before) ?/))
-    (completion-at-point)))
-
-(defun aider-prompt--auto-trigger-file-path-insertion ()
-  "Automatically trigger file path insertion in aider prompt mode.
-If the current line matches one of the file-related commands followed by a space or comma,
-invoke aider-prompt-insert-file-path."
-  (when (and (not (minibufferp))
-             (> (point) (line-beginning-position))
-             (eq (char-before) ?\s))  ; Check if last char is space
-    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
-        (aider-prompt-insert-file-path)))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
@@ -239,10 +197,13 @@ Special commands:
     (yas-minor-mode 1)
     (aider--setup-snippets))
   ;; Automatically add command completion for common commands.
-  (add-hook 'completion-at-point-functions #'aider-prompt--command-completion nil t)
-  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-command-completion nil t)
+  (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
-  (add-hook 'post-self-insert-hook #'aider-prompt--auto-trigger-file-path-insertion nil t))
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  ;; Bind space key to aider-core-insert-prompt when evil package is available
+  (when (featurep 'evil)
+    (evil-define-key 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist 
