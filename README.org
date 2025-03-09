@@ -118,7 +118,7 @@ The aider prefix is ~A~.
 
 *** Helm Support
 
-Helm enables fuzzy searching functionality for command history prompts, the prompts are ordered based on used frequency and time. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is highly recommended if you are OK with helm*.
+Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is highly recommended if you are OK with helm*.
 
 You can have helm-based completion with run the following code, after install helm library:
 
