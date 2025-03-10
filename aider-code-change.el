@@ -16,7 +16,8 @@
 ;; New function to get command from user and send it prefixed with "/code "
 ;;;###autoload
 (defun aider-code-change ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/code \"."
+  "Prompt the user for a command and send it to 
+the corresponding aider comint buffer prefixed with \"/code \"."
   (interactive)
   (let ((command (aider-read-string "Enter code change requirement: ")))
     (aider-current-file-command-and-switch "/code " command)))
@@ -24,13 +25,15 @@
 ;; New function to get command from user and send it prefixed with "/architect "
 ;;;###autoload
 (defun aider-architect-discussion ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/architect \"."
+  "Prompt the user for a command and send it to 
+the corresponding aider comint buffer prefixed with \"/architect \"."
   (interactive)
   (let ((command (aider-read-string "Enter architect discussion question: ")))
     (aider-current-file-command-and-switch "/architect " command)))
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)
-  "Generate the command string based on REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
+  "Generate the command string based on 
+REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
   (let ((processed-region-text region-text))
     (if function-name
         (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
@@ -41,21 +44,22 @@
 ;;;###autoload
 (defun aider-function-refactor ()
   "Get the function name under cursor and send refactor command to aider.
-The command will be formatted as \"/architect\" followed by refactoring instructions
-for the specified function."
+The command will be formatted as \"/architect\" 
+followed by refactoring instructions for the specified function."
   (interactive)
   (if-let ((function-name (which-function)))
       (let* ((prefix (format "refactor %s: " function-name))
              (prompt (format "Instruction to %s" prefix))
-             (instruction (aider-read-string prompt))
-             (command (format "/architect %s%s" prefix instruction)))
+             (instruction (aider-read-string prompt)))
         (aider-current-file-command-and-switch "/architect " (concat prefix instruction)))
     (message "No function found at cursor position.")))
 
 ;;;###autoload
 (defun aider-region-refactor ()
-  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
-The command will be formatted as \"/architect \" followed by the user command and the text from the selected region."
+  "Get a command from the user and send it to the corresponding 
+aider comint buffer based on the selected region.
+The command will be formatted as \"/architect \" followed by 
+the user command and the text from the selected region."
   (interactive)
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
@@ -68,7 +72,8 @@ The command will be formatted as \"/architect \" followed by the user command an
 
 ;;;###autoload
 (defun aider-function-or-region-refactor ()
-  "Call aider-function-refactor when no region is selected, otherwise call aider-region-refactor."
+  "Call aider-function-refactor when no region is selected, 
+otherwise call aider-region-refactor."
   (interactive)
   (if (region-active-p)
       (aider-region-refactor)
@@ -116,15 +121,14 @@ Otherwise implement TODOs for the entire current file."
              (t
               (format "Please implement all TODO items in-place in file '%s'. Keep the existing code structure and only implement the TODOs in comments." 
                       (file-name-nondirectory buffer-file-name)))))
-           (user-command (aider-read-string "TODO implementation instruction: " initial-input))
-           (command (format "/architect %s" user-command)))
+           (user-command (aider-read-string "TODO implementation instruction: " initial-input)))
       (aider-current-file-command-and-switch "/architect " user-command))))
 
 ;;;###autoload
 (defun aider-write-unit-test ()
   "Generate unit test code for current buffer.
 Do nothing if current buffer is not visiting a file.
-If current buffer filename contains 'test':
+If current buffer filename contains \"test\":
   - If cursor is inside a test function, implement that test
   - Otherwise show message asking to place cursor inside a test function
 Otherwise:
@@ -168,8 +172,7 @@ This function assumes the cursor is on or inside a test function."
   (if-let ((test-function-name (which-function)))
       (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test"
                                    test-function-name))
-             (test-output (aider-read-string "Architect question: " initial-input))
-             (command (format "/architect %s" test-output)))
+             (test-output (aider-read-string "Architect question: " initial-input)))
         (aider-current-file-command-and-switch "/architect " test-output))
     (message "No test function found at cursor position.")))
 
