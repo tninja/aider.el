@@ -53,10 +53,9 @@ INITIAL-INPUT is optional initial input string."
 (declare-function aider-read-string "aider")
 
 ;;;###autoload
-(with-eval-after-load 'aider
-  (if (featurep 'helm)
-      (defalias 'aider-read-string #'aider-helm-read-string)
-    (message "Helm is not available. Please install helm package to use aider-helm features")))
+(if (featurep 'helm)
+    (defalias 'aider-read-string #'aider-helm-read-string)
+  (message "Helm is not available. Please install helm package to use aider-helm features"))
 
 (provide 'aider-helm)
 ;;; aider-helm.el ends here

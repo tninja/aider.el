@@ -72,8 +72,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (when (featurep 'evil)
-    (eval-after-load 'evil
-      (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt))))
+    (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
@@ -266,7 +265,7 @@ of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
   "Automatically trigger command completion in aider buffer.
 If the last character in the current line is '/', invoke `completion-at-point`."
   (when (and (not (minibufferp))
-             (> (point) (line-beginning-position))
+             (not (bolp))
              (eq (char-before) ?/))
     (completion-at-point)))
 
@@ -276,7 +275,7 @@ If the current line matches one of the file-related commands
 followed by a space or comma,
 invoke `aider-prompt-insert-file-path`."
   (when (and (not (minibufferp))
-             (> (point) (line-beginning-position))
+             (not (bolp))
              (eq (char-before) ?\s))  ; Check if last char is space
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
