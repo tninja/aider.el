@@ -15,25 +15,29 @@
 ;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-add-current-file ()
-  "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Send the command \"/add <current buffer file full path>\" 
+to the corresponding aider comint buffer."
   (interactive)
   (aider-action-current-file "/add"))
 
 ;;;###autoload
 (defun aider-current-file-read-only ()
-  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Send the command \"/read-only <current buffer file full path>\"
+to the corresponding aider comint buffer."
   (interactive)
   (aider-action-current-file "/read-only"))
 
 ;;;###autoload
 (defun aider-drop-current-file ()
-  "Send the command \"/drop <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Send the command \"/drop <current buffer file full path>\" 
+to the corresponding aider comint buffer."
   (interactive)
   (aider-action-current-file "/drop"))
 
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)
-  "Send the command \"COMMAND-PREFIX <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Send the command \"COMMAND-PREFIX <current buffer file full path>\" 
+to the corresponding aider comint buffer."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
@@ -116,13 +120,13 @@ COMMAND-PREFIX should be either \"/add\" or \"/read-only\"."
 
 ;;;###autoload
 (defun aider-batch-add-dired-marked-files ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
+  "Add multiple Dired marked files with the \"/add\" command."
   (interactive)
   (aider--batch-add-dired-marked-files-with-command "/add"))
 
 ;;;###autoload
 (defun aider-batch-add-dired-marked-files-read-only ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/read-only\" command."
+  "Add multiple Dired marked files with the \"/read-only\" command."
   (interactive)
   (aider--batch-add-dired-marked-files-with-command "/read-only"))
 

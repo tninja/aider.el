@@ -12,6 +12,7 @@
 ;;; Code:
 
 (require 'helm)
+(require 'helm-mode)
 (require 'cl-lib)  ; For `cl-subseq`
 
 (defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input)
