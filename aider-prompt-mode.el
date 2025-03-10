@@ -90,8 +90,10 @@ If no region is selected, show a message."
 
 ;;;###autoload
 (defun aider-send-block-or-region ()
-  "Send the current active region text or, if no region is active, send the current paragraph content to the aider session.
-When sending paragraph content, preserve cursor position and deactivate mark afterwards."
+  "Send the current active region text or, if no region is active, 
+send the current paragraph content to the aider session.
+When sending paragraph content, preserve cursor position,
+and deactivate mark afterwards."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
@@ -142,6 +144,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
   (when (featurep 'yasnippet)
     (let ((snippet-dir (expand-file-name "snippets"
                                        (file-name-directory (file-truename (locate-library "aider"))))))
+      (require 'yasnippet)
       (add-to-list 'yas-snippet-dirs snippet-dir t)
       (yas-load-directory snippet-dir))))
 
@@ -165,8 +168,10 @@ If file doesn't exist, create it with command binding help and sample prompt."
 
 ;;;###autoload
 (defun aider-prompt-insert-file-path ()
-  "Prompt for a file path with completion and insert the selected file name at point.
-The user is presented with a find-file–like interface. Only existing files can be selected.
+  "Prompt for a file path with completion,
+and insert the selected file name at point.
+The user is presented with a find-file–like interface. 
+Only existing files can be selected.
 The path inserted will be relative to the git repository root."
   (interactive)
   (let* ((git-root (magit-toplevel))
@@ -203,6 +208,7 @@ Special commands:
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (when (featurep 'evil)
+    (require 'evil)
     (evil-define-key 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 ;;;###autoload
