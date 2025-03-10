@@ -140,7 +140,7 @@ Prompts user to select from a list of available commands:
 ;; Function to send a custom command to corresponding aider buffer
 ;;;###autoload
 (defun aider-general-command ()
-  "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
+  "Input COMMAND and send it to the corresponding aider comint buffer."
   (interactive)
   (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
