@@ -11,6 +11,7 @@
 
 (require 'comint)
 (require 'magit)
+(require 'savehist)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -27,11 +28,10 @@
   :type '(repeat string)
   :group 'aider)
 
-(defcustom aider--switch-to-buffer-other-frame nil
-  "When non-nil, open Aider buffer in a new frame using `switch-to-buffer-other-frame'.
-When nil, use standard `display-buffer' behavior."
-  :type 'boolean
-  :group 'aider)
+(defvar aider--switch-to-buffer-other-frame nil
+  "Boolean controlling Aider buffer display behavior.
+When non-nil, open Aider buffer in a new frame.
+When nil, use standard `display-buffer' behavior.")
 
 (defface aider-command-separator
   '((((type graphic)) :strike-through t :extend t)
@@ -72,7 +72,8 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (when (featurep 'evil)
-    (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+    (eval-after-load 'evil
+      (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt))))
 
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
@@ -89,33 +90,33 @@ This function can be customized or redefined by the user."
   (read-string prompt initial-input 'aider-read-string-history))
 
 ;;;###autoload
-(defalias 'aider-read-string 'aider-plain-read-string)
+(defalias 'aider-read-string #'aider-plain-read-string)
 
 (eval-and-compile
   ;; Ensure the alias is always available in both compiled and interpreted modes.
-  (defalias 'aider-read-string 'aider-plain-read-string))
+  (defalias 'aider-read-string #'aider-plain-read-string))
 
 (defun aider-buffer-name ()
-  "Generate the Aider buffer name based on the git repo or current buffer file path.
+  "Generate the Aider buffer name based on git repo or current buffer file path.
 If not in a git repository and no buffer file exists, an error is raised."
   (let ((git-repo-path (magit-toplevel))
         (current-file (buffer-file-name)))
     (cond
      ;; Case 1: Valid git repo path (not nil and not containing "fatal")
-     ((and git-repo-path 
+     ((and git-repo-path
            (stringp git-repo-path)
            (not (string-match-p "fatal" git-repo-path)))
       (format "*aider:%s*" (file-truename git-repo-path)))
      ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
      (current-file
-      (format "*aider:%s*" 
+      (format "*aider:%s*"
               (file-truename (file-name-directory current-file))))
      ;; Case 3: No git repo and no buffer file
      (t
       (error "Not in a git repository and current buffer is not associated with a file")))))
 
 (defun aider--process-message-if-multi-line (str)
-  "Entering multi-line chat messages
+  "Entering multi-line chat messages.
 https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
 If STR contains newlines, wrap it in {aider\\nstr\\naider}.
 Otherwise return STR unchanged."
@@ -141,9 +142,12 @@ from the source buffer and maintaining proper process markers."
       (comint-send-string process text))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
-(defun aider--send-command (command &optional switch-to-buffer)
-  "Send COMMAND to the corresponding aider comint buffer after performing necessary checks.
-COMMAND should be a string representing the command to send."
+(defun aider--send-command (command &optional switch-to-buffer log)
+  "Send COMMAND to the corresponding aider comint buffer.
+after performing necessary checks.
+COMMAND should be a string representing the command to send.
+Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
+Optional LOG, when non-nil, logs the command to the message area."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
       (let* ((command (aider--process-message-if-multi-line command))
@@ -154,7 +158,8 @@ COMMAND should be a string representing the command to send."
               ;; Send the command to the aider process
               (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
-              ;; (message "Sent command to aider buffer: %s" (string-trim command))
+              (when log
+                (message "Sent command to aider buffer: %s" (string-trim command)))
               (when switch-to-buffer
                 (aider-switch-to-buffer))
               (sleep-for 0.2))
@@ -206,30 +211,31 @@ if nil, use current buffer."
           (font-lock-mode 1)
           (font-lock-ensure)
           (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode))
-          )
-        ))))
+                   (with-current-buffer source-buffer major-mode)))))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
   "Create a comint-based buffer and run \"aider\" for interactive conversation.
-With the universal argument, prompt to edit aider-args before running."
+With the universal argument EDIT-ARGS, prompt to edit aider-args before running."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
          (current-args (if edit-args
                            (split-string
                             (read-string "Edit aider arguments: "
-                                         (mapconcat 'identity aider-args " ")))
+                                         (mapconcat #'identity aider-args " ")))
                          aider-args)))
     (unless (comint-check-proc buffer-name)
-      (apply 'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
+      (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (aider-comint-mode)))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
-  "Handle multi-line inputs being sent to Aider."
+  "Handle multi-line inputs being sent to Aider.
+PROC is the process to send the input to.
+STRING is the input text to send.
+Optional LOG, when non-nil, logs the command to the message area."
   (comint-simple-send proc (aider--process-message-if-multi-line string)))
 
 (defun aider-core--command-completion ()
@@ -258,7 +264,7 @@ of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
 
 (defun aider-core--auto-trigger-command-completion ()
   "Automatically trigger command completion in aider buffer.
-If the last character in the current line is '/', invoke completion-at-point."
+If the last character in the current line is '/', invoke `completion-at-point`."
   (when (and (not (minibufferp))
              (> (point) (line-beginning-position))
              (eq (char-before) ?/))
@@ -266,8 +272,9 @@ If the last character in the current line is '/', invoke completion-at-point."
 
 (defun aider-core--auto-trigger-file-path-insertion ()
   "Automatically trigger file path insertion in aider buffer.
-If the current line matches one of the file-related commands followed by a space or comma,
-invoke aider-prompt-insert-file-path."
+If the current line matches one of the file-related commands
+followed by a space or comma,
+invoke `aider-prompt-insert-file-path`."
   (when (and (not (minibufferp))
              (> (point) (line-beginning-position))
              (eq (char-before) ?\s))  ; Check if last char is space

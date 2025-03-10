@@ -15,25 +15,25 @@
 ;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-add-current-file ()
-  "Send the command \"/add <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Add current file to aider session."
   (interactive)
   (aider-action-current-file "/add"))
 
 ;;;###autoload
 (defun aider-current-file-read-only ()
-  "Send the command \"/read-only <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Add current file as read only to aider session."
   (interactive)
   (aider-action-current-file "/read-only"))
 
 ;;;###autoload
 (defun aider-drop-current-file ()
-  "Send the command \"/drop <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Drop current file from aider session."
   (interactive)
   (aider-action-current-file "/drop"))
 
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)
-  "Send the command \"COMMAND-PREFIX <current buffer file full path>\" to the corresponding aider comint buffer."
+  "Perform the COMMAND-PREFIX to aider session."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
@@ -55,10 +55,10 @@
                          (with-current-buffer buffer
                            (when buffer-file-name
                              (expand-file-name buffer-file-name))))
-                       (mapcar 'window-buffer (window-list)))))
+                       (mapcar #'window-buffer (window-list)))))
     (setq files (delq nil files))
     (if files
-        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+        (let ((command (concat "/add " (mapconcat #'identity files " "))))
           (aider--send-command command nil))
       (message "No files found in the current window."))))
 
@@ -79,7 +79,7 @@ If there are more than 40 files, refuse to add and show warning message."
       (if (> (length files) max-files)
           (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
                    (length files) max-files current-suffix)
-        (let ((command (concat "/add " (mapconcat 'identity files " "))))
+        (let ((command (concat "/add " (mapconcat #'identity files " "))))
           (aider--send-command command t))
         (message "Added %d files with suffix .%s"
                  (length files) current-suffix)))))
@@ -88,12 +88,12 @@ If there are more than 40 files, refuse to add and show warning message."
 ;;;###autoload
 (defun aider-magit-show-last-commit (&optional log)
   "Show the last commit message using Magit.
+With prefix argument (LOG), show commit log instead of single commit.
 If Magit is not installed, report that it is required."
   (interactive "P")
   (if log
       (magit-log-current nil)
-    (magit-show-commit "HEAD")
-    ))
+    (magit-show-commit "HEAD")))
 
 ;; Modified function to get command from user and send it based on selected region
 ;;;###autoload
@@ -110,42 +110,42 @@ If Magit is not installed, report that it is required."
 COMMAND-PREFIX should be either \"/add\" or \"/read-only\"."
   (let ((files (dired-get-marked-files)))
     (if files
-        (let ((command (concat command-prefix " " (mapconcat 'expand-file-name files " "))))
+        (let ((command (concat command-prefix " " (mapconcat #'expand-file-name files " "))))
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
 ;;;###autoload
 (defun aider-batch-add-dired-marked-files ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/add\" command."
+  "Add multiple Dired marked files with the \"/add\" command."
   (interactive)
   (aider--batch-add-dired-marked-files-with-command "/add"))
 
 ;;;###autoload
 (defun aider-batch-add-dired-marked-files-read-only ()
-  "Add multiple Dired marked files to the Aider buffer with the \"/read-only\" command."
+  "Add multiple Dired marked files with the \"/read-only\" command."
   (interactive)
   (aider--batch-add-dired-marked-files-with-command "/read-only"))
 
 ;;;###autoload
 (defun aider-add-current-file-or-dired-marked-files (&optional read-only)
   "Add files to Aider based on current context.
-If current buffer is a dired buffer, add all marked files.
+If current buffer is a Dired buffer, add all marked files.
 Otherwise, add the current file.
-With prefix argument (C-u), add files as read-only."
+With prefix argument READ-ONLY, add files as read-only."
   (interactive "P")
   (if read-only
       (aider-add-current-file-or-dired-marked-files-read-only)
-    (if (eq major-mode 'dired-mode)
+    (if (derived-mode-p 'dired-mode)
         (aider-batch-add-dired-marked-files)
       (aider-add-current-file))))
 
 ;;;###autoload
 (defun aider-add-current-file-or-dired-marked-files-read-only ()
   "Add files to Aider as read-only based on current context.
-If current buffer is a dired buffer, add all marked files as read-only.
+If current buffer is a Dired buffer, add all marked files as read-only.
 Otherwise, add the current file as read-only."
   (interactive)
-  (if (eq major-mode 'dired-mode)
+  (if (derived-mode-p 'dired-mode)
       (aider-batch-add-dired-marked-files-read-only)
     (aider-current-file-read-only)))
 
