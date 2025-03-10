@@ -16,9 +16,9 @@
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
 (defun aider-ask-question (&optional no-context)
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/ask \".
-If a region is active, append the region text to the question.
-If cursor is inside a function, include the function name as context."
+  "Ask aider question.
+If NO-CONTEXT is non-nil, send the question to the general aider comint buffer.
+Otherwise, send the question to the corresponding aider comint buffer."
   (interactive "P")
   ;; Dispatch to general question if in aider buffer
   (if (or no-context
@@ -34,17 +34,16 @@ If cursor is inside a function, include the function name as context."
            (question (if function-name
                          (concat prompt raw-question)
                        raw-question))
-           (region-text (and (region-active-p) 
+           (region-text (and (region-active-p)
                              (buffer-substring-no-properties (region-beginning) (region-end))))
            (question-context (if region-text
                                  (format "%s: %s" question region-text)
                                question)))
-      (aider-current-file-command-and-switch "/ask " question-context)
-      )))
+      (aider-current-file-command-and-switch "/ask " question-context))))
 
 ;;;###autoload
 (defun aider-general-question ()
-  "Prompt the user for a general question and send it to the corresponding aider comint buffer prefixed with \"/ask \"."
+  "Ask aider question without context."
   (interactive)
   (let ((question (aider-read-string "Enter general question to ask: ")))
     (let ((command (format "/ask %s" question)))
@@ -59,8 +58,7 @@ If cursor is inside a function, include the function name as context."
 ;; New function to explain the code in the selected region
 ;;;###autoload
 (defun aider-region-explain ()
-  "Get a command from the user and send it to the corresponding aider comint buffer based on the selected region.
-The command will be formatted as \"/ask \" followed by the text from the selected region."
+  "Ask Aider to explain the selected region of code."
   (interactive)
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
@@ -85,14 +83,14 @@ Prompts user for specific questions about the function."
   (if-let ((function-name (which-function)))
       (let* ((prefix (format "explain %s: " function-name))
              (prompt (format "Enter your question to %s" prefix))
-             (user-question (aider-read-string prompt))
-             (command (format "/ask %s%s" prefix user-question)))
+             (user-question (aider-read-string prompt)))
         (aider-current-file-command-and-switch "/ask " (concat prefix user-question)))
     (message "No function found at cursor position.")))
 
 ;;;###autoload
 (defun aider-function-or-region-explain ()
-  "Call aider-function-explain when no region is selected, otherwise call aider-region-explain."
+  "Call `aider-function-explain` when no region is selected.
+otherwise call `aider-region-explain`."
   (interactive)
   (if (region-active-p)
       (aider-region-explain)
@@ -101,8 +99,7 @@ Prompts user for specific questions about the function."
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
 (defun aider-debug-exception ()
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/debug \",
-replacing all newline characters except for the one at the end."
+  "Ask Aider to investigate an exception."
   (interactive)
   (let ((command (aider-read-string "Enter exception, can be multiple lines: ")))
     (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
@@ -110,13 +107,13 @@ replacing all newline characters except for the one at the end."
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
 (defun aider-help (&optional homepage)
-  "Prompt the user for a command and send it to the corresponding aider comint buffer prefixed with \"/help \"."
+  "Ask aider with help.
+With prefix argument HOMEPAGE, open the Aider home page in a browser."
   (interactive "P")
   (if homepage
-      (aider-open-aider-home) 
+      (aider-open-aider-home)
     (let ((command (aider-read-string "Enter help question: ")))
-      (aider-current-file-command-and-switch "/help " command))
-      ))
+      (aider-current-file-command-and-switch "/help " command))))
 
 ;;;###autoload
 (defun aider-open-aider-home ()

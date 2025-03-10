@@ -12,6 +12,7 @@
 ;;; Code:
 
 (require 'helm)
+(require 'helm-mode)
 (require 'cl-lib)  ; For `cl-subseq`
 
 (defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input)
@@ -32,8 +33,7 @@ INITIAL-INPUT is optional initial input string."
                  :must-match nil
                  :name "Helm Read String, Use C-c C-y to edit selected command. C-b and C-f to move cursor during editing"
                  :fuzzy t
-                 :initial-input initial-input
-                 )))
+                 :initial-input initial-input)))
     ;; Add to history if non-empty and save
     (unless (string-empty-p input)
       (push input history)
@@ -53,10 +53,9 @@ INITIAL-INPUT is optional initial input string."
 (declare-function aider-read-string "aider")
 
 ;;;###autoload
-(with-eval-after-load 'aider
-  (if (featurep 'helm)
-    (defalias 'aider-read-string 'aider-helm-read-string)
-    (message "Helm is not available. Please install helm package to use aider-helm features")))
+(if (featurep 'helm)
+    (defalias 'aider-read-string #'aider-helm-read-string)
+  (message "Helm is not available. Please install helm package to use aider-helm features"))
 
 (provide 'aider-helm)
 ;;; aider-helm.el ends here

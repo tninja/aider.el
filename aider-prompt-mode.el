@@ -12,9 +12,15 @@
 (require 'org)
 (require 'aider-core)
 
+(defvar yas-snippet-dirs)
+
+(declare-function yas-load-directory "yasnippet" (dir))
+(declare-function yas-minor-mode "yasnippet")
+(declare-function evil-define-key* "evil" (state map key def))
+
 ;;;###autoload
 (defcustom aider-prompt-file-name ".aider.prompt.org"
-  "File name that will automatically enable aider-prompt-mode when opened.
+  "File name that will automatically enable `aider-prompt-mode` when opened.
 This is the file name without path."
   :type 'string
   :group 'aider)
@@ -64,6 +70,10 @@ inherit syntax highlighting, then close the temporary buffer."
         (kill-buffer filename-buffer)))))
 
 (defun aider--extract-filename-from-command (command-str)
+  "Extract filename from COMMAND-STR if it matches an aider command pattern.
+The function looks for patterns like '/command filename' and checks if the
+extracted filename exists. Returns the filename if found and exists, otherwise
+returns nil."
   (let ((filename nil))
     (when (string-match "^/[a-z]+ +\\([^ ]+\\)" (string-trim command-str))
       (setq filename (match-string 1 command-str))
@@ -73,14 +83,11 @@ inherit syntax highlighting, then close the temporary buffer."
 
 ;;;###autoload
 (defun aider-send-region-by-line ()
-  "Get the text of the current selected region, split them into lines,
-strip the newline character from each line,
-for each non-empty line, send it to aider session.
-If no region is selected, show a message."
+  "Send current region to aider line by line."
   (interactive)
   (if (region-active-p)
-      (let ((region-text (buffer-substring-no-properties 
-                          (region-beginning) 
+      (let ((region-text (buffer-substring-no-properties
+                          (region-beginning)
                           (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
@@ -90,8 +97,7 @@ If no region is selected, show a message."
 
 ;;;###autoload
 (defun aider-send-block-or-region ()
-  "Send the current active region text or, if no region is active, send the current paragraph content to the aider session.
-When sending paragraph content, preserve cursor position and deactivate mark afterwards."
+  "Send the block or selected region to aider as a single prompt."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
@@ -138,10 +144,11 @@ If file doesn't exist, create it with command binding help and sample prompt."
       (message "Not in a git repository"))))
 
 (defun aider--setup-snippets ()
-  "Setup YASnippet directories for aider-prompt-mode."
+  "Setup YASnippet directories for `aider-prompt-mode`."
   (when (featurep 'yasnippet)
     (let ((snippet-dir (expand-file-name "snippets"
-                                       (file-name-directory (file-truename (locate-library "aider"))))))
+                                         (file-name-directory (file-truename (locate-library "aider"))))))
+      (require 'yasnippet)
       (add-to-list 'yas-snippet-dirs snippet-dir t)
       (yas-load-directory snippet-dir))))
 
@@ -165,9 +172,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
 
 ;;;###autoload
 (defun aider-prompt-insert-file-path ()
-  "Prompt for a file path with completion and insert the selected file name at point.
-The user is presented with a find-file–like interface. Only existing files can be selected.
-The path inserted will be relative to the git repository root."
+  "Select and insert the relative file path to git repository root."
   (interactive)
   (let* ((git-root (magit-toplevel))
          (file (read-file-name "Select file: " git-root nil t)))
@@ -183,7 +188,7 @@ The path inserted will be relative to the git repository root."
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload
 (define-derived-mode aider-prompt-mode org-mode "Aider Prompt"
-  "Major mode derived from org-mode for editing aider prompt files.
+  "Major mode derived from `org-mode` for editing aider prompt files.
 Special commands:
 \\{aider-prompt-mode-map}"
   ;; Basic setup
@@ -202,11 +207,13 @@ Special commands:
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
-  (when (featurep 'evil)
-    (evil-define-key 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+  (add-hook 'aider-prompt-mode-hook
+            (lambda ()
+              (when (bound-and-true-p evil-mode)
+                (evil-define-key* 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))))
 
 ;;;###autoload
-(add-to-list 'auto-mode-alist 
+(add-to-list 'auto-mode-alist
              `(,(concat "/" (regexp-quote aider-prompt-file-name) "\\'") . aider-prompt-mode))
 
 (provide 'aider-prompt-mode)
