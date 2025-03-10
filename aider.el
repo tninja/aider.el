@@ -8,7 +8,8 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; This package provides an interactive interface to communicate with https://github.com/paul-gauthier/aider.
+;; This package provides an interactive interface
+;; to communicate with https://github.com/paul-gauthier/aider.
 
 ;;; Code:
 
@@ -37,10 +38,10 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ((variable :initform 'aider--switch-to-buffer-other-frame)
    (format :initform "%k %d %v")
    (reader :initform #'transient-lisp-variable--read-value))
-  "Class for toggling aider--switch-to-buffer-other-frame.")
+  "Class for toggling `aider--switch-to-buffer-other-frame`.")
 
 (transient-define-infix aider--infix-switch-to-buffer-other-frame ()
-  "Toggle aider--switch-to-buffer-other-frame between nil and t."
+  "Toggle `aider--switch-to-buffer-other-frame` between nil and t."
   :class 'aider--switch-to-buffer-type
   :key "^"
   :description "Open in new frame"
@@ -103,7 +104,8 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 ;; Function to reset the Aider buffer
 ;;;###autoload
 (defun aider-reset (&optional clear)
-  "Send the command \"/reset\" to the Aider buffer."
+  "Send the command \"/reset\" to the Aider buffer.
+With prefix argument CLEAR, clear the buffer contents instead of just resetting."
   (interactive "P")
   (if clear
       (aider-clear-buffer)
@@ -118,6 +120,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 ;;;###autoload
 (defun aider-other-process-command (&optional manual)
   "Send process control commands to aider.
+With prefix argument MANUAL, manually enter the command
 Prompts user to select from a list of available commands:
 - /clear: Clear the chat history
 - /copy: Copy the last chat message
@@ -132,7 +135,7 @@ Prompts user to select from a list of available commands:
   (interactive "P")
   (if manual
       (aider-general-command)
-    (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map" 
+    (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map"
                        "/map-refresh" "/paste" "/settings" "/tokens"))
            (command (completing-read "Select command: " commands nil t)))
       (aider--send-command command t))))
@@ -140,7 +143,7 @@ Prompts user to select from a list of available commands:
 ;; Function to send a custom command to corresponding aider buffer
 ;;;###autoload
 (defun aider-general-command ()
-  "Prompt the user to input COMMAND and send it to the corresponding aider comint buffer."
+  "Input COMMAND and send it to the corresponding aider comint buffer."
   (interactive)
   (let ((command (aider-read-string "Enter command to send to aider: ")))
     ;; Use the shared helper function to send the command
@@ -150,7 +153,7 @@ Prompts user to select from a list of available commands:
 ;;;###autoload
 (defun aider-change-model (leaderboards)
   "Interactively select and change AI model in current aider session.
-With prefix argument (C-u), open the Aider LLM leaderboard in a browser."
+With prefix argument LEADERBOARDS, open the Aider LLM leaderboard in a browser."
   (interactive "P")
   (if leaderboards
       (browse-url "https://aider.chat/docs/leaderboards/")
@@ -163,9 +166,11 @@ With prefix argument (C-u), open the Aider LLM leaderboard in a browser."
   "Private function for model selection with completion."
   (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models)))
 
-;; doom
-(when (featurep 'doom)
-  (require 'aider-doom))
+;; now you should explicitly require the modules you need
+
+;; ;; doom
+;; (when (featurep 'doom)
+;;   (require 'aider-doom))
 
 (provide 'aider)
 
