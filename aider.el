@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.4.0
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (helm "3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (helm "3.0") (markdown-mode "2.5")
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0

@@ -54,7 +54,7 @@
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], and [[https://github.com/magit/magit][Magit]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
 - Install aider.el with the following code:
 
 *** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
@@ -268,8 +268,7 @@ You can have helm-based completion with run the following code, after install he
   - [X] yasnippet support
 - Better support for comint buffer
   - Better comint syntax color solution
-    - [X] syntax color rendering can be triggered through aider-switch-to-buffer, given codeing buffer major mode
-    - [X] syntax color rendering can be triggered through /add, /read-only through aider-prompt-file
+    - [X] use syntax highlight in markdown-mode to render text and code in aider-comint-mode
   - Get enhancement from code in major mode of aider-prompt-file
     - [X] aider command syntax highlight
     - [X] aider command completion
