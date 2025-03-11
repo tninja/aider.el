@@ -57,13 +57,36 @@ When nil, use standard `display-buffer' behavior.")
     map)
   "Keymap for `aider-comint-mode'.")
 
+(defun aider--inherit-markdown-highlighting ()
+  ;; 1) Use `markdown-mode`'s syntax table:
+  (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
+  ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
+  (setq-local syntax-propertize-function #'markdown-syntax-propertize)
+  ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting:
+  (setq-local font-lock-defaults
+              (list markdown-mode-font-lock-keywords
+                    ;; KEYWORDS-ONLY
+                    nil
+                    ;; CASE-FOLD
+                    nil
+                    ;; SYNTAX-ALIST
+                    nil
+                    ;; SYNTAX-BEGIN
+                    nil))
+  ;; 4) If you want fenced code blocks to be highlighted in their language:
+  (setq-local markdown-fontify-code-blocks-natively t)
+  ;; 5) (Optional) You could run `markdown-mode-hook` here if you want:
+  ;; (run-hooks 'markdown-mode-hook)
+  ;; 6) Ensure the buffer gets (re)fontified:
+  (font-lock-ensure))
+
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
 \\{aider-comint-mode-map}"
   ;; Set up font-lock
-  (setq font-lock-defaults '(nil t))
-  (font-lock-add-keywords nil aider-font-lock-keywords t)
+  ;; (setq font-lock-defaults '(nil t))
+  ;; (font-lock-add-keywords nil aider-font-lock-keywords t)
   ;; Set up input sender for multi-line handling
   (setq-local comint-input-sender 'aider-input-sender)
   ;; Add command completion hooks
@@ -185,61 +208,9 @@ if nil, use current buffer."
               (pop-to-buffer buffer))
             (when (with-current-buffer source-buffer
                     (derived-mode-p 'prog-mode))
-              (aider--inherit-source-highlighting source-buffer)))
+              ;; (aider--inherit-source-highlighting source-buffer)
+            ))
         (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
-
-(defun aider--inherit-markdown-highlighting ()
-  "Enhance Aider buffer with proper markdown syntax highlighting.
-This function applies markdown syntax highlighting to the Aider buffer
-to better display markdown content in conversations."
-  (with-current-buffer (aider-buffer-name)
-    ;; 确保 markdown-mode 已加载
-    (require 'markdown-mode)
-    
-    ;; 保存当前的 aider 特定关键字
-    (let ((aider-keywords aider-font-lock-keywords))
-      
-      ;; 从 markdown-mode 获取完整的语法高亮设置
-      (let ((markdown-syntax-table nil)
-            (markdown-font-lock-keywords nil)
-            (markdown-mode-syntax-table nil))
-        
-        ;; 在临时缓冲区中获取 markdown 设置
-        (with-temp-buffer
-          (markdown-mode)
-          (setq markdown-syntax-table (syntax-table)
-                markdown-font-lock-keywords font-lock-keywords
-                markdown-mode-syntax-table markdown-mode-syntax-table))
-        
-        ;; 应用 markdown 语法表
-        (set-syntax-table markdown-syntax-table)
-        
-        ;; 设置 markdown 特定的变量
-        (setq-local markdown-hide-markup nil)  ;; 确保标记可见
-        (setq-local markdown-fontify-code-blocks-natively t)  ;; 原生高亮代码块
-        
-        ;; 合并 markdown 关键字与 aider 特定关键字
-        (setq font-lock-defaults 
-              `(,(append markdown-font-lock-keywords aider-keywords)
-                nil nil nil nil
-                (font-lock-multiline . t)))
-        
-        ;; 启用重要的 markdown 功能
-        (setq-local font-lock-multiline t)
-        (setq-local font-lock-extend-region-functions 
-                    (append font-lock-extend-region-functions
-                            '(markdown-font-lock-extend-region)))
-        
-        ;; 确保代码块语法高亮
-        (when (fboundp 'markdown-syntax-propertize)
-          (setq-local syntax-propertize-function #'markdown-syntax-propertize))
-        
-        ;; 启用语法高亮并刷新显示
-        (font-lock-mode 1)
-        (font-lock-flush)
-        (font-lock-ensure)
-        
-        (message "Enhanced markdown syntax highlighting applied to Aider buffer")))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
