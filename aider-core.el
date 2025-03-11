@@ -193,31 +193,25 @@ if nil, use current buffer."
 This function applies markdown syntax highlighting to the Aider buffer
 to better display markdown content in conversations."
   (with-current-buffer (aider-buffer-name)
-    (let ((markdown-keywords (with-temp-buffer
-                               (markdown-mode)
-                               font-lock-keywords))
-          (markdown-keywords-only (with-temp-buffer
-                                    (markdown-mode)
-                                    font-lock-keywords-only))
-          (markdown-keywords-case-fold-search (with-temp-buffer
-                                                (markdown-mode)
-                                                font-lock-keywords-case-fold-search))
-          (markdown-defaults (with-temp-buffer
-                               (markdown-mode)
-                               font-lock-defaults)))
-      (when markdown-keywords
-        (setq font-lock-defaults
-              (if markdown-defaults
-                  markdown-defaults
-                `((,markdown-keywords)
-                  nil
-                  ,markdown-keywords-case-fold-search)))
-        (setq font-lock-keywords markdown-keywords
-              font-lock-keywords-only markdown-keywords-only
-              font-lock-keywords-case-fold-search markdown-keywords-case-fold-search)
-        (font-lock-mode 1)
-        (font-lock-ensure)
-        (message "Aider buffer syntax highlighting inherited from markdown-mode")))))
+    ;; 确保 markdown-mode 已加载
+    (require 'markdown-mode)
+    
+    ;; 获取 markdown-mode 的语法高亮设置
+    (let ((markdown-keywords
+           (with-temp-buffer
+             (markdown-mode)
+             (font-lock-set-defaults)
+             font-lock-keywords)))
+      
+      ;; 合并 markdown 关键字与现有关键字
+      (font-lock-add-keywords nil markdown-keywords 'append)
+      
+      ;; 启用语法高亮并刷新显示
+      (font-lock-mode 1)
+      (font-lock-flush)
+      (font-lock-ensure)
+      
+      (message "Markdown syntax highlighting applied to Aider buffer"))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
