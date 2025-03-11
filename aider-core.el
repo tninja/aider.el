@@ -205,7 +205,7 @@ if nil, use current buffer."
           (progn
             (if aider--switch-to-buffer-other-frame
                 (switch-to-buffer-other-frame buffer)
-              (pop-to-buffer buffer))
+              (pop-to-buffer buffer)))
             ;; (when (with-current-buffer source-buffer
             ;;         (derived-mode-p 'prog-mode))
             ;;   (aider--inherit-source-highlighting source-buffer)))
