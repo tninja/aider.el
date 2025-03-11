@@ -12,6 +12,7 @@
 (require 'comint)
 (require 'magit)
 (require 'savehist)
+(require 'markdown-mode)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -186,7 +187,36 @@ if nil, use current buffer."
               (aider--inherit-source-highlighting source-buffer)))
         (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
 
-;; I want to add a function: aider--inherit-markdown-highlighting. It is similar to aider--inherit-source-highlighting, But it will inherit syntax highlighting from markdown-mode
+(defun aider--inherit-markdown-highlighting ()
+  "Inherit syntax highlighting settings from markdown-mode.
+This function applies markdown syntax highlighting to the Aider buffer
+to better display markdown content in conversations."
+  (with-current-buffer (aider-buffer-name)
+    (let ((markdown-keywords (with-temp-buffer
+                               (markdown-mode)
+                               font-lock-keywords))
+          (markdown-keywords-only (with-temp-buffer
+                                    (markdown-mode)
+                                    font-lock-keywords-only))
+          (markdown-keywords-case-fold-search (with-temp-buffer
+                                                (markdown-mode)
+                                                font-lock-keywords-case-fold-search))
+          (markdown-defaults (with-temp-buffer
+                               (markdown-mode)
+                               font-lock-defaults)))
+      (when markdown-keywords
+        (setq font-lock-defaults
+              (if markdown-defaults
+                  markdown-defaults
+                `((,markdown-keywords)
+                  nil
+                  ,markdown-keywords-case-fold-search)))
+        (setq font-lock-keywords markdown-keywords
+              font-lock-keywords-only markdown-keywords-only
+              font-lock-keywords-case-fold-search markdown-keywords-case-fold-search)
+        (font-lock-mode 1)
+        (font-lock-ensure)
+        (message "Aider buffer syntax highlighting inherited from markdown-mode")))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
