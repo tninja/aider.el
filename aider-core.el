@@ -186,6 +186,8 @@ if nil, use current buffer."
               (aider--inherit-source-highlighting source-buffer)))
         (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
 
+;; I want to add a function: aider--inherit-markdown-highlighting. It is similar to aider--inherit-source-highlighting, But it will inherit syntax highlighting from markdown-mode
+
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
   (with-current-buffer source-buffer
@@ -196,14 +198,14 @@ if nil, use current buffer."
           (source-defaults font-lock-defaults))
       (with-current-buffer (aider-buffer-name)
         (when (not (string-equal (prin1-to-string source-keywords)
-                               (prin1-to-string font-lock-keywords)))
-            ;; (set-syntax-table source-syntax-table)
-            (setq font-lock-defaults
-                  (if source-defaults
-                      source-defaults
-                    `((,source-keywords)
-                      nil
-                      ,source-keywords-case-fold-search)))
+                                 (prin1-to-string font-lock-keywords)))
+          ;; (set-syntax-table source-syntax-table)
+          (setq font-lock-defaults
+                (if source-defaults
+                    source-defaults
+                  `((,source-keywords)
+                    nil
+                    ,source-keywords-case-fold-search)))
           (setq font-lock-keywords source-keywords
                 font-lock-keywords-only source-keywords-only
                 font-lock-keywords-case-fold-search source-keywords-case-fold-search)
