@@ -195,22 +195,18 @@ to better display markdown content in conversations."
   (with-current-buffer (aider-buffer-name)
     ;; 确保 markdown-mode 已加载
     (require 'markdown-mode)
-    
     ;; 获取 markdown-mode 的语法高亮设置
     (let ((markdown-keywords
            (with-temp-buffer
              (markdown-mode)
              (font-lock-set-defaults)
              font-lock-keywords)))
-      
       ;; 合并 markdown 关键字与现有关键字
       (font-lock-add-keywords nil markdown-keywords 'append)
-      
       ;; 启用语法高亮并刷新显示
       (font-lock-mode 1)
       (font-lock-flush)
       (font-lock-ensure)
-      
       (message "Markdown syntax highlighting applied to Aider buffer"))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
