@@ -189,25 +189,57 @@ if nil, use current buffer."
         (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
 
 (defun aider--inherit-markdown-highlighting ()
-  "Inherit syntax highlighting settings from markdown-mode.
+  "Enhance Aider buffer with proper markdown syntax highlighting.
 This function applies markdown syntax highlighting to the Aider buffer
 to better display markdown content in conversations."
   (with-current-buffer (aider-buffer-name)
     ;; 确保 markdown-mode 已加载
     (require 'markdown-mode)
-    ;; 获取 markdown-mode 的语法高亮设置
-    (let ((markdown-keywords
-           (with-temp-buffer
-             (markdown-mode)
-             (font-lock-set-defaults)
-             font-lock-keywords)))
-      ;; 合并 markdown 关键字与现有关键字
-      (font-lock-add-keywords nil markdown-keywords 'append)
-      ;; 启用语法高亮并刷新显示
-      (font-lock-mode 1)
-      (font-lock-flush)
-      (font-lock-ensure)
-      (message "Markdown syntax highlighting applied to Aider buffer"))))
+    
+    ;; 保存当前的 aider 特定关键字
+    (let ((aider-keywords aider-font-lock-keywords))
+      
+      ;; 从 markdown-mode 获取完整的语法高亮设置
+      (let ((markdown-syntax-table nil)
+            (markdown-font-lock-keywords nil)
+            (markdown-mode-syntax-table nil))
+        
+        ;; 在临时缓冲区中获取 markdown 设置
+        (with-temp-buffer
+          (markdown-mode)
+          (setq markdown-syntax-table (syntax-table)
+                markdown-font-lock-keywords font-lock-keywords
+                markdown-mode-syntax-table markdown-mode-syntax-table))
+        
+        ;; 应用 markdown 语法表
+        (set-syntax-table markdown-syntax-table)
+        
+        ;; 设置 markdown 特定的变量
+        (setq-local markdown-hide-markup nil)  ;; 确保标记可见
+        (setq-local markdown-fontify-code-blocks-natively t)  ;; 原生高亮代码块
+        
+        ;; 合并 markdown 关键字与 aider 特定关键字
+        (setq font-lock-defaults 
+              `(,(append markdown-font-lock-keywords aider-keywords)
+                nil nil nil nil
+                (font-lock-multiline . t)))
+        
+        ;; 启用重要的 markdown 功能
+        (setq-local font-lock-multiline t)
+        (setq-local font-lock-extend-region-functions 
+                    (append font-lock-extend-region-functions
+                            '(markdown-font-lock-extend-region)))
+        
+        ;; 确保代码块语法高亮
+        (when (fboundp 'markdown-syntax-propertize)
+          (setq-local syntax-propertize-function #'markdown-syntax-propertize))
+        
+        ;; 启用语法高亮并刷新显示
+        (font-lock-mode 1)
+        (font-lock-flush)
+        (font-lock-ensure)
+        
+        (message "Enhanced markdown syntax highlighting applied to Aider buffer")))))
 
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
