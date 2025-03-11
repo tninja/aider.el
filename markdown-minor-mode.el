@@ -39,6 +39,16 @@
     map)
   "Keymap for `markdown-minor-mode'.")
 
+;; Store original values
+(defvar-local markdown-minor-mode--original-font-lock-keywords nil
+  "Original font-lock-keywords before enabling markdown-minor-mode.")
+
+(defvar-local markdown-minor-mode--original-font-lock-defaults nil
+  "Original font-lock-defaults before enabling markdown-minor-mode.")
+
+(defvar-local markdown-minor-mode--original-syntax-propertize-function nil
+  "Original syntax-propertize-function before enabling markdown-minor-mode.")
+
 ;;;###autoload
 (define-minor-mode markdown-minor-mode
   "Minor mode for editing Markdown files.
@@ -49,13 +59,49 @@ This minor mode provides Markdown syntax highlighting for any major mode."
       (markdown-minor-mode-enable)
     (markdown-minor-mode-disable)))
 
+(defun markdown-minor-mode--initialize-markdown-variables ()
+  "Initialize necessary variables from markdown-mode."
+  ;; Set essential markdown variables
+  (setq-local markdown-mode-font-lock-keywords
+              (markdown-get-mode-font-lock-keywords))
+  
+  ;; Initialize markdown syntax table if needed
+  (unless (boundp 'markdown-mode-syntax-table)
+    (with-temp-buffer
+      (markdown-mode)
+      (setq-local markdown-mode-syntax-table (syntax-table))))
+  
+  ;; Initialize other important markdown variables
+  (setq-local markdown-list-indent-width 4)
+  (setq-local markdown-code-lang-modes
+              (if (boundp 'markdown-code-lang-modes)
+                  markdown-code-lang-modes
+                '(("cpp" . c++-mode)
+                  ("c" . c-mode)
+                  ("python" . python-mode)
+                  ("js" . js-mode)
+                  ("javascript" . js-mode)
+                  ("java" . java-mode)
+                  ("ruby" . ruby-mode)
+                  ("html" . html-mode)
+                  ("xml" . xml-mode)
+                  ("css" . css-mode)
+                  ("shell" . sh-mode)
+                  ("bash" . sh-mode))))
+  
+  ;; Set up markdown regex patterns if not already defined
+  (unless (boundp 'markdown-regex-italic)
+    (markdown-setup-font-lock)))
+
 (defun markdown-minor-mode-enable ()
   "Enable Markdown minor mode."
   ;; Save original font-lock settings
-  (set (make-local-variable 'markdown-minor-mode-font-lock-keywords)
-       font-lock-keywords)
-  (set (make-local-variable 'markdown-minor-mode-font-lock-defaults)
-       font-lock-defaults)
+  (setq markdown-minor-mode--original-font-lock-keywords font-lock-keywords
+        markdown-minor-mode--original-font-lock-defaults font-lock-defaults
+        markdown-minor-mode--original-syntax-propertize-function syntax-propertize-function)
+  
+  ;; Initialize necessary markdown-mode variables
+  (markdown-minor-mode--initialize-markdown-variables)
   
   ;; Apply markdown font-lock settings
   (setq font-lock-defaults
@@ -68,7 +114,7 @@ This minor mode provides Markdown syntax highlighting for any major mode."
                           keymap help-echo mouse-face))))
   
   ;; Set up syntax properties
-  (set (make-local-variable 'syntax-propertize-function) #'markdown-syntax-propertize)
+  (setq-local syntax-propertize-function #'markdown-syntax-propertize)
   
   ;; Add hooks for syntax highlighting
   (add-hook 'syntax-propertize-extend-region-functions
@@ -85,22 +131,15 @@ This minor mode provides Markdown syntax highlighting for any major mode."
 (defun markdown-minor-mode-disable ()
   "Disable Markdown minor mode."
   ;; Restore original font-lock settings
-  (when (local-variable-p 'markdown-minor-mode-font-lock-keywords)
-    (setq font-lock-keywords markdown-minor-mode-font-lock-keywords)
-    (kill-local-variable 'markdown-minor-mode-font-lock-keywords))
-  
-  (when (local-variable-p 'markdown-minor-mode-font-lock-defaults)
-    (setq font-lock-defaults markdown-minor-mode-font-lock-defaults)
-    (kill-local-variable 'markdown-minor-mode-font-lock-defaults))
+  (setq font-lock-keywords markdown-minor-mode--original-font-lock-keywords
+        font-lock-defaults markdown-minor-mode--original-font-lock-defaults
+        syntax-propertize-function markdown-minor-mode--original-syntax-propertize-function)
   
   ;; Remove hooks
   (remove-hook 'syntax-propertize-extend-region-functions
                #'markdown-syntax-propertize-extend-region t)
   (remove-hook 'jit-lock-after-change-extend-region-functions
                #'markdown-font-lock-extend-region-function t)
-  
-  ;; Kill local variables
-  (kill-local-variable 'syntax-propertize-function)
   
   ;; Force font-lock refresh
   (font-lock-flush))
