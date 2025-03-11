@@ -191,7 +191,7 @@ Optional LOG, when non-nil, logs the command to the message area."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
-(defun aider-switch-to-buffer (&optional source-buffer)
+(defun aider-switch-to-buffer (&optional source-buffer) ;; TODO: remove source-buffer
   "Switch to the Aider buffer.
 When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame.
 If the current buffer is already the Aider buffer, do nothing.
@@ -206,12 +206,12 @@ if nil, use current buffer."
             (if aider--switch-to-buffer-other-frame
                 (switch-to-buffer-other-frame buffer)
               (pop-to-buffer buffer))
-            (when (with-current-buffer source-buffer
-                    (derived-mode-p 'prog-mode))
-              ;; (aider--inherit-source-highlighting source-buffer)
-            ))
+            ;; (when (with-current-buffer source-buffer
+            ;;         (derived-mode-p 'prog-mode))
+            ;;   (aider--inherit-source-highlighting source-buffer)))
         (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
 
+;; TODO: deprecate this
 (defun aider--inherit-source-highlighting (source-buffer)
   "Inherit syntax highlighting settings from SOURCE-BUFFER."
   (with-current-buffer source-buffer

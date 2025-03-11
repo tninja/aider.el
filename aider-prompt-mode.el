@@ -40,8 +40,9 @@ Otherwise, send the line under cursor."
   (if (region-active-p)
       (aider-send-region-by-line)
     (let ((line (thing-at-point 'line t)))
-      (aider--send-line-with-code-syntax line))))
+      (aider--send-command (string-trim line) t))))
 
+;; TODO: deprecate this
 (defun aider--send-line-with-code-syntax (line)
   "Trim LINE and send it to the Aider buffer.
 If command contains a filename, open that file in a temp buffer,
@@ -85,7 +86,7 @@ returns nil."
                           (region-end))))
         (mapc (lambda (line)
                 (unless (string-empty-p line)
-                  (aider--send-line-with-code-syntax line)))
+                  (aider--send-command (string-trim line) t)))
               (split-string region-text "\n" t)))
     (message "No region selected.")))
 
