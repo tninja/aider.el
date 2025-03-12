@@ -1,4 +1,4 @@
-;;; aider.el --- Interact with Aider: AI-powered pair programming, made simple. -*- lexical-binding: t; -*-
+;;; aider.el --- Interact with Aider: AI pair programming made simple -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.4.0

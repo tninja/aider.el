@@ -12,6 +12,12 @@
 (require 'org)
 (require 'aider-core)
 
+(defvar yas-snippet-dirs)
+
+(declare-function yas-load-directory "yasnippet" (dir))
+(declare-function yas-minor-mode "yasnippet")
+(declare-function evil-define-key* "evil" (state map key def))
+
 ;;;###autoload
 (defcustom aider-prompt-file-name ".aider.prompt.org"
   "File name that will automatically enable `aider-prompt-mode` when opened.
@@ -205,7 +211,7 @@ Special commands:
   (add-hook 'aider-prompt-mode-hook
             (lambda ()
               (when (bound-and-true-p evil-mode)
-                (evil-define-key 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))))
+                (evil-define-key* 'normal aider-prompt-mode-map (kbd "SPC") #'aider-core-insert-prompt)))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist

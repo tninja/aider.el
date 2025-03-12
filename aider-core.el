@@ -49,6 +49,8 @@ When nil, use standard `display-buffer' behavior.")
                                    ("^\x2500+" 0 '(face nil display (space :width 2))))
   "Font lock keywords for aider buffer.")
 
+(declare-function evil-define-key* "evil" (state map key def))
+
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
@@ -97,7 +99,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--inherit-markdown-highlighting)
   (when (featurep 'evil)
-    (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+    (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
