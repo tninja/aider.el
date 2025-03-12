@@ -60,6 +60,7 @@ When nil, use standard `display-buffer' behavior.")
   "Keymap for `aider-comint-mode'.")
 
 (defun aider--inherit-markdown-highlighting ()
+  "Set up markdown highlighting for aider buffer with optimized performance."
   ;; 1) Use `markdown-mode`'s syntax table:
   (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
   ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
@@ -67,19 +68,21 @@ When nil, use standard `display-buffer' behavior.")
   ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting:
   (setq-local font-lock-defaults
               (list markdown-mode-font-lock-keywords
-                    ;; KEYWORDS-ONLY
-                    nil
-                    ;; CASE-FOLD
-                    nil
-                    ;; SYNTAX-ALIST
-                    nil
-                    ;; SYNTAX-BEGIN
-                    nil))
-  ;; 4) If you want fenced code blocks to be highlighted in their language:
+                    nil ;; KEYWORDS-ONLY
+                    nil ;; CASE-FOLD
+                    nil ;; SYNTAX-ALIST
+                    nil)) ;; SYNTAX-BEGIN
+  ;; 4) Enable fenced code block highlighting:
   (setq-local markdown-fontify-code-blocks-natively t)
-  ;; 5) (Optional) You could run `markdown-mode-hook` here if you want:
-  ;; (run-hooks 'markdown-mode-hook)
-  ;; 6) Ensure the buffer gets (re)fontified:
+  ;; 5) Jit-lock and other
+  (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
+  (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
+  (setq-local font-lock-support-mode 'jit-lock-mode)  ;; Ensure JIT lock is used
+  (setq-local jit-lock-defer-time 0)
+  ;; 6) Register font-lock explicitly:
+  (font-lock-mode 1)
+  ;; 7) Force immediate fontification of visible area:
+  (font-lock-flush)
   (font-lock-ensure))
 
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"

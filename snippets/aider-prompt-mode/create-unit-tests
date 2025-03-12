@@ -1,7 +1,6 @@
 # -*- mode: snippet -*-
-# name: create-unit-tests
-# key: unittest
+# name: Create Unit Tests
+# key: unittests
 # contributor: Matic Vertačnik
 # --
-/ask Please write unit tests for the following code to ensure its proper functioning:
-$0
+/architect Generate two unit tests for the provided code: one that is expected to pass and one that is expected to fail. Ensure the tests cover both success and error conditions.
