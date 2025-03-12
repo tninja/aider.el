@@ -56,6 +56,8 @@ When nil, use standard `display-buffer' behavior.")
     map)
   "Keymap for `aider-comint-mode'.")
 
+(declare-function evil-define-key* "evil" (state map key def))
+
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
@@ -72,7 +74,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (when (featurep 'evil)
-    (evil-define-key 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+    (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 (defvar aider-read-string-history nil
   "History list for aider read string inputs.")
