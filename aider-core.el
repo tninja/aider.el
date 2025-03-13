@@ -56,10 +56,11 @@ When nil, use standard `display-buffer' behavior.")
     (set-keymap-parent map comint-mode-map)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "TAB") #'aider-core-insert-prompt)
+    (define-key map (kbd "C-c C-y") #'aider-go-ahead)
     map)
   "Keymap for `aider-comint-mode'.")
 
-(defun aider--inherit-markdown-highlighting ()
+(defun aider--apply-markdown-highlighting ()
   "Set up markdown highlighting for aider buffer with optimized performance."
   ;; 1) Use `markdown-mode`'s syntax table:
   (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
@@ -100,7 +101,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
-  (aider--inherit-markdown-highlighting)
+  (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
     (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
@@ -196,52 +197,19 @@ Optional LOG, when non-nil, logs the command to the message area."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
-(defun aider-switch-to-buffer (&optional source-buffer) ;; TODO: remove source-buffer
+(defun aider-switch-to-buffer ()
   "Switch to the Aider buffer.
 When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame.
-If the current buffer is already the Aider buffer, do nothing.
-Optional SOURCE-BUFFER specifies the buffer to inherit syntax highlighting from;
-if nil, use current buffer."
+If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (let ((source-buffer (or source-buffer (current-buffer))))
-      (if-let ((buffer (get-buffer (aider-buffer-name))))
-          (progn
-            (if aider--switch-to-buffer-other-frame
-                (switch-to-buffer-other-frame buffer)
-              (pop-to-buffer buffer)))
-            ;; (when (with-current-buffer source-buffer
-            ;;         (derived-mode-p 'prog-mode))
-            ;;   (aider--inherit-source-highlighting source-buffer)))
-        (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
-
-;; TODO: deprecate this
-(defun aider--inherit-source-highlighting (source-buffer)
-  "Inherit syntax highlighting settings from SOURCE-BUFFER."
-  (with-current-buffer source-buffer
-    (let ((source-keywords font-lock-keywords)
-          (source-keywords-only font-lock-keywords-only)
-          (source-keywords-case-fold-search font-lock-keywords-case-fold-search)
-          ;; (source-syntax-table (syntax-table))
-          (source-defaults font-lock-defaults))
-      (with-current-buffer (aider-buffer-name)
-        (when (not (string-equal (prin1-to-string source-keywords)
-                                 (prin1-to-string font-lock-keywords)))
-          ;; (set-syntax-table source-syntax-table)
-          (setq font-lock-defaults
-                (if source-defaults
-                    source-defaults
-                  `((,source-keywords)
-                    nil
-                    ,source-keywords-case-fold-search)))
-          (setq font-lock-keywords source-keywords
-                font-lock-keywords-only source-keywords-only
-                font-lock-keywords-case-fold-search source-keywords-case-fold-search)
-          (font-lock-mode 1)
-          (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))))))
+    (if-let ((buffer (get-buffer (aider-buffer-name))))
+        (progn
+          (if aider--switch-to-buffer-other-frame
+              (switch-to-buffer-other-frame buffer)
+            (pop-to-buffer buffer)))
+      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
@@ -318,7 +286,7 @@ invoke `aider-prompt-insert-file-path`."
   (interactive)
   (let ((input (aider-read-string "Enter prompt: ")))
     (when input
-      (insert input))))
+      (insert input "\n"))))
 
 (provide 'aider-core)
 

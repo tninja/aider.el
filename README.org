@@ -40,11 +40,11 @@
 
 ** Cons: aider session in comint is not fancy
 
-- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
-  - Some work-around for code color was applied, but we still don't have a fundamental solution for this right now. Vterm is good but I don't want to depend on it at this moment.
-  - Would be great if someone can solve this problem, or make it better without introduce too many complexity.
+- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
+  - *color rendering markdown-mode.el is applied and largely improved this*.
+  - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
 
-- *There is no advantage interacting with aider through this comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
+- *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
   - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
 
