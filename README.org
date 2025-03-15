@@ -242,6 +242,13 @@ You can have helm-based completion with run the following code, after install he
 - How to disable to aider auto-commit?    
   - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
 
+- What kind of model aider support? Can aider support local model?
+  - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].
+   
+- How to let aider work with your speaking language?
+  - use [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider coding conventions]]. In my case, I added "- reply in Chinese" to the CONVENTIONS.md file, and load work through [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]]. Or, put sth like following into aider-args variable. 
+    - "--read" (expand-file-name "~/.emacs.d/.emacs/aider/CONVENTIONS.md")
+
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
   - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
