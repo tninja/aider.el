@@ -1,5 +1,7 @@
 #+TITLE: aider.el : aider (AI Pair Programming) Inside Emacs
 
+[[file:README.zh-cn.org][中文版]]
+
 * Table of Contents
 - [[#introduction][Introduction]]
   - [[#pros-ui-context-awareness-ai-pair-programming][Pros: UI, Context Awareness AI Pair Programming]]
