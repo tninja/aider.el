@@ -226,7 +226,9 @@ With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
     (unless (comint-check-proc buffer-name)
       (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
-        (aider-comint-mode)))
+        (aider-comint-mode))
+      ;; show message of current-args as a string (separate by space) in minibuffer, if current-args is not empty. Otherwise, show "No args provided."
+      )
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
