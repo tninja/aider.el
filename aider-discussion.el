@@ -26,7 +26,9 @@ Otherwise, send the question to the corresponding aider comint buffer."
     (aider-general-question)
     (let* ((function-name (which-function))
            (region-active (region-active-p))
+           (region-in-function (and region-active function-name))
            (prompt (cond
+                    (region-in-function (format "Question for the selected region in function '%s': " function-name))
                     (function-name (format "About function '%s': " function-name))
                     (region-active "Question for the selected region: ")
                     (t "Question: ")))

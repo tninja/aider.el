@@ -40,11 +40,11 @@
 
 ** Cons: aider session in comint is not fancy
 
-- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
-  - Some work-around for code color was applied, but we still don't have a fundamental solution for this right now. Vterm is good but I don't want to depend on it at this moment.
-  - Would be great if someone can solve this problem, or make it better without introduce too many complexity.
+- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
+  - *color rendering markdown-mode.el is applied and largely improved this*.
+  - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
 
-- *There is no advantage interacting with aider through this comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
+- *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
   - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
 
@@ -54,7 +54,7 @@
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], and [[https://github.com/magit/magit][Magit]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
 - Install aider.el with the following code:
 
 *** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
@@ -242,6 +242,13 @@ You can have helm-based completion with run the following code, after install he
 - How to disable to aider auto-commit?    
   - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
 
+- What kind of model aider support? Can aider support local model?
+  - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].
+   
+- How to let aider work with your speaking language?
+  - use [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider coding conventions]]. In my case, I added "- reply in Chinese" to the CONVENTIONS.md file, and load work through [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]]. Or, put sth like following into aider-args variable. 
+    - "--read" (expand-file-name "~/.emacs.d/.emacs/aider/CONVENTIONS.md")
+
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
   - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
@@ -262,8 +269,7 @@ You can have helm-based completion with run the following code, after install he
   - [X] yasnippet support
 - Better support for comint buffer
   - Better comint syntax color solution
-    - [X] syntax color rendering can be triggered through aider-switch-to-buffer, given codeing buffer major mode
-    - [X] syntax color rendering can be triggered through /add, /read-only through aider-prompt-file
+    - [X] use syntax highlight in markdown-mode to render text and code in aider-comint-mode
   - Get enhancement from code in major mode of aider-prompt-file
     - [X] aider command syntax highlight
     - [X] aider command completion

@@ -59,7 +59,7 @@ followed by refactoring instructions for the specified function."
   (if (use-region-p)
       (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
              (function-name (which-function))
-             (user-command (aider-read-string "Enter your refactor instruction: "))
+             (user-command (aider-read-string "Refactor instruction for selected region: "))
              (command (aider-region-refactor-generate-command region-text function-name user-command)))
         (aider-add-current-file)
         (aider--send-command command t))
