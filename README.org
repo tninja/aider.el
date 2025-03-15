@@ -236,16 +236,10 @@ You can have helm-based completion with run the following code, after install he
 
 * FAQ
 
-- Recent code refactoring introduced installation issue
-  - doom: https://github.com/tninja/aider.el/issues/102
-  - straight / vc install: https://github.com/tninja/aider.el/issues/103
-  - seem both of the above issue resolved. But it looks like the local installed package will need to be removed and re-install
-    - Eg. doom: https://github.com/tninja/aider.el/issues/102#issuecomment-2699895716
-
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
 
-- How to diable to aider auto-commit?    
+- How to disable to aider auto-commit?    
   - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
 
 - How to enter multi-line prompts in aider session buffer?
