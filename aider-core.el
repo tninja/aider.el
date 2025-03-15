@@ -34,21 +34,6 @@
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
-(defface aider-command-separator
-  '((((type graphic)) :strike-through t :extend t)
-    (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
-  "Face for command separator in aider."
-  :group 'aider)
-
-(defface aider-command-text
-  '((t :inherit bold))
-  "Face for commands sent to aider buffer."
-  :group 'aider)
-
-(defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
-                                   ("^\x2500+" 0 '(face nil display (space :width 2))))
-  "Font lock keywords for aider buffer.")
-
 (declare-function evil-define-key* "evil" (state map key def))
 
 (defvar aider-comint-mode-map
