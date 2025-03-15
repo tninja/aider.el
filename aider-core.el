@@ -154,19 +154,15 @@ Otherwise return STR unchanged."
       (format "{aider\n%s\naider}" str)
     str))
 
-(defun aider--comint-send-string-syntax-highlight (buffer text)
-  "Send TEXT to the comint BUFFER with syntax highlighting.
-This function ensures proper syntax highlighting by inheriting face properties
-from the source buffer and maintaining proper process markers."
+(defun aider--comint-send-string (buffer text)
+  "Send TEXT to the comint BUFFER.
+This function ensures proper process markers are maintained."
   (with-current-buffer buffer
     (let ((process (get-buffer-process buffer))
           (inhibit-read-only t))
       (goto-char (process-mark process))
-      ;; Insert text with proper face properties
-      (insert (propertize text
-                         'face 'aider-command-text
-                         'font-lock-face 'aider-command-text
-                         'rear-nonsticky t))
+      ;; Insert text
+      (insert text)
       ;; Update process mark and send text
       (set-marker (process-mark process) (point))
       (comint-send-string process text))))
@@ -186,7 +182,7 @@ Optional LOG, when non-nil, logs the command to the message area."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
+              (aider--comint-send-string aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               (when log
                 (message "Sent command to aider buffer: %s" (string-trim command)))
