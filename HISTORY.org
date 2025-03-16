@@ -3,8 +3,10 @@
 
 ** v0.5.0
 
+- Added to melpa. Updated install instruction
 - Much improved aider-comint-mode rendering
   - Use color from markdown-mode.el. It support more than code block highlight
+- Chinese version of README file
 
 ** v0.4.0
 

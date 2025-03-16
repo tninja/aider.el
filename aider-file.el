@@ -86,7 +86,7 @@ If there are more than 40 files, refuse to add and show warning message."
 
 ;; New function to show the last commit using magit
 ;;;###autoload
-(defun aider-magit-show-last-commit (&optional log)
+(defun aider-magit-show-last-commit-or-log (&optional log)
   "Show the last commit message using Magit.
 With prefix argument (LOG), show commit log instead of single commit.
 If Magit is not installed, report that it is required."

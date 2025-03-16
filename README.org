@@ -81,7 +81,7 @@ If you have Straight installed
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
 - if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
 
-*** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (emacs built-in)
+*** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (Emacs 30+ built-in)
 - Install aider.el by running the following code within Emacs
   - You'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
 #+BEGIN_SRC emacs-lisp
@@ -89,6 +89,22 @@ If you have Straight installed
 #+END_SRC
 
 The config part is as same as above straight one
+
+*** With Melpa + package-install
+
+Enable installation of packages from MELPA by adding an entry to package-archives after (require 'package) and before the call to package-initialize in your init.el or .emacs file: 
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+#+END_SRC
+
+- Use M-x package-refresh-contents or M-x package-list-packages to ensure that Emacs has fetched the MELPA package list 
+- Use M-x package-install to install aider package
 
 ** Doom Installation and Configuration
 
@@ -156,10 +172,10 @@ You can have helm-based completion with run the following code, after install he
   - aider-write-unit-test :: Generate comprehensive unit tests for the current function or file. If the cursor is on a test function, implement the test function.
   - aider-fix-failing-test-under-cursor :: Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass. You can provide more information of failed test case to help aider figuring out how to fix the source code.
 
-*** Explain code
+*** Questions on code
   - aider-ask-question :: Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
-    - aider-go-ahead :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
-  - aider-function-or-region-explain :: If a region is selected, ask Aider to explain the selected region. Otherwise, ask Aider to explain the function under the cursor.
+    - You can ask any question on the code. Eg. Explain the function, review the code and find the bug, etc
+  - aider-go-ahead :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
 
 *** Aider prompt file
 
