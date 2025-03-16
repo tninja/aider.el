@@ -210,8 +210,7 @@ With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
         (aider-comint-mode))
       (message "%s" (if current-args
                        (format "Running aider with args: %s" (mapconcat #'identity current-args " "))
-                     "Running aider with no args provided."))
-      )
+                     "Running aider with no args provided.")))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
