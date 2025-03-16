@@ -256,6 +256,7 @@ You can have helm-based completion with run the following code, after install he
 
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
+  - Aider v0.77.0 added --auto-accept-architect flag (default: true) to automatically accept changes from architect coder format without confirmation, and *it by default turned on*. If we want to review the code change before accept it like before for many commands in aider.el, we can disable that flag with "--no-auto-accept-architect"
 
 - How to disable to aider auto-commit?    
   - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
