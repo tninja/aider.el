@@ -160,7 +160,7 @@ Otherwise, add the current file as read-only."
 (defun aider-pull-or-review-diff-file ()
   "Review a diff file with Aider or generate one if not viewing a diff.
 If current buffer is a .diff file, ask Aider to review it.
-Otherwise, call `aider-magit-generate-feature-branch-diff-file` to generate a diff."
+Otherwise, call `aider--magit-generate-feature-branch-diff-file` to generate a diff."
   (interactive)
   (if (and buffer-file-name (string-match-p "\\.diff$" buffer-file-name))
       (let* ((file-name (file-name-nondirectory buffer-file-name))
@@ -168,9 +168,9 @@ Otherwise, call `aider-magit-generate-feature-branch-diff-file` to generate a di
                              (file-name-nondirectory buffer-file-name)))
              (prompt (aider-read-string "Enter diff review prompt: " init-prompt)))
         (aider-current-file-command-and-switch "/ask " prompt))
-    (aider-magit-generate-feature-branch-diff-file)))
+    (aider--magit-generate-feature-branch-diff-file)))
 
-(defun aider-magit-generate-feature-branch-diff-file ()
+(defun aider--magit-generate-feature-branch-diff-file ()
   "Generate a diff file between base and feature branches.
 The diff file will be named <feature_branch>.<base_branch>.diff
 and placed in the git root directory.
