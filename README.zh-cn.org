@@ -240,6 +240,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 - 如何审查/接受代码更改？
   - 与 cursor 相比，aider 有不同的方式来做到这一点。[[https://github.com/tninja/aider.el/issues/98][讨论]]
+  - 注意：*Aider v0.77.0 会自动接受 /architect 命令的更改。如果您想像以前在 aider.el 中的许多命令一样在接受更改之前审查代码更改，您可以在 aider-args 或 .aider.conf.yml 中使用 "--no-auto-accept-architect" 禁用该标志。*
 
 - 如何禁用 aider 自动提交？
   - 在 aider-args 中添加 --no-auto-commits。aider-args 直接传递给 aider CLI。[[https://aider.chat/docs/config/options.html][aider 选项参考]]
@@ -247,7 +248,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - aider 支持什么类型的模型？aider 能支持本地模型吗？
   - 是的。Aider 通过 [[https://github.com/BerriAI/litellm][LiteLLM]] 支持它。请参考 [[https://aider.chat/docs/llms/other.html][aider 文档]]。
    
-- 如何让 aider 使用您的口语语言工作？
+- 如何让 aider 用中文回复？
   - 使用 [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider 编码约定]]。在我的情况下，我在 CONVENTIONS.md 文件中添加了 "- reply in Chinese"，并通过 [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]] 加载工作。或者，将类似以下内容放入 aider-args 变量中。
     - "--read" (expand-file-name "~/.emacs.d/.emacs/aider/CONVENTIONS.md")
 
@@ -256,7 +257,8 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
   - 使用 aider 提示文件（~aider-open-prompt-file~，~C-c a p~）编写多行提示（我们不希望它们消失，对吧？特别是如果它不完美需要修改，而且我们可能想在以后的某个时候重用它）。
 
 - aider.el 能与 tramp 一起工作吗？（aider 在远程机器上运行）
-  - （我没有尝试过）mgcyung 说它可以这样工作：https://github.com/tninja/aider.el/issues/85
+  - artyom-smushkov 使 aider-add-current-file 支持 tramp 文件：https://github.com/tninja/aider.el/issues/36
+  - mgcyung 说它可以这样工作：https://github.com/tninja/aider.el/issues/85
 
 * 未来工作
 

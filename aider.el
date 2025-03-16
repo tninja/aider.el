@@ -69,7 +69,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
-    ("m" "Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
+    ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
     ]
    ["Code Change"
