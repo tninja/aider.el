@@ -310,3 +310,6 @@ Otherwise, You can have helm-based completion with run the following code, after
   - [[https://github.com/copilot-emacs/copilot.el][copilot.el]]: Emacs plugin for GitHub Copilot
   - [[https://github.com/chep/copilot-chat.el][copilot-chat.el]]: Chat with GitHub Copilot in Emacs
   - [[https://github.com/karthink/gptel][gptel]]: Most stared / widely used LLM client in Emacs
+
+- Package depends on this
+  - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]: Org Babel functions for Aider.el integration
