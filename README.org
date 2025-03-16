@@ -138,7 +138,9 @@ The aider prefix is ~A~.
 
 Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is highly recommended if you are OK with helm*.
 
-You can have helm-based completion with run the following code, after install helm library:
+If you used installed aider.el through melpa and package-install, just neecd to ~(require 'aider-helm)~
+
+Otherwise, You can have helm-based completion with run the following code, after install helm library:
 
 #+BEGIN_SRC emacs-lisp
   (use-package aider

@@ -156,6 +156,58 @@ Otherwise, add the current file as read-only."
   (when (string-prefix-p "/architect" prefix)
     (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml.")))
 
+;;;###autoload
+(defun aider-pull-or-review-diff-file ()
+  "Review a diff file with Aider or generate one if not viewing a diff.
+If current buffer is a .diff file, ask Aider to review it.
+Otherwise, call `aider-magit-generate-feature-branch-diff-file` to generate a diff."
+  (interactive)
+  (if (and buffer-file-name (string-match-p "\\.diff$" buffer-file-name))
+      (let* ((file-name (file-name-nondirectory buffer-file-name))
+             (init-prompt (format "Please review this diff file (%s), identify bug, and provide feedback on the changes" 
+                             (file-name-nondirectory buffer-file-name)))
+             (prompt (aider-read-string "Enter diff review prompt: " init-prompt)))
+        (aider-current-file-command-and-switch "/ask " prompt))
+    (aider-magit-generate-feature-branch-diff-file)))
+
+(defun aider-magit-generate-feature-branch-diff-file ()
+  "Generate a diff file between base and feature branches.
+The diff file will be named <feature_branch>.<base_branch>.diff
+and placed in the git root directory.
+If input doesn't contain '..' it's treated as base branch and diff is generated against HEAD."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (raw-range (read-string "Branch range (base..feature or just base): " "main"))
+         (range (string-trim raw-range))
+         (branches (if (string-match-p "\\.\\." range)
+                       (split-string range "\\.\\.")
+                     (list range "HEAD")))
+         (base-branch (car branches))
+         (feature-branch (or (cadr branches) "HEAD"))
+         (diff-file (concat git-root feature-branch "." base-branch ".diff")))
+    ;; Verify we're in a git repo
+    (unless git-root
+      (user-error "Not in a git repository"))
+    ;; ;; Check if repo is clean
+    (when (magit-anything-modified-p)
+      (message "Repository has uncommitted changes. You might want to commit or stash them first")
+      (sleep-for 1))
+    ;; Store current branch to return to it
+    (let ((original-branch (magit-get-current-branch)))
+      ;; Git operations
+      (magit-run-git "checkout" base-branch) ; Switch to base branch first
+      (magit-run-git "pull")      ; Pull latest changes on base branch
+      (magit-run-git "checkout" original-branch) ; Return to original branch
+      (when (not (string= feature-branch "HEAD"))
+        (magit-run-git "checkout" feature-branch)
+        (magit-run-git "checkout" original-branch)) ; Return to original branch
+      ;; Generate diff file
+      (magit-run-git "diff" (concat base-branch ".." feature-branch)
+                     (concat "--output=" diff-file))
+      ;; Open diff file
+      (find-file diff-file)
+      (message "Generated diff file: %s" diff-file))))
+
 (provide 'aider-file)
 
 ;;; aider-file.el ends here
