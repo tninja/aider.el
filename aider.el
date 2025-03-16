@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.4.0
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (helm "3.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (helm "3.0") (markdown-mode "2.5"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
@@ -59,7 +59,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     (aider--infix-switch-to-buffer-other-frame)
     ("a" "Run Aider (C-u: args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("p" "Repo Prompt File" aider-open-prompt-file)
+    ("p" "Input with Repo Prompt File" aider-open-prompt-file)
     ("o" "Select Model (C-u: leadboard)" aider-change-model)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
     ("l" "Other Command (C-u: manual)" aider-other-process-command)
@@ -69,21 +69,23 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
     ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
-    ("m" "Last Commit (C-u: magit-log)" aider-magit-show-last-commit)
+    ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
+    ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
     ]
    ["Code Change"
-    ("t" "Architect Discuss / Change" aider-architect-discussion)
-    ("c" "Direct Code Change" aider-code-change)
-    ("r" "Refactor Function / Region" aider-function-or-region-refactor)
+    ("r" "Change Function / Region" aider-function-or-region-refactor)
     ("i" "Implement Requirement" aider-implement-todo)
+    ("t" "Architect Discuss / Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
+    ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
-    ("q" "Ask Question (C-u: no context)" aider-ask-question)
+    ("q" "Question on Function / Region" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
-    ("e" "Explain Function / Region" aider-function-or-region-explain)
+    ;; ("e" "Explain Function / Region" aider-function-or-region-explain)
+    ("Q" "Question without Context" aider-general-question)
     ("D" "Debug Exception" aider-debug-exception)
     ("h" "Help (C-u: homepage)" aider-help)
     ("x" "Exit Aider" aider-exit)

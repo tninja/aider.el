@@ -1,6 +1,14 @@
 
 * Release history
 
+** v0.5.0
+
+- Much improved aider-comint-mode rendering
+  - Use color from markdown-mode.el. It support more than code block highlight
+- Added 
+- Chinese version of README file
+- Added to melpa. Updated install instruction
+
 ** v0.4.0
 
 - User side change

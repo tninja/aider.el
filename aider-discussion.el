@@ -15,31 +15,31 @@
 
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
-(defun aider-ask-question (&optional no-context)
+(defun aider-ask-question ()
   "Ask aider question.
 If NO-CONTEXT is non-nil, send the question to the general aider comint buffer.
 Otherwise, send the question to the corresponding aider comint buffer."
-  (interactive "P")
+  (interactive)
   ;; Dispatch to general question if in aider buffer
-  (if (or no-context
-       (string= (buffer-name) (aider-buffer-name)))
-    (aider-general-question)
-    (let* ((function-name (which-function))
-           (region-active (region-active-p))
-           (prompt (cond
-                    (function-name (format "About function '%s': " function-name))
-                    (region-active "Question for the selected region: ")
-                    (t "Question: ")))
-           (raw-question (aider-read-string prompt))
-           (question (if function-name
-                         (concat prompt raw-question)
-                       raw-question))
-           (region-text (and (region-active-p)
-                             (buffer-substring-no-properties (region-beginning) (region-end))))
-           (question-context (if region-text
-                                 (format "%s: %s" question region-text)
-                               question)))
-      (aider-current-file-command-and-switch "/ask " question-context))))
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (region-in-function (and region-active function-name))
+         (prompt (cond
+                  (region-in-function (format "Question for the selected region in function '%s': " function-name))
+                  (function-name (format "About function '%s': " function-name))
+                  (region-active "Question for the selected region: ")
+                  (t "Question: ")))
+         (raw-question (aider-read-string prompt))
+         (question (if function-name
+                       (concat prompt raw-question)
+                     raw-question))
+         (region-text (and (region-active-p)
+                           (buffer-substring-no-properties (region-beginning) (region-end))))
+         (question-context (if region-text
+                               (format "%s: %s" question region-text)
+                             question)))
+    (aider-current-file-command-and-switch "/ask " question-context)
+    (message "Ask aider to: explain code, review implementation, suggest improvements, or any other coding assistance")))
 
 ;;;###autoload
 (defun aider-general-question ()

@@ -1,0 +1,294 @@
+#+TITLE: aider.el : 在 Emacs 中使用 aider (AI 结对编程)
+
+[[file:README.org][English Version]]
+
+* 目录
+- [[#介绍][介绍]]
+  - [[#优点-用户界面上下文感知ai结对编程][优点：用户界面、上下文感知、AI结对编程]]
+  - [[#缺点-comint中的aider会话不够fancy][缺点：comint中的aider会话不够fancy]]
+- [[#安装][安装]]
+  - [[#原生-emacs-安装][原生 Emacs 安装]]
+  - [[#doom-安装和配置][Doom 安装和配置]]
+  - [[#可选功能][可选功能]]
+- [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
+- [[#注意ai生成的代码][注意AI生成的代码]]
+- [[#常见问题][常见问题]]
+- [[#未来工作][未来工作]]
+- [[#其他-emacs-ai-编码工具][其他 Emacs AI 编码工具]]
+
+* 介绍
+
+- 你喜欢 [[https://www.cursor.com/][Cursor AI 代码编辑器]] 的 AI 功能，但更喜欢在 Emacs 中工作吗？
+
+- [[https://github.com/paul-gauthier/aider][Aider]] 是一个知名且高效的终端 AI 结对编程工具。
+
+- aider.el 包为 Emacs 中的 Aider 提供了简单的用户界面。它旨在最小化用户在 Emacs 中使用 aider 的工作量。
+  - 本仓库中的大部分 Elisp 代码都是由 Aider 或 aider.el 生成的。
+  - aider.el 旨在成为我们可以日常使用的稳定生产力工具。我会在代码合并前仔细测试此库中的功能。
+
+** 优点：用户界面、上下文感知、AI结对编程
+
+- 弹出菜单 (~aider-transient-menu~)
+
+[[file:./transient_menu.png]]
+
+- Git 仓库特定的 Aider 会话管理
+  
+- 将上下文（缓冲区/光标下的内容/区域）与 aider 集成，半自动构建提示。使用 helm 轻松搜索/重用以前的提示
+  
+- 为 AI 辅助编程工作流提供菜单项。TDD 风格循环以减少 AI 可能引入的错误
+  
+- Aider 提示文件，用于组织相对大型的代码更改任务，并使其可重现。按照 ESS 方式从中与 aider 会话交互。支持 Yasnippet 以重用社区中的优秀提示。
+
+** 缺点：comint中的aider会话不够fancy
+
+- 当前实现使用 comint 托管 aider 会话，这是 Emacs 中使用的经典 CLI 交互解决方案。然而，comint-mode 最初_没有 aider 中的代码块颜色渲染和文件跟踪等高级功能_。
+  - *应用了 markdown-mode.el 的颜色渲染，大大改善了这一点*。
+  - 没有文件跟踪，aider.el 无法执行 [[https://aider.chat/docs/usage/watch.html#ai-comments][AI 注释]]。*我们提供的解决方法是 ~aider-implement-todo~*，默认情况下，它使用架构师命令要求 aider 实现光标下的注释。我经常使用这个功能，感觉还不错。
+
+- *通常直接通过 comint 终端与 Aider 进行大量交互并不是很有优势。* 相反，由于 comint 终端与 Emacs 的其他部分集成得很好，建议从以下方式生成并发送提示：
+  - 直接从代码缓冲区通过 _aider 代码更改相关命令_ 或 _提问相关命令_。这减少了上下文切换，并帮助构建提示，减少手动输入。
+  - Aider 提示文件 (~aider-open-prompt-file~, ~C-c a p~)。这是 Emacs 中与 comint 缓冲区通信的传统方式（就像 ESS、python-mode、scala-mode 等）。它便于重新访问您使用过的命令，组织和管理需要更多提示的大型代码更改，并将它们分解为子任务（因为它是 org 格式），并且它便于多行提示。最近，为该文件添加了语法高亮、补全和代码片段，现在它是编写和组织提示的好地方。
+
+* 安装
+
+- Emacs 需要 >= 26.1
+
+** 原生 Emacs 安装
+- [[https://aider.chat/docs/install.html][安装 aider]]
+- 使用您的包管理器安装 Emacs 依赖库 [[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]] 和 [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]]。
+- 使用以下代码安装 aider.el：
+
+*** 使用 [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
+如果您已安装 Straight
+#+BEGIN_SRC emacs-lisp
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
+    :config
+    ;; 对于最新的 claude sonnet 模型
+    (setq aider-args '("--model" "sonnet"))
+    (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+    ;; 或 chatgpt 模型
+    ;; (setq aider-args '("--model" "o3-mini"))
+    ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+    ;; 或使用您的个人配置文件
+    ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
+    ;; ;;
+    ;; 可选：为临时菜单设置键绑定
+    (global-set-key (kbd "C-c a") 'aider-transient-menu))
+#+END_SRC
+
+- *aider-args 直接传递给 aider CLI*，[[https://aider.chat/docs/config/options.html][aider 选项参考]]
+- 如果 aider-args 为空（默认），它将使用 ~/.aider.conf.yml 文件。这样，aider CLI 和 aider.el 共享相同的配置
+
+*** 使用 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]（Emacs 内置）
+- 通过在 Emacs 中运行以下代码安装 aider.el
+  - 您需要手动安装所需的包，如 [[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]] 和 helm。
+#+BEGIN_SRC emacs-lisp
+(package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
+#+END_SRC
+
+配置部分与上面的 straight 相同
+
+** Doom 安装和配置
+
+- 将以下代码添加到您的 doom/packages.el
+
+#+BEGIN_SRC emacs-lisp
+(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el")))
+#+END_SRC
+
+- 调整并将以下代码添加到您的 doom/config.el
+
+#+BEGIN_SRC emacs-lisp
+(use-package aider
+  :config
+  (setq aider-args '("--model" "sonnet")))
+#+END_SRC
+
+aider 前缀是 ~A~。
+
+- 启动并打开 aider 缓冲区：=[SPC] A o=
+- 使用 =[SPC] A a c= 添加当前文件
+- 使用 =[SPC] A r= 重置 aider 会话
+[[file:./doom_menus.png]]
+
+- *然而，更推荐使用临时菜单而不是 doom 菜单*，因为我经常使用临时菜单，所以它得到了更好的维护。
+  - 任何想为 doom 菜单做贡献的人，欢迎帮助改进。谢谢。
+ 
+** 可选功能
+
+*** Helm 支持
+
+Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使用之前写过的提示，这可能会节省大量输入时间。*如果您可以接受 helm，强烈推荐这个插件*。
+
+安装 helm 库后，您可以通过运行以下代码获得基于 helm 的补全：
+
+#+BEGIN_SRC emacs-lisp
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el" "aider-helm.el")))
+#+END_SRC
+
+* 最常用功能（已集成到aider菜单中）
+
+*** Aider 会话管理
+  - aider-run-aider :: 创建基于 comint 的、*特定于 git 仓库的 Aider 会话*，用于交互式对话。
+    - Git 仓库识别基于当前文件的路径
+    - 可以同时为不同的 Git 仓库运行多个 Aider 会话
+    - 当使用通用参数（~C-u~）调用时，将提示用户更改此会话的 ~aider-args~ 内容。
+  - aider-switch-to-buffer :: 切换到 Aider 缓冲区。
+    - 在菜单中使用 ~^~ 可以在当前框架内的其他窗口中切换打开 aider 会话，或为 aider 会话打开专用框架。当有多个显示器时，这很有用，一个框架/显示器用于保存代码的多个缓冲区，另一个框架/显示器保存 aider 会话。
+
+*** 更多向 Aider 缓冲区添加文件的方法
+  - aider-add-current-file-or-dired-marked-files :: 添加当前缓冲区文件。如果在 dired 缓冲区中使用，添加所有 dired 标记的文件。
+    - ~C-u~ 前缀以只读方式添加文件。
+  - aider-add-files-in-current-window :: 添加当前窗口中的所有缓冲区。
+
+*** 编写代码
+  - aider-function-or-region-refactor :: 如果选择了区域，要求 Aider 重构所选区域。否则，要求 Aider 更改/重构光标下的函数。
+  - aider-implement-todo :: 在当前上下文中实现注释中的需求。
+    - 如果光标在注释行上，就地实现该特定注释。
+    - 如果有多行注释的选择区域，就地为这些注释实现代码。
+    - 如果光标在函数内，为该函数实现 TODO。
+    - 否则为整个当前文件实现 TODO。
+
+*** 单元测试/测试驱动开发支持
+  - aider-write-unit-test :: 为当前函数或文件生成全面的单元测试。如果光标在测试函数上，实现该测试函数。
+  - aider-fix-failing-test-under-cursor :: 将光标放在失败的测试函数上，要求 Aider 分析并修复代码以使测试通过。您可以提供更多关于失败测试用例的信息，以帮助 aider 找出如何修复源代码。
+
+*** 解释代码
+  - aider-ask-question :: 向 Aider 询问当前上下文中的代码问题。如果选择了区域，使用该区域作为上下文。
+    - aider-go-ahead :: 当您使用上述命令要求 aider 建议更改时，甚至在几轮讨论之后，当您对解决方案满意时，可以使用此命令要求 Aider 继续实施更改。
+  - aider-function-or-region-explain :: 如果选择了区域，要求 Aider 解释所选区域。否则，要求 Aider 解释光标下的函数。
+
+*** Aider 提示文件
+
+- 支持语法高亮、aider 命令补全、文件路径补全
+
+- 使用 ~C-c a p~ 打开特定于仓库的提示文件。您可以使用此文件组织任务，编写提示并将其发送到 Aider 会话。支持多行提示。
+
+- 喜欢从编辑器缓冲区向 comint 缓冲区发送代码的人（例如 ESS、python-mode、scala-mode）可能会喜欢这个。这是一种交互式且可重现的方式。
+
+- ~C-c C-n~ 键可用于将当前提示行发送到 comint 缓冲区。或者逐行批量发送选定区域。根据我的经验，这是 aider 提示文件中最常用的方法。
+
+- ~C-c C-c~ 键用于多行提示。以下示例显示了当光标在提示上时按下 ~C-c C-c~ 键的情况。
+
+[[file:./aider_prompt_file.png]]
+
+**** [[./snippets/aider-prompt-mode][提示片段]]
+
+- aider 的提示可能共享类似的结构。可以使用 Yasnippet 来帮助重用这些提示。
+
+- Aider 提示文件现在支持 yasnippet。当前片段来自 [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][这个 reddit 帖子]]、[[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][另一个 reddit 帖子]] 和一个 [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git 仓库]]。
+
+- 您可以使用
+  - ~M-x yas-describe-tables~ 查看可用的片段
+  - ~M-x yas-insert-snippet~ 插入片段。
+  - ~M-x yas-expand~ 展开光标下的片段。
+
+- 欢迎在 [[./snippets/aider-prompt-mode][片段文件夹]] 中添加更多片段/改进现有片段！
+
+*** 在 comint 缓冲区内
+
+- / 键触发 aider 命令补全
+- 在某些命令后会自动触发文件路径补全
+- 使用 TAB 键从迷你缓冲区输入提示，或使用带补全的 helm
+
+* 注意AI生成的代码
+
+- 感谢 LLM。使用 AI 生成大量代码非常容易。但生成代码并不能完成工作。
+  - 可能隐藏着潜在的错误。需要验证功能是否按预期工作，代码更改是否破坏了现有功能。
+  - 开发人员可能缺乏对 AI 生成代码的理解。如果有太多开发人员不太理解的代码，项目可能会失控。
+
+- *单元测试对上述两个问题都很有用*。而 aider 可以帮助编写单元测试。
+  - AI 生成的测试需要手动检查/修复。但通常测试代码更容易理解。
+  - 运行单元测试可以帮助验证代码的正确性/识别错误。它还可以帮助开发人员更好地理解 AI 生成的代码如何工作，并且可以让开发人员对新代码更有信心。
+
+** [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] 风格的 AI 编程工作流
+
+1. **实现或修改代码**：
+   - 对于现有代码：将光标放在函数中或在选定区域上使用 ~aider-function-or-region-refactor~
+   - 对于新代码：在 TODO 注释上使用 ~aider-implement-todo~
+   
+   *添加新代码的示例*：
+   
+   光标在此注释上：
+   #+BEGIN_SRC python :eval never
+   # TODO: Implement a function that checks if a number is prime
+   #+END_SRC
+   
+   运行 ~aider-implement-todo~ 可能会生成：
+   #+BEGIN_SRC python :eval never
+   def is_prime(n):
+       if n <= 1:
+           return False
+       for i in range(2, int(n ** 0.5) + 1):
+           if n % i == 0:
+               return False
+       return True
+   #+END_SRC
+   
+   如果建议不令人满意，使用 ~Ask Question~ 进行改进，并使用 ~Go Ahead~ 确认更改。
+
+2. **生成测试**：使用 ~aider-write-unit-test~ 和 ~aider-fix-failing-test-under-cursor~ 验证您的实现。
+
+3. **完善代码和测试**：根据需要使用其他提示或手动调整进一步重构。
+
+4. 返回步骤 1
+
+* 常见问题
+
+- 如何审查/接受代码更改？
+  - 与 cursor 相比，aider 有不同的方式来做到这一点。[[https://github.com/tninja/aider.el/issues/98][讨论]]
+  - 注意：*Aider v0.77.0 会自动接受 /architect 命令的更改。如果您想像以前在 aider.el 中的许多命令一样在接受更改之前审查代码更改，您可以在 aider-args 或 .aider.conf.yml 中使用 "--no-auto-accept-architect" 禁用该标志。*
+
+- 如何禁用 aider 自动提交？
+  - 在 aider-args 中添加 --no-auto-commits。aider-args 直接传递给 aider CLI。[[https://aider.chat/docs/config/options.html][aider 选项参考]]
+
+- aider 支持什么类型的模型？aider 能支持本地模型吗？
+  - 是的。Aider 通过 [[https://github.com/BerriAI/litellm][LiteLLM]] 支持它。请参考 [[https://aider.chat/docs/llms/other.html][aider 文档]]。
+   
+- 如何让 aider 用中文回复？
+  - 使用 [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider 编码约定]]。在我的情况下，我在 CONVENTIONS.md 文件中添加了 "- reply in Chinese"，并通过 [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]] 加载工作。或者，将类似以下内容放入 aider-args 变量中。
+    - "--read" (expand-file-name "~/.emacs.d/.emacs/aider/CONVENTIONS.md")
+
+- 如何在 aider 会话缓冲区中输入多行提示？
+  - aider 本身支持这一点，[[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][文档]]。
+  - 使用 aider 提示文件（~aider-open-prompt-file~，~C-c a p~）编写多行提示（我们不希望它们消失，对吧？特别是如果它不完美需要修改，而且我们可能想在以后的某个时候重用它）。
+
+- aider.el 能与 tramp 一起工作吗？（aider 在远程机器上运行）
+  - artyom-smushkov 使 aider-add-current-file 支持 tramp 文件：https://github.com/tninja/aider.el/issues/36
+  - mgcyung 说它可以这样工作：https://github.com/tninja/aider.el/issues/85
+
+* 未来工作
+
+** 功能
+
+- 更多上下文敏感的代码更改/代码阅读命令
+- 更好地支持 aider 提示文件
+  - [X] aider 命令语法高亮
+  - [X] aider 命令补全
+  - [X] 文件路径补全
+  - [X] 提示正文补全 - 与 helm 历史同步
+  - [X] yasnippet 支持
+- 更好地支持 comint 缓冲区
+  - 更好的 comint 语法颜色解决方案
+    - [X] 使用 markdown-mode 中的语法高亮来渲染 aider-comint-mode 中的文本和代码
+  - 从 aider-prompt-file 的主模式代码中获取增强
+    - [X] aider 命令语法高亮
+    - [X] aider 命令补全
+    - [X] 提示正文补全
+- 更多关于如何简化菜单/命令的思考
+
+** 代码质量
+ 
+- 更好的单元测试/此包的集成测试。希望它是自动化的。
+
+* 其他 Emacs AI 编码工具
+
+- 受启发并感谢：
+  - [[https://github.com/shouya/ancilla.el][ancilla.el]]：AI 编码助手支持代码生成/代码重写/讨论
+  - [[https://github.com/xenodium/chatgpt-shell][chatgpt-shell]]：ChatGPT 和 DALL-E Emacs shells + Org Babel，基于 comint 会话的想法
+  - [[https://github.com/copilot-emacs/copilot.el][copilot.el]]：GitHub Copilot 的 Emacs 插件
+  - [[https://github.com/chep/copilot-chat.el][copilot-chat.el]]：在 Emacs 中与 GitHub Copilot 聊天
+  - [[https://github.com/karthink/gptel][gptel]]：Emacs 中最受欢迎/广泛使用的 LLM 客户端

@@ -12,6 +12,7 @@
 (require 'comint)
 (require 'magit)
 (require 'savehist)
+(require 'markdown-mode)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -33,38 +34,50 @@
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
-(defface aider-command-separator
-  '((((type graphic)) :strike-through t :extend t)
-    (((type tty)) :inherit font-lock-comment-face :underline t :extend t))
-  "Face for command separator in aider."
-  :group 'aider)
-
-(defface aider-command-text
-  '((t :inherit bold))
-  "Face for commands sent to aider buffer."
-  :group 'aider)
-
-(defvar aider-font-lock-keywords '(("^\x2500+\n?" 0 '(face aider-command-separator) t)
-                                   ("^\x2500+" 0 '(face nil display (space :width 2))))
-  "Font lock keywords for aider buffer.")
+(declare-function evil-define-key* "evil" (state map key def))
 
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "TAB") #'aider-core-insert-prompt)
+    (define-key map (kbd "C-c C-y") #'aider-go-ahead)
     map)
   "Keymap for `aider-comint-mode'.")
 
-(declare-function evil-define-key* "evil" (state map key def))
+(defun aider--apply-markdown-highlighting ()
+  "Set up markdown highlighting for aider buffer with optimized performance."
+  ;; 1) Use `markdown-mode`'s syntax table:
+  (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
+  ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
+  (setq-local syntax-propertize-function #'markdown-syntax-propertize)
+  ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting:
+  (setq-local font-lock-defaults
+              (list markdown-mode-font-lock-keywords
+                    nil ;; KEYWORDS-ONLY
+                    nil ;; CASE-FOLD
+                    nil ;; SYNTAX-ALIST
+                    nil)) ;; SYNTAX-BEGIN
+  ;; 4) Enable fenced code block highlighting:
+  (setq-local markdown-fontify-code-blocks-natively t)
+  ;; 5) Jit-lock and other
+  (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
+  (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
+  (setq-local font-lock-support-mode 'jit-lock-mode)  ;; Ensure JIT lock is used
+  (setq-local jit-lock-defer-time 0)
+  ;; 6) Register font-lock explicitly:
+  (font-lock-mode 1)
+  ;; 7) Force immediate fontification of visible area:
+  (font-lock-flush)
+  (font-lock-ensure))
 
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
 \\{aider-comint-mode-map}"
   ;; Set up font-lock
-  (setq font-lock-defaults '(nil t))
-  (font-lock-add-keywords nil aider-font-lock-keywords t)
+  ;; (setq font-lock-defaults '(nil t))
+  ;; (font-lock-add-keywords nil aider-font-lock-keywords t)
   ;; Set up input sender for multi-line handling
   (setq-local comint-input-sender 'aider-input-sender)
   ;; Add command completion hooks
@@ -73,6 +86,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
+  (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
     (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
@@ -125,19 +139,15 @@ Otherwise return STR unchanged."
       (format "{aider\n%s\naider}" str)
     str))
 
-(defun aider--comint-send-string-syntax-highlight (buffer text)
-  "Send TEXT to the comint BUFFER with syntax highlighting.
-This function ensures proper syntax highlighting by inheriting face properties
-from the source buffer and maintaining proper process markers."
+(defun aider--comint-send-string (buffer text)
+  "Send TEXT to the comint BUFFER.
+This function ensures proper process markers are maintained."
   (with-current-buffer buffer
     (let ((process (get-buffer-process buffer))
           (inhibit-read-only t))
       (goto-char (process-mark process))
-      ;; Insert text with proper face properties
-      (insert (propertize text
-                         'face 'aider-command-text
-                         'font-lock-face 'aider-command-text
-                         'rear-nonsticky t))
+      ;; Insert text
+      (insert text)
       ;; Update process mark and send text
       (set-marker (process-mark process) (point))
       (comint-send-string process text))))
@@ -157,7 +167,7 @@ Optional LOG, when non-nil, logs the command to the message area."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
+              (aider--comint-send-string aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               (when log
                 (message "Sent command to aider buffer: %s" (string-trim command)))
@@ -168,51 +178,19 @@ Optional LOG, when non-nil, logs the command to the message area."
     (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
 
 ;;;###autoload
-(defun aider-switch-to-buffer (&optional source-buffer)
+(defun aider-switch-to-buffer ()
   "Switch to the Aider buffer.
 When `aider--switch-to-buffer-other-frame' is non-nil, open in a new frame.
-If the current buffer is already the Aider buffer, do nothing.
-Optional SOURCE-BUFFER specifies the buffer to inherit syntax highlighting from;
-if nil, use current buffer."
+If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (let ((source-buffer (or source-buffer (current-buffer))))
-      (if-let ((buffer (get-buffer (aider-buffer-name))))
-          (progn
-            (if aider--switch-to-buffer-other-frame
-                (switch-to-buffer-other-frame buffer)
-              (pop-to-buffer buffer))
-            (when (with-current-buffer source-buffer
-                    (derived-mode-p 'prog-mode))
-              (aider--inherit-source-highlighting source-buffer)))
-        (message "Aider buffer '%s' does not exist." (aider-buffer-name))))))
-
-(defun aider--inherit-source-highlighting (source-buffer)
-  "Inherit syntax highlighting settings from SOURCE-BUFFER."
-  (with-current-buffer source-buffer
-    (let ((source-keywords font-lock-keywords)
-          (source-keywords-only font-lock-keywords-only)
-          (source-keywords-case-fold-search font-lock-keywords-case-fold-search)
-          ;; (source-syntax-table (syntax-table))
-          (source-defaults font-lock-defaults))
-      (with-current-buffer (aider-buffer-name)
-        (when (not (string-equal (prin1-to-string source-keywords)
-                               (prin1-to-string font-lock-keywords)))
-            ;; (set-syntax-table source-syntax-table)
-            (setq font-lock-defaults
-                  (if source-defaults
-                      source-defaults
-                    `((,source-keywords)
-                      nil
-                      ,source-keywords-case-fold-search)))
-          (setq font-lock-keywords source-keywords
-                font-lock-keywords-only source-keywords-only
-                font-lock-keywords-case-fold-search source-keywords-case-fold-search)
-          (font-lock-mode 1)
-          (font-lock-ensure)
-          (message "Aider buffer syntax highlighting inherited from %s"
-                   (with-current-buffer source-buffer major-mode)))))))
+    (if-let ((buffer (get-buffer (aider-buffer-name))))
+        (progn
+          (if aider--switch-to-buffer-other-frame
+              (switch-to-buffer-other-frame buffer)
+            (pop-to-buffer buffer)))
+      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
@@ -229,7 +207,10 @@ With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
     (unless (comint-check-proc buffer-name)
       (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
-        (aider-comint-mode)))
+        (aider-comint-mode))
+      (message "%s" (if current-args
+                       (format "Running aider with args: %s" (mapconcat #'identity current-args " "))
+                     "Running aider with no args provided.")))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
@@ -289,7 +270,7 @@ invoke `aider-prompt-insert-file-path`."
   (interactive)
   (let ((input (aider-read-string "Enter prompt: ")))
     (when input
-      (insert input))))
+      (insert input "\n"))))
 
 (provide 'aider-core)
 

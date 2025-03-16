@@ -23,7 +23,7 @@
                     :desc "Add same type files in dir" "s" #'aider-add-same-type-files-under-dir
                     :desc "Batch add marked files" "m" #'aider-batch-add-dired-marked-files
                     :desc "Drop current file" "d" #'aider-drop-current-file
-                    :desc "Show last commit" "c" #'aider-magit-show-last-commit
+                    :desc "Show last commit" "c" #'aider-magit-show-last-commit-or-log
                     :desc "Undo last change" "u" #'aider-undo-last-change)
 
                    (:prefix ("c" . "Code")
