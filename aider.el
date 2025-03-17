@@ -62,7 +62,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("p" "Input with Repo Prompt File" aider-open-prompt-file)
     ("o" "Select Model (C-u: leadboard)" aider-change-model)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
-    ("l" "Other Command (C-u: manual)" aider-other-process-command)
+    ("l" "Other Command" aider-other-process-command)
     ]
    ["File Operation"
     ("f" "Add Current / Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
@@ -84,7 +84,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
    ["Discussion"
     ("q" "Question on Function / Region" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
-    ;; ("e" "Explain Function / Region" aider-function-or-region-explain)
     ("Q" "Question without Context" aider-general-question)
     ("D" "Debug Exception" aider-debug-exception)
     ("h" "Help (C-u: homepage)" aider-help)
@@ -120,7 +119,7 @@ With prefix argument CLEAR, clear the buffer contents instead of just resetting.
   (aider--send-command "/exit"))
 
 ;;;###autoload
-(defun aider-other-process-command (&optional manual)
+(defun aider-other-process-command ()
   "Send process control commands to aider.
 With prefix argument MANUAL, manually enter the command
 Prompts user to select from a list of available commands:
@@ -134,12 +133,12 @@ Prompts user to select from a list of available commands:
 - /paste: Paste the last copied chat message
 - /settings: Show current settings
 - /tokens: Show token usage"
-  (interactive "P")
-  (if manual
-      (aider-general-command)
-    (let* ((commands '("/clear" "/copy" "/drop" "/ls" "/lint" "/map"
-                       "/map-refresh" "/paste" "/settings" "/tokens"))
-           (command (completing-read "Select command: " commands nil t)))
+  (interactive)
+  (let* ((commands '("manual input" "/clear" "/copy" "/drop" "/ls" "/lint" "/map"
+                     "/map-refresh" "/paste" "/settings" "/tokens"))
+         (command (completing-read "Select command: " commands nil t)))
+    (if (string= command "manual input")
+        (aider-general-command)
       (aider--send-command command t))))
 
 ;; Function to send a custom command to corresponding aider buffer
