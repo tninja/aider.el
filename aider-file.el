@@ -170,38 +170,68 @@ Otherwise, generate the diff."
     (aider--magit-generate-feature-branch-diff-file)))
 
 (defun aider--magit-generate-feature-branch-diff-file ()
-  "Generate a diff file between base and feature branches.
-The diff file will be named <feature_branch>.<base_branch>.diff
+  "Generate a diff file between base and feature branches or for a single commit.
+The diff file will be named:
+- <feature_branch>.<base_branch>.diff for branch comparison
+- <hash>.diff for a single commit
 and placed in the git root directory.
-If input doesn't contain '..' it's treated as base branch and diff
-is generated against HEAD."
+If input contains '..' it's treated as base..feature branch range.
+If input looks like a commit hash, it generates diff for that single commit.
+Otherwise, it's treated as base branch and diff is generated against HEAD."
   (interactive)
   (let* ((git-root (magit-toplevel))
-         (raw-range (read-string "Branch range (base..feature or just base): " "main"))
+         (raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
          (range (string-trim raw-range))
-         (branches (if (string-match-p "\\.\\." range)
-                       (split-string range "\\.\\.")
-                     (list range "HEAD")))
+         ;; Check if it's a commit hash by verifying:
+         ;; 1. It doesn't contain '..'
+         ;; 2. It's not a branch name
+         ;; 3. It can be verified as a valid revision
+         ;; 4. It matches the format of a commit hash (at least 7 hex chars)
+         (is-commit-hash (and (not (string-match-p "\\.\\." range))
+                              (not (magit-branch-p range))
+                              (magit-rev-verify range)
+                              (string-match-p "^[0-9a-f]\\{7,\\}$" range)))
+         (branches (cond
+                    (is-commit-hash
+                     (list (concat range "^") range))
+                    ((string-match-p "\\.\\." range)
+                     (split-string range "\\.\\."))
+                    (t
+                     (list range "HEAD"))))
          (base-branch (car branches))
-         (feature-branch (or (cadr branches) "HEAD"))
-         (diff-file (concat git-root feature-branch "." base-branch ".diff")))
+         (feature-branch (cadr branches))
+         (diff-file (if is-commit-hash
+                         (concat git-root range ".diff")
+                       (concat git-root base-branch "." feature-branch ".diff"))))
     ;; Verify we're in a git repo
     (unless git-root
       (user-error "Not in a git repository"))
-    ;; ;; Check if repo is clean
+    ;; Display message about what we're doing
+    (cond
+     (is-commit-hash
+      (message "Generating diff for single commit: %s" range))
+     ((string-match-p "\\.\\." range)
+      (message "Generating diff between branches: %s..%s" base-branch feature-branch))
+     (t
+      (message "Generating diff between %s and HEAD" base-branch)))
+    ;; Check if repo is clean
     (when (magit-anything-modified-p)
       (message "Repository has uncommitted changes. You might want to commit or stash them first")
       (sleep-for 1))
     ;; Store current branch to return to it
     (let ((original-branch (magit-get-current-branch)))
       ;; Git operations
-      (magit-run-git "checkout" base-branch) ; Switch to base branch first
-      (magit-run-git "pull")      ; Pull latest changes on base branch
-      (magit-run-git "checkout" original-branch) ; Return to original branch
-      (when (not (string= feature-branch "HEAD"))
-        (magit-run-git "checkout" feature-branch)
-        (magit-run-git "checkout" original-branch)) ; Return to original branch
+      (unless is-commit-hash
+        ;; Only do branch operations for branch comparisons
+        (message "Checking out %s..." base-branch)
+        (magit-run-git "checkout" base-branch) ; Switch to base branch first
+        (magit-run-git "checkout" original-branch) ; Return to original branch
+        (when (not (string= feature-branch "HEAD"))
+          (message "Checking out %s..." feature-branch)
+          (magit-run-git "checkout" feature-branch)
+          (magit-run-git "checkout" original-branch))) ; Return to original branch
       ;; Generate diff file
+      (message "Generating diff file...")
       (magit-run-git "diff" (concat base-branch ".." feature-branch)
                      (concat "--output=" diff-file))
       ;; Open diff file
