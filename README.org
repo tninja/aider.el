@@ -250,7 +250,7 @@ Otherwise, You can have helm-based completion with run the following code, after
    
    If suggestions aren't satisfactory, use ~Ask Question~ for refinements and ~Go Ahead~ to confirm changes.
 
-2. **Generate tests**: Validate your implementation with ~aider-write-unit-test~ and ~aider-fix-failing-test-under-cursor~.
+2. **Generate tests**: Validate your implementation with ~aider-write-unit-test~ and ~aider-fix-failing-test-under-cursor~. Do run the test to validate code behavior.
 
 3. **Refine code and tests**: Further refactor as needed using additional prompts or manual adjustments.
 
@@ -274,7 +274,7 @@ Otherwise, You can have helm-based completion with run the following code, after
 
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
-  - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts (we don't want them to go away right? especially if it is not perfect and need to be modified, and we might want to reuse it sometime later).
+  - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts
 
 - Can aider.el work with tramp? (aider running on remote machine)
   - artyom-smushkov make aider-add-current-file support tramp file: https://github.com/tninja/aider.el/issues/36
@@ -285,6 +285,8 @@ Otherwise, You can have helm-based completion with run the following code, after
 ** Feature
 
 - More context sensitive code change / code reading commands
+  - [ ] Current aider-ask-question need to be improved, since there could be so many different question to ask
+- More thinking on how to simplify the menu / commands
 - Better support for aider prompt file
   - [X] aider command syntax highlight
   - [X] aider command completion
@@ -298,7 +300,6 @@ Otherwise, You can have helm-based completion with run the following code, after
     - [X] aider command syntax highlight
     - [X] aider command completion
     - [X] completion of prompt body
-- More thinking on how to simplify the menu / commands
 
 ** Code quality
  
