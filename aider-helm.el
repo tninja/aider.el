@@ -11,9 +11,9 @@
 
 ;;; Code:
 
-(require 'helm)
-(require 'helm-mode)
 (require 'cl-lib)  ; For `cl-subseq`
+
+(declare-function helm-comp-read "helm-mode" (prompt collection &rest args))
 
 (defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input)
   "Read a string with Helm completion using specified history file.

@@ -34,8 +34,6 @@
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
-(declare-function evil-define-key* "evil" (state map key def))
-
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
@@ -44,6 +42,8 @@ When nil, use standard `display-buffer' behavior.")
     (define-key map (kbd "C-c C-y") #'aider-go-ahead)
     map)
   "Keymap for `aider-comint-mode'.")
+
+(declare-function evil-define-key* "evil" (state map key def))
 
 (defun aider--apply-markdown-highlighting ()
   "Set up markdown highlighting for aider buffer with optimized performance."
