@@ -3,6 +3,7 @@
 [[file:README.zh-cn.org][中文版]]
 
 * Table of Contents
+
 - [[#introduction][Introduction]]
   - [[#pros-ui-context-awareness-ai-pair-programming][Pros: UI, Context Awareness AI Pair Programming]]
   - [[#cons-aider-session-in-comint-is-not-fancy][Cons: aider session in comint is not fancy]]
@@ -56,8 +57,8 @@
 
 - More Focus on build prompts using your code (buffer/selection).
 - Search/reuse prompts easily with helm.
-- More Focus on code quality tool (Code Review, TDD + AI).
 - Organize project with repo specific Aider prompt file
+- More Focus on code quality tool (Code Review, TDD + AI).
 - Snippets for community prompts.
 
 * Installation
