@@ -31,9 +31,11 @@ This is the file name without path."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") #'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") #'aider-send-block-or-region)
+    (define-key map (kbd "C-c C-b") #'aider-send-block-by-line)
     (define-key map (kbd "C-c C-z") #'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "C-c C-i") #'aider-core-insert-prompt)
+    (define-key map (kbd "C-c C-y") #'aider-prompt-cycle-file-command)
     map)
   "Keymap for Aider Prompt Mode.")
 
@@ -62,17 +64,28 @@ returns nil."
 
 ;;;###autoload
 (defun aider-send-region-by-line ()
-  "Send current region to aider line by line."
+  "Send current region to aider line by line, ignoring empty and blank lines."
   (interactive)
   (if (region-active-p)
       (let ((region-text (buffer-substring-no-properties
                           (region-beginning)
                           (region-end))))
         (mapc (lambda (line)
-                (unless (string-empty-p line)
-                  (aider--send-command (string-trim line) t)))
-              (split-string region-text "\n" t)))
+                (let ((trimmed-line (string-trim line)))
+                  (unless (string-empty-p trimmed-line)
+                    (aider--send-command trimmed-line t))))
+              (split-string region-text "\n")))
     (message "No region selected.")))
+
+;;;###autoload
+(defun aider-send-block-by-line ()
+  "Send the current paragraph to aider line by line.
+Uses mark-paragraph to select the current paragraph, then sends it line by line."
+  (interactive)
+  (save-excursion                     ; preserve cursor position
+    (mark-paragraph)                  ; mark paragraph
+    (aider-send-region-by-line)       ; send region line by line
+    (deactivate-mark)))               ; deactivate mark after sending
 
 ;;;###autoload
 (defun aider-send-block-or-region ()
@@ -82,10 +95,10 @@ returns nil."
       (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
         (unless (string-empty-p region-text)
           (aider--send-command region-text t)))
-    (save-excursion  ; preserve cursor position
+    (save-excursion                     ; preserve cursor position
       (let ((region-text
              (progn
-               (mark-paragraph)  ; mark paragraph
+               (mark-paragraph)         ; mark paragraph
                (buffer-substring-no-properties (region-beginning) (region-end)))))
         (unless (string-empty-p region-text)
           (aider--send-command region-text t))
@@ -108,8 +121,10 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "# Edit command:\n")
             (insert "#   C-c C-i (or SPACE in evil-normal-mode): Insert prompt in mini buffer or with helm (if you use aider-helm.el)\n")
             (insert "#   C-c C-f: Insert file path under cursor\n")
+            (insert "#   C-c C-y: Cycle through /add, /read-only, /drop\n")
             (insert "# Command to interact with aider session:\n")
             (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
+            (insert "#   C-c C-b: Send current paragraph line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
             (insert "#   C-c C-z: Switch to aider buffer\n")
             (insert "# If you have yasnippet installed, use these keybindings to access snippet functions in aider-prompt-mode:\n")
@@ -162,7 +177,39 @@ If file doesn't exist, create it with command binding help and sample prompt."
           (insert relative-path))
       (message "No valid file selected."))))
 
-;; Insert command completion functions for aider-prompt-mode
+;;;###autoload
+(defun aider-prompt-cycle-file-command ()
+  "Cycle through file commands in the current line.
+If the line doesn't contain a file command, add '/add ' to the beginning.
+If it already has one of '/add', '/read-only', or '/drop', cycle to the next one."
+  (interactive)
+  (let* ((file-commands '("/add " "/read-only " "/drop "))
+         (line-begin (line-beginning-position))
+         (line-end (line-end-position))
+         (line-text (buffer-substring-no-properties line-begin line-end))
+         (trimmed-line (string-trim line-text))
+         (current-command nil)
+         (command-pos nil)
+         (next-command "/add "))
+    ;; Check if line contains one of the file commands
+    (dolist (cmd file-commands)
+      (when (string-match (regexp-quote cmd) trimmed-line)
+        (setq current-command cmd)
+        (setq command-pos (+ line-begin (string-match (regexp-quote cmd) line-text)))))
+    ;; Determine the next command in the cycle
+    (when current-command
+      (let ((cmd-index (cl-position current-command file-commands :test 'string=)))
+        (setq next-command (nth (mod (1+ cmd-index) (length file-commands)) file-commands))))
+    ;; Apply the change
+    (if current-command
+        ;; Replace existing command
+        (progn
+          (goto-char command-pos)
+          (delete-char (length current-command))
+          (insert next-command))
+      ;; Add new command at beginning of line
+      (goto-char line-begin)
+      (insert next-command))))
 
 ;; Define the Aider Prompt Mode (derived from org-mode)
 ;;;###autoload

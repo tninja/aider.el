@@ -231,12 +231,12 @@ of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
       (when (string-match "^/\\(\\w*\\)" line-str)
         (let* ((beg (+ line-start (match-beginning 0)))
                (end (+ line-start (match-end 0)))
-               (commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
-                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+               (commands '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
+                           "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
+                           "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
                            "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-                           "/tokens" "/voice" "/web"
-                           "/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint"))
+                           "/tokens" "/voice" "/web"))
                (prefix (match-string 0 line-str))
                (candidates (seq-filter (lambda (cmd)
                                          (string-prefix-p prefix cmd))
