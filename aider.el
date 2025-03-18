@@ -23,7 +23,7 @@
 ;; Alternatives to aidermacs:
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Search/reuse prompts easily with helm.
-;; - More Focus on code quality (Code Review, TDD + AI).
+;; - More Focus on code quality tool (Code Review, TDD + AI).
 ;; - Organize project with repo specific Aider prompt file
 ;; - Snippets for community prompts.
 

@@ -1,0 +1,153 @@
+# Aider Prompt File - Command Reference:
+# Command to interact with aider session:
+  #   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts
+  #   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt
+  #   C-c C-z: Switch to aider buffer
+# If you have yasnippet installed:
+  #   M-x yas-describe-tables: Show available snippets
+  #   M-x yas-insert-snippet: Select a snippet and insert here
+  #   M-x yas-expand: Expand the snippet under cursor
+
+* Sample task:
+
+/ask
+explain to me
+what this repo is about?
+
+* Bug report
+
+/add *.el
+
+/ask After my last refacting work to break aider.el into multiple files, people report installation failed: https://github.com/tninja/aider.el/issues/103. Would you mind take a look and tell me how to fix it?
+
+/ask what is the Package Structure Changes you mean? Explain in Chinese.
+
+** vc-install bug
+
+/add *.el
+
+When i use vc-install to install aider.el with the following command
+(package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
+I got this error report:
+Debugger entered--Lisp error: (void-variable aider-prompt-file-name)
+  (regexp-quote aider-prompt-file-name)
+  (concat "/" (regexp-quote aider-prompt-file-name) "\\'")
+  (cons (concat "/" (regexp-quote aider-prompt-file-name) "\\'") 'aider-prompt-mode)
+  (add-to-list 'auto-mode-alist (cons (concat "/" (regexp-quote aider-prompt-file-name) "\\'") 'aider-prompt-mode))
+  eval-buffer(#<buffer  *load*> nil "/home/tninja/.emacs.d/elpa/aider/aider-autoloads.el" nil t)  ; Reading at buffer position 10820
+  load-with-code-conversion("/home/tninja/.emacs.d/elpa/aider/aider-autoloads.el" "/home/tninja/.emacs.d/elpa/aider/aider-autoloads.el" nil t)
+  load("/home/tninja/.emacs.d/elpa/aider/aider-autoloads" nil t)
+  package-activate-1(#s(package-desc :name aider :version (0 3 0) :summary "No description available." :reqs ((emacs (25 1)) (helm (3 0)) (emacs (26 1)) (transient (0 3 0)) (magit (2 1 0))) :kind vc :archive nil :dir "/home/tninja/.emacs.d/elpa/aider/" :extras ((:commit . "180c7e0bfed27ac8490d142e1aca0b1cf5724032")) :signed nil) :reload :deps)
+  package-vc--unpack-1(#s(package-desc :name aider :version nil :summary "No description available." :reqs ((emacs (25 1)) (helm (3 0)) (emacs (26 1)) (transient (0 3 0)) (magit (2 1 0))) :kind vc :archive nil :dir "/home/tninja/.emacs.d/elpa/aider/" :extras nil :signed nil) "/home/tninja/.emacs.d/elpa/aider/")
+  package-vc--unpack(#s(package-desc :name aider :version nil :summary "No description available." :reqs ((emacs (25 1)) (helm (3 0)) (emacs (26 1)) (transient (0 3 0)) (magit (2 1 0))) :kind vc :archive nil :dir "/home/tninja/.emacs.d/elpa/aider/" :extras nil :signed nil) (:url "https://github.com/tninja/aider.el" :files ("*.el")) nil)
+  package-vc-install((aider :url "https://github.com/tninja/aider.el" :files ("*.el")))
+  eval((package-vc-install '(aider :url "https://github.com/tninja/aider.el" :files ("*.el"))) nil)
+  elisp--eval-last-sexp(nil)
+  #f(compiled-function () #<bytecode 0x6499542df26a>)()
+  handler-bind-1(#f(compiled-function () #<bytecode 0x6499542df26a>) (error) eval-expression--debug)
+  eval-last-sexp(nil)
+  funcall-interactively(eval-last-sexp nil)
+  #<subr call-interactively>(eval-last-sexp nil nil)
+  ad-Advice-call-interactively(#<subr call-interactively> eval-last-sexp nil nil)
+  apply(ad-Advice-call-interactively #<subr call-interactively> (eval-last-sexp nil nil))
+  call-interactively(eval-last-sexp nil nil)
+  command-execute(eval-last-sexp)
+
+* Add code snippets for aider minor mode
+
+** First
+
+/add prompts_1.txt
+/architect generate yasnippet prompt snippets given description inside prompts_1.txt, and make the snippets use proper aider command in the first line (use /ask for discussion, and /architect for code change, no other command). Please do not have space line inside the snippets so that aider can easily use them as a block, I want it applied to aider-prompt-mode. The contributer is LorestForest on reddit. you can generate it under snippets/aider-prompt-mode directory. All prompts should be in English.
+
+*** Why the snippet not working?
+
+/add aider.el
+/add snippets/org-mode/code-gen
+/ask In aider.el, the aider-minor-mode suppose to load the snippets, however, it doesn't work. The yas-describe-tables just don't have codegen. Please help me debug
+
+# Well, sonnet is much better..
+
+** Second
+
+/add prompts_2.txt
+/architect generate yasnippet prompt snippets given description inside prompts_2.txt, and make the snippets use proper aider command in the first line (use /ask for discussion, and /architect for code change, no other command). Please do not have space line inside the snippets so that aider can easily use them as a block, I want it applied to aider-prompt-mode. The contributer is LorestForest on reddit. you can generate it under snippets/aider-prompt-mode directory. All prompts should be in English.
+
+* Extract aider-prompt-mode.el
+
+/add aider.el
+/ask I want to extract aider-prompt-mode related code to a new file: aider-prompt-mode.el. I want aider.el can import content the new file. So anyone import aider.el can have aider-prompt-mode.
+
+/ask I saw you have aider-send-line-or-region and other functions in the new files. They depend on aider--send-command, which is in aider.el. Is that OK?
+
+/ask But how we can let people who import aider.el can automatically have aider-prompt-mode?
+
+/ask hmm I prefer to let aider-core.el contains most essential functions which support aider-prompt-mode.el and aider.el, and it should be as thin as possible; and let aider.el contains menu and upper level menu item functions.
+
+* Separate menu items out as dedicate files
+
+/add aider.el
+/add aider-core.el
+/ask I want to separate menu items under "File Operation" out as dedicate file. I want to keep the menu items in aider.el, and move these functions to a new file: aider-file.el. The menu items should be in the same order as before. Please help me do that.
+
+/ask I want to separate menu items under "Code Change" out as dedicate file. I want to keep the menu items in aider.el, and move these functions to a new file: aider-code-change.el. The menu items should be in the same order as before. Please help me do that.
+
+/ask I want to separate menu items under "Discussion" out as dedicate file. I want to keep the menu items in aider.el, and move these functions to a new file: aider-discussion.el. The menu items should be in the same order as before. Please help me do that.
+
+* Check missing autoload file?
+
+/add *.el
+
+/ask I used following command to install aider.el, as you see. aider.el depend on other .el file. Please check those files, and see if we need to add more autoload ###
+(use-package aider
+  :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
+  :config
+  ;; For latest claude sonnet model
+  (setq aider-args '("--model" "sonnet"))
+  (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+  ;; Optional: Set a key binding for the transient menu
+  (global-set-key (kbd "C-c a") 'aider-transient-menu))
+
+* Check how to set the syntax highlight from non-prog mode buffer
+
+/ask How should I get all major mode derived from prog-mode already loaded in memory, in emacs lisp?
+
+/ask How can we identify the file name in a given string in emacs lisp? It have a suffix. Eg. the input string could be "/add aider.el"
+
+(extract-filename-regex "/add aider.el")
+
+(defun extract-filename-regex (str)
+"使用正则表达式从字符串中提取带扩展名的文件名。"
+(when (string-match "\\([^/\\]+\\.[^/\\]+\\)$" str)
+(match-string 1 str)))
+
+(defun extract-filename-from-command (command-str)
+"从命令字符串(如'/add aider.el')中提取文件名。"
+(when (string-match "^/[a-z]+ +\\([^ ]+\\)" command-str)
+(match-string 1 command-str)))
+
+(extract-filename-from-command "/add aider.el")
+
+(aider--extract-filename-from-command "/readonly aider.el")
+
+(aider--extract-filename-from-command "abc\n\n /readonly 0123.el")
+
+(aider--extract-filename-from-command (replace-regexp-in-string "[\n\r]+" " " (string-trim  "abc\n\n /readonly 0123.el")))
+
+(aider--extract-filename-from-command " abc /readonly aider.el")
+
+/ask given a file path, check if it is exist; if it exist, open it in temp buffer
+
+/add aider.el
+/add aider-core.el
+
+  /read aider-core.el
+
+/ask write a helloworld elisp function
+
+* Suggestion on aider-prompt-mode?
+
+/add aider-prompt-mode.el
+/add .aider.prompt.org
+
+/ask 
