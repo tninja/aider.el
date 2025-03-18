@@ -8,8 +8,24 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; This package provides an interactive interface
-;; to communicate with https://github.com/paul-gauthier/aider.
+;; Tired of coding alone? This package + Aider (https://aider.chat/)
+;; brings an AI pair programmer *inside* Emacs! Aider works seamlessly
+;; with both *new* and *existing* codebases in your local Git repo,
+;; using AI models (Claude, ChatGPT, even local ones!) to help you. It
+;; can suggest improvements, squash bugs, or even write whole new
+;; sections of code. Boost your coding with AI, without ever leaving
+;; your Emacs comfort zone.
+;;
+;; In-editor Aider experience:
+;; - Manages Aider sessions per Git repo.
+;; - Menu for AI-assisted coding
+;;
+;; Alternatives to aidermacs:
+;; - More Focus on build prompts using your code (buffer/selection).
+;; - Search/reuse prompts easily with helm.
+;; - More Focus on code quality (Code Review, TDD + AI).
+;; - Organize project with repo specific Aider prompt file
+;; - Snippets for community prompts.
 
 ;;; Code:
 
