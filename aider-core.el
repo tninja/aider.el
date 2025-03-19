@@ -90,19 +90,11 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (when (featurep 'evil)
     (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
-(defvar aider-read-string-history nil
-  "History list for aider read string inputs.")
-(if (bound-and-true-p savehist-loaded)
-    (add-to-list 'savehist-additional-variables 'aider-read-string-history)
-  (add-hook 'savehist-mode-hook
-            (lambda ()
-              (add-to-list 'savehist-additional-variables 'aider-read-string-history))))
-
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
-  (read-string prompt initial-input 'aider-read-string-history))
+  (read-string prompt initial-input))
 
 ;;;###autoload
 (defalias 'aider-read-string #'aider-plain-read-string)
