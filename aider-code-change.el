@@ -58,11 +58,10 @@ Otherwise, refactor the function under cursor."
                           "Optimize this code for better performance"
                           "Improve error handling and edge cases"
                           "Refactor to reduce complexity and improve readability"
+                          "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
                           "Make this code more maintainable and easier to test"
                           "Fix potential bugs or issues in this code"
-                          "Improve variable names and add clarifying comments"
-                          "Refactor to follow best practices for this language"
-                          "Convert to use more modern language features"))
+                          "Improve variable names and add clarifying comments"))
          (instruction (aider-read-string prompt nil candidate-list))
          (region-text (and region-active
                            (buffer-substring-no-properties (region-beginning) (region-end)))))

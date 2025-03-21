@@ -28,16 +28,15 @@ Focuses on understanding, analyzing, improving the selected code or function."
                   (function-name (format "About function '%s': " function-name))
                   (region-active "Question for the selected region: ")
                   (t "Question: ")))
-         (candidate-list '("What does this code do?"
-                          "Explain the logic of this code step by step"
+         (candidate-list '("What is your suggestion on the most important thing to do"
+                          "What does this code do? Explain the logic of this code step by step"
                           "What are the inputs and outputs of this code?"
                           "Are there any edge cases not handled in this code?"
                           "How could this code be simplified?"
                           "What's the time/space complexity of this algorithm?"
                           "Is there a more efficient way to implement this?"
                           "What design patterns are used here?"
-                          "How does this code handle errors?"
-                          "What assumptions does this code make?"))
+                          "How does this code handle errors?"))
          (raw-question (aider-read-string prompt nil candidate-list))
          (question (if function-name
                        (concat prompt raw-question)
@@ -54,7 +53,16 @@ Focuses on understanding, analyzing, improving the selected code or function."
 (defun aider-general-question ()
   "Ask aider question without context."
   (interactive)
-  (let ((question (aider-read-string "Enter general question to ask: ")))
+  (let* ((candidate-list '("Explain the purpose and functionality of these files"
+                          "What are the key functions/methods in these files?"
+                          "What is your suggestion on the most important thing to do in these files?"
+                          "Identify potential bugs or issues in these files"
+                          "What design patterns are used in these files?"
+                          "How could we optimize the performance of this code?"
+                          "Are there any security concerns in these files?"
+                          "How could we make this code more maintainable?"
+                          "Explain the overall architecture of this codebase"))
+         (question (aider-read-string "Enter general question to ask: " nil candidate-list)))
     (let ((command (format "/ask %s" question)))
       (aider--send-command command t))))
 

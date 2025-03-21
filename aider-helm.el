@@ -27,16 +27,27 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
                     (with-temp-buffer
                       (insert-file-contents history-file)
                       (delete-dups (read (buffer-string))))))
-         ;; Combine candidate-list and history with a separator
-         (candidates (if candidate-list
-                         (append candidate-list
-                                 (when history 
-                                   (cons "==================== HISTORY ========================================" history)))
-                       history))
+         ;; Extract the most recent item from history (if exists)
+         (most-recent (when (and history (not (null history)))
+                        (car history)))
+         ;; Remove the first item to add it back later
+         (rest-history (when (and history (not (null history)))
+                         (cdr history)))
+         ;; Combine completion list: most recent + candidates + separator + rest of history
+         (completion-list 
+          (append
+           ;; If most recent item exists, put it at the top
+           (when most-recent
+             (list most-recent))
+           ;; Add candidate list
+           (or candidate-list '())
+           ;; Add separator and rest of history
+           (when rest-history
+             (cons "==================== HISTORY ========================================" rest-history))))
          ;; Read input with helm
          (input (helm-comp-read
                  prompt
-                 candidates
+                 completion-list
                  :must-match nil
                  :name "Helm Read String, Use C-c C-y to edit selected command. C-b and C-f to move cursor during editing"
                  :fuzzy t
