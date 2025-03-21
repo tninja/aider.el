@@ -28,7 +28,6 @@ Focuses on understanding, analyzing, and improving the selected code or function
                   (function-name (format "About function '%s': " function-name))
                   (region-active "Question for the selected region: ")
                   (t "Question: ")))
-         ;; 重新设计的候选提示，更专注于代码理解和分析
          (candidate-list '("What does this code do?"
                           "Explain the logic of this code step by step"
                           "What are the inputs and outputs of this code?"
@@ -64,47 +63,6 @@ Focuses on understanding, analyzing, and improving the selected code or function
   "Send the command \"go ahead\" to the corresponding aider comint buffer."
   (interactive)
   (aider--send-command "go ahead" t))
-
-;; New function to explain the code in the selected region
-;;;###autoload
-(defun aider-region-explain ()
-  "Ask Aider to explain the selected region of code."
-  (interactive)
-  (if (use-region-p)
-      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (function-name (which-function))
-             (processed-region-text region-text)
-             (command (if function-name
-                          (format "/ask in function %s, explain the following code block: %s"
-                                  function-name
-                                  processed-region-text)
-                        (format "/ask explain the following code block: %s"
-                                processed-region-text))))
-        (aider-add-current-file)
-        (aider--send-command command t))
-    (message "No region selected.")))
-
-;; New function to ask Aider to explain the function under the cursor
-;;;###autoload
-(defun aider-function-explain ()
-  "Ask Aider to explain the function under the cursor.
-Prompts user for specific questions about the function."
-  (interactive)
-  (if-let ((function-name (which-function)))
-      (let* ((prefix (format "explain %s: " function-name))
-             (prompt (format "Enter your question to %s" prefix))
-             (user-question (aider-read-string prompt)))
-        (aider-current-file-command-and-switch "/ask " (concat prefix user-question)))
-    (message "No function found at cursor position.")))
-
-;;;###autoload
-(defun aider-function-or-region-explain ()
-  "Call `aider-function-explain` when no region is selected.
-otherwise call `aider-region-explain`."
-  (interactive)
-  (if (region-active-p)
-      (aider-region-explain)
-    (aider-function-explain)))
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
