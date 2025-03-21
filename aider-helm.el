@@ -31,7 +31,7 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
          (candidates (if candidate-list
                          (append candidate-list 
                                  (when history 
-                                   (cons "--------------------PREVIOUS PROMPTS--------------------" history)))
+                                   (cons "==================== HISTORY ========================================" history)))
                        history))
          ;; Read input with helm
          (input (helm-comp-read
