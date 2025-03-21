@@ -80,7 +80,7 @@ returns nil."
 ;;;###autoload
 (defun aider-send-block-by-line ()
   "Send the current paragraph to aider line by line.
-Uses mark-paragraph to select the current paragraph, then sends it line by line."
+Uses `mark-paragraph` to select the current paragraph, then sends it by line."
   (interactive)
   (save-excursion                     ; preserve cursor position
     (mark-paragraph)                  ; mark paragraph
@@ -181,7 +181,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (defun aider-prompt-cycle-file-command ()
   "Cycle through file commands in the current line.
 If the line doesn't contain a file command, add '/add ' to the beginning.
-If it already has one of '/add', '/read-only', or '/drop', cycle to the next one.
+If it already has one of '/add', '/read-only', or '/drop', cycle to the next.
 If it has '/ask', toggle to '/architect', and vice versa."
   (interactive)
   (let* ((file-commands '("/add " "/read-only " "/drop "))
@@ -193,20 +193,17 @@ If it has '/ask', toggle to '/architect', and vice versa."
          (current-command nil)
          (command-pos nil)
          (next-command "/add "))
-    
     ;; Check if line contains one of the file commands
     (dolist (cmd file-commands)
       (when (string-match (regexp-quote cmd) trimmed-line)
         (setq current-command cmd)
         (setq command-pos (+ line-begin (string-match (regexp-quote cmd) line-text)))))
-    
     ;; Check if line contains one of the special commands
     (unless current-command
       (dolist (cmd special-commands)
         (when (string-match (regexp-quote cmd) trimmed-line)
           (setq current-command cmd)
           (setq command-pos (+ line-begin (string-match (regexp-quote cmd) line-text))))))
-    
     ;; Determine the next command in the cycle
     (cond
      ;; For /ask and /architect, toggle between them
@@ -221,7 +218,6 @@ If it has '/ask', toggle to '/architect', and vice versa."
           (setq next-command (nth (mod (1+ cmd-index) (length file-commands)) file-commands)))))
      ;; Default case - no command found
      (t (setq next-command "/add ")))
-    
     ;; Apply the change
     (if current-command
         ;; Replace existing command

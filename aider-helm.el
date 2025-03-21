@@ -29,7 +29,7 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
                       (delete-dups (read (buffer-string))))))
          ;; Combine candidate-list and history with a separator
          (candidates (if candidate-list
-                         (append candidate-list 
+                         (append candidate-list
                                  (when history 
                                    (cons "==================== HISTORY ========================================" history)))
                        history))

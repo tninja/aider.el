@@ -17,7 +17,7 @@
 ;;;###autoload
 (defun aider-ask-question ()
   "Ask aider question about specific code.
-Focuses on understanding, analyzing, and improving the selected code or function."
+Focuses on understanding, analyzing, improving the selected code or function."
   (interactive)
   ;; Dispatch to general question if in aider buffer
   (let* ((function-name (which-function))
