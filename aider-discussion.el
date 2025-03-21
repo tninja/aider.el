@@ -16,9 +16,8 @@
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
 (defun aider-ask-question ()
-  "Ask aider question.
-If NO-CONTEXT is non-nil, send the question to the general aider comint buffer.
-Otherwise, send the question to the corresponding aider comint buffer."
+  "Ask aider question about specific code.
+Focuses on understanding, analyzing, and improving the selected code or function."
   (interactive)
   ;; Dispatch to general question if in aider buffer
   (let* ((function-name (which-function))
@@ -29,7 +28,18 @@ Otherwise, send the question to the corresponding aider comint buffer."
                   (function-name (format "About function '%s': " function-name))
                   (region-active "Question for the selected region: ")
                   (t "Question: ")))
-         (raw-question (aider-read-string prompt))
+         ;; 重新设计的候选提示，更专注于代码理解和分析
+         (candidate-list '("What does this code do?"
+                          "Explain the logic of this code step by step"
+                          "What are the inputs and outputs of this code?"
+                          "Are there any edge cases not handled in this code?"
+                          "How could this code be simplified?"
+                          "What's the time/space complexity of this algorithm?"
+                          "Is there a more efficient way to implement this?"
+                          "What design patterns are used here?"
+                          "How does this code handle errors?"
+                          "What assumptions does this code make?"))
+         (raw-question (aider-read-string prompt nil candidate-list))
          (question (if function-name
                        (concat prompt raw-question)
                      raw-question))
@@ -39,7 +49,7 @@ Otherwise, send the question to the corresponding aider comint buffer."
                                (format "%s: %s" question region-text)
                              question)))
     (aider-current-file-command-and-switch "/ask " question-context)
-    (message "Ask aider to: explain code, review implementation, suggest improvements, or any other coding assistance")))
+    (message "Question about code sent to Aider")))
 
 ;;;###autoload
 (defun aider-general-question ()

@@ -15,21 +15,28 @@
 
 (declare-function helm-comp-read "helm-mode" (prompt collection &rest args))
 
-(defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input)
+(defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input template-list)
   "Read a string with Helm completion using specified history file.
 PROMPT is the prompt string.
 HISTORY-FILE-NAME is the base name for history file.
-INITIAL-INPUT is optional initial input string."
+INITIAL-INPUT is optional initial input string.
+TEMPLATE-LIST is an optional list of template strings to show before history."
   ;; Load history from file
   (let* ((history-file (expand-file-name history-file-name user-emacs-directory))
          (history (when (file-exists-p history-file)
                     (with-temp-buffer
                       (insert-file-contents history-file)
                       (delete-dups (read (buffer-string))))))
+         ;; Combine template-list and history with a separator
+         (candidates (if template-list
+                         (append template-list 
+                                 (when history 
+                                   (cons "----------PREVIOUS PROMPTS----------" history)))
+                       history))
          ;; Read input with helm
          (input (helm-comp-read
                  prompt
-                 history
+                 candidates
                  :must-match nil
                  :name "Helm Read String, Use C-c C-y to edit selected command. C-b and C-f to move cursor during editing"
                  :fuzzy t
@@ -44,11 +51,12 @@ INITIAL-INPUT is optional initial input string."
           (insert (prin1-to-string history-entries)))))
     input))
 
-(defun aider-helm-read-string (prompt &optional initial-input)
+(defun aider-helm-read-string (prompt &optional initial-input template-list)
   "Read a string with Helm completion for aider, showing historical inputs.
 PROMPT is the prompt string.
-INITIAL-INPUT is optional initial input string."
-  (aider-helm-read-string-with-history prompt "aider-helm-read-string-history.el" initial-input))
+INITIAL-INPUT is optional initial input string.
+TEMPLATE-LIST is an optional list of template strings to show before history."
+  (aider-helm-read-string-with-history prompt "aider-helm-read-string-history.el" initial-input template-list))
 
 (declare-function aider-read-string "aider")
 
