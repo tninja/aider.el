@@ -181,9 +181,11 @@ If file doesn't exist, create it with command binding help and sample prompt."
 (defun aider-prompt-cycle-file-command ()
   "Cycle through file commands in the current line.
 If the line doesn't contain a file command, add '/add ' to the beginning.
-If it already has one of '/add', '/read-only', or '/drop', cycle to the next one."
+If it already has one of '/add', '/read-only', or '/drop', cycle to the next one.
+If it has '/ask', toggle to '/architect', and vice versa."
   (interactive)
   (let* ((file-commands '("/add " "/read-only " "/drop "))
+         (special-commands '("/ask " "/architect "))
          (line-begin (line-beginning-position))
          (line-end (line-end-position))
          (line-text (buffer-substring-no-properties line-begin line-end))
@@ -191,15 +193,35 @@ If it already has one of '/add', '/read-only', or '/drop', cycle to the next one
          (current-command nil)
          (command-pos nil)
          (next-command "/add "))
+    
     ;; Check if line contains one of the file commands
     (dolist (cmd file-commands)
       (when (string-match (regexp-quote cmd) trimmed-line)
         (setq current-command cmd)
         (setq command-pos (+ line-begin (string-match (regexp-quote cmd) line-text)))))
+    
+    ;; Check if line contains one of the special commands
+    (unless current-command
+      (dolist (cmd special-commands)
+        (when (string-match (regexp-quote cmd) trimmed-line)
+          (setq current-command cmd)
+          (setq command-pos (+ line-begin (string-match (regexp-quote cmd) line-text))))))
+    
     ;; Determine the next command in the cycle
-    (when current-command
+    (cond
+     ;; For /ask and /architect, toggle between them
+     ((string= current-command "/ask ")
+      (setq next-command "/architect "))
+     ((string= current-command "/architect ")
+      (setq next-command "/ask "))
+     ;; For file commands, cycle through the list
+     (current-command
       (let ((cmd-index (cl-position current-command file-commands :test 'string=)))
-        (setq next-command (nth (mod (1+ cmd-index) (length file-commands)) file-commands))))
+        (when cmd-index
+          (setq next-command (nth (mod (1+ cmd-index) (length file-commands)) file-commands)))))
+     ;; Default case - no command found
+     (t (setq next-command "/add ")))
+    
     ;; Apply the change
     (if current-command
         ;; Replace existing command
