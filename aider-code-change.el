@@ -57,8 +57,8 @@ Otherwise, refactor the function under cursor."
          (region-active (region-active-p))
          (region-in-function (and region-active function-name))
          (prompt (cond
-                  (region-in-function (format "Refactor instruction for selected region in function '%s': " function-name))
-                  (function-name (format "Refactor %s: " function-name))
+                  (region-in-function (format "Code change instruction for selected region in function '%s': " function-name))
+                  (function-name (format "Change %s: " function-name))
                   (region-active "Refactor instruction for selected region: ")
                   (t "Refactor instruction: ")))
          (candidate-list '("Simplify this code, reduce complexity and improve readability, while preserving functionality"
@@ -164,10 +164,9 @@ Otherwise:
                       (user-command (aider-read-string "Test implementation instruction: " initial-input)))
                   (aider-current-file-command-and-switch "/architect " user-command))
               (message "Current function '%s' does not appear to be a test function." function-name))
-          (let* ((initial-input "Write tests functions given the feature requirement description. You can provide the full description, or tell me where the description is located (e.g., in a comment of some file).")
+          (let* ((initial-input "Write tests functions given the feature requirement description: ")
                  (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
-            (aider-current-file-command-and-switch "/architect " user-command))
-          (message "Please place cursor inside a test function to implement.")))
+            (aider-current-file-command-and-switch "/architect " user-command))))
        ;; Non-test file case
        (t
         (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
