@@ -13,6 +13,14 @@
 (require 'aider-file)
 (require 'which-func)
 
+(defcustom aider-todo-keyword-pair '("TODO" . "comments START with TODO: ")
+  "Pair of keyword and its definition for `aider-implement-todo`.
+The car is the keyword string to search for in comments.
+The cdr is the description of what these comments represent.
+Another common choice is (\"AI!\" . \"comments ending with AI! that need implementation\")."
+  :type '(cons string string)
+  :group 'aider)
+
 ;; New function to get command from user and send it prefixed with "/code "
 ;;;###autoload
 (defun aider-code-change ()
@@ -94,11 +102,13 @@ ignoring leading whitespace."
 
 ;;;###autoload
 (defun aider-implement-todo ()
-  "Implement TODO comments in current context.
+  "Implement comments with configured keyword in current context.
 If region is selected, implement that specific region.
-If cursor is on a comment line, implement that specific comment.
-If cursor is inside a function, implement TODOs for that function.
-Otherwise implement TODOs for the entire current file."
+If cursor is on a comment line with the configured keyword, implement that specific comment.
+If cursor is inside a function, implement comments with the keyword for that function.
+Otherwise implement comments with the keyword for the entire current file.
+
+The keyword and its definition are configured in `aider-todo-keyword-pair`."
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
@@ -109,6 +119,8 @@ Otherwise implement TODOs for the entire current file."
                          (buffer-substring-no-properties
                           (region-beginning)
                           (region-end))))
+           (keyword (car aider-todo-keyword-pair))
+           (definition (cdr aider-todo-keyword-pair))
            (initial-input
             (cond
              (region-text
@@ -118,11 +130,11 @@ Otherwise implement TODOs for the entire current file."
               (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment."
                       current-line))
              (function-name
-              (format "Please implement the TODO items in-place in function '%s'. Keep the existing code structure and only implement the TODOs in comments."
-                      function-name))
+              (format "Please implement all %s in-place in function '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
+                      keyword function-name keyword definition))
              (t
-              (format "Please implement all TODO items in-place in file '%s'. Keep the existing code structure and only implement the TODOs in comments."
-                      (file-name-nondirectory buffer-file-name)))))
+              (format "Please implement all %s in-place in file '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
+                      keyword (file-name-nondirectory buffer-file-name) keyword definition))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input)))
       (aider-current-file-command-and-switch "/architect " user-command))))
 
