@@ -13,6 +13,14 @@
 (require 'aider-file)
 (require 'which-func)
 
+(defcustom aider-todo-keyword-pair '("TODO" . "comments marked with TODO")
+  "Pair of keyword and its definition for `aider-implement-todo`.
+The car is the keyword string to search for in comments.
+The cdr is the description of what these comments represent.
+Another common choice is (\"AI!\" . \"comments ending with AI! that need implementation\")."
+  :type '(cons string string)
+  :group 'aider)
+
 ;; New function to get command from user and send it prefixed with "/code "
 ;;;###autoload
 (defun aider-code-change ()
@@ -92,37 +100,50 @@ ignoring leading whitespace."
                              "+")
                      (string-trim-left line)))))
 
+(defun aider--is-todo-comment (line)
+  "Check if LINE contains the configured TODO keyword.
+Returns non-nil if the line is a comment and contains the keyword from `aider-todo-keyword-pair`."
+  (when comment-start
+    (let ((trimmed-line (string-trim line))
+          (keyword (car aider-todo-keyword-pair)))
+      (and (aider--is-comment-line trimmed-line)
+           (string-match-p (regexp-quote keyword) trimmed-line)))))
+
 ;;;###autoload
 (defun aider-implement-todo ()
-  "Implement TODO comments in current context.
+  "Implement comments with configured keyword in current context.
 If region is selected, implement that specific region.
-If cursor is on a comment line, implement that specific comment.
-If cursor is inside a function, implement TODOs for that function.
-Otherwise implement TODOs for the entire current file."
+If cursor is on a comment line with the configured keyword, implement that specific comment.
+If cursor is inside a function, implement comments with the keyword for that function.
+Otherwise implement comments with the keyword for the entire current file.
+
+The keyword and its definition are configured in `aider-todo-keyword-pair`."
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
     (let* ((current-line (string-trim (thing-at-point 'line t)))
-           (is-comment (aider--is-comment-line current-line))
+           (is-todo-comment (aider--is-todo-comment current-line))
            (function-name (which-function))
            (region-text (when (region-active-p)
                          (buffer-substring-no-properties
                           (region-beginning)
                           (region-end))))
+           (keyword (car aider-todo-keyword-pair))
+           (definition (cdr aider-todo-keyword-pair))
            (initial-input
             (cond
              (region-text
               (format "Please implement this code block in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific block."
                       region-text))
-             (is-comment
-              (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment."
-                      current-line))
+             (is-todo-comment
+              (format "Please implement this comment in-place: '%s'. It contains %s '%s'. Please replace it with implementation. Keep the existing code structure and implement just this specific comment."
+                      current-line definition keyword))
              (function-name
-              (format "Please implement the TODO items in-place in function '%s'. Keep the existing code structure and only implement the TODOs in comments."
-                      function-name))
+              (format "Please implement all %s in-place in function '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
+                      keyword function-name keyword definition))
              (t
-              (format "Please implement all TODO items in-place in file '%s'. Keep the existing code structure and only implement the TODOs in comments."
-                      (file-name-nondirectory buffer-file-name)))))
+              (format "Please implement all %s in-place in file '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
+                      keyword (file-name-nondirectory buffer-file-name) keyword definition))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input)))
       (aider-current-file-command-and-switch "/architect " user-command))))
 
