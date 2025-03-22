@@ -180,7 +180,7 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
            (model (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models))))
       (when model
         (aider--send-command (format "%s %s" command model) t)
-        (message "%s changed to %s, customize aider-popular-models for the model candidates" 
+        (message "%s changed to %s, customize aider-popular-models for the model candidates"
                  (substring command 1) model)))))
 
 ;; now you should explicitly require the modules you need

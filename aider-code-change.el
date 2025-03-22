@@ -13,7 +13,7 @@
 (require 'aider-file)
 (require 'which-func)
 
-(defcustom aider-todo-keyword-pair '("TODO" . "comments marked with TODO")
+(defcustom aider-todo-keyword-pair '("TODO" . "comments START with TODO: ")
   "Pair of keyword and its definition for `aider-implement-todo`.
 The car is the keyword string to search for in comments.
 The cdr is the description of what these comments represent.
@@ -100,15 +100,6 @@ ignoring leading whitespace."
                              "+")
                      (string-trim-left line)))))
 
-(defun aider--is-todo-comment (line)
-  "Check if LINE contains the configured TODO keyword.
-Returns non-nil if the line is a comment and contains the keyword from `aider-todo-keyword-pair`."
-  (when comment-start
-    (let ((trimmed-line (string-trim line))
-          (keyword (car aider-todo-keyword-pair)))
-      (and (aider--is-comment-line trimmed-line)
-           (string-match-p (regexp-quote keyword) trimmed-line)))))
-
 ;;;###autoload
 (defun aider-implement-todo ()
   "Implement comments with configured keyword in current context.
@@ -122,7 +113,7 @@ The keyword and its definition are configured in `aider-todo-keyword-pair`."
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
     (let* ((current-line (string-trim (thing-at-point 'line t)))
-           (is-todo-comment (aider--is-todo-comment current-line))
+           (is-comment (aider--is-comment-line current-line))
            (function-name (which-function))
            (region-text (when (region-active-p)
                          (buffer-substring-no-properties
@@ -135,9 +126,9 @@ The keyword and its definition are configured in `aider-todo-keyword-pair`."
              (region-text
               (format "Please implement this code block in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific block."
                       region-text))
-             (is-todo-comment
-              (format "Please implement this comment in-place: '%s'. It contains %s '%s'. Please replace it with implementation. Keep the existing code structure and implement just this specific comment."
-                      current-line definition keyword))
+             (is-comment
+              (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment."
+                      current-line))
              (function-name
               (format "Please implement all %s in-place in function '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
                       keyword function-name keyword definition))
