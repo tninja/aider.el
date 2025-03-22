@@ -177,15 +177,11 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
       (browse-url "https://aider.chat/docs/leaderboards/")
     (let* ((commands '("/model" "/editor-model" "/weak-model"))
            (command (completing-read "Select model command: " commands nil t))
-           (model (aider--select-model)))
+           (model (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models))))
       (when model
         (aider--send-command (format "%s %s" command model) t)
         (message "%s changed to %s, customize aider-popular-models for the model candidates" 
                  (substring command 1) model)))))
-
-(defun aider--select-model ()
-  "Private function for model selection with completion."
-  (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models)))
 
 ;; now you should explicitly require the modules you need
 
