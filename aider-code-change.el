@@ -157,6 +157,7 @@ Otherwise:
        ;; Test file case
        (is-test-file
         (if function-name
+            ;; implement a unit-test function given context of source function
             (if (string-match-p "test" function-name)
                 (let* ((initial-input
                        (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible."
@@ -164,6 +165,7 @@ Otherwise:
                       (user-command (aider-read-string "Test implementation instruction: " initial-input)))
                   (aider-current-file-command-and-switch "/architect " user-command))
               (message "Current function '%s' does not appear to be a test function." function-name))
+          ;; write unit-test first given description
           (let* ((initial-input "Write tests functions given the feature requirement description: ")
                  (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
             (aider-current-file-command-and-switch "/architect " user-command))))
