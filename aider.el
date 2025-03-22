@@ -94,7 +94,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("i" "Implement Requirement" aider-implement-todo)
     ("t" "Architect Discuss / Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
-    ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
+    ;; ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
     ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"

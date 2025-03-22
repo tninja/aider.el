@@ -61,15 +61,15 @@ Otherwise, refactor the function under cursor."
                   (function-name (format "Refactor %s: " function-name))
                   (region-active "Refactor instruction for selected region: ")
                   (t "Refactor instruction: ")))
-         (candidate-list '("Simplify this code while preserving functionality"
-                          "Extract this logic into a separate helper function"
-                          "Optimize this code for better performance"
-                          "Improve error handling and edge cases"
-                          "Refactor to reduce complexity and improve readability"
-                          "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
-                          "Make this code more maintainable and easier to test"
+         (candidate-list '("Simplify this code, reduce complexity and improve readability, while preserving functionality"
                           "Fix potential bugs or issues in this code"
-                          "Improve variable names and add clarifying comments"))
+                          "Improve error handling and edge cases"
+                          "Make this code more maintainable and easier to test"
+                          "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+                          "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
+                          "Optimize this code for better performance"
+                          "Extract this logic into a separate helper function"
+                          ))
          (instruction (aider-read-string prompt nil candidate-list))
          (region-text (and region-active
                            (buffer-substring-no-properties (region-beginning) (region-end)))))
@@ -176,18 +176,6 @@ Otherwise:
                          (file-name-nondirectory buffer-file-name) common-instructions)))
                (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
           (aider-current-file-command-and-switch "/architect " user-command)))))))
-
-;;;###autoload
-(defun aider-fix-failing-test-under-cursor ()
-  "Report the current test failure to aider and ask it to fix the code.
-This function assumes the cursor is on or inside a test function."
-  (interactive)
-  (if-let ((test-function-name (which-function)))
-      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test"
-                                   test-function-name))
-             (test-output (aider-read-string "Architect question: " initial-input)))
-        (aider-current-file-command-and-switch "/architect " test-output))
-    (message "No test function found at cursor position.")))
 
 (provide 'aider-code-change)
 

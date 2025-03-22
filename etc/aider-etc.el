@@ -33,3 +33,37 @@
                          symbol line)))
     (aider-current-file-command-and-switch "/ask " question)
     ))
+
+;;;###autoload
+(defun aider-fix-failing-test-under-cursor ()
+  "Report the current test failure to aider and ask it to fix the code.
+This function assumes the cursor is on or inside a test function."
+  (interactive)
+  (if-let ((test-function-name (which-function)))
+      (let* ((initial-input (format "The test '%s' is failing. Please analyze and fix the code to make the test pass. Don't break any other test"
+                                   test-function-name))
+             (test-output (aider-read-string "Architect question: " initial-input)))
+        (aider-current-file-command-and-switch "/architect " test-output))
+    (message "No test function found at cursor position.")))
+
+;; New function to add all files with same suffix as current file under current directory
+;;;###autoload
+(defun aider-add-same-type-files-under-dir ()
+  "Add all files with same suffix as current file under current directory to Aider.
+If there are more than 40 files, refuse to add and show warning message."
+  (interactive)
+  (if (not buffer-file-name)
+      (message "Current buffer is not visiting a file")
+    (let* ((current-suffix (file-name-extension buffer-file-name))
+           (dir (file-name-directory buffer-file-name))
+           (max-files 40)
+           (files (directory-files dir t
+                                   (concat "\\." current-suffix "$")
+                                   t))) ; t means don't include . and ..
+      (if (> (length files) max-files)
+          (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
+                   (length files) max-files current-suffix)
+        (let ((command (concat "/add " (mapconcat #'identity files " "))))
+          (aider--send-command command t))
+        (message "Added %d files with suffix .%s"
+                 (length files) current-suffix)))))
