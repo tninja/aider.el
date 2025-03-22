@@ -170,14 +170,18 @@ Prompts user to select from a list of available commands:
 ;;;###autoload
 (defun aider-change-model (leaderboards)
   "Interactively select and change AI model in current aider session.
-With prefix argument LEADERBOARDS, open the Aider LLM leaderboard in a browser."
+With prefix argument LEADERBOARDS, open the Aider LLM leaderboard in a browser.
+Allows selecting between /model, /editor-model, and /weak-model commands."
   (interactive "P")
   (if leaderboards
       (browse-url "https://aider.chat/docs/leaderboards/")
-    (let ((model (aider--select-model)))
+    (let* ((commands '("/model" "/editor-model" "/weak-model"))
+           (command (completing-read "Select model command: " commands nil t))
+           (model (aider--select-model)))
       (when model
-        (aider--send-command (format "/model %s" model) t)
-        (message "Model changed to %s, customize aider-popular-models for the model candidates" model)))))
+        (aider--send-command (format "%s %s" command model) t)
+        (message "%s changed to %s, customize aider-popular-models for the model candidates" 
+                 (substring command 1) model)))))
 
 (defun aider--select-model ()
   "Private function for model selection with completion."
