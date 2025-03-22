@@ -164,6 +164,7 @@ Otherwise:
                       (user-command (aider-read-string "Test implementation instruction: " initial-input)))
                   (aider-current-file-command-and-switch "/architect " user-command))
               (message "Current function '%s' does not appear to be a test function." function-name))
+          ;; TODO: given initial-input is, Write tests functions given the feature requirement description:  User can input the full description, or tell aider where the description located, eg. in the comment of some file. After getting the user-command from user, Ask aider with architect on it
           (message "Please place cursor inside a test function to implement.")))
        ;; Non-test file case
        (t
