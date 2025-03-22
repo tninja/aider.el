@@ -40,39 +40,46 @@ REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
               user-command processed-region-text))))
 
 ;;;###autoload
-(defun aider-function-refactor ()
-  "Get the function name under cursor and send refactor command to aider.
-The command will be formatted as \"/architect\"
-followed by refactoring instructions for the specified function."
-  (interactive)
-  (if-let ((function-name (which-function)))
-      (let* ((prefix (format "refactor %s: " function-name))
-             (prompt (format "Instruction to %s" prefix))
-             (instruction (aider-read-string prompt)))
-        (aider-current-file-command-and-switch "/architect " (concat prefix instruction)))
-    (message "No function found at cursor position.")))
-
-;;;###autoload
-(defun aider-region-refactor ()
-  "Refactor the selected region of code."
-  (interactive)
-  (if (use-region-p)
-      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (function-name (which-function))
-             (user-command (aider-read-string "Refactor instruction for selected region: "))
-             (command (aider-region-refactor-generate-command region-text function-name user-command)))
-        (aider-add-current-file)
-        (aider--send-command command t))
-    (message "No region selected.")))
-
-;;;###autoload
 (defun aider-function-or-region-refactor ()
-  "Call `aider-function-refactor` when no region is selected.
-Otherwise call `aider-region-refactor`."
+  "Refactor code under cursor or in selected region.
+If a region is selected, refactor that specific region.
+Otherwise, refactor the function under cursor."
   (interactive)
-  (if (region-active-p)
-      (aider-region-refactor)
-    (aider-function-refactor)))
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (region-in-function (and region-active function-name))
+         (prompt (cond
+                  (region-in-function (format "Refactor instruction for selected region in function '%s': " function-name))
+                  (function-name (format "Refactor %s: " function-name))
+                  (region-active "Refactor instruction for selected region: ")
+                  (t "Refactor instruction: ")))
+         (candidate-list '("Simplify this code while preserving functionality"
+                          "Extract this logic into a separate helper function"
+                          "Optimize this code for better performance"
+                          "Improve error handling and edge cases"
+                          "Refactor to reduce complexity and improve readability"
+                          "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+                          "Make this code more maintainable and easier to test"
+                          "Fix potential bugs or issues in this code"
+                          "Improve variable names and add clarifying comments"))
+         (instruction (aider-read-string prompt nil candidate-list))
+         (region-text (and region-active
+                           (buffer-substring-no-properties (region-beginning) (region-end)))))
+    (cond
+     ;; Region selected case
+     (region-active
+      (let ((command (aider-region-refactor-generate-command
+                      region-text function-name instruction)))
+        (aider-add-current-file)
+        (aider--send-command command t)))
+     ;; Function case
+     (function-name
+      (aider-current-file-command-and-switch
+       "/architect "
+       (concat (format "refactor %s: " function-name) instruction)))
+     ;; Fallback case
+     (t (message "No function or region selected."))))
+  (message "Refactoring request sent to Aider"))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.

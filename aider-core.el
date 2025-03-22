@@ -91,7 +91,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
     (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
 
 ;;;###autoload
-(defun aider-plain-read-string (prompt &optional initial-input)
+(defun aider-plain-read-string (prompt &optional initial-input candidate-list)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
 This function can be customized or redefined by the user."
   ;; it will persist the read-string history across Emacs sessions with aider-read-string-history

@@ -16,9 +16,8 @@
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
 (defun aider-ask-question ()
-  "Ask aider question.
-If NO-CONTEXT is non-nil, send the question to the general aider comint buffer.
-Otherwise, send the question to the corresponding aider comint buffer."
+  "Ask aider question about specific code.
+Focuses on understanding, analyzing, improving the selected code or function."
   (interactive)
   ;; Dispatch to general question if in aider buffer
   (let* ((function-name (which-function))
@@ -29,7 +28,16 @@ Otherwise, send the question to the corresponding aider comint buffer."
                   (function-name (format "About function '%s': " function-name))
                   (region-active "Question for the selected region: ")
                   (t "Question: ")))
-         (raw-question (aider-read-string prompt))
+         (candidate-list '("What is your suggestion on the most important thing to do"
+                          "What does this code do? Explain the logic of this code step by step"
+                          "What are the inputs and outputs of this code?"
+                          "Are there any edge cases not handled in this code?"
+                          "How could this code be simplified?"
+                          "What's the time/space complexity of this algorithm?"
+                          "Is there a more efficient way to implement this?"
+                          "What design patterns are used here?"
+                          "How does this code handle errors?"))
+         (raw-question (aider-read-string prompt nil candidate-list))
          (question (if function-name
                        (concat prompt raw-question)
                      raw-question))
@@ -39,13 +47,22 @@ Otherwise, send the question to the corresponding aider comint buffer."
                                (format "%s: %s" question region-text)
                              question)))
     (aider-current-file-command-and-switch "/ask " question-context)
-    (message "Ask aider to: explain code, review implementation, suggest improvements, or any other coding assistance")))
+    (message "Question about code sent to Aider")))
 
 ;;;###autoload
 (defun aider-general-question ()
   "Ask aider question without context."
   (interactive)
-  (let ((question (aider-read-string "Enter general question to ask: ")))
+  (let* ((candidate-list '("Explain the purpose and functionality of these files"
+                          "What are the key functions/methods in these files?"
+                          "What is your suggestion on the most important thing to do in these files?"
+                          "Identify potential bugs or issues in these files"
+                          "What design patterns are used in these files?"
+                          "How could we optimize the performance of this code?"
+                          "Are there any security concerns in these files?"
+                          "How could we make this code more maintainable?"
+                          "Explain the overall architecture of this codebase"))
+         (question (aider-read-string "Enter general question to ask: " nil candidate-list)))
     (let ((command (format "/ask %s" question)))
       (aider--send-command command t))))
 
@@ -54,47 +71,6 @@ Otherwise, send the question to the corresponding aider comint buffer."
   "Send the command \"go ahead\" to the corresponding aider comint buffer."
   (interactive)
   (aider--send-command "go ahead" t))
-
-;; New function to explain the code in the selected region
-;;;###autoload
-(defun aider-region-explain ()
-  "Ask Aider to explain the selected region of code."
-  (interactive)
-  (if (use-region-p)
-      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (function-name (which-function))
-             (processed-region-text region-text)
-             (command (if function-name
-                          (format "/ask in function %s, explain the following code block: %s"
-                                  function-name
-                                  processed-region-text)
-                        (format "/ask explain the following code block: %s"
-                                processed-region-text))))
-        (aider-add-current-file)
-        (aider--send-command command t))
-    (message "No region selected.")))
-
-;; New function to ask Aider to explain the function under the cursor
-;;;###autoload
-(defun aider-function-explain ()
-  "Ask Aider to explain the function under the cursor.
-Prompts user for specific questions about the function."
-  (interactive)
-  (if-let ((function-name (which-function)))
-      (let* ((prefix (format "explain %s: " function-name))
-             (prompt (format "Enter your question to %s" prefix))
-             (user-question (aider-read-string prompt)))
-        (aider-current-file-command-and-switch "/ask " (concat prefix user-question)))
-    (message "No function found at cursor position.")))
-
-;;;###autoload
-(defun aider-function-or-region-explain ()
-  "Call `aider-function-explain` when no region is selected.
-otherwise call `aider-region-explain`."
-  (interactive)
-  (if (region-active-p)
-      (aider-region-explain)
-    (aider-function-explain)))
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
