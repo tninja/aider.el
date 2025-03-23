@@ -13,11 +13,11 @@
 (require 'aider-file)
 (require 'which-func)
 
-(defcustom aider-todo-keyword-pair '("TODO" . "comments START with TODO: ")
+(defcustom aider-todo-keyword-pair '("TODO" . "comment line START with string: TODO:")
   "Pair of keyword and its definition for `aider-implement-todo`.
 The car is the keyword string to search for in comments.
 The cdr is the description of what these comments represent.
-Another common choice is (\"AI!\" . \"comments ending with AI! that need implementation\")."
+Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
   :type '(cons string string)
   :group 'aider)
 
@@ -61,10 +61,11 @@ Otherwise, refactor the function under cursor."
                   (function-name (format "Change %s: " function-name))
                   (region-active "Refactor instruction for selected region: ")
                   (t "Refactor instruction: ")))
-         (candidate-list '("Simplify this code, reduce complexity and improve readability, while preserving functionality"
+         (candidate-list '("implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
+                          "Simplify this code, reduce complexity and improve readability, while preserving functionality"
                           "Fix potential bugs or issues in this code"
-                          "Improve error handling and edge cases"
                           "Make this code more maintainable and easier to test"
+                          "Improve error handling and edge cases"
                           "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
                           "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
                           "Optimize this code for better performance"
@@ -156,20 +157,19 @@ Otherwise:
       (cond
        ;; Test file case
        (is-test-file
-        (if function-name
+        (if (and function-name (let ((case-fold-search nil))
+                                 (string-match-p "test" function-name))) ;; seems that the cursor is under a test function
             ;; implement a unit-test function given context of source function
-            (if (string-match-p "test" function-name)
-                (let* ((initial-input
-                       (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible."
-                              function-name))
-                      (user-command (aider-read-string "Test implementation instruction: " initial-input)))
-                  (aider-current-file-command-and-switch "/architect " user-command))
-              (message "Current function '%s' does not appear to be a test function." function-name))
-          ;; write unit-test first given description
-          (let* ((initial-input "Write tests functions given the feature requirement description: ")
+            (let* ((initial-input
+                    (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible."
+                            function-name))
+                   (user-command (aider-read-string "Test implementation instruction: " initial-input)))
+              (aider-current-file-command-and-switch "/architect " user-command))
+          ;; in test file, but not in a test function. write unit-test first given description
+          (let* ((initial-input "Write test functions given the feature requirement description: ")
                  (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
             (aider-current-file-command-and-switch "/architect " user-command))))
-       ;; Non-test file case
+       ;; Non-test file case, assuming it is main source code
        (t
         (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
                (initial-input
