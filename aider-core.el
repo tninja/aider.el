@@ -58,8 +58,12 @@ When nil, use standard `display-buffer' behavior.")
                     nil ;; CASE-FOLD
                     nil ;; SYNTAX-ALIST
                     nil)) ;; SYNTAX-BEGIN
-  ;; 4) Enable fenced code block highlighting:
+  ;; 4) Enable fenced code block highlighting, and disable special font processing:
   (setq-local markdown-fontify-code-blocks-natively t)
+  ;; https://github.com/tninja/aider.el/issues/113
+  ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
+  (setq-local markdown-regex-bold nil)
+  (setq-local markdown-regex-italic nil)
   ;; 5) Jit-lock and other
   (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
   (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
