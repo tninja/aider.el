@@ -94,7 +94,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("i" "Implement Requirement" aider-implement-todo)
     ("t" "Architect Discuss / Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
-    ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
+    ;; ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
     ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
@@ -170,18 +170,18 @@ Prompts user to select from a list of available commands:
 ;;;###autoload
 (defun aider-change-model (leaderboards)
   "Interactively select and change AI model in current aider session.
-With prefix argument LEADERBOARDS, open the Aider LLM leaderboard in a browser."
+With prefix argument LEADERBOARDS, open the Aider LLM leaderboard in a browser.
+Allows selecting between /model, /editor-model, and /weak-model commands."
   (interactive "P")
   (if leaderboards
       (browse-url "https://aider.chat/docs/leaderboards/")
-    (let ((model (aider--select-model)))
+    (let* ((commands '("/model" "/editor-model" "/weak-model"))
+           (command (completing-read "Select model command: " commands nil t))
+           (model (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models))))
       (when model
-        (aider--send-command (format "/model %s" model) t)
-        (message "Model changed to %s, customize aider-popular-models for the model candidates" model)))))
-
-(defun aider--select-model ()
-  "Private function for model selection with completion."
-  (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models)))
+        (aider--send-command (format "%s %s" command model) t)
+        (message "%s changed to %s, customize aider-popular-models for the model candidates"
+                 (substring command 1) model)))))
 
 ;; now you should explicitly require the modules you need
 

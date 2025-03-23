@@ -174,19 +174,21 @@ Otherwise, You can have helm-based completion with run the following code, after
 
 *** Write code
   - aider-function-or-region-refactor :: If a region is selected, ask Aider to refactor the selected region. Otherwise, ask Aider to change / refactor the function under the cursor.
+    - A couple common used prompts provided when you are using aider-helm.el
   - aider-implement-todo :: Implement requirement in comments in-place, in current context.
     - If cursor is on a comment line, implement that specific comment in-place.
     - If there is a selection region of multi-line comments, implement code for those comments in-place.
-    - If cursor is inside a function, implement TODOs for that function.
-    - Otherwise implement TODOs for the entire current file.
+    - If cursor is inside a function, implement TODOs for that function, otherwise implement TODOs for the entire current file.
+      - The keyword (TODO by default) can be customized with the variable ~aider-todo-keyword-pair~. One example is to use AI! comment, which is as same as aider AI comment feature.
 
 *** Support for Unit Test / Test Driven Development
-  - aider-write-unit-test :: Generate comprehensive unit tests for the current function or file. If the cursor is on a test function, implement the test function.
-  - aider-fix-failing-test-under-cursor :: Place cursor on a failing test function and ask Aider to analyze and fix the code to make tests pass. You can provide more information of failed test case to help aider figuring out how to fix the source code.
+  - aider-write-unit-test :: If the current buffer is main source code file, generate comprehensive unit tests for the current function or file. If the cursor is in a test source code file, when the cursor is on a test function, implement the test function. Otherwise, provide description to implement the test function (or spec).
+  - If main source code break and test function fails, use ~aider-function-or-region-refactor~ on the failed test function to ask Aider to fix the code to make the test pass.
 
 *** Questions on code
   - aider-ask-question :: Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
     - You can ask any question on the code. Eg. Explain the function, review the code and find the bug, etc
+    - A couple common used prompts provided when you are using aider-helm.el
   - aider-go-ahead :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
 
 *** Aider prompt file
@@ -258,7 +260,8 @@ Otherwise, You can have helm-based completion with run the following code, after
    
    If suggestions aren't satisfactory, use ~Ask Question~ for refinements and ~Go Ahead~ to confirm changes.
 
-2. **Generate tests**: Validate your implementation with ~aider-write-unit-test~ and ~aider-fix-failing-test-under-cursor~. Do run the test to validate code behavior.
+2. **Generate tests**: Validate your implementation with ~aider-write-unit-test~. Do run the test to validate code behavior.
+   - ~aider-write-unit-test~ can be used to write unit-test before the code is implemented, just call the function in the unit-test class. I tried it with leetcode problems and it works pretty well.
 
 3. **Refine code and tests**: Further refactor as needed using additional prompts or manual adjustments.
 
@@ -292,10 +295,13 @@ Otherwise, You can have helm-based completion with run the following code, after
 
 ** Feature
 
-- More context sensitive code change / code reading commands
-  - [ ] Current aider-ask-question need to be improved, since there could be so many different question to ask
+- More context sensitive code change / code reading commands [1/1]
+  - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
+  - [ ] Thinking on how to improve the candidate list for the function
+  - [ ] How to port the candidate list feature to aider-plain-read-string
 - More thinking on how to simplify the menu / commands
 - More thinking on improving code quality tool such as unit-test
+- Tag release version, make it available on melpa stable
 
 ** Code quality
  
