@@ -268,7 +268,7 @@ invoke `aider-prompt-insert-file-path`."
   (interactive)
   (let ((input (aider-read-string "Enter prompt: ")))
     (when input
-      (insert input "\n"))))
+      (insert input))))
 
 (provide 'aider-core)
 
