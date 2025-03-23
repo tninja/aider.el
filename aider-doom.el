@@ -20,7 +20,7 @@
                     :desc "Add current/marked files" "a" #'aider-add-current-file-or-dired-marked-files
                     :desc "Add file read-only" "r" #'aider-current-file-read-only
                     :desc "Add files in window" "w" #'aider-add-files-in-current-window
-                    :desc "Add same type files in dir" "s" #'aider-add-same-type-files-under-dir
+                    ;; :desc "Add same type files in dir" "s" #'aider-add-same-type-files-under-dir
                     :desc "Batch add marked files" "m" #'aider-batch-add-dired-marked-files
                     :desc "Drop current file" "d" #'aider-drop-current-file
                     :desc "Show last commit" "c" #'aider-magit-show-last-commit-or-log
@@ -32,7 +32,8 @@
                     :desc "Refactor function/region" "r" #'aider-function-or-region-refactor
                     :desc "Implement requirement" "i" #'aider-implement-todo
                     :desc "Write unit test" "t" #'aider-write-unit-test
-                    :desc "Fix failing test" "f" #'aider-fix-failing-test-under-cursor)
+                    ;; :desc "Fix failing test" "f" #'aider-fix-failing-test-under-cursor
+                    )
 
                    (:prefix ("d" . "Discuss")
                     :desc "Ask question" "q" #'aider-ask-question
