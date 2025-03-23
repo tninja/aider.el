@@ -1,6 +1,18 @@
 
 * Release history
 
+** Main branch change
+
+- magit rebase style file operation in aider-prompt-mode, and send block line by line command (request from Spike-Leung) 
+  - also added cycle between /ask and /architect command
+- Remove redundant savehist configuration, by LemonBreezes (the history feature with savehist for aider-plain-read-string is initially added by LemonBreezes as well)
+- aider-helm.el support candidate prompt list, aider-ask-question (Question on Context), aider-general-question (Question without Context) and aider-function-or-region-refactor (Change function / region) provide a list of prompt candidates respectively 
+- TODO keyword for aider-implement-todo is configurable through aider-todo-keyword-pair
+- update aider-change-model to adapt recent aider change (three types of model command). For simplicity, only use the same aider-popular-models variable
+- deprecate aider-add-same-type-files-under-dir, since things like /add *.el will do it
+- deprecate aider-fix-failing-test-under-cursor. aider-function-or-region-refactor can do the same work.
+- improve aider-write-unit-test by providing the option of write unit-test first given description (Test First)
+
 ** v0.5.0
 
 - Much improved aider-comint-mode rendering
