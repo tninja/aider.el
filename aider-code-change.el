@@ -55,19 +55,20 @@ Otherwise, refactor the function under cursor."
   (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
-         (is-test-file (and buffer-file-name
-                            (string-match-p "test" (file-name-nondirectory buffer-file-name))))
          (region-in-function (and region-active function-name))
          (prompt (cond
                   (region-in-function (format "Code change instruction for selected region in function '%s': " function-name))
                   (function-name (format "Change %s: " function-name))
                   (region-active "Refactor instruction for selected region: ")
                   (t "Refactor instruction: ")))
+         (is-test-file (and buffer-file-name
+                            (string-match-p "test" (file-name-nondirectory buffer-file-name))))
          (candidate-list (if is-test-file
                              '("Write a new unit test function based on the given description."
-                               "Fix the failing test by modifying the test case."
+                               "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+                               "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
                                "Improve test assertions and add edge cases."
-                               "Refactor this test for better maintainability and clarity.")
+                               "Extract this logic into a separate helper function")
                            '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
                              "Simplify this code, reduce complexity and improve readability while preserving functionality"
                              "Fix potential bugs or issues in this code"
