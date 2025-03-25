@@ -7,6 +7,9 @@ on:
         description: 'Version number (e.g., 0.5.0)'
         required: true
 
+permissions:
+  contents: write  # ✅ allow creating tag / release
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -24,6 +27,8 @@ jobs:
       run: |
         git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
         git push origin v${{ github.event.inputs.version }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
@@ -32,3 +37,5 @@ jobs:
         name: v${{ github.event.inputs.version }}
         draft: false
         prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
