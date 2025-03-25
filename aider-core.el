@@ -279,7 +279,16 @@ invoke `aider-prompt-insert-file-path`."
     (when input
       (insert input))))
 
-;; add a function aider-core--auto-trigger-insert-prompt. It is similar to aider-core--auto-trigger-file-path-insertion, but following with /ask, /code, /architect. It should only trigger one space after these command.
+(defun aider-core--auto-trigger-insert-prompt ()
+  "Automatically trigger prompt insertion in aider buffer.
+If the current line matches one of the commands (/ask, /code, /architect)
+and ends with exactly one space, invoke `aider-core-insert-prompt`."
+  (when (and (not (minibufferp))
+             (not (bolp))
+             (eq (char-before) ?\s))  ; Check if last char is space
+    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+      (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
+        (aider-core-insert-prompt)))))
 
 (provide 'aider-core)
 
