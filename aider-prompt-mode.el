@@ -250,6 +250,7 @@ Special commands:
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (add-hook 'aider-prompt-mode-hook
             (lambda ()

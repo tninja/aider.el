@@ -90,6 +90,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
@@ -283,6 +284,7 @@ invoke `aider-prompt-insert-file-path`."
   "Automatically trigger prompt insertion in aider buffer.
 If the current line matches one of the commands (/ask, /code, /architect)
 and ends with exactly one space, invoke `aider-core-insert-prompt`."
+  ;; TODO: this only got triggered by an custom variable
   (when (and (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s))  ; Check if last char is space
