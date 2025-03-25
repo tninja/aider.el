@@ -1,0 +1,34 @@
+name: Create Tag and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '0.5.5'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Create tag
+      run: |
+        git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
+        git push origin v${{ github.event.inputs.version }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.event.inputs.version }}
+        name: v${{ github.event.inputs.version }}
+        draft: false
+        prerelease: false

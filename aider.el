@@ -1,7 +1,7 @@
 ;;; aider.el --- Interact with Aider: AI pair programming made simple -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.5.0
+;; Version: 0.5.5
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
@@ -88,6 +88,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
     ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
+    ("h" "Open History" aider-open-history)
     ]
    ["Code Change"
     ("r" "Change Function / Region" aider-function-or-region-refactor)
@@ -102,7 +103,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
     ("e" "Debug Exception" aider-debug-exception)
-    ("h" "Help (C-u: homepage)" aider-help)
+    ("H" "Help (C-u: homepage)" aider-help)
     ("x" "Exit Aider" aider-exit)
     ]
    ])

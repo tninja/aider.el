@@ -64,6 +64,7 @@ When nil, use standard `display-buffer' behavior.")
   ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
   (setq-local markdown-regex-bold nil)
   (setq-local markdown-regex-italic nil)
+  (setq-local markdown-regex-strike-through nil)
   ;; 5) Jit-lock and other
   (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
   (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis

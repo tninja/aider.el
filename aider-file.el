@@ -216,6 +216,19 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
       (find-file diff-file)
       (message "Generated diff file: %s" diff-file))))
 
+;;;###autoload
+(defun aider-open-history ()
+  "Open the Aider history file (.aider.chat-history.md under repo git root).
+If the history file does not exist, notify the user."
+  (interactive)
+  (let ((git-root (magit-toplevel)))
+    (unless git-root
+      (user-error "Not inside a git repository"))
+    (let ((history-file (expand-file-name ".aider.chat.history.md" git-root)))
+      (if (file-exists-p history-file)
+          (find-file-other-window history-file)
+        (message "History file does not exist: %s" history-file)))))
+
 (provide 'aider-file)
 
 ;;; aider-file.el ends here

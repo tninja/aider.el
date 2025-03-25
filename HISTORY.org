@@ -1,17 +1,23 @@
 
 * Release history
 
-** Main branch change
+** v0.5.5
 
 - magit rebase style file operation in aider-prompt-mode, and send block line by line command (request from Spike-Leung) 
   - also added cycle between /ask and /architect command
 - Remove redundant savehist configuration, by LemonBreezes (the history feature with savehist for aider-plain-read-string is initially added by LemonBreezes as well)
-- aider-helm.el support candidate prompt list, aider-ask-question (Question on Context), aider-general-question (Question without Context) and aider-function-or-region-refactor (Change function / region) provide a list of prompt candidates respectively 
+- aider-helm.el support candidate prompt list, aider-ask-question (Question on Context), aider-general-question (Question without Context) and aider-function-or-region-refactor (Change function / region) provide a list of prompt candidates respectively
+  
 - TODO keyword for aider-implement-todo is configurable through aider-todo-keyword-pair
 - update aider-change-model to adapt recent aider change (three types of model command). For simplicity, only use the same aider-popular-models variable
 - deprecate aider-add-same-type-files-under-dir, since things like /add *.el will do it
 - deprecate aider-fix-failing-test-under-cursor. aider-function-or-region-refactor can do the same work.
 - improve aider-write-unit-test by providing the option of write unit-test first given description (Test First)
+
+- fix the issue: Chat window: wrap code always in code blocks: https://github.com/tninja/aider.el/issues/113
+  - side effect: inhibited BOLD or italic text in regular markdown text outside of code block
+- add aider-open-history function, under File section in the menu
+- aider-function-or-region-refactor have different candidate-list for main code and test code
 
 ** v0.5.0
 
