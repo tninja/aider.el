@@ -279,6 +279,8 @@ invoke `aider-prompt-insert-file-path`."
     (when input
       (insert input))))
 
+;; add a function aider-core--auto-trigger-insert-prompt. It is similar to aider-core--auto-trigger-file-path-insertion, but following with /ask, /code, /architect. It should only trigger one space after these command.
+
 (provide 'aider-core)
 
 ;;; aider-core.el ends here
