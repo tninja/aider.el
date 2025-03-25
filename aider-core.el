@@ -98,10 +98,43 @@ Inherits from `comint-mode' with some Aider-specific customizations.
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
-This function can be customized or redefined by the user."
-  ;; it will persist the read-string history across Emacs sessions with aider-read-string-history
-  ;; https://github.com/tninja/aider.el/pull/110#issuecomment-2735289668
-  (read-string prompt initial-input 'aider-read-string-history))
+CANDIDATE-LIST provides additional completion options if provided.
+This function combines candidate-list with history for better completion."
+  ;; Combine candidate-list with history, removing duplicates
+  (let ((completion-candidates
+         (delete-dups (append candidate-list
+                              (when (boundp 'aider-read-string-history)
+                                aider-read-string-history)))))
+    ;; Use completing-read with the combined candidates
+    (completing-read prompt
+                     completion-candidates
+                     nil nil initial-input
+                     'aider-read-string-history)))
+
+(defun aidermacs--form-prompt (command &optional prompt-prefix guide ignore-context)
+  "Get command based on context with COMMAND and PROMPT-PREFIX.
+COMMAND is the text to prepend.  PROMPT-PREFIX is the text to add after COMMAND.
+GUIDE is displayed in the prompt but not included in the final command.
+Use highlighted region as context unless IGNORE-CONTEXT is set to non-nil."
+  (let* ((region-text (when (and (use-region-p) (not ignore-context))
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (context (when region-text
+                    (format " in %s regarding this section:\n```\n%s\n```\n" (buffer-name) region-text)))
+         ;; Create completion table from common prompts and history
+         (completion-candidates
+          (delete-dups (append aidermacs-common-prompts
+                               aidermacs--read-string-history)))
+         ;; Read user input with completion
+         (user-command (completing-read
+                        (concat command " " prompt-prefix context
+                                (when guide (format " (%s)" guide)) ": ")
+                        completion-candidates nil nil nil
+                        'aidermacs--read-string-history)))
+    ;; Add to history if not already there, removing any duplicates
+    (setq aidermacs--read-string-history
+          (delete-dups (cons user-command aidermacs--read-string-history)))
+    (concat command (and (not (string-empty-p user-command))
+                         (concat " " prompt-prefix context ": " user-command)))))
 
 ;;;###autoload
 (defalias 'aider-read-string #'aider-plain-read-string)
