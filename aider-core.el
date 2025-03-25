@@ -111,31 +111,6 @@ This function combines candidate-list with history for better completion."
                      nil nil initial-input
                      'aider-read-string-history)))
 
-(defun aidermacs--form-prompt (command &optional prompt-prefix guide ignore-context)
-  "Get command based on context with COMMAND and PROMPT-PREFIX.
-COMMAND is the text to prepend.  PROMPT-PREFIX is the text to add after COMMAND.
-GUIDE is displayed in the prompt but not included in the final command.
-Use highlighted region as context unless IGNORE-CONTEXT is set to non-nil."
-  (let* ((region-text (when (and (use-region-p) (not ignore-context))
-                        (buffer-substring-no-properties (region-beginning) (region-end))))
-         (context (when region-text
-                    (format " in %s regarding this section:\n```\n%s\n```\n" (buffer-name) region-text)))
-         ;; Create completion table from common prompts and history
-         (completion-candidates
-          (delete-dups (append aidermacs-common-prompts
-                               aidermacs--read-string-history)))
-         ;; Read user input with completion
-         (user-command (completing-read
-                        (concat command " " prompt-prefix context
-                                (when guide (format " (%s)" guide)) ": ")
-                        completion-candidates nil nil nil
-                        'aidermacs--read-string-history)))
-    ;; Add to history if not already there, removing any duplicates
-    (setq aidermacs--read-string-history
-          (delete-dups (cons user-command aidermacs--read-string-history)))
-    (concat command (and (not (string-empty-p user-command))
-                         (concat " " prompt-prefix context ": " user-command)))))
-
 ;;;###autoload
 (defalias 'aider-read-string #'aider-plain-read-string)
 
@@ -266,7 +241,7 @@ of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
                (commands '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
                            "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
                            "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
                            "/tokens" "/voice" "/web"))
                (prefix (match-string 0 line-str))
