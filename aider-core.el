@@ -34,6 +34,11 @@
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
+(defface aider-command-text
+  '((t :inherit bold))
+  "Face for commands sent to aider buffer."
+  :group 'aider)
+
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
@@ -147,13 +152,18 @@ Otherwise return STR unchanged."
       (format "{aider\n%s\naider}" str)
     str))
 
-(defun aider--comint-send-string (buffer text)
+(defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER.
 This function ensures proper process markers are maintained."
   (with-current-buffer buffer
     (let ((process (get-buffer-process buffer))
           (inhibit-read-only t))
       (goto-char (process-mark process))
+      ;; Insert text with proper face properties
+      (insert (propertize text
+                         'face 'aider-command-text
+                         'font-lock-face 'aider-command-text
+                         'rear-nonsticky t))
       ;; Insert text
       (insert text)
       ;; Update process mark and send text
@@ -175,7 +185,7 @@ Optional LOG, when non-nil, logs the command to the message area."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-string aider-buffer (concat command "\n"))
+              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               (when log
                 (message "Sent command to aider buffer: %s" (string-trim command)))
