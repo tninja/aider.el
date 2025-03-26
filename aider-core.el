@@ -29,7 +29,7 @@
   :type '(repeat string)
   :group 'aider)
 
-(defcustom aider-auto-trigger-prompt t
+(defcustom aider-auto-trigger-prompt nil
   "When non-nil, automatically trigger prompt insertion for commands like /ask, /code, etc."
   :type 'boolean
   :group 'aider)
