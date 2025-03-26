@@ -201,19 +201,27 @@ Works across different programming languages."
                               (current-function (format "in function '%s'" current-function))
                               (file-name (format "in file '%s'" file-name))
                               (t "in current context")))
+         ;; 根据是否有选中区域提供不同的重构技术
          (refactoring-techniques
-          '(("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
-            ("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
-            ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
-            ("Move Method" . "Move method [METHOD_NAME] to class [TARGET_CLASS]. Update all references to use the new location and consider creating a delegation if needed.")
-            ("Replace Conditional with Polymorphism" . "Replace this conditional logic with polymorphic objects. Create appropriate class hierarchy and move conditional branches to overridden methods.")
-            ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
-            ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object.")
-            ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic.")
-            ("Consolidate Duplicate Code" . "Extract this duplicated code into a shared method named [METHOD_NAME]. Identify variations that need to be parameterized.")
-            ("Replace Temp with Query" . "Replace temporary variable [TEMP_NAME] with a query method named [METHOD_NAME]. Extract the expression into a method with a descriptive name.")))
+          (if region-active
+              ;; 适用于选中区域的重构技术
+              '(("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
+                ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
+                ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic.")
+                ("Consolidate Duplicate Code" . "Extract this duplicated code into a shared method named [METHOD_NAME]. Identify variations that need to be parameterized."))
+              ;; 适用于整个函数或文件的重构技术
+              '(("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
+                ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
+                ("Move Method" . "Move method [METHOD_NAME] to class [TARGET_CLASS]. Update all references to use the new location and consider creating a delegation if needed.")
+                ("Replace Conditional with Polymorphism" . "Replace this conditional logic with polymorphic objects. Create appropriate class hierarchy and move conditional branches to overridden methods.")
+                ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object.")
+                ("Replace Temp with Query" . "Replace temporary variable [TEMP_NAME] with a query method named [METHOD_NAME]. Extract the expression into a method with a descriptive name."))))
          (technique-names (mapcar #'car refactoring-techniques))
-         (selected-technique (aider-read-string "Select refactoring technique: " nil technique-names))
+         (selected-technique (aider-read-string 
+                             (if region-active
+                                 "Select refactoring technique for selected region: "
+                               "Select refactoring technique: ")
+                             nil technique-names))
          (technique-description (cdr (assoc selected-technique refactoring-techniques)))
          ;; Replace placeholders with user input for techniques that need parameters
          (prompt-with-params 
