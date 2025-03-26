@@ -187,7 +187,7 @@ Otherwise:
           (aider-current-file-command-and-switch "/architect " user-command)))))))
 
 ;;;###autoload
-(defun aider-refactor ()
+(defun aider-refactor-book-method ()
   "Apply famous refactoring techniques from Martin Fowler's book.
 Uses current context (function, class, selected region) to generate appropriate prompts.
 Works across different programming languages."
