@@ -186,6 +186,93 @@ Otherwise:
                (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
           (aider-current-file-command-and-switch "/architect " user-command)))))))
 
+;;;###autoload
+(defun aider-refactor ()
+  "Apply famous refactoring techniques from Martin Fowler's book.
+Uses current context (function, class, selected region) to generate appropriate prompts.
+Works across different programming languages."
+  (interactive)
+  (let* ((region-active (region-active-p))
+         (region-text (when region-active
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (current-function (which-function))
+         (file-name (when buffer-file-name (file-name-nondirectory buffer-file-name)))
+         (context-description (cond
+                              (current-function (format "in function '%s'" current-function))
+                              (file-name (format "in file '%s'" file-name))
+                              (t "in current context")))
+         (refactoring-techniques
+          '(("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
+            ("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
+            ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
+            ("Move Method" . "Move method [METHOD_NAME] to class [TARGET_CLASS]. Update all references to use the new location and consider creating a delegation if needed.")
+            ("Replace Conditional with Polymorphism" . "Replace this conditional logic with polymorphic objects. Create appropriate class hierarchy and move conditional branches to overridden methods.")
+            ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
+            ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object.")
+            ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic.")
+            ("Consolidate Duplicate Code" . "Extract this duplicated code into a shared method named [METHOD_NAME]. Identify variations that need to be parameterized.")
+            ("Replace Temp with Query" . "Replace temporary variable [TEMP_NAME] with a query method named [METHOD_NAME]. Extract the expression into a method with a descriptive name.")))
+         (technique-names (mapcar #'car refactoring-techniques))
+         (selected-technique (aider-read-string "Select refactoring technique: " nil technique-names))
+         (technique-description (cdr (assoc selected-technique refactoring-techniques)))
+         ;; Replace placeholders with user input for techniques that need parameters
+         (prompt-with-params 
+          (cond
+           ((string= selected-technique "Extract Method")
+            (let ((method-name (aider-read-string "New method name: ")))
+              (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description)))
+           
+           ((string= selected-technique "Rename Variable/Method")
+            (let ((current-name (aider-read-string "Current name: "))
+                  (new-name (aider-read-string "New name: ")))
+              (-> technique-description
+                  (replace-regexp-in-string "\\[CURRENT_NAME\\]" current-name)
+                  (replace-regexp-in-string "\\[NEW_NAME\\]" new-name))))
+           
+           ((string= selected-technique "Inline Method")
+            (let ((method-name (aider-read-string "Method to inline: ")))
+              (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description)))
+           
+           ((string= selected-technique "Move Method")
+            (let ((method-name (aider-read-string "Method to move: "))
+                  (target-class (aider-read-string "Target class: ")))
+              (-> technique-description
+                  (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name)
+                  (replace-regexp-in-string "\\[TARGET_CLASS\\]" target-class))))
+           
+           ((string= selected-technique "Extract Variable")
+            (let ((var-name (aider-read-string "New variable name: ")))
+              (replace-regexp-in-string "\\[VARIABLE_NAME\\]" var-name technique-description)))
+           
+           ((string= selected-technique "Introduce Parameter Object")
+            (let ((object-name (aider-read-string "Parameter object name: ")))
+              (replace-regexp-in-string "\\[OBJECT_NAME\\]" object-name technique-description)))
+           
+           ((string= selected-technique "Consolidate Duplicate Code")
+            (let ((method-name (aider-read-string "New shared method name: ")))
+              (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description)))
+           
+           ((string= selected-technique "Replace Temp with Query")
+            (let ((temp-name (aider-read-string "Temporary variable name: "))
+                  (method-name (aider-read-string "New query method name: ")))
+              (-> technique-description
+                  (replace-regexp-in-string "\\[TEMP_NAME\\]" temp-name)
+                  (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name))))
+           
+           (t technique-description)))
+         (final-instruction (format "%s %s. %s" 
+                                   selected-technique 
+                                   context-description
+                                   prompt-with-params))
+         (command (if region-active
+                     (format "/architect \"%s\n\nSelected code:\n%s\"" 
+                             final-instruction
+                             region-text)
+                   (format "/architect \"%s\"" final-instruction))))
+    (aider-add-current-file)
+    (aider--send-command command t)
+    (message "%s refactoring request sent to Aider" selected-technique)))
+
 (provide 'aider-code-change)
 
 ;;; aider-code-change.el ends here
