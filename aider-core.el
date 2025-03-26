@@ -29,6 +29,11 @@
   :type '(repeat string)
   :group 'aider)
 
+(defcustom aider-auto-trigger-prompt t
+  "When non-nil, automatically trigger prompt insertion for commands like /ask, /code, etc."
+  :type 'boolean
+  :group 'aider)
+
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
 When non-nil, open Aider buffer in a new frame.
@@ -294,8 +299,8 @@ invoke `aider-prompt-insert-file-path`."
   "Automatically trigger prompt insertion in aider buffer.
 If the current line matches one of the commands (/ask, /code, /architect)
 and ends with exactly one space, invoke `aider-core-insert-prompt`."
-  ;; TODO: this only got triggered by an custom variable
-  (when (and (not (minibufferp))
+  (when (and aider-auto-trigger-prompt
+             (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s))  ; Check if last char is space
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
