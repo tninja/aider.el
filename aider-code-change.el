@@ -213,8 +213,7 @@ Works across different programming languages."
                 ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
                 ("Move Method" . "Move method [METHOD_NAME] to class [TARGET_CLASS]. Update all references to use the new location and consider creating a delegation if needed.")
                 ("Replace Conditional with Polymorphism" . "Replace this conditional logic with polymorphic objects. Create appropriate class hierarchy and move conditional branches to overridden methods.")
-                ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object.")
-                ("Replace Temp with Query" . "Replace temporary variable [TEMP_NAME] with a query method named [METHOD_NAME]. Extract the expression into a method with a descriptive name."))))
+                ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object."))))
          (technique-names (mapcar #'car refactoring-techniques))
          (prompt (if region-active
                      "Select refactoring technique for selected region: "
@@ -255,13 +254,6 @@ Works across different programming languages."
            ((string= selected-technique "Introduce Parameter Object")
             (let ((object-name (read-string "Parameter object name: ")))
               (replace-regexp-in-string "\\[OBJECT_NAME\\]" object-name technique-description t)))
-           
-           ((string= selected-technique "Replace Temp with Query")
-            (let ((temp-name (read-string "Temporary variable name: "))
-                  (method-name (read-string "New query method name: ")))
-              (-> technique-description
-                  (replace-regexp-in-string "\\[TEMP_NAME\\]" temp-name t)
-                  (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name t))))
            
            (t technique-description)))
          (initial-final-instruction (format "%s %s. %s"
