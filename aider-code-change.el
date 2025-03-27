@@ -226,48 +226,48 @@ Works across different programming languages."
          (prompt-with-params
           (cond
            ((string= selected-technique "Extract Method")
-            (let ((method-name (aider-read-string "New method name: ")))
+            (let ((method-name (read-string "New method name: ")))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Rename Variable/Method")
-            (let ((current-name (aider-read-string "Current name: "))
-                  (new-name (aider-read-string "New name: ")))
+            (let ((current-name (read-string "Current name: "))
+                  (new-name (read-string "New name: ")))
               (-> technique-description
                   (replace-regexp-in-string "\\[CURRENT_NAME\\]" current-name t)
                   (replace-regexp-in-string "\\[NEW_NAME\\]" new-name t))))
            
            ((string= selected-technique "Inline Method")
-            (let ((method-name (aider-read-string "Method to inline: ")))
+            (let ((method-name (read-string "Method to inline: ")))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Move Method")
-            (let ((method-name (aider-read-string "Method to move: "))
-                  (target-class (aider-read-string "Target class: ")))
+            (let ((method-name (read-string "Method to move: "))
+                  (target-class (read-string "Target class: ")))
               (-> technique-description
                   (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name t)
                   (replace-regexp-in-string "\\[TARGET_CLASS\\]" target-class t))))
            
            ((string= selected-technique "Extract Variable")
-            (let ((var-name (aider-read-string "New variable name: ")))
+            (let ((var-name (read-string "New variable name: ")))
               (replace-regexp-in-string "\\[VARIABLE_NAME\\]" var-name technique-description t)))
            
            ((string= selected-technique "Introduce Parameter Object")
-            (let ((object-name (aider-read-string "Parameter object name: ")))
+            (let ((object-name (read-string "Parameter object name: ")))
               (replace-regexp-in-string "\\[OBJECT_NAME\\]" object-name technique-description t)))
            
            ((string= selected-technique "Consolidate Duplicate Code")
-            (let ((method-name (aider-read-string "New shared method name: ")))
+            (let ((method-name (read-string "New shared method name: ")))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Replace Temp with Query")
-            (let ((temp-name (aider-read-string "Temporary variable name: "))
-                  (method-name (aider-read-string "New query method name: ")))
+            (let ((temp-name (read-string "Temporary variable name: "))
+                  (method-name (read-string "New query method name: ")))
               (-> technique-description
                   (replace-regexp-in-string "\\[TEMP_NAME\\]" temp-name t)
                   (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name t))))
            
            (t technique-description)))
-         (initial-final-instruction (format "%s %s. %s" 
+         (initial-final-instruction (format "%s %s. %s"
                                          selected-technique 
                                          context-description
                                          prompt-with-params))
