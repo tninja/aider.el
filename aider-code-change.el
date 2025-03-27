@@ -223,7 +223,7 @@ Works across different programming languages."
          (selected-technique (completing-read prompt technique-names nil t))
          (technique-description (cdr (assoc selected-technique refactoring-techniques)))
          ;; Replace placeholders with user input for techniques that need parameters
-         (prompt-with-params 
+         (prompt-with-params
           (cond
            ((string= selected-technique "Extract Method")
             (let ((method-name (aider-read-string "New method name: ")))
