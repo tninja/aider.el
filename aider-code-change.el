@@ -217,11 +217,10 @@ Works across different programming languages."
                 ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object.")
                 ("Replace Temp with Query" . "Replace temporary variable [TEMP_NAME] with a query method named [METHOD_NAME]. Extract the expression into a method with a descriptive name."))))
          (technique-names (mapcar #'car refactoring-techniques))
-         (selected-technique (aider-read-string 
-                             (if region-active
-                                 "Select refactoring technique for selected region: "
-                               "Select refactoring technique: ")
-                             nil technique-names))
+         (prompt (if region-active
+                     "Select refactoring technique for selected region: "
+                   "Select refactoring technique: "))
+         (selected-technique (completing-read prompt technique-names nil t))
          (technique-description (cdr (assoc selected-technique refactoring-techniques)))
          ;; Replace placeholders with user input for techniques that need parameters
          (prompt-with-params 
