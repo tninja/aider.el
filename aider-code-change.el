@@ -243,7 +243,8 @@ Works across different programming languages."
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Move Method")
-            (let ((method-name (read-string "Method to move: "))
+            (let ((method-name (or current-function  ; current-function already contains which-function result
+                                  (read-string "Method to move: ")))
                   (target-class (read-string "Target class: ")))
               (-> technique-description
                   (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name t)
