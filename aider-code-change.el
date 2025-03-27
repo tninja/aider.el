@@ -238,7 +238,8 @@ Works across different programming languages."
                   (replace-regexp-in-string "\\[NEW_NAME\\]" new-name t))))
            
            ((string= selected-technique "Inline Method")
-            (let ((method-name (read-string "Method to inline: ")))
+            (let ((method-name (or (thing-at-point 'symbol t) 
+                                  (read-string "Method to inline: "))))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Move Method")
