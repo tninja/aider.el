@@ -229,7 +229,7 @@ Works across different programming languages."
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Rename Variable/Method")
-            (let* ((current-name (or (thing-at-point 'symbol t) 
+            (let* ((current-name (or (thing-at-point 'symbol t)
                                     (read-string "Current name: ")))
                    (new-name (read-string (format "Rename '%s' to: " current-name))))
               (-> technique-description
@@ -237,7 +237,7 @@ Works across different programming languages."
                   (replace-regexp-in-string "\\[NEW_NAME\\]" new-name t))))
            
            ((string= selected-technique "Inline Method")
-            (let ((method-name (or (thing-at-point 'symbol t) 
+            (let ((method-name (or (thing-at-point 'symbol t)
                                   (read-string "Method to inline: "))))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
@@ -262,12 +262,12 @@ Works across different programming languages."
            
            (t technique-description)))
          (initial-final-instruction (format "%s %s. %s"
-                                         selected-technique 
+                                         selected-technique
                                          context-description
                                          prompt-with-params))
          (final-instruction (aider-read-string "Edit refactoring instruction: " initial-final-instruction))
          (command (if region-active
-                     (format "/architect \"%s\n\nSelected code:\n%s\"" 
+                     (format "/architect \"%s\n\nSelected code:\n%s\""
                              final-instruction
                              region-text)
                    (format "/architect \"%s\"" final-instruction))))
