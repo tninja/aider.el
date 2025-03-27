@@ -201,16 +201,16 @@ Works across different programming languages."
                               (current-function (format "in function '%s'" current-function))
                               (file-name (format "in file '%s'" file-name))
                               (t "in current context")))
-         ;; 根据是否有选中区域提供不同的重构技术
+         ;; Provide different refactoring techniques based on whether a region is selected
          (refactoring-techniques
           (if region-active
-              ;; 适用于选中区域的重构技术
+              ;; Refactoring techniques for selected regions
               '(("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
                 ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
                 ("Extract Parameter" . "Extract this expression into a new parameter named [PARAMETER_NAME] for the containing function. Update all call sites to pass this value as an argument.")
                 ("Extract Field" . "Extract this expression into a class field named [FIELD_NAME]. Initialize the field appropriately and replace the expression with a reference to the field.")
                 ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic."))
-              ;; 适用于整个函数或文件的重构技术
+              ;; Refactoring techniques for entire functions or files
               '(("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
                 ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
                 ("Inline Variable" . "Replace all references to variable [VARIABLE_NAME] with its value. Ensure the inlining doesn't change behavior or introduce bugs.")
