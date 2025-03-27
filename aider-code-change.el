@@ -267,10 +267,11 @@ Works across different programming languages."
                   (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name))))
            
            (t technique-description)))
-         (final-instruction (format "%s %s. %s" 
-                                   selected-technique 
-                                   context-description
-                                   prompt-with-params))
+         (initial-final-instruction (format "%s %s. %s" 
+                                         selected-technique 
+                                         context-description
+                                         prompt-with-params))
+         (final-instruction (aider-read-string "Edit refactoring instruction: " initial-final-instruction))
          (command (if region-active
                      (format "/architect \"%s\n\nSelected code:\n%s\"" 
                              final-instruction
