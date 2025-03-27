@@ -207,8 +207,7 @@ Works across different programming languages."
               ;; 适用于选中区域的重构技术
               '(("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
                 ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
-                ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic.")
-                ("Consolidate Duplicate Code" . "Extract this duplicated code into a shared method named [METHOD_NAME]. Identify variations that need to be parameterized."))
+                ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic."))
               ;; 适用于整个函数或文件的重构技术
               '(("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
                 ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
@@ -256,10 +255,6 @@ Works across different programming languages."
            ((string= selected-technique "Introduce Parameter Object")
             (let ((object-name (read-string "Parameter object name: ")))
               (replace-regexp-in-string "\\[OBJECT_NAME\\]" object-name technique-description t)))
-           
-           ((string= selected-technique "Consolidate Duplicate Code")
-            (let ((method-name (read-string "New shared method name: ")))
-              (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Replace Temp with Query")
             (let ((temp-name (read-string "Temporary variable name: "))
