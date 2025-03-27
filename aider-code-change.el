@@ -207,6 +207,7 @@ Works across different programming languages."
               ;; 适用于选中区域的重构技术
               '(("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
                 ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
+                ("Extract Parameter" . "Extract this expression into a new parameter named [PARAMETER_NAME] for the containing function. Update all call sites to pass this value as an argument.")
                 ("Decompose Conditional" . "Break down this complex conditional into smaller, more readable pieces. Extract conditions and branches into well-named methods that express the high-level logic."))
               ;; 适用于整个函数或文件的重构技术
               '(("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
@@ -250,6 +251,10 @@ Works across different programming languages."
            ((string= selected-technique "Extract Variable")
             (let ((var-name (read-string "New variable name: ")))
               (replace-regexp-in-string "\\[VARIABLE_NAME\\]" var-name technique-description t)))
+           
+           ((string= selected-technique "Extract Parameter")
+            (let ((param-name (read-string "New parameter name: ")))
+              (replace-regexp-in-string "\\[PARAMETER_NAME\\]" param-name technique-description t)))
            
            ((string= selected-technique "Introduce Parameter Object")
             (let ((object-name (read-string "Parameter object name: ")))
