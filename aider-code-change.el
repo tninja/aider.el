@@ -213,6 +213,7 @@ Works across different programming languages."
               ;; 适用于整个函数或文件的重构技术
               '(("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
                 ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
+                ("Inline Variable" . "Replace all references to variable [VARIABLE_NAME] with its value. Ensure the inlining doesn't change behavior or introduce bugs.")
                 ("Move Method" . "Move method [METHOD_NAME] to class [TARGET_CLASS]. Update all references to use the new location and consider creating a delegation if needed.")
                 ("Replace Conditional with Polymorphism" . "Replace this conditional logic with polymorphic objects. Create appropriate class hierarchy and move conditional branches to overridden methods.")
                 ("Introduce Parameter Object" . "Replace these related parameters with a single parameter object named [OBJECT_NAME]. Create an appropriate class for the parameter object."))))
@@ -241,6 +242,11 @@ Works across different programming languages."
             (let ((method-name (or (thing-at-point 'symbol t)
                                   (read-string "Method to inline: "))))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
+           
+           ((string= selected-technique "Inline Variable")
+            (let ((variable-name (or (thing-at-point 'symbol t)
+                                    (read-string "Variable to inline: "))))
+              (replace-regexp-in-string "\\[VARIABLE_NAME\\]" variable-name technique-description t)))
            
            ((string= selected-technique "Move Method")
             (let ((method-name (or current-function  ; current-function already contains which-function result
