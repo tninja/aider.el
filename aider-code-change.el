@@ -230,8 +230,9 @@ Works across different programming languages."
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
            
            ((string= selected-technique "Rename Variable/Method")
-            (let ((current-name (read-string "Current name: "))
-                  (new-name (read-string "New name: ")))
+            (let* ((current-name (or (thing-at-point 'symbol t) 
+                                    (read-string "Current name: ")))
+                   (new-name (read-string (format "Rename '%s' to: " current-name))))
               (-> technique-description
                   (replace-regexp-in-string "\\[CURRENT_NAME\\]" current-name t)
                   (replace-regexp-in-string "\\[NEW_NAME\\]" new-name t))))
