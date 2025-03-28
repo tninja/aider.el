@@ -73,8 +73,7 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
 
 ;;;###autoload
 (if (featurep 'helm)
-    (defalias 'aider-read-string #'aider-helm-read-string)
-  (message "Helm is not available. Please install helm package to use aider-helm features"))
+    (defalias 'aider-read-string #'aider-helm-read-string))
 
 (provide 'aider-helm)
 ;;; aider-helm.el ends here
