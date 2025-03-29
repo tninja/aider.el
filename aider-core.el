@@ -29,10 +29,20 @@
   :type '(repeat string)
   :group 'aider)
 
+(defcustom aider-auto-trigger-prompt nil
+  "When non-nil, automatically trigger prompt insertion for commands like /ask, /code, etc."
+  :type 'boolean
+  :group 'aider)
+
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
+
+(defface aider-command-text
+  '((t :inherit bold))
+  "Face for commands sent to aider buffer."
+  :group 'aider)
 
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
@@ -90,6 +100,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
@@ -98,10 +109,18 @@ Inherits from `comint-mode' with some Aider-specific customizations.
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
-This function can be customized or redefined by the user."
-  ;; it will persist the read-string history across Emacs sessions with aider-read-string-history
-  ;; https://github.com/tninja/aider.el/pull/110#issuecomment-2735289668
-  (read-string prompt initial-input 'aider-read-string-history))
+CANDIDATE-LIST provides additional completion options if provided.
+This function combines candidate-list with history for better completion."
+  ;; Combine candidate-list with history, removing duplicates
+  (let ((completion-candidates
+         (delete-dups (append candidate-list
+                              (when (boundp 'aider-read-string-history)
+                                aider-read-string-history)))))
+    ;; Use completing-read with the combined candidates
+    (completing-read prompt
+                     completion-candidates
+                     nil nil initial-input
+                     'aider-read-string-history)))
 
 ;;;###autoload
 (defalias 'aider-read-string #'aider-plain-read-string)
@@ -138,13 +157,18 @@ Otherwise return STR unchanged."
       (format "{aider\n%s\naider}" str)
     str))
 
-(defun aider--comint-send-string (buffer text)
+(defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER.
 This function ensures proper process markers are maintained."
   (with-current-buffer buffer
     (let ((process (get-buffer-process buffer))
           (inhibit-read-only t))
       (goto-char (process-mark process))
+      ;; Insert text with proper face properties
+      (insert (propertize text
+                         'face 'aider-command-text
+                         'font-lock-face 'aider-command-text
+                         'rear-nonsticky t))
       ;; Insert text
       (insert text)
       ;; Update process mark and send text
@@ -166,7 +190,7 @@ Optional LOG, when non-nil, logs the command to the message area."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-string aider-buffer (concat command "\n"))
+              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
               ;; Provide feedback to the user
               (when log
                 (message "Sent command to aider buffer: %s" (string-trim command)))
@@ -233,7 +257,7 @@ of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
                (commands '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
                            "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
                            "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
                            "/tokens" "/voice" "/web"))
                (prefix (match-string 0 line-str))
@@ -270,6 +294,18 @@ invoke `aider-prompt-insert-file-path`."
   (let ((input (aider-read-string "Enter prompt: ")))
     (when input
       (insert input))))
+
+(defun aider-core--auto-trigger-insert-prompt ()
+  "Automatically trigger prompt insertion in aider buffer.
+If the current line matches one of the commands (/ask, /code, /architect)
+and ends with exactly one space, invoke `aider-core-insert-prompt`."
+  (when (and aider-auto-trigger-prompt
+             (not (minibufferp))
+             (not (bolp))
+             (eq (char-before) ?\s))  ; Check if last char is space
+    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+      (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
+        (aider-core-insert-prompt)))))
 
 (provide 'aider-core)
 

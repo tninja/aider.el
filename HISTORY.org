@@ -1,6 +1,15 @@
 
 * Release history
 
+** v0.6.0
+
+- Add ~aider-refactor-book-method~ and introduced couple of refactoring techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]]
+- Enhance ~aider-plain-read-string~ with better completion and history
+  - This came from https://github.com/MatthewZMD/aidermacs/commit/cbb9bada03681d7ab27ce3bce1c9be9e9469da99
+- Deprecate +aider-other-process-command+ menu item. aider comint session already have command completion, so there is no advantage to use this menu item.
+- Update keyword completion and highlight given aider in-chat commands change
+- Added ~aider-core--auto-trigger-insert-prompt~. when ~aider-auto-trigger-prompt~ is t (default off), it will automatically trigger prompt insertion in aider comint session after one of the commands (/ask, /code, /architect).
+
 ** v0.5.5
 
 - magit rebase style file operation in aider-prompt-mode, and send block line by line command (request from Spike-Leung) 
@@ -10,8 +19,8 @@
   
 - TODO keyword for aider-implement-todo is configurable through aider-todo-keyword-pair
 - update aider-change-model to adapt recent aider change (three types of model command). For simplicity, only use the same aider-popular-models variable
-- deprecate aider-add-same-type-files-under-dir, since things like /add *.el will do it
-- deprecate aider-fix-failing-test-under-cursor. aider-function-or-region-refactor can do the same work.
+- deprecate +aider-add-same-type-files-under-dir+, since things like /add *.el will do it
+- deprecate +aider-fix-failing-test-under-cursor+. aider-function-or-region-refactor can do the same work.
 - improve aider-write-unit-test by providing the option of write unit-test first given description (Test First)
 
 - fix the issue: Chat window: wrap code always in code blocks: https://github.com/tninja/aider.el/issues/113
@@ -23,8 +32,7 @@
 
 - Much improved aider-comint-mode rendering
   - Use color from markdown-mode.el. It support more than code block highlight
-- Added 
-- Chinese version of README file
+- Added Chinese version of README file
 - Added to melpa. Updated install instruction
 
 ** v0.4.0

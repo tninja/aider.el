@@ -150,7 +150,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
   "Setup custom font lock for aider commands."
   (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
                            "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/models"
+                           "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
                            "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
                            "/tokens" "/voice" "/web" "go ahead"))
         (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))

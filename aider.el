@@ -1,7 +1,7 @@
 ;;; aider.el --- Interact with Aider: AI pair programming made simple -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.5.5
+;; Version: 0.6.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5"))
 ;; Keywords: convenience, tools
 ;; URL: https://github.com/tninja/aider.el
@@ -76,14 +76,14 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("a" "Run Aider (C-u: args) " aider-run-aider)
     ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
     ("p" "Input with Repo Prompt File" aider-open-prompt-file)
-    ("o" "Select Model (C-u: leadboard)" aider-change-model)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
-    ("l" "Other Command" aider-other-process-command)
+    ("o" "Select Model (C-u: leadboard)" aider-change-model)
+    ;; ("l" "Other Command" aider-other-process-command)
+    ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
     ("f" "Add Current / Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
-    ;; ("d" "Add Same Type Files in dir" aider-add-same-type-files-under-dir)
     ("O" "Drop Current File" aider-drop-current-file)
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
@@ -95,7 +95,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("i" "Implement Requirement" aider-implement-todo)
     ("t" "Architect Discuss / Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
-    ;; ("T" "Fix Failing Test" aider-fix-failing-test-under-cursor)
+    ("R" "Refactor" aider-refactor-book-method)
     ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
@@ -104,7 +104,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("Q" "Question without Context" aider-general-question)
     ("e" "Debug Exception" aider-debug-exception)
     ("H" "Help (C-u: homepage)" aider-help)
-    ("x" "Exit Aider" aider-exit)
     ]
    ])
 

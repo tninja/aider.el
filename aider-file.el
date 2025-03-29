@@ -131,8 +131,9 @@ Otherwise, add the current file as read-only."
   "Send COMMAND to the Aider buffer prefixed with PREFIX."
   (aider-add-current-file)
   (aider--send-command (concat prefix command) t)
-  (when (string-prefix-p "/architect" prefix)
-    (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml.")))
+  ;; (when (string-prefix-p "/architect" prefix)
+  ;;   (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml."))
+  )
 
 ;;;###autoload
 (defun aider-pull-or-review-diff-file ()
