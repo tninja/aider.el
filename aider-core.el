@@ -164,11 +164,11 @@ This function ensures proper process markers are maintained."
     (let ((process (get-buffer-process buffer))
           (inhibit-read-only t))
       (goto-char (process-mark process))
-      ;; Insert text with proper face properties
-      (insert (propertize text
-                         'face 'aider-command-text
-                         'font-lock-face 'aider-command-text
-                         'rear-nonsticky t))
+      ;; ;; Insert text with proper face properties
+      ;; (insert (propertize text
+      ;;                    'face 'aider-command-text
+      ;;                    'font-lock-face 'aider-command-text
+      ;;                    'rear-nonsticky t))
       ;; Insert text
       (insert text)
       ;; Update process mark and send text
