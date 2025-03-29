@@ -39,11 +39,6 @@
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
-(defface aider-command-text
-  '((t :inherit bold))
-  "Face for commands sent to aider buffer."
-  :group 'aider)
-
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
