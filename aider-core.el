@@ -158,22 +158,16 @@ Otherwise return STR unchanged."
     str))
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
-  "Send TEXT to the comint BUFFER.
-This function ensures proper process markers are maintained."
+  "Send TEXT to the comint BUFFER using comint's standard input mechanism.
+This function uses comint-send-input for better error handling and consistency."
   (with-current-buffer buffer
-    (let ((process (get-buffer-process buffer))
-          (inhibit-read-only t))
-      (goto-char (process-mark process))
-      ;; ;; Insert text with proper face properties
-      ;; (insert (propertize text
-      ;;                    'face 'aider-command-text
-      ;;                    'font-lock-face 'aider-command-text
-      ;;                    'rear-nonsticky t))
-      ;; Insert text
+    (let ((inhibit-read-only t))
+      ;; Move to the end of the buffer
+      (goto-char (point-max))
+      ;; Insert the text
       (insert text)
-      ;; Update process mark and send text
-      (set-marker (process-mark process) (point))
-      (comint-send-string process text))))
+      ;; Use comint's standard input handling
+      (comint-send-input))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional switch-to-buffer log)
