@@ -95,6 +95,8 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; (font-lock-add-keywords nil aider-font-lock-keywords t)
   ;; Set up input sender for multi-line handling
   (setq-local comint-input-sender 'aider-input-sender)
+  ;; Enable comint's built-in input highlighting
+  (setq-local comint-highlight-input t)
   ;; Add command completion hooks
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
@@ -159,14 +161,14 @@ Otherwise return STR unchanged."
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER using comint's standard input mechanism.
-This function uses comint-send-input for better error handling and consistency."
+Uses comint's built-in highlighting for input text."
   (with-current-buffer buffer
     (let ((inhibit-read-only t))
       ;; Move to the end of the buffer
       (goto-char (point-max))
-      ;; Insert the text
+      ;; Insert the text - comint will handle the highlighting
       (insert text)
-      ;; Use comint's standard input handling
+      ;; Use comint's standard input handling which will apply comint-highlight-input
       (comint-send-input))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
