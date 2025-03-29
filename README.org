@@ -230,7 +230,9 @@ Otherwise, You can have helm-based completion with run the following code, after
   - There might be potential bug hidden inside. It need to be verified that the feature work as expected, and code change didn't break existing features.
   - Developer might be lack of understanding of AI generated code. If there is too many code developer don't quite understand, the project could be out of control, like this:
 
-https://i.redd.it/puzjerkgcfqe1.jpeg
+#+BEGIN_HTML
+  <img src="https://i.redd.it/puzjerkgcfqe1.jpeg" width="300" />
+#+END_HTML
 
 - *Unit-test can be useful on both of the above concern*. And aider can help writing unit tests.
   - The AI generated test need to be manually checked / fixed. But generally test code is easier to understand.
