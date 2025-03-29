@@ -229,7 +229,6 @@ Works across different programming languages."
            ((string= selected-technique "Extract Method")
             (let ((method-name (read-string "New method name: ")))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
-           
            ((string= selected-technique "Rename Variable/Method")
             (let* ((current-name (or (thing-at-point 'symbol t)
                                     (read-string "Current name: ")))
@@ -237,17 +236,14 @@ Works across different programming languages."
               (-> technique-description
                   (replace-regexp-in-string "\\[CURRENT_NAME\\]" current-name t)
                   (replace-regexp-in-string "\\[NEW_NAME\\]" new-name t))))
-           
            ((string= selected-technique "Inline Method")
             (let ((method-name (or (thing-at-point 'symbol t)
                                   (read-string "Method to inline: "))))
               (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name technique-description t)))
-           
            ((string= selected-technique "Inline Variable")
             (let ((variable-name (or (thing-at-point 'symbol t)
                                     (read-string "Variable to inline: "))))
               (replace-regexp-in-string "\\[VARIABLE_NAME\\]" variable-name technique-description t)))
-           
            ((string= selected-technique "Move Method")
             (let ((method-name (or current-function  ; current-function already contains which-function result
                                   (read-string "Method to move: ")))
@@ -255,23 +251,18 @@ Works across different programming languages."
               (-> technique-description
                   (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name t)
                   (replace-regexp-in-string "\\[TARGET_CLASS\\]" target-class t))))
-           
            ((string= selected-technique "Extract Variable")
             (let ((var-name (read-string "New variable name: ")))
               (replace-regexp-in-string "\\[VARIABLE_NAME\\]" var-name technique-description t)))
-           
            ((string= selected-technique "Extract Parameter")
             (let ((param-name (read-string "New parameter name: ")))
               (replace-regexp-in-string "\\[PARAMETER_NAME\\]" param-name technique-description t)))
-           
            ((string= selected-technique "Introduce Parameter Object")
             (let ((object-name (read-string "Parameter object name: ")))
               (replace-regexp-in-string "\\[OBJECT_NAME\\]" object-name technique-description t)))
-           
            ((string= selected-technique "Extract Field")
             (let ((field-name (read-string "New field name: ")))
               (replace-regexp-in-string "\\[FIELD_NAME\\]" field-name technique-description t)))
-           
            (t technique-description)))
          (initial-final-instruction (format "%s %s. %s"
                                          selected-technique
@@ -285,7 +276,7 @@ Works across different programming languages."
                    (format "/architect \"%s\"" final-instruction))))
     (aider-add-current-file)
     (aider--send-command command t)
-    (message "%s refactoring request sent to Aider" selected-technique)))
+    (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique)))
 
 (provide 'aider-code-change)
 
