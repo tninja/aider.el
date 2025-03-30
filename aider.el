@@ -78,11 +78,10 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("p" "Input with Repo Prompt File" aider-open-prompt-file)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
     ("o" "Select Model (C-u: leadboard)" aider-change-model)
-    ;; ("l" "Other Command" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add Current / Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
+    ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
     ("O" "Drop Current File" aider-drop-current-file)
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
@@ -91,15 +90,15 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("h" "Open History" aider-open-history)
     ]
    ["Code Change"
-    ("r" "Change Function / Region" aider-function-or-region-refactor)
+    ("r" "Change Function/Region" aider-function-or-region-refactor)
     ("i" "Implement Requirement" aider-implement-todo)
-    ("t" "Architect Discuss / Change" aider-architect-discussion)
+    ("t" "Architect Discuss/Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("R" "Refactor Code" aider-refactor-book-method)
     ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
-    ("q" "Question on Function / Region" aider-ask-question)
+    ("q" "Question on Function/Region" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
     ("e" "Debug Exception" aider-debug-exception)
