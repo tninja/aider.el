@@ -296,6 +296,9 @@ Otherwise, You can have helm-based completion with run the following code, after
   - artyom-smushkov make aider-add-current-file support tramp file: https://github.com/tninja/aider.el/issues/36
   - mgcyung said it can work in this way: https://github.com/tninja/aider.el/issues/85
 
+- How to customize the aider-comint-mode prompt and input color?
+  - Spike-Leung said [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][add hook to it will help]]
+
 * TODO Future work
 
 ** Feature

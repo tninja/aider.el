@@ -9,6 +9,7 @@
 - Deprecate +aider-other-process-command+ menu item. aider comint session already have command completion, so there is no advantage to use this menu item.
 - Update keyword completion and highlight given aider in-chat commands change
 - Added ~aider-core--auto-trigger-insert-prompt~. when ~aider-auto-trigger-prompt~ is t (default off), it will automatically trigger prompt insertion in aider comint session after one of the commands (/ask, /code, /architect).
+- aider--comint-send-string-syntax-highlight use comint-send-input since it is a more standard way, given suggestion from Spike-Leung
 
 ** v0.5.5
 
