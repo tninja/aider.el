@@ -303,13 +303,16 @@ Otherwise, You can have helm-based completion with run the following code, after
 
 ** Feature
 
-- More context sensitive code change / code reading commands [1/1]
+- More context sensitive code change / code reading commands [2/3]
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
+  - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-  - [ ] How to port the candidate list feature to aider-plain-read-string
 - More thinking on how to simplify the menu / commands
-- More thinking on improving code quality tool such as unit-test
-- Tag release version, make it available on melpa stable
+- More thinking on improving code quality tool such as unit-test [/]
+  - [X] Code refactoring functions
+  - [ ] TDD functions
+  - [ ] Code reading functions 
+- [X] Tag release version, make it available on melpa stable
 
 ** Code quality
  
