@@ -134,38 +134,6 @@ With prefix argument CLEAR, clear the buffer contents instead of just resetting.
   (interactive)
   (aider--send-command "/exit"))
 
-;;;###autoload
-(defun aider-other-process-command ()
-  "Send process control commands to aider.
-With prefix argument MANUAL, manually enter the command
-Prompts user to select from a list of available commands:
-- /clear: Clear the chat history
-- /copy: Copy the last chat message
-- /drop: Drop all files
-- /ls: List tracked files
-- /lint: Run linter on tracked files
-- /map: Show file map
-- /map-refresh: Refresh file map
-- /paste: Paste the last copied chat message
-- /settings: Show current settings
-- /tokens: Show token usage"
-  (interactive)
-  (let* ((commands '("manual input" "/clear" "/copy" "/drop" "/ls" "/lint" "/map"
-                     "/map-refresh" "/paste" "/settings" "/tokens"))
-         (command (completing-read "Select command: " commands nil t)))
-    (if (string= command "manual input")
-        (aider-general-command)
-      (aider--send-command command t))))
-
-;; Function to send a custom command to corresponding aider buffer
-;;;###autoload
-(defun aider-general-command ()
-  "Input COMMAND and send it to the corresponding aider comint buffer."
-  (interactive)
-  (let ((command (aider-read-string "Enter command to send to aider: ")))
-    ;; Use the shared helper function to send the command
-    (aider--send-command command t)))
-
 ;;; Model selection functions
 ;;;###autoload
 (defun aider-change-model (leaderboards)
