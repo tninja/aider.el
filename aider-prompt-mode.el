@@ -131,7 +131,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "#   C-c C-f: Insert file path under cursor\n")
             (insert "#   C-c C-y: Cycle through /add, /read-only, /drop\n")
             (insert "# Command to interact with aider session:\n")
-            (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
+            (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts. If C-u pressed, send current paragraph line by line\n")
             (insert "#   C-c C-b: Send current paragraph line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
             (insert "#   C-c C-z: Switch to aider buffer\n")
