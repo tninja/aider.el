@@ -3,6 +3,7 @@
 [[file:README.org][English Version]]
 
 * 目录
+
 - [[#介绍][介绍]]
   - [[#优点-用户界面上下文感知ai结对编程][优点：用户界面、上下文感知、AI结对编程]]
   - [[#缺点-comint中的aider会话不够fancy][缺点：comint中的aider会话不够fancy]]
@@ -14,7 +15,6 @@
 - [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
 - [[#注意ai生成的代码][注意AI生成的代码]]
 - [[#常见问题][常见问题]]
-- [[#alternatives-to-aidermacs][aidermacs 的替代方案]]
 - [[#未来工作][未来工作]]
 - [[#其他-emacs-ai-编码工具][其他 Emacs AI 编码工具]]
 
@@ -160,14 +160,16 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
     - 如果光标在函数内，为该函数实现 TODO。
     - 否则为整个当前文件实现 TODO。
 
-*** 单元测试/测试驱动开发支持
-  - aider-write-unit-test :: 为当前函数或文件生成全面的单元测试。如果光标在测试函数上，实现该测试函数。
-  - aider-fix-failing-test-under-cursor :: 将光标放在失败的测试函数上，要求 Aider 分析并修复代码以使测试通过。您可以提供更多关于失败测试用例的信息，以帮助 aider 找出如何修复源代码。
+*** 支持敏捷开发
+  - aider-write-unit-test :: 如果当前缓冲区是主源代码文件，为当前函数或文件生成全面的单元测试。如果光标在测试源代码文件中，当光标在测试函数上时，实现该测试函数。否则，提供描述来实现测试函数（或规范）。
+  - 如果主源代码出现问题且测试函数失败，可以在失败的测试函数上使用 ~aider-function-or-region-refactor~ 要求 Aider 修复代码以使测试通过。
+  - aider-refactor-book-method :: 使用 [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower 的重构书籍]] 中的技术进行代码重构
 
-*** 解释代码
+*** 代码问题
   - aider-ask-question :: 向 Aider 询问当前上下文中的代码问题。如果选择了区域，使用该区域作为上下文。
-    - aider-go-ahead :: 当您使用上述命令要求 aider 建议更改时，甚至在几轮讨论之后，当您对解决方案满意时，可以使用此命令要求 Aider 继续实施更改。
-  - aider-function-or-region-explain :: 如果选择了区域，要求 Aider 解释所选区域。否则，要求 Aider 解释光标下的函数。
+    - 您可以询问关于代码的任何问题。例如，解释函数、审查代码并找出错误等
+    - 使用 aider-helm.el 时提供了几个常用的提示
+  - aider-go-ahead :: 当您使用上述命令要求 aider 建议更改时，甚至在几轮讨论之后，当您对解决方案满意时，可以使用此命令要求 Aider 继续实施更改。
 
 *** Aider 提示文件
 
@@ -199,7 +201,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 *** 在 comint 缓冲区内
 
 - / 键触发 aider 命令补全
-- 在某些命令后会自动触发文件路径补全
+- 文件路径补全会在某些命令后自动触发
 - 使用 TAB 键从迷你缓冲区输入提示，或使用带补全的 helm
 
 * 注意AI生成的代码
@@ -246,9 +248,9 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 * 常见问题
 
-- 如何审查或接受代码更改？
-  - 与 Cursor 不同，aider 在代码更改审查方式上有所区别。[[https://github.com/tninja/aider.el/issues/98][讨论]]
-  - 注意：从 Aider v0.77.0 起，/architect 命令生成的更改会被自动采纳。如果希望在接受更改前进行人工审查，请在 aider-args 或 .aider.conf.yml 中增加 "--no-auto-accept-architect" 选项以禁用自动采纳。
+- 如何审查/接受代码更改？ 
+  - 与 cursor 相比，aider 有不同的方式来处理代码更改。[[https://github.com/tninja/aider.el/issues/98][讨论]]
+  - 注意：*Aider v0.77.0 自动接受 /architect 命令的更改。如果您想像以前那样在接受更改之前审查代码更改（适用于 aider.el 中的许多命令），可以在 aider-args 或 .aider.conf.yml 中使用 "--no-auto-accept-architect" 禁用该标志*。
 
 - 如何禁用 aider 的自动提交功能？
   - 在 aider-args 中添加 --no-auto-commits。aider-args 直接传递给 aider CLI。[[https://aider.chat/docs/config/options.html][aider 选项参考]]
@@ -272,12 +274,17 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 ** 功能
 
-- 开发更多具备上下文感知能力的代码修改和阅读命令
+- 更多上下文敏感的代码更改/代码阅读命令 [1/1]
+  - [X] 当前的 aider-ask-question 需要改进，因为可能有很多不同的问题要问
+  - [ ] 思考如何改进函数的候选列表
+  - [ ] 如何将候选列表功能移植到 aider-plain-read-string
 - 更多关于如何简化菜单/命令的思考
+- 更多关于改进代码质量工具（如单元测试）的思考
+- 标记发布版本，使其在 melpa stable 上可用
 
 ** 代码质量
  
-- 进一步完善单元测试和集成测试，并计划实现自动化测试流程。
+- 更好的单元测试/集成测试。希望是自动化的。
 
 * 其他 Emacs AI 编码工具
 
