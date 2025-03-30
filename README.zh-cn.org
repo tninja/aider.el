@@ -89,7 +89,7 @@
 - *aider-args 直接传递给 aider CLI*，[[https://aider.chat/docs/config/options.html][aider 选项参考]]
 - 如果 aider-args 为空（默认），它将使用 ~/.aider.conf.yml 文件。这样，aider CLI 和 aider.el 共享相同的配置
 
-*** 使用 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]（Emacs 内置）
+*** 使用 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]（Emacs 30+ 内置）
 - 通过在 Emacs 中运行以下代码安装 aider.el
   - 您需要手动安装所需的包，如 [[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]] 和 helm。
 #+BEGIN_SRC emacs-lisp
@@ -97,6 +97,22 @@
 #+END_SRC
 
 配置部分与上面的 straight 相同
+
+*** With Melpa + package-install
+
+在 init.el 或 .emacs 文件中的 (require 'package) 之后和 package-initialize 调用之前，通过向 package-archives 添加条目来启用从 MELPA 安装包：
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; 如果需要，可以注释/取消注释此行以启用 MELPA Stable。请参阅 `package-archive-priorities`
+;; 和 `package-pinned-packages`。大多数用户不需要或不想这样做。
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+#+END_SRC
+
+- 使用 M-x package-refresh-contents 或 M-x package-list-packages 确保 Emacs 已获取 MELPA 包列表
+- 使用 M-x package-install 安装 aider 包
 
 ** Doom 安装和配置
 
@@ -130,7 +146,9 @@ aider 前缀是 ~A~。
 
 Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使用之前写过的提示，这可能会节省大量输入时间。*如果您可以接受 helm，强烈推荐这个插件*。
 
-安装 helm 库后，您可以通过运行以下代码获得基于 helm 的补全：
+如果您通过 melpa 和 package-install 安装了 aider.el，只需要 ~(require 'aider-helm)~
+
+否则，安装 helm 库后，您可以通过运行以下代码获得基于 helm 的补全：
 
 #+BEGIN_SRC emacs-lisp
   (use-package aider
@@ -173,17 +191,30 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 *** Aider 提示文件
 
-- 支持语法高亮、 aider 命令补全以及文件路径补全
+- 语法高亮、aider 命令补全、文件路径补全支持
 
-- 请使用 ~C-c a p~ 打开当前仓库专用的提示文件，该文件可用于组织任务、撰写多行提示并发送至 aider 会话。
+- 使用 ~C-c a p~ 打开当前仓库专用的提示文件。您可以使用此文件组织任务，并撰写提示并将其发送到 Aider 会话。支持多行提示。
 
 - 喜欢从编辑器缓冲区向 comint 缓冲区发送代码的人（例如 ESS、python-mode、scala-mode）可能会喜欢这个。这是一种交互式且可重现的方式。
 
-- 可使用 ~C-c C-n~ 快捷键将当前提示行发送至 comint 缓冲区，或者批量逐行发送所选区域。根据我的经验，这是 aider 提示文件中最常用的方法。
+- ~C-c C-n~ 快捷键可用于将当前提示行发送至 comint 缓冲区。或者批量逐行发送所选区域。根据我的经验，这是 aider 提示文件中最常用的方法。
 
-- 同时，~C-c C-c~ 快捷键用于处理多行提示。以下示例显示了当光标在提示上时按下 ~C-c C-c~ 键的情况。
+- ~C-c C-c~ 快捷键用于多行提示。以下示例显示了当光标在提示上时按下 ~C-c C-c~ 键的情况。
 
 [[file:./aider_prompt_file.png]]
+
+**** [[./snippets/aider-prompt-mode][提示片段]]
+
+- aider 的提示可能共享类似的结构。Yasnippet 可以用来帮助重用这些提示。
+
+- Aider 提示文件现在支持 yasnippet。当前片段来自 [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][这个 reddit 帖子]]、[[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][另一个 reddit 帖子]] 和一个 [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git 仓库]]。
+
+- 您可以使用
+  - ~M-x yas-describe-tables~ 查看可用的片段
+  - ~M-x yas-insert-snippet~ 插入片段。
+  - ~M-x yas-expand~ 展开光标下的片段。
+
+- 欢迎在 [[./snippets/aider-prompt-mode][片段文件夹]] 中添加更多片段/改进现有片段！
 
 **** [[./snippets/aider-prompt-mode][提示片段]]
 
@@ -216,9 +247,9 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 ** [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] 风格的 AI 编程工作流
 
-1. 实施或修改代码：  
-   - 针对已有代码：将光标置于函数内部，或选中代码区域后使用 aider-function-or-region-refactor 命令；  
-   - 针对新代码：请在 TODO 注释行上直接使用 aider-implement-todo 命令。
+1. **实施或修改代码**：
+   - 针对已有代码：将光标置于函数内部，或选中代码区域后使用 ~aider-function-or-region-refactor~ 命令；
+   - 针对新代码：请在 TODO 注释行上直接使用 ~aider-implement-todo~ 命令。
    
    *添加新代码的示例*：
    
@@ -240,11 +271,12 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
    
    如果建议不令人满意，使用 ~Ask Question~ 进行改进，并使用 ~Go Ahead~ 确认更改。
 
-2. 生成测试：通过 aider-write-unit-test 创建测试，并利用 aider-fix-failing-test-under-cursor 修改失败测试以验证实现效果。
+2. **生成测试**：通过 ~aider-write-unit-test~ 验证您的实现。运行测试以验证代码行为。
+   - ~aider-write-unit-test~ 可以在代码实现之前用于编写单元测试，只需在单元测试类中调用该函数。我用它测试过力扣问题，效果很好。
 
-3. 完善代码和测试：根据实际情况，选择使用其他提示或手动调整代码，继续优化实现。
+3. **完善代码和测试**：根据需要使用其他提示或手动调整进一步重构。~aider-refactor-book-method~ 提供了 [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower 的重构书籍]] 中的几种重构技术。
 
-4. 重复上述步骤，直至满意。
+4. 返回步骤 1
 
 * 常见问题
 
