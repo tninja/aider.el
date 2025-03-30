@@ -283,6 +283,9 @@ Otherwise, You can have helm-based completion with run the following code, after
 
 - What kind of model aider support? Can aider support local model?
   - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].
+
+- In large mono repo, aider take long time to scan the repo. How to improve?
+  - Aider use .aiderignore file to handle this, [[https://aider.chat/docs/faq.html#can-i-use-aider-in-a-large-mono-repo][detail]]
    
 - How to let aider work with your speaking language?
   - use [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider coding conventions]]. In my case, I added "- reply in Chinese" to the CONVENTIONS.md file, and load work through [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]]. Or, put sth like following into aider-args variable. 
