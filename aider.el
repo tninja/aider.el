@@ -78,11 +78,10 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("p" "Input with Repo Prompt File" aider-open-prompt-file)
     ("s" "Reset Aider (C-u: clear)" aider-reset)
     ("o" "Select Model (C-u: leadboard)" aider-change-model)
-    ;; ("l" "Other Command" aider-other-process-command)
     ("x" "Exit Aider" aider-exit)
     ]
    ["File Operation"
-    ("f" "Add Current / Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
+    ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
     ("O" "Drop Current File" aider-drop-current-file)
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
@@ -91,15 +90,15 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("h" "Open History" aider-open-history)
     ]
    ["Code Change"
-    ("r" "Change Function / Region" aider-function-or-region-refactor)
+    ("r" "Change Function/Region" aider-function-or-region-refactor)
     ("i" "Implement Requirement" aider-implement-todo)
-    ("t" "Architect Discuss / Change" aider-architect-discussion)
+    ("t" "Architect Discuss/Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("R" "Refactor Code" aider-refactor-book-method)
     ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
-    ("q" "Question on Function / Region" aider-ask-question)
+    ("q" "Question on Function/Region" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
     ("e" "Debug Exception" aider-debug-exception)
@@ -134,38 +133,6 @@ With prefix argument CLEAR, clear the buffer contents instead of just resetting.
   (interactive)
   (aider--send-command "/exit"))
 
-;;;###autoload
-(defun aider-other-process-command ()
-  "Send process control commands to aider.
-With prefix argument MANUAL, manually enter the command
-Prompts user to select from a list of available commands:
-- /clear: Clear the chat history
-- /copy: Copy the last chat message
-- /drop: Drop all files
-- /ls: List tracked files
-- /lint: Run linter on tracked files
-- /map: Show file map
-- /map-refresh: Refresh file map
-- /paste: Paste the last copied chat message
-- /settings: Show current settings
-- /tokens: Show token usage"
-  (interactive)
-  (let* ((commands '("manual input" "/clear" "/copy" "/drop" "/ls" "/lint" "/map"
-                     "/map-refresh" "/paste" "/settings" "/tokens"))
-         (command (completing-read "Select command: " commands nil t)))
-    (if (string= command "manual input")
-        (aider-general-command)
-      (aider--send-command command t))))
-
-;; Function to send a custom command to corresponding aider buffer
-;;;###autoload
-(defun aider-general-command ()
-  "Input COMMAND and send it to the corresponding aider comint buffer."
-  (interactive)
-  (let ((command (aider-read-string "Enter command to send to aider: ")))
-    ;; Use the shared helper function to send the command
-    (aider--send-command command t)))
-
 ;;; Model selection functions
 ;;;###autoload
 (defun aider-change-model (leaderboards)
@@ -182,12 +149,6 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
         (aider--send-command (format "%s %s" command model) t)
         (message "%s changed to %s, customize aider-popular-models for the model candidates"
                  (substring command 1) model)))))
-
-;; now you should explicitly require the modules you need
-
-;; ;; doom
-;; (when (featurep 'doom)
-;;   (require 'aider-doom))
 
 (provide 'aider)
 

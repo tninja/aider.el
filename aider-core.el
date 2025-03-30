@@ -39,11 +39,6 @@
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
-(defface aider-command-text
-  '((t :inherit bold))
-  "Face for commands sent to aider buffer."
-  :group 'aider)
-
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
@@ -95,6 +90,8 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; (font-lock-add-keywords nil aider-font-lock-keywords t)
   ;; Set up input sender for multi-line handling
   (setq-local comint-input-sender 'aider-input-sender)
+  ;; Enable comint's built-in input highlighting
+  (setq-local comint-highlight-input t)
   ;; Add command completion hooks
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
@@ -158,22 +155,16 @@ Otherwise return STR unchanged."
     str))
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
-  "Send TEXT to the comint BUFFER.
-This function ensures proper process markers are maintained."
+  "Send TEXT to the comint BUFFER using comint's standard input mechanism.
+Uses comint's built-in highlighting for input text."
   (with-current-buffer buffer
-    (let ((process (get-buffer-process buffer))
-          (inhibit-read-only t))
-      (goto-char (process-mark process))
-      ;; Insert text with proper face properties
-      (insert (propertize text
-                         'face 'aider-command-text
-                         'font-lock-face 'aider-command-text
-                         'rear-nonsticky t))
-      ;; Insert text
+    (let ((inhibit-read-only t))
+      ;; Move to the end of the buffer
+      (goto-char (point-max))
+      ;; Insert the text - comint will handle the highlighting
       (insert text)
-      ;; Update process mark and send text
-      (set-marker (process-mark process) (point))
-      (comint-send-string process text))))
+      ;; Use comint's standard input handling which will apply comint-highlight-input
+      (comint-send-input))))
 
 ;; Shared helper function to send commands to corresponding aider buffer
 (defun aider--send-command (command &optional switch-to-buffer log)

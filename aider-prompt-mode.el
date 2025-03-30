@@ -31,7 +31,7 @@ This is the file name without path."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") #'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") #'aider-send-block-or-region)
-    (define-key map (kbd "C-c C-b") #'aider-send-block-by-line)
+    (define-key map (kbd "C-c C-b") #'aider-send-block-by-line) ;; considering retire this since C-u C-c C-n will do same thing
     (define-key map (kbd "C-c C-z") #'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "C-c C-i") #'aider-core-insert-prompt)
@@ -40,15 +40,23 @@ This is the file name without path."
   "Keymap for Aider Prompt Mode.")
 
 ;;;###autoload
-(defun aider-send-line-or-region ()
+(defun aider-send-line-or-region (&optional arg)
   "Send text to the Aider buffer.
+If universal argument (C-u) is provided, send the current paragraph line by line.
 If region is active, send the selected region line by line.
 Otherwise, send the line under cursor."
-  (interactive)
-  (if (region-active-p)
-      (aider-send-region-by-line)
+  (interactive "P")
+  (cond
+   ;; If universal argument is provided, send paragraph by line
+   (arg
+    (aider-send-block-by-line))
+   ;; If region is active, send region by line
+   ((region-active-p)
+    (aider-send-region-by-line))
+   ;; Otherwise, send current line
+   (t
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) t))))
+      (aider--send-command (string-trim line) t)))))
 
 (defun aider--extract-filename-from-command (command-str)
   "Extract filename from COMMAND-STR if it matches an aider command pattern.
@@ -123,7 +131,7 @@ If file doesn't exist, create it with command binding help and sample prompt."
             (insert "#   C-c C-f: Insert file path under cursor\n")
             (insert "#   C-c C-y: Cycle through /add, /read-only, /drop\n")
             (insert "# Command to interact with aider session:\n")
-            (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts\n")
+            (insert "#   C-c C-n: Single line prompt: Send current line or selected region line by line as multiple prompts. If C-u pressed, send current paragraph line by line\n")
             (insert "#   C-c C-b: Send current paragraph line by line as multiple prompts\n")
             (insert "#   C-c C-c: Multi-line prompt: Send current block or selected region as a single prompt\n")
             (insert "#   C-c C-z: Switch to aider buffer\n")

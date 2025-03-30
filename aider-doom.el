@@ -16,44 +16,39 @@
              (vc-backend (or (buffer-file-name) default-directory)))
     (map! :leader
           (:prefix ("A" . "Aider")
+                   (:prefix ("p" . "Process")
+                    :desc "Run Aider" "a" #'aider-run-aider
+                    :desc "Switch to Aider buffer" "z" #'aider-switch-to-buffer
+                    :desc "Open prompt file" "p" #'aider-open-prompt-file
+                    :desc "Reset Aider" "s" #'aider-reset
+                    :desc "Change model" "o" #'aider-change-model
+                    :desc "Clear Aider buffer" "c" #'aider-clear-buffer
+                    :desc "Exit Aider" "x" #'aider-exit)
+
                    (:prefix ("f" . "Files")
-                    :desc "Add current/marked files" "a" #'aider-add-current-file-or-dired-marked-files
-                    :desc "Add file read-only" "r" #'aider-current-file-read-only
+                    :desc "Add current/marked files" "f" #'aider-add-current-file-or-dired-marked-files
                     :desc "Add files in window" "w" #'aider-add-files-in-current-window
-                    ;; :desc "Add same type files in dir" "s" #'aider-add-same-type-files-under-dir
-                    :desc "Batch add marked files" "m" #'aider-batch-add-dired-marked-files
-                    :desc "Drop current file" "d" #'aider-drop-current-file
-                    :desc "Show last commit" "c" #'aider-magit-show-last-commit-or-log
-                    :desc "Undo last change" "u" #'aider-undo-last-change)
+                    :desc "Drop current file" "O" #'aider-drop-current-file
+                    :desc "Show last commit" "m" #'aider-magit-show-last-commit-or-log
+                    :desc "Undo last change" "u" #'aider-undo-last-change
+                    :desc "Pull or review diff" "v" #'aider-pull-or-review-diff-file
+                    :desc "Open history" "h" #'aider-open-history)
 
                    (:prefix ("c" . "Code")
-                    :desc "Architecture discussion" "a" #'aider-architect-discussion
-                    :desc "Direct code change" "c" #'aider-code-change
                     :desc "Refactor function/region" "r" #'aider-function-or-region-refactor
                     :desc "Implement requirement" "i" #'aider-implement-todo
-                    :desc "Write unit test" "t" #'aider-write-unit-test
-                    ;; :desc "Fix failing test" "f" #'aider-fix-failing-test-under-cursor
-                    )
+                    :desc "Architect discussion" "t" #'aider-architect-discussion
+                    :desc "Write unit test" "U" #'aider-write-unit-test
+                    :desc "Refactor code" "R" #'aider-refactor-book-method
+                    :desc "Direct code change" "c" #'aider-code-change)
 
                    (:prefix ("d" . "Discuss")
                     :desc "Ask question" "q" #'aider-ask-question
                     :desc "Go ahead" "y" #'aider-go-ahead
-                    :desc "Explain function/region" "e" #'aider-function-or-region-explain
-                    :desc "Debug exception" "d" #'aider-debug-exception
-                    :desc "Help" "h" #'aider-help)
+                    :desc "General question" "Q" #'aider-general-question
+                    :desc "Debug exception" "e" #'aider-debug-exception
+                    :desc "Help" "H" #'aider-help)
 
-                   (:prefix ("p" . "Process")
-                    :desc "Switch to Aider buffer" "b" #'aider-switch-to-buffer
-                    :desc "Clear Aider buffer" "c" #'aider-clear-buffer
-                    :desc "Reset Aider" "r" #'aider-reset
-                    :desc "Open prompt file" "p" #'aider-open-prompt-file
-                    :desc "Change model" "m" #'aider-change-model
-                    :desc "Other command" "o" #'aider-other-process-command
-                    :desc "Send line/region" "l" #'aider-send-line-or-region
-                    :desc "Send region by line" "s" #'aider-send-region-by-line)
-
-                   :desc "Run Aider" "o" #'aider-run-aider
-                   :desc "Exit Aider" "x" #'aider-exit
                    :desc "Transient Menu" "t" #'aider-transient-menu))))
 
 ;;;###autoload
