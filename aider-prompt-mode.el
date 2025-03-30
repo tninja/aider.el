@@ -40,15 +40,23 @@ This is the file name without path."
   "Keymap for Aider Prompt Mode.")
 
 ;;;###autoload
-(defun aider-send-line-or-region ()
+(defun aider-send-line-or-region (&optional arg)
   "Send text to the Aider buffer.
+If universal argument (C-u) is provided, send the current paragraph line by line.
 If region is active, send the selected region line by line.
 Otherwise, send the line under cursor."
-  (interactive)
-  (if (region-active-p)
-      (aider-send-region-by-line)
+  (interactive "P")
+  (cond
+   ;; If universal argument is provided, send paragraph by line
+   (arg
+    (aider-send-block-by-line))
+   ;; If region is active, send region by line
+   ((region-active-p)
+    (aider-send-region-by-line))
+   ;; Otherwise, send current line
+   (t
     (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) t))))
+      (aider--send-command (string-trim line) t)))))
 
 (defun aider--extract-filename-from-command (command-str)
   "Extract filename from COMMAND-STR if it matches an aider command pattern.
