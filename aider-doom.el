@@ -48,9 +48,10 @@
                     :desc "Reset Aider" "r" #'aider-reset
                     :desc "Open prompt file" "p" #'aider-open-prompt-file
                     :desc "Change model" "m" #'aider-change-model
-                    :desc "Other command" "o" #'aider-other-process-command
-                    :desc "Send line/region" "l" #'aider-send-line-or-region
-                    :desc "Send region by line" "s" #'aider-send-region-by-line)
+                    ;; :desc "Other command" "o" #'aider-other-process-command
+                    ;; :desc "Send line/region" "l" #'aider-send-line-or-region
+                    ;; :desc "Send region by line" "s" #'aider-send-region-by-line
+                    )
 
                    :desc "Run Aider" "o" #'aider-run-aider
                    :desc "Exit Aider" "x" #'aider-exit
