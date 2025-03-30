@@ -150,12 +150,6 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
         (message "%s changed to %s, customize aider-popular-models for the model candidates"
                  (substring command 1) model)))))
 
-;; now you should explicitly require the modules you need
-
-;; ;; doom
-;; (when (featurep 'doom)
-;;   (require 'aider-doom))
-
 (provide 'aider)
 
 ;;; aider.el ends here

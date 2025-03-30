@@ -31,7 +31,7 @@ This is the file name without path."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") #'aider-send-line-or-region)
     (define-key map (kbd "C-c C-c") #'aider-send-block-or-region)
-    (define-key map (kbd "C-c C-b") #'aider-send-block-by-line)
+    (define-key map (kbd "C-c C-b") #'aider-send-block-by-line) ;; considering retire this since C-u C-c C-n will do same thing
     (define-key map (kbd "C-c C-z") #'aider-switch-to-buffer)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "C-c C-i") #'aider-core-insert-prompt)
