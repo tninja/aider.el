@@ -205,19 +205,6 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 **** [[./snippets/aider-prompt-mode][提示片段]]
 
-- aider 的提示可能共享类似的结构。Yasnippet 可以用来帮助重用这些提示。
-
-- Aider 提示文件现在支持 yasnippet。当前片段来自 [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][这个 reddit 帖子]]、[[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][另一个 reddit 帖子]] 和一个 [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git 仓库]]。
-
-- 您可以使用
-  - ~M-x yas-describe-tables~ 查看可用的片段
-  - ~M-x yas-insert-snippet~ 插入片段。
-  - ~M-x yas-expand~ 展开光标下的片段。
-
-- 欢迎在 [[./snippets/aider-prompt-mode][片段文件夹]] 中添加更多片段/改进现有片段！
-
-**** [[./snippets/aider-prompt-mode][提示片段]]
-
 - aider 的提示可能共享类似的结构。可以使用 Yasnippet 来帮助重用这些提示。
 
 - Aider 提示文件现在支持 yasnippet。当前片段来自 [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][这个 reddit 帖子]]、[[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][另一个 reddit 帖子]] 和一个 [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git 仓库]]。
