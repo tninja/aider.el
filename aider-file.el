@@ -12,6 +12,27 @@
 (require 'aider-core)
 (require 'dired)
 
+;; 新增辅助函数，用于获取文件的相对路径或绝对路径
+(defun aider--get-file-path (file-path)
+  "Get the appropriate path for FILE-PATH.
+If the file is in a git repository, return path relative to git root.
+Otherwise, return the full local path."
+  (let ((git-root (ignore-errors (magit-toplevel)))
+        (full-path (expand-file-name file-path)))
+    (if git-root
+        ;; Get path relative to git root
+        (file-relative-name full-path git-root)
+      ;; Use full path for non-git files
+      (file-local-name full-path))))
+
+;; 新增辅助函数，用于格式化文件路径（处理空格）
+(defun aider--format-file-path (file-path)
+  "Format FILE-PATH for use in commands.
+Add quotes if the path contains spaces."
+  (if (string-match-p " " file-path)
+      (format "\"%s\"" file-path)
+    file-path))
+
 ;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-add-current-file ()
@@ -38,15 +59,8 @@ If the file is in a git repository, use path relative to git root."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let* ((git-root (ignore-errors (magit-toplevel)))
-           (local-name (if git-root
-                           ;; Get path relative to git root
-                           (file-relative-name (expand-file-name buffer-file-name) git-root)
-                         ;; Use existing logic for non-git files
-                         (file-local-name (expand-file-name buffer-file-name))))
-           (formatted-path (if (string-match-p " " local-name)
-                             (format "\"%s\"" local-name)
-                           local-name))
+    (let* ((local-name (aider--get-file-path buffer-file-name))
+           (formatted-path (aider--format-file-path local-name))
            (command (format "%s %s" command-prefix formatted-path)))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
@@ -57,23 +71,13 @@ If the file is in a git repository, use path relative to git root."
   "Add files in all buffers in the current Emacs window to the Aider buffer.
 If files are in a git repository, use paths relative to git root."
   (interactive)
-  (let* ((git-root (ignore-errors (magit-toplevel)))
-         (files (mapcar (lambda (buffer)
+  (let* ((files (mapcar (lambda (buffer)
                           (with-current-buffer buffer
                             (when buffer-file-name
-                              (let ((full-path (expand-file-name buffer-file-name)))
-                                (if git-root
-                                    ;; Get path relative to git root
-                                    (file-relative-name full-path git-root)
-                                  ;; Use full path for non-git files
-                                  (file-local-name full-path))))))
+                              (aider--get-file-path buffer-file-name))))
                         (mapcar #'window-buffer (window-list))))
          (files (delq nil files))
-         (formatted-files (mapcar (lambda (file)
-                                    (if (string-match-p " " file)
-                                        (format "\"%s\"" file)
-                                      file))
-                                  files)))
+         (formatted-files (mapcar #'aider--format-file-path files)))
     (if files
         (let ((command (concat "/add " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command nil))
