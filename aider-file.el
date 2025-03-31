@@ -54,16 +54,28 @@ If the file is in a git repository, use path relative to git root."
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
 (defun aider-add-files-in-current-window ()
-  "Add files in all buffers in the current Emacs window to the Aider buffer."
+  "Add files in all buffers in the current Emacs window to the Aider buffer.
+If files are in a git repository, use paths relative to git root."
   (interactive)
-  (let ((files (mapcar (lambda (buffer)
-                         (with-current-buffer buffer
-                           (when buffer-file-name
-                             (expand-file-name buffer-file-name))))
-                       (mapcar #'window-buffer (window-list)))))
-    (setq files (delq nil files))
+  (let* ((git-root (ignore-errors (magit-toplevel)))
+         (files (mapcar (lambda (buffer)
+                          (with-current-buffer buffer
+                            (when buffer-file-name
+                              (let ((full-path (expand-file-name buffer-file-name)))
+                                (if git-root
+                                    ;; Get path relative to git root
+                                    (file-relative-name full-path git-root)
+                                  ;; Use full path for non-git files
+                                  (file-local-name full-path))))))
+                        (mapcar #'window-buffer (window-list))))
+         (files (delq nil files))
+         (formatted-files (mapcar (lambda (file)
+                                    (if (string-match-p " " file)
+                                        (format "\"%s\"" file)
+                                      file))
+                                  files)))
     (if files
-        (let ((command (concat "/add " (mapconcat #'identity files " "))))
+        (let ((command (concat "/add " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command nil))
       (message "No files found in the current window."))))
 
