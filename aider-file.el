@@ -33,12 +33,17 @@
 
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)
-  "Perform the COMMAND-PREFIX to aider session."
+  "Perform the COMMAND-PREFIX to aider session.
+If the file is in a git repository, use path relative to git root."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let* ((local-name (file-local-name
-                        (expand-file-name buffer-file-name)))
+    (let* ((git-root (ignore-errors (magit-toplevel)))
+           (local-name (if git-root
+                           ;; Get path relative to git root
+                           (file-relative-name (expand-file-name buffer-file-name) git-root)
+                         ;; Use existing logic for non-git files
+                         (file-local-name (expand-file-name buffer-file-name))))
            (formatted-path (if (string-match-p " " local-name)
                              (format "\"%s\"" local-name)
                            local-name))
