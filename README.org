@@ -288,8 +288,8 @@ Otherwise, You can have helm-based completion with run the following code, after
   - Aider use .aiderignore file to handle this, [[https://aider.chat/docs/faq.html#can-i-use-aider-in-a-large-mono-repo][detail]], or, you can turn off git with --no-git in aider-args.
   - Or, use the --subtree-only with following way in emacs:
     - Used dired to open the directory (subtree) to be included
-    - C-c a open the menu, C-u a to run aider with args
-    - add --subtree-only to the end of args, and start aider
+    - C-c a a to trigger aider-run-aider
+    - Answer yes about --subtree-only question, it will add the flag
    
 - How to let aider work with your speaking language?
   - use [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider coding conventions]]. In my case, I added "- reply in Chinese" to the CONVENTIONS.md file, and load work through [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]]. Or, put sth like following into aider-args variable. 
