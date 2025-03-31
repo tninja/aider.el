@@ -237,7 +237,7 @@ Works across different programming languages."
                "\\[NEW_NAME\\]" new-name
                (replace-regexp-in-string 
                 "\\[CURRENT_NAME\\]" current-name technique-description t) 
-               t))))
+               t)))
            ((string= selected-technique "Inline Method")
             (let ((method-name (or (thing-at-point 'symbol t)
                                   (read-string "Method to inline: "))))
@@ -254,7 +254,7 @@ Works across different programming languages."
                "\\[TARGET_CLASS\\]" target-class
                (replace-regexp-in-string 
                 "\\[METHOD_NAME\\]" method-name technique-description t) 
-               t))))
+               t)))
            ((string= selected-technique "Extract Variable")
             (let ((var-name (read-string "New variable name: ")))
               (replace-regexp-in-string "\\[VARIABLE_NAME\\]" var-name technique-description t)))
