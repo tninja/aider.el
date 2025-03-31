@@ -38,7 +38,7 @@
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
     (let* ((local-name (file-local-name
-                       (expand-file-name buffer-file-name)))
+                        (expand-file-name buffer-file-name)))
            (formatted-path (if (string-match-p " " local-name)
                              (format "\"%s\"" local-name)
                            local-name))
