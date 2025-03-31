@@ -223,7 +223,7 @@ With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
       (with-current-buffer buffer-name
         (aider-comint-mode))
       (message "%s" (if current-args
-                       (format "Running aider with args: %s" (mapconcat #'identity current-args " "))
+                       (format "Running aider from %s, with args: %s" default-directory (mapconcat #'identity current-args " "))
                      "Running aider with no args provided.")))
     (aider-switch-to-buffer)))
 
