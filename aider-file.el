@@ -12,7 +12,7 @@
 (require 'aider-core)
 (require 'dired)
 
-;; 新增辅助函数，用于获取文件的相对路径或绝对路径
+;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
   "Get the appropriate path for FILE-PATH.
 If the file is in a git repository, return path relative to git root.
@@ -25,7 +25,7 @@ Otherwise, return the full local path."
       ;; Use full path for non-git files
       (file-local-name full-path))))
 
-;; 新增辅助函数，用于格式化文件路径（处理空格）
+;; Added helper function to format file paths (process spaces)
 (defun aider--format-file-path (file-path)
   "Format FILE-PATH for use in commands.
 Add quotes if the path contains spaces."
