@@ -11,7 +11,7 @@
 - Added ~aider-core--auto-trigger-insert-prompt~. when ~aider-auto-trigger-prompt~ is t (default off), it will automatically trigger prompt insertion in aider comint session after one of the commands (/ask, /code, /architect).
 - aider--comint-send-string-syntax-highlight use comint-send-input since it is a more standard way, given suggestion from Spike-Leung
 - In aider-prompt-file, C-u C-c C-n can send block line by line in aider prompt file (close to C-c C-n)
-- aider-run-aider in dired buffer will ask if user wants to add `--subtree-only` flag
+- aider-run-aider in dired, eshell, or shell buffer will ask if user wants to add `--subtree-only` flag
 
 ** v0.5.5
 

@@ -210,7 +210,7 @@ If the current buffer is already the Aider buffer, do nothing."
 (defun aider-run-aider (&optional edit-args)
   "Create a comint-based buffer and run \"aider\" for interactive conversation.
 With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
-If current buffer is a dired buffer, ask if user wants to use --subtree-only mode."
+If current buffer is a dired, eshell, or shell buffer, ask if user wants to use --subtree-only mode."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
@@ -219,9 +219,13 @@ If current buffer is a dired buffer, ask if user wants to use --subtree-only mod
                             (read-string "Edit aider arguments: "
                                          (mapconcat #'identity aider-args " ")))
                          aider-args)))
-    ;; Check if current buffer is in dired-mode and prompt for --subtree-only
-    (when (and (eq major-mode 'dired-mode)
-               (y-or-n-p "Current buffer is a directory. Use --subtree-only mode?"))
+    ;; Check if current buffer is in dired-mode, eshell-mode, or shell-mode and prompt for --subtree-only
+    (when (and (memq major-mode '(dired-mode eshell-mode shell-mode))
+               (y-or-n-p (format "Current buffer is %s. Use --subtree-only mode?"
+                                 (cond ((eq major-mode 'dired-mode) "a directory")
+                                       ((eq major-mode 'eshell-mode) "eshell")
+                                       ((eq major-mode 'shell-mode) "shell")
+                                       (t "")))))
       ;; Check if --subtree-only is already in the arguments
       (unless (member "--subtree-only" current-args)
         (setq current-args (append current-args '("--subtree-only")))))
