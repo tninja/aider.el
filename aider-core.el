@@ -225,7 +225,6 @@ If current buffer is a dired buffer, ask if user wants to use --subtree-only mod
       ;; Check if --subtree-only is already in the arguments
       (unless (member "--subtree-only" current-args)
         (setq current-args (append current-args '("--subtree-only")))))
-    
     (unless (comint-check-proc buffer-name)
       (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
