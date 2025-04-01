@@ -280,13 +280,15 @@ If the last character in the current line is '/', invoke `completion-at-point`."
 (defun aider-core--auto-trigger-file-path-insertion ()
   "Automatically trigger file path insertion in aider buffer.
 If the current line matches one of the file-related commands
-followed by a space or comma,
+followed by a space, and the cursor is at the end of the line,
 invoke `aider-prompt-insert-file-path`."
   (when (and (not (minibufferp))
              (not (bolp))
-             (eq (char-before) ?\s))  ; Check if last char is space
+             (eq (char-before) ?\s)  ; Check if last char is space
+             (eolp))                 ; Check if cursor is at end of line
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
+      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
         (aider-prompt-insert-file-path)))))
 
 ;;;###autoload
