@@ -41,8 +41,8 @@
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
+                                  "gemini"  ;; SOTA at 2025-03-25
                                   "deepseek"  ;; low price, pretty good performance
-                                  "gemini-2.0-flash-exp"  ;; free
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.
