@@ -12,6 +12,27 @@
 (require 'aider-core)
 (require 'dired)
 
+;; Added helper function to get the relative or absolute path of the file
+(defun aider--get-file-path (file-path)
+  "Get the appropriate path for FILE-PATH.
+If the file is in a git repository, return path relative to git root.
+Otherwise, return the full local path."
+  (let ((git-root (ignore-errors (magit-toplevel)))
+        (full-path (expand-file-name file-path)))
+    (if git-root
+        ;; Get path relative to git root
+        (file-relative-name full-path git-root)
+      ;; Use full path for non-git files
+      (file-local-name full-path))))
+
+;; Added helper function to format file paths (process spaces)
+(defun aider--format-file-path (file-path)
+  "Format FILE-PATH for use in commands.
+Add quotes if the path contains spaces."
+  (if (string-match-p " " file-path)
+      (format "\"%s\"" file-path)
+    file-path))
+
 ;; Function to send "/add <current buffer file full path>" to corresponding aider buffer
 ;;;###autoload
 (defun aider-add-current-file ()
@@ -33,15 +54,13 @@
 
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)
-  "Perform the COMMAND-PREFIX to aider session."
+  "Perform the COMMAND-PREFIX to aider session.
+If the file is in a git repository, use path relative to git root."
   ;; Ensure the current buffer is associated with a file
   (if (not buffer-file-name)
       (message "Current buffer is not associated with a file.")
-    (let* ((local-name (file-local-name
-                       (expand-file-name buffer-file-name)))
-           (formatted-path (if (string-match-p " " local-name)
-                             (format "\"%s\"" local-name)
-                           local-name))
+    (let* ((local-name (aider--get-file-path buffer-file-name))
+           (formatted-path (aider--format-file-path local-name))
            (command (format "%s %s" command-prefix formatted-path)))
       ;; Use the shared helper function to send the command
       (aider--send-command command))))
@@ -49,16 +68,18 @@
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
 (defun aider-add-files-in-current-window ()
-  "Add files in all buffers in the current Emacs window to the Aider buffer."
+  "Add files in all buffers in the current Emacs window to the Aider buffer.
+If files are in a git repository, use paths relative to git root."
   (interactive)
-  (let ((files (mapcar (lambda (buffer)
-                         (with-current-buffer buffer
-                           (when buffer-file-name
-                             (expand-file-name buffer-file-name))))
-                       (mapcar #'window-buffer (window-list)))))
-    (setq files (delq nil files))
+  (let* ((files (mapcar (lambda (buffer)
+                          (with-current-buffer buffer
+                            (when buffer-file-name
+                              (aider--get-file-path buffer-file-name))))
+                        (mapcar #'window-buffer (window-list))))
+         (files (delq nil files))
+         (formatted-files (mapcar #'aider--format-file-path files)))
     (if files
-        (let ((command (concat "/add " (mapconcat #'identity files " "))))
+        (let ((command (concat "/add " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command nil))
       (message "No files found in the current window."))))
 

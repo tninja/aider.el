@@ -209,7 +209,8 @@ If the current buffer is already the Aider buffer, do nothing."
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args)
   "Create a comint-based buffer and run \"aider\" for interactive conversation.
-With the universal argument EDIT-ARGS, prompt to edit aider-args before running."
+With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
+If current buffer is a dired buffer, ask if user wants to use --subtree-only mode."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
@@ -218,12 +219,18 @@ With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
                             (read-string "Edit aider arguments: "
                                          (mapconcat #'identity aider-args " ")))
                          aider-args)))
+    ;; Check if current buffer is in dired-mode and prompt for --subtree-only
+    (when (and (eq major-mode 'dired-mode)
+               (y-or-n-p "Current buffer is a directory. Use --subtree-only mode?"))
+      ;; Check if --subtree-only is already in the arguments
+      (unless (member "--subtree-only" current-args)
+        (setq current-args (append current-args '("--subtree-only")))))
     (unless (comint-check-proc buffer-name)
       (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (aider-comint-mode))
       (message "%s" (if current-args
-                       (format "Running aider with args: %s" (mapconcat #'identity current-args " "))
+                       (format "Running aider from %s, with args: %s" default-directory (mapconcat #'identity current-args " "))
                      "Running aider with no args provided.")))
     (aider-switch-to-buffer)))
 

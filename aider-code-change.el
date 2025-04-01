@@ -233,9 +233,11 @@ Works across different programming languages."
             (let* ((current-name (or (thing-at-point 'symbol t)
                                     (read-string "Current name: ")))
                    (new-name (read-string (format "Rename '%s' to: " current-name))))
-              (-> technique-description
-                  (replace-regexp-in-string "\\[CURRENT_NAME\\]" current-name t)
-                  (replace-regexp-in-string "\\[NEW_NAME\\]" new-name t))))
+              (replace-regexp-in-string 
+               "\\[NEW_NAME\\]" new-name
+               (replace-regexp-in-string 
+                "\\[CURRENT_NAME\\]" current-name technique-description t) 
+               t)))
            ((string= selected-technique "Inline Method")
             (let ((method-name (or (thing-at-point 'symbol t)
                                   (read-string "Method to inline: "))))
@@ -248,9 +250,11 @@ Works across different programming languages."
             (let ((method-name (or current-function  ; current-function already contains which-function result
                                   (read-string "Method to move: ")))
                   (target-class (read-string "Target class: ")))
-              (-> technique-description
-                  (replace-regexp-in-string "\\[METHOD_NAME\\]" method-name t)
-                  (replace-regexp-in-string "\\[TARGET_CLASS\\]" target-class t))))
+              (replace-regexp-in-string 
+               "\\[TARGET_CLASS\\]" target-class
+               (replace-regexp-in-string 
+                "\\[METHOD_NAME\\]" method-name technique-description t) 
+               t)))
            ((string= selected-technique "Extract Variable")
             (let ((var-name (read-string "New variable name: ")))
               (replace-regexp-in-string "\\[VARIABLE_NAME\\]" var-name technique-description t)))
