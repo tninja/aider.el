@@ -61,6 +61,7 @@
 - Organize project with repo specific Aider prompt file
 - More Focus on code quality tool (Code Review, Agile development + AI).
 - Snippets for community prompts.
+- Simplified menu, only keep essential tools
 
 * Installation
 
@@ -83,6 +84,9 @@ If you have Straight installed
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o3-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+    ;; Or gemini model
+    ;; (setq aider-args '("--model" "gemini"))
+    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or use your personal config file
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;

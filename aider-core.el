@@ -280,13 +280,15 @@ If the last character in the current line is '/', invoke `completion-at-point`."
 (defun aider-core--auto-trigger-file-path-insertion ()
   "Automatically trigger file path insertion in aider buffer.
 If the current line matches one of the file-related commands
-followed by a space or comma,
+followed by a space, and the cursor is at the end of the line,
 invoke `aider-prompt-insert-file-path`."
   (when (and (not (minibufferp))
              (not (bolp))
-             (eq (char-before) ?\s))  ; Check if last char is space
+             (eq (char-before) ?\s)  ; Check if last char is space
+             (eolp))                 ; Check if cursor is at end of line
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\)[ \t,]" line-content)
+      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
         (aider-prompt-insert-file-path)))))
 
 ;;;###autoload
@@ -299,12 +301,14 @@ invoke `aider-prompt-insert-file-path`."
 
 (defun aider-core--auto-trigger-insert-prompt ()
   "Automatically trigger prompt insertion in aider buffer.
-If the current line matches one of the commands (/ask, /code, /architect)
-and ends with exactly one space, invoke `aider-core-insert-prompt`."
+If the current line matches one of the commands (/ask, /code, /architect),
+ends with exactly one space, and the cursor is at the end of the line,
+invoke `aider-core-insert-prompt`."
   (when (and aider-auto-trigger-prompt
              (not (minibufferp))
              (not (bolp))
-             (eq (char-before) ?\s))  ; Check if last char is space
+             (eq (char-before) ?\s)  ; Check if last char is space
+             (eolp))                 ; Check if cursor is at end of line
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
