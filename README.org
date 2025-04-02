@@ -79,7 +79,7 @@ If you have Straight installed
     :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
     :config
     ;; For latest claude sonnet model
-    (setq aider-args '("--model" "sonnet"))
+    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o3-mini"))
