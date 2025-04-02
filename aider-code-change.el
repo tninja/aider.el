@@ -54,11 +54,14 @@ If a region is selected, refactor that specific region.
 Otherwise, refactor the function under cursor."
   (interactive)
   (let* ((function-name (which-function))
-         (region-active (region-active-p))
-         (region-in-function (and region-active function-name))
-         (prompt (cond
-                  (region-in-function (format "Code change instruction for selected region in function '%s': " function-name))
-                  (function-name (format "Change %s: " function-name))
+         (region-active (region-active-p)))
+    (if (not (or region-active function-name))
+        (message "No function or region selected.")
+      ;; Original let* body continues here if region or function exists
+      (let* ((region-in-function (and region-active function-name))
+             (prompt (cond
+                      (region-in-function (format "Code change instruction for selected region in function '%s': " function-name))
+                      (function-name (format "Change %s: " function-name))
                   (region-active "Refactor instruction for selected region: ")
                   (t "Refactor instruction: ")))
          (is-test-file (and buffer-file-name
@@ -90,10 +93,8 @@ Otherwise, refactor the function under cursor."
      (function-name
       (aider-current-file-command-and-switch
        "/architect "
-       (concat (format "refactor %s: " function-name) instruction)))
-     ;; Fallback case
-     (t (message "No function or region selected."))))
-  (message "Refactoring request sent to Aider"))
+       (concat (format "refactor %s: " function-name) instruction))))
+      (message "Refactoring request sent to Aider")))))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.
