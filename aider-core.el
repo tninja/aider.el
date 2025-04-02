@@ -203,7 +203,10 @@ If the current buffer is already the Aider buffer, do nothing."
         (progn
           (if aider--switch-to-buffer-other-frame
               (switch-to-buffer-other-frame buffer)
-            (pop-to-buffer buffer)))
+            (pop-to-buffer buffer))
+          ;; Scroll to the end of the buffer after switching
+          (with-current-buffer buffer
+            (goto-char (point-max))))
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;;;###autoload
