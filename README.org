@@ -61,7 +61,7 @@
 - Organize project with repo specific Aider prompt file
 - More Focus on code quality tool (Code Review, Agile development + AI).
 - Snippets for community prompts.
-- Simplified menu, only keep essential tools
+- Less configurations, simplified menu.
 
 * Installation
 

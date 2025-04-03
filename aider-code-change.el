@@ -301,7 +301,6 @@ Works with both source code and test files that have been added to aider."
                          "3. Refactor (Improve code quality)")
                        nil t))
          (stage-num (string-to-number (substring cycle-stage 0 1))))
-    
     (cond
      ;; Red stage - write failing test
      ((= stage-num 1)
@@ -314,7 +313,6 @@ Works with both source code and test files that have been added to aider."
               (format "%s Follow TDD principles - write only the test now, not the implementation. The test should fail when run because the functionality doesn't exist yet."
                       feature-desc)))
         (aider-current-file-command-and-switch "/architect " tdd-instructions)))
-     
      ;; Green stage - make test pass
      ((= stage-num 2)
       (let* ((initial-input
@@ -326,7 +324,6 @@ Works with both source code and test files that have been added to aider."
               (format "%s Follow TDD principles - implement only the minimal code needed to make the test pass. Don't over-engineer or implement features not required by the test."
                       implementation-desc)))
         (aider-current-file-command-and-switch "/architect " tdd-instructions)))
-     
      ;; Refactor stage
      ((= stage-num 3)
       (let* ((context-desc (if function-name

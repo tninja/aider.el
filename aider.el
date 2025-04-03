@@ -95,6 +95,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("t" "Architect Discuss/Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("R" "Refactor Code" aider-refactor-book-method)
+    ("T" "Test Driven Development" aider-tdd-cycle)
     ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
