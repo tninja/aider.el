@@ -15,30 +15,67 @@
 (require 'aider)
 (require 'transient)
 
-(defun aider-analyze-code-unit ()
-  "Analyze current function or region using bottom-up reading technique."
+;;;###autoload
+(defun aider-code-read ()
+  "Analyze code using various reading techniques.
+Provides a selection of different code reading approaches based on context."
   (interactive)
-  (if (region-active-p)
-      (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
-             (initial-prompt
-              "Analyze this code unit using bottom-up reading:
+  (let* ((function-name (which-function))
+         (class-name (aider--get-class-at-point))
+         (region-active (region-active-p))
+         (file-name (when buffer-file-name (file-name-nondirectory buffer-file-name)))
+         (dir-name (when buffer-file-name (file-name-directory buffer-file-name)))
+         (context-description (cond
+                              (region-active "selected region")
+                              (function-name (format "function '%s'" function-name))
+                              (class-name (format "class '%s'" class-name))
+                              (file-name (format "file '%s'" file-name))
+                              (t "current context")))
+         (reading-techniques
+          `(("Analyze Code Unit (Bottom-up)" . 
+             ,(if region-active 'aider--analyze-code-unit-region 'aider--analyze-code-unit))
+            ("Analyze Program Structure (Top-down)" . aider--analyze-program-structure)
+            ,@(when function-name 
+                '(("Analyze Dependencies (Cross-reference)" . aider--analyze-dependencies)))
+            ("Identify Patterns (Pattern Recognition)" . aider--identify-patterns)
+            ,@(when class-name
+                '(("Analyze Class (OOP Analysis)" . aider--analyze-class)))
+            ("Analyze File (File-level)" . aider--analyze-file)
+            ("Analyze Module (Architectural)" . aider--analyze-module)))
+         (technique-names (mapcar #'car reading-techniques))
+         (prompt (format "Select reading technique for %s: " context-description))
+         (selected-technique (completing-read prompt technique-names nil t))
+         (technique-function (cdr (assoc selected-technique reading-techniques))))
+    (if technique-function
+        (if (eq technique-function 'aider--analyze-code-unit-region)
+            (funcall technique-function)
+          (funcall technique-function))
+      (message "No valid reading technique selected."))))
+
+(defun aider--analyze-code-unit ()
+  "Analyze current function using bottom-up reading technique."
+  (if-let ((function-name (which-function)))
+      (let* ((initial-prompt 
+              (format "Analyze function '%s' using bottom-up reading approach. 
+Explain its basic operations, data structures, and control flow." function-name))
+             (user-input (aider-read-string "Enter analysis instructions: " initial-prompt)))
+        (aider--send-command (format "/ask %s" user-input) t))
+    (message "No function at point.")))
+
+(defun aider--analyze-code-unit-region ()
+  "Analyze selected region using bottom-up reading technique."
+  (let* ((region-text (buffer-substring-no-properties (region-beginning) (region-end)))
+         (initial-prompt
+          "Analyze this code unit using bottom-up reading:
 1. Identify basic operations and control structures
 2. Explain data structures used
 3. Document function calls and their purposes
 4. Summarize the overall logic")
-             (user-input (aider-read-string "Enter analysis instructions: " initial-prompt)))
-        (aider--send-command (format "/ask %s\n\nCode:\n%s" user-input region-text) t))
-    (if-let ((function-name (which-function)))
-        (let* ((initial-prompt 
-                (format "Analyze function '%s' using bottom-up reading approach. 
-Explain its basic operations, data structures, and control flow." function-name))
-               (user-input (aider-read-string "Enter analysis instructions: " initial-prompt)))
-          (aider--send-command (format "/ask %s" user-input) t))
-      (message "No function or region selected."))))
+         (user-input (aider-read-string "Enter analysis instructions: " initial-prompt)))
+    (aider--send-command (format "/ask %s\n\nCode:\n%s" user-input region-text) t)))
 
-(defun aider-analyze-program-structure ()
+(defun aider--analyze-program-structure ()
   "Analyze code structure using top-down reading technique."
-  (interactive)
   (let* ((initial-prompt 
           "Please analyze this code using top-down reading:
 1. Identify main components and their relationships
@@ -50,9 +87,8 @@ Explain its basic operations, data structures, and control flow." function-name)
     (aider-add-current-file)
     (aider--send-command (format "/ask %s" user-input) t)))
 
-(defun aider-analyze-dependencies ()
+(defun aider--analyze-dependencies ()
   "Analyze code dependencies following cross-reference technique."
-  (interactive)
   (if-let ((function-name (which-function)))
       (let* ((initial-prompt 
               (format "For function '%s', please:
@@ -66,9 +102,8 @@ Explain its basic operations, data structures, and control flow." function-name)
         (aider--send-command (format "/ask %s" user-input) t))
     (message "No function at point.")))
 
-(defun aider-identify-patterns ()
+(defun aider--identify-patterns ()
   "Identify common patterns in code following pattern recognition approach."
-  (interactive)
   (let* ((initial-prompt
           "Please identify and explain:
 1. Common design patterns used
@@ -80,9 +115,8 @@ Explain its basic operations, data structures, and control flow." function-name)
     (aider-add-current-file)
     (aider--send-command (format "/ask %s" user-input) t)))
 
-(defun aider-analyze-class ()
+(defun aider--analyze-class ()
   "Analyze class definition using OOP analysis technique."
-  (interactive)
   (if-let ((class-name (aider--get-class-at-point)))
       (let* ((initial-prompt 
               (format "Analyze class '%s' using OOP perspective:
@@ -98,9 +132,8 @@ Explain its basic operations, data structures, and control flow." function-name)
         (aider--send-command (format "/ask %s" user-input) t))
     (message "No class definition at point.")))
 
-(defun aider-analyze-file ()
+(defun aider--analyze-file ()
   "Analyze current file using file-level reading technique."
-  (interactive)
   (let* ((file-name (buffer-file-name))
          (initial-prompt 
           (format "Analyze file '%s' using file-level perspective:
@@ -116,9 +149,8 @@ Explain its basic operations, data structures, and control flow." function-name)
     (aider-add-current-file)
     (aider--send-command (format "/ask %s" user-input) t)))
 
-(defun aider-analyze-module ()
+(defun aider--analyze-module ()
   "Analyze current directory/module using architectural reading technique."
-  (interactive)
   (let* ((dir-name (file-name-directory (buffer-file-name)))
          (initial-prompt 
           (format "Analyze module in directory '%s' using architectural perspective:
@@ -142,28 +174,6 @@ Explain its basic operations, data structures, and control flow." function-name)
     (let ((case-fold-search nil))
       (when (re-search-backward "\\<\\(class\\|interface\\|trait\\)\\s-+\\([A-Za-z0-9_]+\\)" nil t)
         (match-string-no-properties 2)))))
-
-;; Check if "Code Reading" section exists in the menu
-(defun aider-code-read--has-section-p ()
-  "Check if Code Reading section already exists in aider-transient-menu."
-  (let ((layout (get 'aider-transient-menu 'transient--layout)))
-    (cl-some (lambda (item)
-               (and (listp item)
-                    (equal (car item) "Code Reading")))
-             layout)))
-
-;; Add the Code Reading section if it doesn't exist
-(with-eval-after-load 'aider
-  (unless (aider-code-read--has-section-p)
-    (transient-append-suffix 'aider-transient-menu '(0)
-      '["Code Reading"
-        ("R" "Analyze Code Unit" aider-analyze-code-unit)
-        ("S" "Analyze Program Structure" aider-analyze-program-structure)
-        ("D" "Dependency Analysis for Function" aider-analyze-dependencies)
-        ("P" "Pattern Recognition" aider-identify-patterns)
-        ("C" "Analyze Class" aider-analyze-class)
-        ("F" "Analyze File" aider-analyze-file)
-        ("M" "Analyze Module" aider-analyze-module)])))
 
 (provide 'aider-code-read)
 
