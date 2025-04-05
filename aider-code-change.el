@@ -283,6 +283,68 @@ Works across different programming languages."
     (aider--send-command command t)
     (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique)))
 
+;;;###autoload
+(defun aider-tdd-cycle ()
+  "Guide through Test Driven Development cycle (Red-Green-Refactor).
+Helps users follow Kent Beck's TDD methodology with AI assistance.
+Works with both source code and test files that have been added to aider."
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (is-test-file (and current-file 
+                           (string-match-p "\\(test\\|spec\\)" 
+                                          (file-name-nondirectory current-file))))
+         (function-name (which-function))
+         (cycle-stage (completing-read 
+                       "Select TDD stage: " 
+                       '("1. Red (Write failing test)" 
+                         "2. Green (Make test pass)" 
+                         "3. Refactor (Improve code quality)")
+                       nil t))
+         (stage-num (string-to-number (substring cycle-stage 0 1))))
+    (cond
+     ;; Red stage - write failing test
+     ((= stage-num 1)
+      (let* ((initial-input 
+              (if function-name 
+                  (format "Write a failing test for function '%s': " function-name)
+                "Write a failing test for this feature: "))
+             (feature-desc (aider-read-string "Describe the feature to test: " initial-input))
+             (tdd-instructions 
+              (format "%s Follow TDD principles - write only the test now, not the implementation. The test should fail when run because the functionality doesn't exist yet."
+                      feature-desc)))
+        (aider-current-file-command-and-switch "/architect " tdd-instructions)))
+     ;; Green stage - make test pass
+     ((= stage-num 2)
+      (let* ((initial-input
+              (if function-name
+                  (format "Implement function '%s' with minimal code to make tests pass: " function-name)
+                "Implement the minimal code needed to make the failing test pass: "))
+             (implementation-desc (aider-read-string "Implementation instruction: " initial-input))
+             (tdd-instructions 
+              (format "%s Follow TDD principles - implement only the minimal code needed to make the test pass. Don't over-engineer or implement features not required by the test."
+                      implementation-desc)))
+        (aider-current-file-command-and-switch "/architect " tdd-instructions)))
+     ;; Refactor stage
+     ((= stage-num 3)
+      (let* ((context-desc (if function-name
+                              (format "in function '%s'" function-name)
+                            "in this code"))
+             (initial-input (format "Refactor the code %s while ensuring all tests continue to pass: " context-desc))
+             (refactoring-suggestions
+              (list
+               (format "Improve naming of variables and functions %s" context-desc)
+               (format "Extract duplicated code into helper methods %s" context-desc)
+               (format "Simplify complex conditionals %s" context-desc)
+               (format "Improve code organization and structure %s" context-desc)))
+             (refactor-desc (aider-read-string 
+                            "Describe the refactoring needed: " 
+                            initial-input
+                            refactoring-suggestions))
+             (tdd-instructions 
+              (format "%s Follow TDD principles - improve code quality without changing behavior. Ensure all tests still pass after refactoring."
+                      refactor-desc)))
+        (aider-current-file-command-and-switch "/architect " tdd-instructions))))))
+
 (provide 'aider-code-change)
 
 ;;; aider-code-change.el ends here
