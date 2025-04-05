@@ -10,8 +10,7 @@
 
 ;;; Code:
 
-(require 'aider)
-(require 'transient)
+(require 'aider-core)
 
 ;;;###autoload
 (defun aider-code-read ()
