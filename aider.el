@@ -43,7 +43,7 @@
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
-                                  "gemini"  ;; SOTA at 2025-03-25
+                                  "gemini-exp"  ;; SOTA at 2025-03-25
                                   "deepseek"  ;; low price, pretty good performance
                                   )
   "List of available AI models for selection.
