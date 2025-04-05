@@ -165,6 +165,26 @@ Explain its basic operations, data structures, and control flow." function-name)
     (aider-add-same-type-files-under-dir)
     (aider--send-command (format "/ask %s" user-input) t)))
 
+(defun aider-add-same-type-files-under-dir ()
+  "Add all files with same suffix as current file under current directory to Aider.
+If there are more than 40 files, refuse to add and show warning message."
+  (interactive)
+  (if (not buffer-file-name)
+      (message "Current buffer is not visiting a file")
+    (let* ((current-suffix (file-name-extension buffer-file-name))
+           (dir (file-name-directory buffer-file-name))
+           (max-files 40)
+           (files (directory-files dir t
+                                   (concat "\\." current-suffix "$")
+                                   t))) ; t means don't include . and ..
+      (if (> (length files) max-files)
+          (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
+                   (length files) max-files current-suffix)
+        (let ((command (concat "/add " (mapconcat #'identity files " "))))
+          (aider--send-command command t))
+        (message "Added %d files with suffix .%s"
+                 (length files) current-suffix)))))
+
 (defun aider--get-class-at-point ()
   "Get the class name at point. Support multiple programming languages."
   (save-excursion
