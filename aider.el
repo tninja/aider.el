@@ -38,6 +38,7 @@
 (require 'aider-file)
 (require 'aider-code-change)
 (require 'aider-discussion)
+(require 'aider-agile)  ; Load agile related functions
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
