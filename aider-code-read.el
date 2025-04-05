@@ -1,10 +1,8 @@
 ;;; aider-code-read.el --- Code reading enhancement for aider.el -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.1.0
-;; Package-Requires: ((emacs "26.1") (aider "0.2.0"))
-;; Keywords: convenience, tools
-;; URL: https://github.com/tninja/aider-code-read.el
+
+;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
 ;; This package enhances aider.el with code reading techniques from
