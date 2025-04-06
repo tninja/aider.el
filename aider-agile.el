@@ -9,7 +9,8 @@
 
 ;;; Code:
 
-(require 'aider-core)  ; Ensure core dependency
+(require 'aider-core)
+(require 'aider-file)
 
 ;;;###autoload
 (defun aider-refactor-book-method ()
@@ -99,12 +100,11 @@ Works across different programming languages."
                                          prompt-with-params))
          (final-instruction (aider-read-string "Edit refactoring instruction: " initial-final-instruction))
          (command (if region-active
-                     (format "/architect \"%s\n\nSelected code:\n%s\""
+                     (format "\"%s\n\nSelected code:\n%s\""
                              final-instruction
                              region-text)
-                   (format "/architect \"%s\"" final-instruction))))
-    (aider-add-current-file)
-    (aider--send-command command t)
+                   (format "\"%s\"" final-instruction))))
+    (aider-current-file-command-and-switch "/architect " command)
     (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique)))
 
 ;;;###autoload

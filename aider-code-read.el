@@ -11,6 +11,7 @@
 ;;; Code:
 
 (require 'aider-core)
+(require 'aider-file)
 
 ;;;###autoload
 (defun aider-code-read ()
