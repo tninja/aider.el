@@ -55,11 +55,13 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
     ;; Add to history if non-empty and save
     (unless (string-empty-p input)
       (push input history)
+      (setq history (mapcar #'substring-no-properties history))
       (with-temp-file history-file
         (let ((history-entries (cl-subseq history
                                           0 (min (length history)
                                                  10000))))  ; Keep last 10000 entries
-          (insert (prin1-to-string history-entries)))))
+          (insert (let ((print-circle nil))
+                    (prin1-to-string history-entries))))))
     input))
 
 (defun aider-helm-read-string (prompt &optional initial-input candidate-list)
