@@ -34,7 +34,7 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
          (rest-history (when (and history (not (null history)))
                          (cdr history)))
          ;; Combine completion list: most recent + candidates + separator + rest of history
-         (completion-list 
+         (completion-list
           (append
            ;; If most recent item exists, put it at the top
            (when most-recent
