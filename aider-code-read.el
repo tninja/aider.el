@@ -81,8 +81,7 @@ Explain its basic operations, data structures, and control flow." function-name)
 4. Highlight important design patterns used
 5. Map the control flow between major components")
          (user-input (aider-read-string "Enter structure analysis instructions: " initial-prompt)))
-    (aider-add-current-file)
-    (aider--send-command (format "/ask %s" user-input) t)))
+    (aider-current-file-command-and-switch "/ask" user-input)))
 
 (defun aider--analyze-dependencies ()
   "Analyze code dependencies following cross-reference technique."
