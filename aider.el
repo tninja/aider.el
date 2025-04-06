@@ -24,8 +24,9 @@
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Reuse prompts easily, fuzzy search with helm.
 ;; - Organize project with repo specific Aider prompt file
-;; - More Focus on code quality tool (Code Review, TDD + AI).
+;; - More Focus on code quality tool (Code Review, Agile + AI).
 ;; - Snippets for community prompts.
+;; - Less configurations, simplified menu.
 
 ;;; Code:
 
