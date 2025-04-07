@@ -1,4 +1,4 @@
-;;; aider-legacy.el --- Legacy code handling for Aider -*- lexical-binding: t; -*-
+;;; aider-legacy-code.el --- Legacy code handling for Aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; SPDX-License-Identifier: Apache-2.0
@@ -14,7 +14,7 @@
 (require 'which-func)
 
 ;;;###autoload
-(defun aider-legacy ()
+(defun aider-legacy-code ()
   "Apply legacy code techniques from 'Working Effectively with Legacy Code'.
 Provides a selection of different techniques for working with legacy code
 based on the current context."
@@ -27,20 +27,20 @@ based on the current context."
                               (function-name (format "function '%s'" function-name))
                               (t "current context")))
          (legacy-techniques
-          `(("Identify Seams" . aider--legacy-identify-seams)
-            ("Generate Characterization Tests" . aider--legacy-characterization-test)
-            ("Break Dependencies" . aider--legacy-break-dependencies)
-            ("Sprout Method" . aider--legacy-sprout-method)
-            ("Wrap Method" . aider--legacy-wrap-method)
-            ("Sprout Class" . aider--legacy-sprout-class)
-            ("Wrap Class" . aider--legacy-wrap-class)
-            ("Sensing Variable" . aider--legacy-sensing-variable)
-            ("Extract and Override Call" . aider--legacy-extract-and-override-call)
-            ("Extract and Override Getter" . aider--legacy-extract-and-override-getter)
-            ("Replace Function with Function Pointer" . aider--legacy-replace-function-with-function-pointer)
-            ("Adapt Parameter" . aider--legacy-adapt-parameter)
-            ("Introduce Instance Delegator" . aider--legacy-introduce-instance-delegator)
-            ("Analyze Change Points" . aider--legacy-analyze-change-points)))
+          `(("Identify Seams" . aider--legacy-code-identify-seams)
+            ("Generate Characterization Tests" . aider--legacy-code-characterization-test)
+            ("Break Dependencies" . aider--legacy-code-break-dependencies)
+            ("Sprout Method" . aider--legacy-code-sprout-method)
+            ("Wrap Method" . aider--legacy-code-wrap-method)
+            ("Sprout Class" . aider--legacy-code-sprout-class)
+            ("Wrap Class" . aider--legacy-code-wrap-class)
+            ("Sensing Variable" . aider--legacy-code-sensing-variable)
+            ("Extract and Override Call" . aider--legacy-code-extract-and-override-call)
+            ("Extract and Override Getter" . aider--legacy-code-extract-and-override-getter)
+            ("Replace Function with Function Pointer" . aider--legacy-code-replace-function-with-function-pointer)
+            ("Adapt Parameter" . aider--legacy-code-adapt-parameter)
+            ("Introduce Instance Delegator" . aider--legacy-code-introduce-instance-delegator)
+            ("Analyze Change Points" . aider--legacy-code-analyze-change-points)))
          (technique-names (mapcar #'car legacy-techniques))
          (prompt (format "Select legacy code technique for %s: " context-description))
          (selected-technique (completing-read prompt technique-names nil t))
@@ -49,7 +49,7 @@ based on the current context."
         (funcall technique-function)
       (message "No valid legacy code technique selected."))))
 
-(defun aider--legacy-identify-seams ()
+(defun aider--legacy-code-identify-seams ()
   "Identify seams in the current code where behavior can be changed without editing.
 A seam is a place where you can alter behavior in your program without editing in that place.
 This function helps identify potential seams in legacy code to make it more testable."
@@ -71,7 +71,7 @@ This function helps identify potential seams in legacy code to make it more test
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-characterization-test ()
+(defun aider--legacy-code-characterization-test ()
   "Generate characterization tests for the current code.
 Characterization tests document existing behavior without making judgments about correctness.
 This is essential for safely refactoring legacy code."
@@ -92,7 +92,7 @@ This is essential for safely refactoring legacy code."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-break-dependencies ()
+(defun aider--legacy-code-break-dependencies ()
   "Apply techniques to break dependencies in legacy code.
 Offers various dependency-breaking techniques from 'Working Effectively with Legacy Code'
 to make the code more testable."
@@ -127,7 +127,7 @@ to make the code more testable."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-sprout-method ()
+(defun aider--legacy-code-sprout-method ()
   "Apply the Sprout Method technique to add new functionality.
 Creates a new method for the new functionality to minimize changes to existing code."
   (let* ((function-name (which-function))
@@ -152,7 +152,7 @@ Creates a new method for the new functionality to minimize changes to existing c
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-wrap-method ()
+(defun aider--legacy-code-wrap-method ()
   "Apply the Wrap Method technique to modify existing behavior.
 Wraps an existing method to add behavior before/after it without changing the original."
   (let* ((function-name (which-function))
@@ -173,7 +173,7 @@ Wraps an existing method to add behavior before/after it without changing the or
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-sprout-class ()
+(defun aider--legacy-code-sprout-class ()
   "Apply the Sprout Class technique to add new functionality.
 Creates a new class for the new functionality to minimize changes to existing code."
   (let* ((class-name (aider-read-string "Name for the new class: "))
@@ -186,7 +186,7 @@ Creates a new class for the new functionality to minimize changes to existing co
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-wrap-class ()
+(defun aider--legacy-code-wrap-class ()
   "Apply the Wrap Class technique to modify existing behavior.
 Creates a wrapper class that delegates to the original class while adding new behavior."
   (let* ((original-class (aider-read-string "Original class to wrap: "))
@@ -201,7 +201,7 @@ Creates a wrapper class that delegates to the original class while adding new be
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-sensing-variable ()
+(defun aider--legacy-code-sensing-variable ()
   "Apply the Sensing Variable technique to expose internal state for testing.
 Adds mechanisms to expose variables that would otherwise be hidden."
   (let* ((function-name (which-function))
@@ -224,7 +224,7 @@ Adds mechanisms to expose variables that would otherwise be hidden."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-extract-and-override-call ()
+(defun aider--legacy-code-extract-and-override-call ()
   "Apply the Extract and Override Call technique to replace problematic method calls.
 Extracts method calls to make them overridable for testing."
   (let* ((function-name (which-function))
@@ -249,7 +249,7 @@ Extracts method calls to make them overridable for testing."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-extract-and-override-getter ()
+(defun aider--legacy-code-extract-and-override-getter ()
   "Apply the Extract and Override Getter technique for testing.
 Extracts field access into getter methods to allow overriding in tests."
   (let* ((function-name (which-function))
@@ -276,7 +276,7 @@ Extracts field access into getter methods to allow overriding in tests."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-replace-function-with-function-pointer ()
+(defun aider--legacy-code-replace-function-with-function-pointer ()
   "Apply the Replace Function with Function Pointer technique.
 Useful in C/C++ code to make static functions testable by replacing them with function pointers."
   (let* ((function-name (which-function))
@@ -289,7 +289,7 @@ Useful in C/C++ code to make static functions testable by replacing them with fu
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-adapt-parameter ()
+(defun aider--legacy-code-adapt-parameter ()
   "Apply the Adapt Parameter technique to handle dependencies.
 Creates an adapter for a parameter to make the code more testable."
   (let* ((function-name (which-function))
@@ -314,7 +314,7 @@ Creates an adapter for a parameter to make the code more testable."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-introduce-instance-delegator ()
+(defun aider--legacy-code-introduce-instance-delegator ()
   "Apply the Introduce Instance Delegator technique.
 Converts static method calls to instance method calls for better testability."
   (let* ((function-name (which-function))
@@ -329,7 +329,7 @@ Converts static method calls to instance method calls for better testability."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(defun aider--legacy-analyze-change-points ()
+(defun aider--legacy-code-analyze-change-points ()
   "Analyze change points in legacy code to identify safe modification areas.
 Helps identify where changes can be made with minimal risk."
   (let* ((function-name (which-function))
@@ -352,5 +352,5 @@ Helps identify where changes can be made with minimal risk."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-(provide 'aider-legacy)
-;;; aider-legacy.el ends here
+(provide 'aider-legacy-code)
+;;; aider-legacy-code.el ends here
