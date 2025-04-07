@@ -41,6 +41,7 @@
 (require 'aider-discussion)
 (require 'aider-agile)
 (require 'aider-code-read)
+(require 'aider-legacy-code)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
@@ -99,7 +100,8 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("U" "Write Unit Test" aider-write-unit-test)
     ("R" "Refactor Code" aider-refactor-book-method)
     ("T" "Test Driven Development" aider-tdd-cycle)
-    ("c" "Direct Code Change" aider-code-change)
+    ("l" "Work with Legacy Code" aider-legacy-code)
+    ;; ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
     ("q" "Question on Function/Region" aider-ask-question)
