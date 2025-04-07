@@ -5,6 +5,9 @@
 
 - ~aider-run-aider~ in dired, eshell, or shell buffer will ask if user wants to add `--subtree-only` flag
 - Introduce AI assisted TDD, ~aider-tdd-cycle~, an experimental feature.
+- Use gemini-exp in aider-popular-models, as well as README example, since it is still free at 2025-04-05
+- Introduce AI assisted code reading functions, based on "Code Reading: The Open Source Perspective" by Diomidis Spinellis
+- Extract aider-refactor-book-method and aider-tdd-cycle into a dedicate file aider-agile.el
 
 ** v0.6.0
 

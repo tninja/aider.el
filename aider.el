@@ -24,8 +24,9 @@
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Reuse prompts easily, fuzzy search with helm.
 ;; - Organize project with repo specific Aider prompt file
-;; - More Focus on code quality tool (Code Review, TDD + AI).
+;; - More Focus on code quality tool (Code Review, Agile + AI).
 ;; - Snippets for community prompts.
+;; - Less configurations, simplified menu.
 
 ;;; Code:
 
@@ -38,10 +39,12 @@
 (require 'aider-file)
 (require 'aider-code-change)
 (require 'aider-discussion)
+(require 'aider-agile)
+(require 'aider-code-read)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
-                                  "gemini"  ;; SOTA at 2025-03-25
+                                  "gemini-exp"  ;; SOTA at 2025-03-25
                                   "deepseek"  ;; low price, pretty good performance
                                   )
   "List of available AI models for selection.
@@ -102,6 +105,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("q" "Question on Function/Region" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
+    ("d" "Code Reading" aider-code-read)
     ("e" "Debug Exception" aider-debug-exception)
     ("H" "Help (C-u: homepage)" aider-help)
     ]
