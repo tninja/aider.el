@@ -1,7 +1,7 @@
 
 * Release history
 
-** main branch change
+** v0.7.0
 
 - ~aider-run-aider~ in dired, eshell, or shell buffer will ask if user wants to add `--subtree-only` flag
 - Introduce AI assisted TDD, ~aider-tdd-cycle~, an experimental feature.
