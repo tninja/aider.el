@@ -41,7 +41,6 @@
 (require 'aider-discussion)
 (require 'aider-agile)
 (require 'aider-code-read)
-(require 'aider-ddd)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
@@ -109,20 +108,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("d" "Code Reading" aider-code-read)
     ("e" "Debug Exception" aider-debug-exception)
     ("H" "Help (C-u: homepage)" aider-help)
-    ]
-   ["Domain-Driven Design"
-    ("Dm" "Analyze Domain Model" aider-ddd-analyze-domain-model)
-    ("De" "Refactor to Entity" aider-ddd-refactor-to-entity)
-    ("Dv" "Refactor to Value Object" aider-ddd-refactor-to-value-object)
-    ("Da" "Create Aggregate" aider-ddd-create-aggregate)
-    ("Dr" "Design Repository" aider-ddd-design-repository)
-    ("Db" "Identify Bounded Contexts" aider-ddd-identify-bounded-contexts)
-    ("Ds" "Extract Domain Service" aider-ddd-extract-domain-service)
-    ("Dd" "Design Domain Event" aider-ddd-design-domain-event)
-    ("Dp" "Refactor to Specification" aider-ddd-refactor-to-specification)
-    ("Du" "Manage Ubiquitous Language" aider-ddd-manage-ubiquitous-language)
-    ("Dw" "Strategic Design Workshop" aider-ddd-strategic-design-workshop)
-    ("Dt" "Tactical Patterns Review" aider-ddd-tactical-patterns-review)
     ]
    ])
 
