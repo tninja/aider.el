@@ -14,7 +14,42 @@
 (require 'which-func)
 
 ;;;###autoload
-(defun aider-legacy-identify-seams ()
+(defun aider-legacy ()
+  "Apply legacy code techniques from 'Working Effectively with Legacy Code'.
+Provides a selection of different techniques for working with legacy code
+based on the current context."
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (region-text (when region-active
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (context-description (cond
+                              (region-active "selected region")
+                              (function-name (format "function '%s'" function-name))
+                              (t "current context")))
+         (legacy-techniques
+          `(("Identify Seams" . aider--legacy-identify-seams)
+            ("Generate Characterization Tests" . aider--legacy-characterization-test)
+            ("Break Dependencies" . aider--legacy-break-dependencies)
+            ("Sprout Method" . aider--legacy-sprout-method)
+            ("Wrap Method" . aider--legacy-wrap-method)
+            ("Sprout Class" . aider--legacy-sprout-class)
+            ("Wrap Class" . aider--legacy-wrap-class)
+            ("Sensing Variable" . aider--legacy-sensing-variable)
+            ("Extract and Override Call" . aider--legacy-extract-and-override-call)
+            ("Extract and Override Getter" . aider--legacy-extract-and-override-getter)
+            ("Replace Function with Function Pointer" . aider--legacy-replace-function-with-function-pointer)
+            ("Adapt Parameter" . aider--legacy-adapt-parameter)
+            ("Introduce Instance Delegator" . aider--legacy-introduce-instance-delegator)
+            ("Analyze Change Points" . aider--legacy-analyze-change-points)))
+         (technique-names (mapcar #'car legacy-techniques))
+         (prompt (format "Select legacy code technique for %s: " context-description))
+         (selected-technique (completing-read prompt technique-names nil t))
+         (technique-function (cdr (assoc selected-technique legacy-techniques))))
+    (if technique-function
+        (funcall technique-function)
+      (message "No valid legacy code technique selected."))))
+
+(defun aider--legacy-identify-seams ()
   "Identify seams in the current code where behavior can be changed without editing.
 A seam is a place where you can alter behavior in your program without editing in that place.
 This function helps identify potential seams in legacy code to make it more testable."
@@ -36,12 +71,10 @@ This function helps identify potential seams in legacy code to make it more test
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-characterization-test ()
+(defun aider--legacy-characterization-test ()
   "Generate characterization tests for the current code.
 Characterization tests document existing behavior without making judgments about correctness.
 This is essential for safely refactoring legacy code."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -59,12 +92,10 @@ This is essential for safely refactoring legacy code."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-break-dependencies ()
+(defun aider--legacy-break-dependencies ()
   "Apply techniques to break dependencies in legacy code.
 Offers various dependency-breaking techniques from 'Working Effectively with Legacy Code'
 to make the code more testable."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -96,11 +127,9 @@ to make the code more testable."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-sprout-method ()
+(defun aider--legacy-sprout-method ()
   "Apply the Sprout Method technique to add new functionality.
 Creates a new method for the new functionality to minimize changes to existing code."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -123,11 +152,9 @@ Creates a new method for the new functionality to minimize changes to existing c
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-wrap-method ()
+(defun aider--legacy-wrap-method ()
   "Apply the Wrap Method technique to modify existing behavior.
 Wraps an existing method to add behavior before/after it without changing the original."
-  (interactive)
   (let* ((function-name (which-function))
          (method-to-wrap (or function-name
                             (aider-read-string "Method to wrap: ")))
@@ -146,11 +173,9 @@ Wraps an existing method to add behavior before/after it without changing the or
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-sprout-class ()
+(defun aider--legacy-sprout-class ()
   "Apply the Sprout Class technique to add new functionality.
 Creates a new class for the new functionality to minimize changes to existing code."
-  (interactive)
   (let* ((class-name (aider-read-string "Name for the new class: "))
          (new-functionality (aider-read-string "Describe the functionality for the new class: "))
          (initial-prompt (format "Apply the Sprout Class technique to create a new class named '%s' that implements this functionality: %s. Design the class to work with the existing code with minimal changes to the original code."
@@ -161,11 +186,9 @@ Creates a new class for the new functionality to minimize changes to existing co
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-wrap-class ()
+(defun aider--legacy-wrap-class ()
   "Apply the Wrap Class technique to modify existing behavior.
 Creates a wrapper class that delegates to the original class while adding new behavior."
-  (interactive)
   (let* ((original-class (aider-read-string "Original class to wrap: "))
          (wrapper-class-name (aider-read-string "Name for the wrapper class: "))
          (new-behavior (aider-read-string "Describe the new behavior to add: "))
@@ -178,11 +201,9 @@ Creates a wrapper class that delegates to the original class while adding new be
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-sensing-variable ()
+(defun aider--legacy-sensing-variable ()
   "Apply the Sensing Variable technique to expose internal state for testing.
 Adds mechanisms to expose variables that would otherwise be hidden."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -203,11 +224,9 @@ Adds mechanisms to expose variables that would otherwise be hidden."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-extract-and-override-call ()
+(defun aider--legacy-extract-and-override-call ()
   "Apply the Extract and Override Call technique to replace problematic method calls.
 Extracts method calls to make them overridable for testing."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -230,11 +249,9 @@ Extracts method calls to make them overridable for testing."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-extract-and-override-getter ()
+(defun aider--legacy-extract-and-override-getter ()
   "Apply the Extract and Override Getter technique for testing.
 Extracts field access into getter methods to allow overriding in tests."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -259,11 +276,9 @@ Extracts field access into getter methods to allow overriding in tests."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-replace-function-with-function-pointer ()
+(defun aider--legacy-replace-function-with-function-pointer ()
   "Apply the Replace Function with Function Pointer technique.
 Useful in C/C++ code to make static functions testable by replacing them with function pointers."
-  (interactive)
   (let* ((function-name (which-function))
          (function-to-replace (or function-name
                                  (aider-read-string "Function to replace with pointer: ")))
@@ -274,11 +289,9 @@ Useful in C/C++ code to make static functions testable by replacing them with fu
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-adapt-parameter ()
+(defun aider--legacy-adapt-parameter ()
   "Apply the Adapt Parameter technique to handle dependencies.
 Creates an adapter for a parameter to make the code more testable."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -301,11 +314,9 @@ Creates an adapter for a parameter to make the code more testable."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-introduce-instance-delegator ()
+(defun aider--legacy-introduce-instance-delegator ()
   "Apply the Introduce Instance Delegator technique.
 Converts static method calls to instance method calls for better testability."
-  (interactive)
   (let* ((function-name (which-function))
          (static-method (or function-name
                            (aider-read-string "Static method to convert: ")))
@@ -318,11 +329,9 @@ Converts static method calls to instance method calls for better testability."
     (aider-add-current-file)
     (aider--send-command command t)))
 
-;;;###autoload
-(defun aider-legacy-analyze-change-points ()
+(defun aider--legacy-analyze-change-points ()
   "Analyze change points in legacy code to identify safe modification areas.
 Helps identify where changes can be made with minimal risk."
-  (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
