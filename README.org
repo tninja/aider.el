@@ -40,7 +40,7 @@
   
 - Integrating context (buffer / things under cursor / region) with aider, semi-automatically build up prompt. easy search / reuse previous prompt with helm
   
-- Menu items for AI-assistant programming workflow. Agile development methods to reduce potential AI introduced error
+- Menu items for AI-assistant programming workflow. AI assisted Agile development methods. AI assisted Code reading
   
 - Aider prompt file to organize relative large code change task, and make it reproducible. Interacting with aider session from it following ESS way. Yasnippet support to reuse good prompts from community.
 
@@ -321,10 +321,11 @@ Otherwise, You can have helm-based completion with run the following code, after
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
   - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [/]
+- More thinking on improving code quality tool such as unit-test [3/3]
   - [X] Code refactoring functions
-  - [ ] TDD functions
-  - [ ] Code reading functions 
+  - [X] TDD functions
+  - [X] Code reading functions 
+  - [ ] Legacy code support
 - More thinking on how to simplify the menu / commands
 
 ** Code quality
