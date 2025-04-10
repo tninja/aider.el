@@ -76,7 +76,7 @@
 If you have Straight installed
 #+BEGIN_SRC emacs-lisp
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
+    :straight (:host github :repo "tninja/aider.el")
     :config
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
@@ -127,7 +127,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 - Add the following code to your doom/packages.el
 
 #+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el")))
+(package! aider :recipe (:host github :repo "tninja/aider.el" ))
 #+END_SRC
 
 - Adjust and add the following code to your doom/config.el
@@ -154,12 +154,7 @@ Helm enables fuzzy searching functionality for command history prompts. Since it
 
 If you used installed aider.el through melpa and package-install, just neecd to ~(require 'aider-helm)~
 
-Otherwise, You can have helm-based completion with run the following code, after install helm library:
-
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el" "aider-helm.el")))
-#+END_SRC
+Otherwise, You can have helm-based completion with run the following code, after install helm library.
 
 * Most used features (integrated into the aider menu)
 
