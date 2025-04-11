@@ -14,7 +14,9 @@
 ;; using AI models (Claude, ChatGPT, even local ones!) to help you. It
 ;; can suggest improvements, squash bugs, or even write whole new
 ;; sections of code. Boost your coding with AI, without ever leaving
-;; your Emacs comfort zone.
+;; your Emacs comfort zone. The package also supports AI-assisted Agile
+;; development workflows and AI-assisted code reading to help you understand
+;; complex codebases faster and more thoroughly.
 ;;
 ;; In-editor Aider experience:
 ;; - Manages Aider sessions per Git repo.
