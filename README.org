@@ -154,8 +154,6 @@ Helm enables fuzzy searching functionality for command history prompts. Since it
 
 If you used installed aider.el through melpa and package-install, just neecd to ~(require 'aider-helm)~
 
-Otherwise, You can have helm-based completion with run the following code, after install helm library.
-
 * Most used features (integrated into the aider menu)
 
 *** Aider session management

@@ -71,7 +71,7 @@
 如果您已安装 Straight
 #+BEGIN_SRC emacs-lisp
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
+    :straight (:host github :repo "tninja/aider.el")
     :config
     ;; 对于最新的 claude sonnet 模型
     (setq aider-args '("--model" "sonnet"))
@@ -119,7 +119,7 @@
 - 将以下代码添加到您的 doom/packages.el
 
 #+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el")))
+(package! aider :recipe (:host github :repo "tninja/aider.el"))
 #+END_SRC
 
 - 调整并将以下代码添加到您的 doom/config.el
@@ -147,13 +147,6 @@ aider 前缀是 ~A~。
 Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使用之前写过的提示，这可能会节省大量输入时间。*如果您可以接受 helm，强烈推荐这个插件*。
 
 如果您通过 melpa 和 package-install 安装了 aider.el，只需要 ~(require 'aider-helm)~
-
-否则，安装 helm 库后，您可以通过运行以下代码获得基于 helm 的补全：
-
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el" "aider-helm.el")))
-#+END_SRC
 
 * 最常用功能（已集成到aider菜单中）
 
