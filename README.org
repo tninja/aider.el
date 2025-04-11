@@ -40,9 +40,11 @@
   
 - Integrating context (buffer / things under cursor / region) with aider, semi-automatically build up prompt. easy search / reuse previous prompt with helm
   
-- Menu items for AI-assistant programming workflow. Agile development methods to reduce potential AI introduced error
+- Menu items for AI-assistant programming workflow. AI assisted Agile development methods. AI assisted Code reading
   
 - Aider prompt file to organize relative large code change task, and make it reproducible. Interacting with aider session from it following ESS way. Yasnippet support to reuse good prompts from community.
+
+- AI assisted Code reading tools based on classic book
 
 ** Cons: aider session in comint is not fancy
 
@@ -53,15 +55,6 @@
 - *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
   - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
-
-** Alternatives to aidermacs
-
-- More Focus on build prompts using your code (buffer/selection).
-- Reuse prompts easily, fuzzy search with helm.
-- Organize project with repo specific Aider prompt file
-- More Focus on code quality tool (Code Review, Agile development + AI).
-- Snippets for community prompts.
-- Simplified menu, only keep essential tools
 
 * Installation
 
@@ -76,7 +69,7 @@
 If you have Straight installed
 #+BEGIN_SRC emacs-lisp
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el"))
+    :straight (:host github :repo "tninja/aider.el")
     :config
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
@@ -85,7 +78,7 @@ If you have Straight installed
     ;; (setq aider-args '("--model" "o3-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
     ;; Or gemini model
-    ;; (setq aider-args '("--model" "gemini"))
+    ;; (setq aider-args '("--model" "gemini-exp"))
     ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or use your personal config file
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
@@ -127,7 +120,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 - Add the following code to your doom/packages.el
 
 #+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el")))
+(package! aider :recipe (:host github :repo "tninja/aider.el" ))
 #+END_SRC
 
 - Adjust and add the following code to your doom/config.el
@@ -153,13 +146,6 @@ The aider prefix is ~A~.
 Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is highly recommended if you are OK with helm*.
 
 If you used installed aider.el through melpa and package-install, just neecd to ~(require 'aider-helm)~
-
-Otherwise, You can have helm-based completion with run the following code, after install helm library:
-
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :straight (:host github :repo "tninja/aider.el" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el" "aider-doom.el" "aider-helm.el")))
-#+END_SRC
 
 * Most used features (integrated into the aider menu)
 
@@ -244,7 +230,7 @@ Otherwise, You can have helm-based completion with run the following code, after
   - The AI generated test need to be manually checked / fixed. But generally test code is easier to understand.
   - Running the unit-tests can help verifying the correctness / identifying the bug of code. It also help developer better understanding how the AI generated code work, and it can give developer more confidence on the new code.
 
-** A [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]]-style AI programming workflow
+** A weak [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] style AI programming workflow
 
 1. **Implement or modify code**:
    - For existing code: Use ~aider-function-or-region-refactor~ with cursor in function or on selected region
@@ -276,6 +262,8 @@ Otherwise, You can have helm-based completion with run the following code, after
 3. **Refine code and tests**: Further refactor as needed using additional prompts or manual adjustments. ~aider-refactor-book-method~ have couple of refactoring techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]]
 
 4. Goto 1
+
+- Alternatively, if you prefer strong TDD practice, you might want to try ~aider-tdd-cycle~, it will follow red-green-refactor cycle.
 
 * FAQ
 
@@ -319,10 +307,11 @@ Otherwise, You can have helm-based completion with run the following code, after
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
   - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [/]
+- More thinking on improving code quality tool such as unit-test [3/3]
   - [X] Code refactoring functions
-  - [ ] TDD functions
-  - [ ] Code reading functions 
+  - [X] TDD functions
+  - [X] Code reading functions 
+  - [ ] Legacy code support
 - More thinking on how to simplify the menu / commands
 
 ** Code quality

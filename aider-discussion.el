@@ -29,6 +29,7 @@ Focuses on understanding, analyzing, improving the selected code or function."
                   (region-active "Question for the selected region: ")
                   (t "Question: ")))
          (candidate-list '("What is your suggestion on the most important thing to do"
+                          "Carefully review this file and suggest improvements"
                           "What does this code do? Explain the logic of this code step by step"
                           "What are the inputs and outputs of this code?"
                           "Are there any edge cases not handled in this code?"

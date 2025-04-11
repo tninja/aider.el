@@ -1,9 +1,9 @@
 ;;; aider.el --- Interact with Aider: AI pair programming made simple -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.6.0
+;; Version: 0.7.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5"))
-;; Keywords: convenience, tools
+;; Keywords: agent ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding 
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
 
@@ -14,7 +14,9 @@
 ;; using AI models (Claude, ChatGPT, even local ones!) to help you. It
 ;; can suggest improvements, squash bugs, or even write whole new
 ;; sections of code. Boost your coding with AI, without ever leaving
-;; your Emacs comfort zone.
+;; your Emacs comfort zone. The package also supports AI-assisted Agile
+;; development workflows and AI-assisted code reading to help you understand
+;; complex codebases faster and more thoroughly.
 ;;
 ;; In-editor Aider experience:
 ;; - Manages Aider sessions per Git repo.
@@ -24,8 +26,9 @@
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Reuse prompts easily, fuzzy search with helm.
 ;; - Organize project with repo specific Aider prompt file
-;; - More Focus on code quality tool (Code Review, TDD + AI).
+;; - More Focus on code quality tool (Code Review, Agile + AI).
 ;; - Snippets for community prompts.
+;; - Less configurations, simplified menu.
 
 ;;; Code:
 
@@ -38,10 +41,13 @@
 (require 'aider-file)
 (require 'aider-code-change)
 (require 'aider-discussion)
+(require 'aider-agile)
+(require 'aider-code-read)
+(require 'aider-legacy-code)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o3-mini" ;; very powerful. good for difficult task
-                                  "gemini"  ;; SOTA at 2025-03-25
+                                  "gemini-exp"  ;; SOTA at 2025-03-25
                                   "deepseek"  ;; low price, pretty good performance
                                   )
   "List of available AI models for selection.
@@ -95,12 +101,15 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("t" "Architect Discuss/Change" aider-architect-discussion)
     ("U" "Write Unit Test" aider-write-unit-test)
     ("R" "Refactor Code" aider-refactor-book-method)
-    ("c" "Direct Code Change" aider-code-change)
+    ("T" "Test Driven Development" aider-tdd-cycle)
+    ("l" "Work with Legacy Code" aider-legacy-code)
+    ;; ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
     ("q" "Question on Function/Region" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
+    ("d" "Code Reading" aider-code-read)
     ("e" "Debug Exception" aider-debug-exception)
     ("H" "Help (C-u: homepage)" aider-help)
     ]
