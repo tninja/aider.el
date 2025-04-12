@@ -5,14 +5,12 @@
 * Table of Contents
 
 - [[#introduction][Introduction]]
-  - [[#pros-ui-context-awareness-ai-pair-programming][Pros: UI, Context Awareness AI Pair Programming]]
-  - [[#cons-aider-session-in-comint-is-not-fancy][Cons: aider session in comint is not fancy]]
-  - [[#alternatives-to-aidermacs][Alternatives to aidermacs]]
 - [[#installation][Installation]]
   - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
   - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
   - [[#optional][Optional]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
+- [[#pros-and-cons][Pros and Cons]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 - [[#faq][FAQ]]
 - [[#future-work][Future work]]
@@ -29,32 +27,6 @@
   - aider.el aim to be a stable productivity tool we can use daily. I will carefully test the Features / Functions in this library before code merging.
 
 - [[./HISTORY.org][Recent change history]]
-
-** Pros: UI, Context Awareness AI Pair Programming
-
-- Pop-up Menu (~aider-transient-menu~)
-
-[[file:./transient_menu.png]]
-
-- Git repository-specific Aider session management
-  
-- Integrating context (buffer / things under cursor / region) with aider, semi-automatically build up prompt. easy search / reuse previous prompt with helm
-  
-- Menu items for AI-assistant programming workflow. AI assisted Agile development methods. AI assisted Code reading
-  
-- Aider prompt file to organize relative large code change task, and make it reproducible. Interacting with aider session from it following ESS way. Yasnippet support to reuse good prompts from community.
-
-- AI assisted Code reading tools based on classic book
-
-** Cons: aider session in comint is not fancy
-
-- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
-  - *color rendering markdown-mode.el is applied and largely improved this*.
-  - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
-
-- *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
-  - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
-  - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
 
 * Installation
 
@@ -215,6 +187,34 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 - / key to trigger aider command completion
 - file path completion will be triggered automatically after certain command
 - use TAB key to enter prompt from mini-buffer, or helm with completion
+
+* Pros and Cons 
+** Pros: UI, Context Awareness AI Pair Programming
+
+- Pop-up Menu (~aider-transient-menu~)
+
+[[file:./transient_menu.png]]
+
+- Git repository-specific Aider session management
+  
+- Integrating context (buffer / things under cursor / region) with aider, semi-automatically build up prompt. easy search / reuse previous prompt with helm
+  
+- Menu items for AI-assistant programming workflow. AI assisted Agile development methods. AI assisted Code reading
+  
+- Aider prompt file to organize relative large code change task, and make it reproducible. Interacting with aider session from it following ESS way. Yasnippet support to reuse good prompts from community.
+
+- AI assisted Code reading tools based on classic book
+
+** Cons: aider session in comint is not fancy
+
+- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
+  - *color rendering markdown-mode.el is applied and largely improved this*.
+  - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
+
+- *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
+  - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
+  - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
+
 
 * Be careful about AI generated code
 
