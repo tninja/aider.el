@@ -8,7 +8,7 @@
 - [[#installation][Installation]]
   - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
   - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
-  - [[#optional][Optional]]
+  - [[#helm-support][Helm Support]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
 - [[#pros-and-cons][Pros and Cons]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
