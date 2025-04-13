@@ -301,6 +301,8 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - 如何自定义 aider-comint-mode 的提示和输入颜色？
   - Spike-Leung 说 [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][为其添加钩子会有帮助]]
 
+# fill the chinese version of section: Methods from classic books, from README.org. Update TOC as well
+
 * TODO 未来工作
 
 ** 功能
