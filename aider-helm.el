@@ -52,8 +52,8 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
                  :name "Helm Read String, Use C-c C-y to edit selected command. C-b and C-f to move cursor during editing"
                  :fuzzy t
                  :initial-input initial-input)))
-    ;; Add to history if non-empty and save
-    (unless (string-empty-p input)
+    ;; Add to history if non-empty, single-line and save
+    (unless (or (string-empty-p input) (string-match "\n" input))
       (push input history)
       (setq history (mapcar #'substring-no-properties history))
       (with-temp-file history-file
