@@ -181,11 +181,11 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
   (interactive)
   (let* ((git-root (magit-toplevel))
          ;; Ensure we're in a git repo
-         (_ (unless git-root
-              (user-error "Not in a git repository")))
+         (git-repo-error (unless git-root
+                           (user-error "Not in a git repository")))
          ;; Fetch from all remotes to ensure we have the latest branches
-         (_ (message "Fetching from all remotes to ensure latest branches...")
-            (magit-run-git "fetch" "--all"))
+         (git-fetch-all (progn (message "Fetching from all remotes to ensure latest branches...")
+                               (magit-run-git "fetch" "--all")))
          (raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
          (range (string-trim raw-range))
          ;; Check if it's a commit hash by verifying:
@@ -209,7 +209,6 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (diff-file (if is-commit-hash
                          (concat git-root range ".diff")
                        (concat git-root base-branch "." feature-branch ".diff"))))
-    
     ;; Verify branches exist (for non-commit-hash cases)
     (unless is-commit-hash
       ;; Check base branch
@@ -217,14 +216,12 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
                   (magit-branch-p (concat "origin/" base-branch))
                   (magit-rev-verify base-branch))
         (user-error "Base branch '%s' not found locally or in remotes" base-branch))
-      
       ;; Check feature branch if it's not HEAD
       (when (and (not (string= feature-branch "HEAD"))
                  (not (magit-branch-p feature-branch))
                  (not (magit-branch-p (concat "origin/" feature-branch)))
                  (not (magit-rev-verify feature-branch)))
         (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
-    
     ;; Display message about what we're doing
     (cond
      (is-commit-hash
@@ -233,12 +230,10 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
       (message "Generating diff between branches: %s..%s" base-branch feature-branch))
      (t
       (message "Generating diff between %s and HEAD" base-branch)))
-    
     ;; Check if repo is clean
     (when (magit-anything-modified-p)
       (message "Repository has uncommitted changes. You might want to commit or stash them first")
       (sleep-for 1))
-    
     ;; Store current branch to return to it
     (let ((original-branch (magit-get-current-branch)))
       ;; Git operations
@@ -251,12 +246,10 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
           (message "Checking out %s..." feature-branch)
           (magit-run-git "checkout" feature-branch)
           (magit-run-git "checkout" original-branch))) ; Return to original branch
-      
       ;; Generate diff file
       (message "Generating diff file...")
       (magit-run-git "diff" (concat base-branch ".." feature-branch)
                      (concat "--output=" diff-file))
-      
       ;; Open diff file
       (find-file diff-file)
       (message "Generated diff file: %s" diff-file))))
