@@ -29,6 +29,8 @@
 
 - [[./HISTORY.org][Recent change history]]
 
+[[file:./transient_menu.png]]
+
 * Installation
 
 - Emacs need to be >= 26.1
@@ -193,8 +195,6 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 ** Pros: UI, Context Awareness AI Pair Programming
 
 - Pop-up Menu (~aider-transient-menu~)
-
-[[file:./transient_menu.png]]
 
 - Git repository-specific Aider session management
   

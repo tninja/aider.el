@@ -29,6 +29,8 @@
 
 - [[./HISTORY.org][最近的变更历史]]
 
+[[file:./transient_menu.png]]
+
 * 安装
 
 - Emacs 需要 >= 26.1
@@ -195,8 +197,6 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 ** 优点：用户界面、上下文感知 AI 结对编程
 
 - 弹出菜单 (~aider-transient-menu~)
-
-[[file:./transient_menu.png]]
 
 - 针对 Git 仓库的专属 Aider 会话管理
 
