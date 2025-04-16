@@ -36,9 +36,15 @@ based on the current context."
             ("Sensing Variable" . aider--legacy-code-sensing-variable)
             ("Extract and Override Call" . aider--legacy-code-extract-and-override-call)
             ("Extract and Override Getter" . aider--legacy-code-extract-and-override-getter)
+            ("Extract and Override Setter" . aider--legacy-code-extract-and-override-setter) ; New
+            ("Extract and Override Factory Method" . aider--legacy-code-extract-override-factory-method) ; New
+            ("Introduce Static Setter" . aider--legacy-code-introduce-static-setter) ; New
             ("Replace Function with Function Pointer" . aider--legacy-code-replace-function-with-function-pointer)
             ("Adapt Parameter" . aider--legacy-code-adapt-parameter)
             ("Introduce Instance Delegator" . aider--legacy-code-introduce-instance-delegator)
+            ("Encapsulate Global References" . aider--legacy-code-encapsulate-global-references) ; New
+            ("Introduce Null Object Pattern" . aider--legacy-code-introduce-null-object) ; New
+            ("Replace Conditional with Polymorphism" . aider--legacy-code-replace-conditional-polymorphism) ; New
             ("Analyze Change Points" . aider--legacy-code-analyze-change-points)))
          (technique-names (mapcar #'car legacy-techniques))
          (prompt (format "Select legacy code technique for %s: " context-description))
@@ -350,6 +356,134 @@ Helps identify where changes can be made with minimal risk."
                    (format "/architect \"%s\"" user-prompt))))
     (aider-add-current-file)
     (aider--send-command command t)))
+
+(defun aider--legacy-code-extract-and-override-setter ()
+  "Apply the Extract and Override Setter technique for testing.
+Extracts field modification into setter methods to allow overriding in tests."
+  (interactive)
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (region-text (when region-active
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (context-description (cond
+                              (region-active "in the selected code")
+                              (function-name (format "in function '%s'" function-name))
+                              (t "in the current file")))
+         (field-name (aider-read-string "Field to extract setter for: "))
+         (setter-name (aider-read-string (format "Name for the setter method (default: set%s): "
+                                               (capitalize field-name))
+                                       (format "set%s" (capitalize field-name))))
+         (initial-prompt (format "Apply the Extract and Override Setter technique %s to extract modification of the field '%s' into a setter method named '%s'. Replace all direct field modifications with calls to this setter method. This allows overriding the setter in tests."
+                               context-description
+                               field-name
+                               setter-name))
+         (user-prompt (aider-read-string "Extract and Override Setter instruction: " initial-prompt))
+         (command (if region-active
+                     (format "/architect \"Apply the Extract and Override Setter technique from 'Working Effectively with Legacy Code': %s\n\n```\n%s\n```\""
+                             user-prompt region-text)
+                   (format "/architect \"%s\"" user-prompt))))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+(defun aider--legacy-code-extract-override-factory-method ()
+  "Apply the Extract and Override Factory Method technique.
+Extracts object creation logic into a separate method (factory method)
+that can be overridden in tests to provide mock or fake objects."
+  (interactive)
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (region-text (when region-active
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (context-description (cond
+                              (region-active "in the selected code")
+                              (function-name (format "in function '%s'" function-name))
+                              (t "in the current file")))
+         (creation-call (aider-read-string "Object creation call to extract (e.g., new MyClass()): "))
+         (factory-method-name (aider-read-string "Name for the new factory method: " "createMyClass")) ; Suggest a default
+         (initial-prompt (format "Apply the Extract and Override Factory Method technique %s. Extract the creation logic '%s' into a new protected/virtual method named '%s'. Replace the original creation call with a call to this new factory method. This allows subclasses to override the factory method for testing."
+                               context-description
+                               creation-call
+                               factory-method-name))
+         (user-prompt (aider-read-string "Extract/Override Factory Method instruction: " initial-prompt))
+         (command (if region-active
+                     (format "/architect \"Apply the Extract/Override Factory Method technique from 'Working Effectively with Legacy Code': %s\n\n```\n%s\n```\""
+                             user-prompt region-text)
+                   (format "/architect \"%s\"" user-prompt))))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+(defun aider--legacy-code-introduce-static-setter ()
+  "Apply the Introduce Static Setter technique for testing.
+Adds a static setter method to allow tests to replace static dependencies."
+  (interactive)
+  (let* ((static-variable (aider-read-string "Static variable or dependency to control: "))
+         (class-name (aider-read-string "Class containing the static member: "))
+         (setter-name (aider-read-string (format "Name for the static setter method (e.g., set%sForTesting): " (capitalize static-variable))
+                                       (format "set%sForTesting" (capitalize static-variable))))
+         (initial-prompt (format "Apply the Introduce Static Setter technique to class '%s' for the static member '%s'. Add a static setter method named '%s' (potentially with test-only visibility if possible in the language) that allows replacing or setting the static dependency during tests."
+                               class-name
+                               static-variable
+                               setter-name))
+         (user-prompt (aider-read-string "Introduce Static Setter instruction: " initial-prompt))
+         (command (format "/architect \"%s\"" user-prompt)))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+(defun aider--legacy-code-encapsulate-global-references ()
+  "Apply the Encapsulate Global References technique.
+Groups related global variables or external dependencies into a single class or structure."
+  (interactive)
+  (let* ((globals-list (aider-read-string "List the global variables/references to encapsulate (comma-separated): "))
+         (encapsulating-class (aider-read-string "Name for the new encapsulating class/structure: "))
+         (initial-prompt (format "Apply the Encapsulate Global References technique. Create a new class/structure named '%s' to encapsulate the following global references: %s. Replace direct access to these globals with access through an instance of the new class/structure. Provide a way to inject or replace this instance for testing."
+                               encapsulating-class
+                               globals-list))
+         (user-prompt (aider-read-string "Encapsulate Global References instruction: " initial-prompt))
+         (command (format "/architect \"%s\"" user-prompt)))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+(defun aider--legacy-code-introduce-null-object ()
+  "Apply the Introduce Null Object pattern.
+Replaces conditional checks for null/nil with a Null Object that provides default do-nothing behavior."
+  (interactive)
+  (let* ((class-name (aider-read-string "Class for which to introduce a Null Object: "))
+         (null-object-class-name (aider-read-string "Name for the Null Object class: " (format "Null%s" class-name)))
+         (initial-prompt (format "Apply the Introduce Null Object pattern for the class '%s'. Create a Null Object class named '%s' that implements the same interface as '%s' but provides default (e.g., do-nothing) behavior. Modify the code to use an instance of '%s' instead of null/nil checks where appropriate."
+                               class-name
+                               null-object-class-name
+                               class-name
+                               null-object-class-name))
+         (user-prompt (aider-read-string "Introduce Null Object instruction: " initial-prompt))
+         (command (format "/architect \"%s\"" user-prompt)))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+(defun aider--legacy-code-replace-conditional-polymorphism ()
+  "Apply the Replace Conditional with Polymorphism refactoring.
+Replaces complex conditional logic (e.g., switch statements, if/else chains based on type)
+with polymorphic method calls."
+  (interactive)
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (region-text (when region-active
+                        (buffer-substring-no-properties (region-beginning) (region-end))))
+         (context-description (cond
+                              (region-active "in the selected code")
+                              (function-name (format "in function '%s'" function-name))
+                              (t "in the current file")))
+         (conditional-description (aider-read-string "Describe the conditional logic to replace (e.g., 'switch on type code', 'if/else checking status'): "))
+         (initial-prompt (format "Apply the Replace Conditional with Polymorphism refactoring %s. Identify the conditional logic related to '%s'. Introduce a class hierarchy or use existing polymorphism to replace the conditional checks with polymorphic method calls. Define the necessary interface/base class and subclasses."
+                               context-description
+                               conditional-description))
+         (user-prompt (aider-read-string "Replace Conditional/Polymorphism instruction: " initial-prompt))
+         (command (if region-active
+                     (format "/architect \"Apply the Replace Conditional with Polymorphism refactoring from 'Working Effectively with Legacy Code': %s\n\n```\n%s\n```\""
+                             user-prompt region-text)
+                   (format "/architect \"%s\"" user-prompt))))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
 
 (provide 'aider-legacy-code)
 ;;; aider-legacy-code.el ends here
