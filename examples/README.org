@@ -7,7 +7,7 @@ Two games were written with the assistance of aider / aider.el
   - 1.5h to iterate and add human vs. computer mode
     - using Claude model
   - 1h to have a better AI
-    - using OpenAI o3-mini model
+    - using OpenAI o4-mini model
 - [[./connect4][connect4]] - https://en.wikipedia.org/wiki/Connect_Four
   - 0.5h to write the game with basic human vs. computer mode
   - 0.5h to iterate the AI and make it more effective

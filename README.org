@@ -50,7 +50,7 @@ If you have Straight installed
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or chatgpt model
-    ;; (setq aider-args '("--model" "o3-mini"))
+    ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
     ;; Or gemini model
     ;; (setq aider-args '("--model" "gemini-exp"))
