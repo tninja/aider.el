@@ -44,19 +44,24 @@ This is the file name without path."
   "Send text to the Aider buffer.
 If universal argument (C-u) is provided, send the current paragraph line by line.
 If region is active, send the selected region line by line.
-Otherwise, send the line under cursor."
+Otherwise, send the line under cursor.
+After sending, return cursor to the original buffer."
   (interactive "P")
-  (cond
-   ;; If universal argument is provided, send paragraph by line
-   (arg
-    (aider-send-block-by-line))
-   ;; If region is active, send region by line
-   ((region-active-p)
-    (aider-send-region-by-line))
-   ;; Otherwise, send current line
-   (t
-    (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) t)))))
+  (let ((orig-buffer (current-buffer)))  ; Store the original buffer
+    (cond
+     ;; If universal argument is provided, send paragraph by line
+     (arg
+      (aider-send-block-by-line))
+     ;; If region is active, send region by line
+     ((region-active-p)
+      (aider-send-region-by-line))
+     ;; Otherwise, send current line
+     (t
+      (let ((line (thing-at-point 'line t)))
+        (aider--send-command (string-trim line) t))))
+    ;; Return to the original buffer
+    (when (buffer-live-p orig-buffer)
+      (pop-to-buffer orig-buffer))))
 
 (defun aider--extract-filename-from-command (command-str)
   "Extract filename from COMMAND-STR if it matches an aider command pattern.
