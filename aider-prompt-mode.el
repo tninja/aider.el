@@ -102,20 +102,25 @@ Uses `mark-paragraph` to select the current paragraph, then sends it by line."
 
 ;;;###autoload
 (defun aider-send-block-or-region ()
-  "Send the block or selected region to aider as a single prompt."
+  "Send the block or selected region to aider as a single prompt.
+After sending, return cursor to the original buffer."
   (interactive)
-  (if (region-active-p)
-      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
-        (unless (string-empty-p region-text)
-          (aider--send-command region-text t)))
-    (save-excursion                     ; preserve cursor position
-      (let ((region-text
-             (progn
-               (mark-paragraph)         ; mark paragraph
-               (buffer-substring-no-properties (region-beginning) (region-end)))))
-        (unless (string-empty-p region-text)
-          (aider--send-command region-text t))
-        (deactivate-mark)))))  ; deactivate mark after sending
+  (let ((orig-buffer (current-buffer)))  ; Store the original buffer
+    (if (region-active-p)
+        (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+          (unless (string-empty-p region-text)
+            (aider--send-command region-text t)))
+      (save-excursion                     ; preserve cursor position
+        (let ((region-text
+               (progn
+                 (mark-paragraph)         ; mark paragraph
+                 (buffer-substring-no-properties (region-beginning) (region-end)))))
+          (unless (string-empty-p region-text)
+            (aider--send-command region-text t))
+          (deactivate-mark))))  ; deactivate mark after sending
+    ;; Return to the original buffer
+    (when (buffer-live-p orig-buffer)
+      (pop-to-buffer orig-buffer))))
 
 ;;;###autoload
 (defun aider-open-prompt-file ()
