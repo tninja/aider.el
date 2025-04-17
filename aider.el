@@ -46,7 +46,7 @@
 (require 'aider-legacy-code)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
-                                  "o3-mini" ;; very powerful. good for difficult task
+                                  "o4-mini" ;; very powerful. good for difficult task
                                   "gemini-exp"  ;; SOTA at 2025-03-25
                                   "deepseek"  ;; low price, pretty good performance
                                   )

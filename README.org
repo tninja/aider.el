@@ -10,10 +10,10 @@
   - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
   - [[#helm-support][Helm Support]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
+- [[#methods-from-classic-books][Methods from classic books]]
 - [[#pros-and-cons][Pros and Cons]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 - [[#faq][FAQ]]
-- [[#methods-from-classic-books][Methods from classic books]]
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
 
@@ -28,6 +28,8 @@
   - aider.el aim to be a stable productivity tool we can use daily. I will carefully test the Features / Functions in this library before code merging.
 
 - [[./HISTORY.org][Recent change history]]
+
+[[file:./transient_menu.png]]
 
 * Installation
 
@@ -48,7 +50,7 @@ If you have Straight installed
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or chatgpt model
-    ;; (setq aider-args '("--model" "o3-mini"))
+    ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
     ;; Or gemini model
     ;; (setq aider-args '("--model" "gemini-exp"))
@@ -189,12 +191,21 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 - file path completion will be triggered automatically after certain command
 - use TAB key to enter prompt from mini-buffer, or helm with completion
 
+* Methods from classic books
+
+** AI assisted Agile development
+
+- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Refactoring: Improving the Design of Existing Code, by  Martin Fowler]]: ~aider-refactor-book-method~
+- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][Test Driven Development: By Example, by Kent Beck]]: ~aider-tdd-cycle~
+- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][Working Effectively with Legacy Code, by Michael Feathers]]: ~aider-legacy-code~
+
+** AI assisted Code reading
+
+- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
 * Pros and Cons 
 ** Pros: UI, Context Awareness AI Pair Programming
 
 - Pop-up Menu (~aider-transient-menu~)
-
-[[file:./transient_menu.png]]
 
 - Git repository-specific Aider session management
   
@@ -215,7 +226,6 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 - *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
   - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
   - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
-
 
 * Be careful about AI generated code
 
@@ -300,18 +310,6 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 - How to customize the aider-comint-mode prompt and input color?
   - Spike-Leung said [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][add hook to it will help]]
 
-* Methods from classic books
-
-** AI assisted Agile development
-
-- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Refactoring: Improving the Design of Existing Code, by  Martin Fowler]]: ~aider-refactor-book-method~
-- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][Test Driven Development: By Example, by Kent Beck]]: ~aider-tdd-cycle~
-- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][Working Effectively with Legacy Code, by Michael Feathers]]: ~aider-legacy-code~
-
-** AI assisted Code reading
-
-- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
-
 * TODO Future work
 
 ** Feature
@@ -320,11 +318,11 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
   - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [3/3]
+- More thinking on improving code quality tool such as unit-test [4/4]
   - [X] Code refactoring functions
   - [X] TDD functions
   - [X] Code reading functions 
-  - [ ] Legacy code support
+  - [X] Legacy code support
 - More thinking on how to simplify the menu / commands
 
 ** Code quality

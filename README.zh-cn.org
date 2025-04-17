@@ -10,10 +10,10 @@
   - [[#doom-安装和配置][Doom 安装和配置]]
   - [[#Helm-支持][Helm 支持]]
 - [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
+- [[#经典书籍中的方法][经典书籍中的方法]]
 - [[#优点和缺点][优点和缺点]]
 - [[#注意ai生成的代码][注意AI生成的代码]]
 - [[#常见问题][常见问题]]
-- [[#经典书籍中的方法][经典书籍中的方法]]
 - [[#未来工作][未来工作]]
 - [[#其他-emacs-ai-编码工具][其他 Emacs AI 编码工具]]
 
@@ -28,6 +28,8 @@
   - aider.el 旨在成为我们可以日常使用的稳定生产力工具。我会在代码合并前仔细测试此库中的功能。
 
 - [[./HISTORY.org][最近的变更历史]]
+
+[[file:./transient_menu.png]]
 
 * 安装
 
@@ -48,7 +50,7 @@
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; 或 chatgpt 模型
-    ;; (setq aider-args '("--model" "o3-mini"))
+    ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
     ;; 或 gemini 模型
     ;; (setq aider-args '("--model" "gemini-exp"))
@@ -191,12 +193,21 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - 文件路径补全会在某些命令后自动触发
 - 使用 TAB 键从迷你缓冲区输入提示，或使用带补全的 helm
 
+* 经典书籍中的方法
+
+** AI 辅助敏捷开发
+
+- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][重构：改善既有代码的设计，作者 Martin Fowler]]: ~aider-refactor-book-method~
+- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][测试驱动开发：实例，作者 Kent Beck]]: ~aider-tdd-cycle~
+- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][修改代码的艺术，作者 Michael Feathers]]: ~aider-legacy-code~
+
+** AI 辅助代码阅读
+
+- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]]: ~aider-code-read~
 * 优点和缺点
 ** 优点：用户界面、上下文感知 AI 结对编程
 
 - 弹出菜单 (~aider-transient-menu~)
-
-[[file:./transient_menu.png]]
 
 - 针对 Git 仓库的专属 Aider 会话管理
 
@@ -217,7 +228,6 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - *通常，直接通过 comint 终端与 Aider 进行大量交互并不有利。* 相反，由于 comint 终端与 emacs 的其他部分集成良好，建议生成提示并将其发送到终端，可以从以下任一方式进行：
   - 直接从代码缓冲区通过 _aider 代码更改相关命令_ 或 _提问相关命令_。这样可以减少上下文切换，并有助于构建提示，减少手动输入。
   - Aider 提示文件（~aider-open-prompt-file~，~C-c a p~）。这是 emacs 中与 comint 缓冲区通信的传统方式（就像 ESS、python-mode、scala-mode 等）。它便于重新访问您使用过的命令，组织和管理需要更多提示的大型代码更改，并将它们分解为子任务（因为它是 org 格式），并且它便于多行提示。最近，为该文件添加了语法高亮、补全和代码片段，现在它是编写和组织提示的好地方。
-
 
 * 注意AI生成的代码
 
@@ -301,18 +311,6 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 - 如何自定义 aider-comint-mode 的提示和输入颜色？
   - Spike-Leung 说 [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][为其添加钩子会有帮助]]
-
-* 经典书籍中的方法
-
-** AI 辅助敏捷开发
-
-- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][重构：改善既有代码的设计，作者 Martin Fowler]]: ~aider-refactor-book-method~
-- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][测试驱动开发：实例，作者 Kent Beck]]: ~aider-tdd-cycle~
-- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][修改代码的艺术，作者 Michael Feathers]]: ~aider-legacy-code~
-
-** AI 辅助代码阅读
-
-- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]]: ~aider-code-read~
 
 * TODO 未来工作
 
