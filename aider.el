@@ -1,7 +1,7 @@
 ;;; aider.el --- Interact with Aider: AI pair programming made simple -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.7.0
+;; Version: 0.8.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5"))
 ;; Keywords: agent ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding 
 ;; URL: https://github.com/tninja/aider.el
@@ -46,7 +46,7 @@
 (require 'aider-legacy-code)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
-                                  "o3-mini" ;; very powerful. good for difficult task
+                                  "o4-mini" ;; very powerful. good for difficult task
                                   "gemini-exp"  ;; SOTA at 2025-03-25
                                   "deepseek"  ;; low price, pretty good performance
                                   )

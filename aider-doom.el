@@ -40,12 +40,14 @@
                     :desc "Architect discussion" "t" #'aider-architect-discussion
                     :desc "Write unit test" "U" #'aider-write-unit-test
                     :desc "Refactor code" "R" #'aider-refactor-book-method
-                    :desc "Direct code change" "c" #'aider-code-change)
+                    :desc "Test Driven Development" "T" #'aider-tdd-cycle
+                    :desc "Work with Legacy Code" "l" #'aider-legacy-code)
 
                    (:prefix ("d" . "Discuss")
                     :desc "Ask question" "q" #'aider-ask-question
                     :desc "Go ahead" "y" #'aider-go-ahead
                     :desc "General question" "Q" #'aider-general-question
+                    :desc "Code Reading" "d" #'aider-code-read
                     :desc "Debug exception" "e" #'aider-debug-exception
                     :desc "Help" "H" #'aider-help)
 

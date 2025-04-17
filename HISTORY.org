@@ -1,6 +1,13 @@
 
 * Release history
 
+** v0.8.0
+
+- Fix the installation command in README.org, provided by magthe.
+- Introduce aider-legacy-code.el, it provides legacy code handling techniques based on Michael Feathers' "Working Effectively with Legacy Code" for the Aider package.
+- Re-organize README to make it easier to read.
+- Fix the bug in aider--analyze-program-structure, provided by EdmondFrank.
+
 ** v0.7.0
 
 - ~aider-run-aider~ in dired, eshell, or shell buffer will ask if user wants to add `--subtree-only` flag

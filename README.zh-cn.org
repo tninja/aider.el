@@ -5,14 +5,13 @@
 * 目录
 
 - [[#介绍][介绍]]
-  - [[#优点-用户界面上下文感知ai结对编程][优点：用户界面、上下文感知、AI结对编程]]
-  - [[#缺点-comint中的aider会话不够fancy][缺点：comint中的aider会话不够fancy]]
-  - [[#相比aidermacs, aider.el的特点][相比aidermacs, aider.el的特点]]
 - [[#安装][安装]]
   - [[#原生-emacs-安装][原生 Emacs 安装]]
   - [[#doom-安装和配置][Doom 安装和配置]]
-  - [[#可选功能][可选功能]]
+  - [[#Helm-支持][Helm 支持]]
 - [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
+- [[#经典书籍中的方法][经典书籍中的方法]]
+- [[#优点和缺点][优点和缺点]]
 - [[#注意ai生成的代码][注意AI生成的代码]]
 - [[#常见问题][常见问题]]
 - [[#未来工作][未来工作]]
@@ -28,35 +27,9 @@
   - 本仓库中的大部分 Elisp 代码都是由 Aider 或 aider.el 生成的。
   - aider.el 旨在成为我们可以日常使用的稳定生产力工具。我会在代码合并前仔细测试此库中的功能。
 
-** 优点：友好的用户界面、出色的上下文感知能力以及强大的 AI 结对编程支持
-
-- 弹出菜单 (~aider-transient-menu~)
+- [[./HISTORY.org][最近的变更历史]]
 
 [[file:./transient_menu.png]]
-
-- 针对 Git 仓库的专属 Aider 会话管理
-  
-- 将代码上下文（例如缓冲区、光标下的内容或选区）与 aider 整合，实现半自动提示构建，并借助 helm 轻松搜索和重用历史提示
-  
-- 为 AI 辅助编程工作流提供专用菜单项，并支持 TDD 循环，从而降低 AI 生成代码可能带来的错误风险
-
-** 缺点：基于 comint 的 aider 会话功能尚不够丰富
-
-- 当前实现通过 comint 托管 aider 会话，这种经典的 CLI 交互方式虽然稳定，但最初并未包含代码块颜色渲染、文件跟踪等高级功能。
-  - *现已采用 markdown-mode.el 的语法高亮，大大改善了这一局限*。
-  - 缺乏文件跟踪功能，导致 aider.el 无法执行 [[https://aider.chat/docs/usage/watch.html#ai-comments][AI 注释]]。*为解决此问题，我们提供了 ~aider-implement-todo~ 命令，该命令默认在光标所在处就地实现注释中的需求*。
-
-- 实际上，直接通过 comint 终端进行大量交互并非最佳选择。建议采用以下方式生成并发送提示，以减少上下文切换并降低手动输入量：
-  - 在代码缓冲区中使用相关的代码更改命令或提问命令；
-  - 或者通过 Aider 提示文件（调用命令 ~aider-open-prompt-file~ 或 ~C-c a p~）来组织和管理提示。这是 Emacs 中与 comint 缓冲区通信的传统方式（就像 ESS、python-mode、scala-mode 等）。它便于重新访问您使用过的命令，组织和管理需要更多提示的大型代码更改，并将它们分解为子任务（因为它是 org 格式），并且它便于多行提示。最近，为该文件添加了语法高亮、补全和代码片段，现在它是编写和组织提示的好地方。
-
-** 相比aidermacs, aider.el的特点
-
-- 更侧重于利用代码（缓冲区/选区）构建提示。
-- 更容易重用提示，并通过 helm 进行模糊搜索。
-- 使用特定于仓库的 Aider 提示文件来组织项目
-- 更侧重于代码质量工具（代码审查、TDD + AI）。
-- 社区提示的代码片段。
 
 * 安装
 
@@ -74,11 +47,14 @@
     :straight (:host github :repo "tninja/aider.el")
     :config
     ;; 对于最新的 claude sonnet 模型
-    (setq aider-args '("--model" "sonnet"))
+    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; 或 chatgpt 模型
-    ;; (setq aider-args '("--model" "o3-mini"))
+    ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+    ;; 或 gemini 模型
+    ;; (setq aider-args '("--model" "gemini-exp"))
+    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; 或使用您的个人配置文件
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
@@ -139,7 +115,7 @@ aider 前缀是 ~A~。
 
 - *然而，更推荐使用临时菜单而不是 doom 菜单*，因为我经常使用临时菜单，所以它得到了更好的维护。
   - 任何想为 doom 菜单做贡献的人，欢迎帮助改进。谢谢。
- 
+
 ** 可选功能
 
 *** Helm 支持
@@ -155,6 +131,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
     - Git 仓库识别基于当前文件的路径
     - 可以同时为不同的 Git 仓库运行多个 Aider 会话
     - 当使用通用参数（~C-u~）调用时，将提示用户更改此会话的 ~aider-args~ 内容。
+    - 当在 dired、eshell 或 shell 缓冲区中运行时，它会询问您是否要添加 [[https://aider.chat/docs/config/options.html#--subtree-only][--subtree-only 标志]]，该标志仅考虑该目录中的文件，以使其更快
   - aider-switch-to-buffer :: 切换到 Aider 缓冲区。
     - 在菜单中使用 ~^~ 可以在当前框架内的其他窗口中切换打开 aider 会话，或为 aider 会话打开专用框架。当有多个显示器时，这很有用，一个框架/显示器用于保存代码的多个缓冲区，另一个框架/显示器保存 aider 会话。
 
@@ -165,11 +142,12 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 *** 编写代码
   - aider-function-or-region-refactor :: 如果选择了区域，要求 Aider 重构所选区域。否则，要求 Aider 更改/重构光标下的函数。
-  - aider-implement-todo :: 在当前上下文中实现注释中的需求。
+    - 当您使用 aider-helm.el 时，会提供几个常用的提示
+  - aider-implement-todo :: 在当前上下文中就地实现注释中的需求。
     - 如果光标在注释行上，就地实现该特定注释。
     - 如果有多行注释的选择区域，就地为这些注释实现代码。
-    - 如果光标在函数内，为该函数实现 TODO。
-    - 否则为整个当前文件实现 TODO。
+    - 如果光标在函数内，为该函数实现 TODO，否则为整个当前文件实现 TODO。
+      - 关键字（默认为 TODO）可以通过变量 ~aider-todo-keyword-pair~ 进行自定义。一个例子是使用 AI! 注释，这与 aider AI 注释功能相同。
 
 *** 支持敏捷开发
   - aider-write-unit-test :: 如果当前缓冲区是主源代码文件，为当前函数或文件生成全面的单元测试。如果光标在测试源代码文件中，当光标在测试函数上时，实现该测试函数。否则，提供描述来实现测试函数（或规范）。
@@ -215,29 +193,69 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - 文件路径补全会在某些命令后自动触发
 - 使用 TAB 键从迷你缓冲区输入提示，或使用带补全的 helm
 
+* 经典书籍中的方法
+
+** AI 辅助敏捷开发
+
+- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][重构：改善既有代码的设计，作者 Martin Fowler]]: ~aider-refactor-book-method~
+- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][测试驱动开发：实例，作者 Kent Beck]]: ~aider-tdd-cycle~
+- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][修改代码的艺术，作者 Michael Feathers]]: ~aider-legacy-code~
+
+** AI 辅助代码阅读
+
+- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]]: ~aider-code-read~
+* 优点和缺点
+** 优点：用户界面、上下文感知 AI 结对编程
+
+- 弹出菜单 (~aider-transient-menu~)
+
+- 针对 Git 仓库的专属 Aider 会话管理
+
+- 将代码上下文（缓冲区/光标下的内容/选区）与 aider 整合，半自动构建提示。通过 helm 轻松搜索/重用之前的提示
+
+- AI 辅助编程工作流的菜单项。AI 辅助敏捷开发方法。AI 辅助代码阅读
+
+- Aider 提示文件用于组织相对较大的代码更改任务，并使其可重现。从中以 ESS 方式与 aider 会话交互。Yasnippet 支持重用社区的优秀提示。
+
+- 基于经典书籍的 AI 辅助代码阅读工具
+
+** 缺点：comint 中的 aider 会话不够 fancy
+
+- 当前实现使用 comint 托管 aider 会话，这是 emacs 中使用的经典 CLI 交互解决方案，然而，comint-mode 最初_没有_ aider 的高级功能，例如代码块颜色渲染和文件跟踪。
+  - *应用了颜色渲染 markdown-mode.el 并大大改善了这一点*。
+  - 没有文件跟踪，aider.el 无法执行 [[https://aider.chat/docs/usage/watch.html#ai-comments][AI 注释]]。*我们提供的解决方法是 ~aider-implement-todo~*，它使用 architect 命令要求 aider 默认实现光标下的注释。我经常使用此功能，感觉还可以。
+
+- *通常，直接通过 comint 终端与 Aider 进行大量交互并不有利。* 相反，由于 comint 终端与 emacs 的其他部分集成良好，建议生成提示并将其发送到终端，可以从以下任一方式进行：
+  - 直接从代码缓冲区通过 _aider 代码更改相关命令_ 或 _提问相关命令_。这样可以减少上下文切换，并有助于构建提示，减少手动输入。
+  - Aider 提示文件（~aider-open-prompt-file~，~C-c a p~）。这是 emacs 中与 comint 缓冲区通信的传统方式（就像 ESS、python-mode、scala-mode 等）。它便于重新访问您使用过的命令，组织和管理需要更多提示的大型代码更改，并将它们分解为子任务（因为它是 org 格式），并且它便于多行提示。最近，为该文件添加了语法高亮、补全和代码片段，现在它是编写和组织提示的好地方。
+
 * 注意AI生成的代码
 
-- 感谢 LLM 的贡献。虽然利用 AI 生成大量代码非常便捷，但仅仅依赖生成代码不足以确保项目的正确性。
-  - 这些代码中可能潜藏错误，因此必须验证其功能是否符合预期，以及代码改动是否会破坏现有功能。
-  - 同时，开发人员可能对 AI 生成代码理解不足，过多难懂的代码可能增加维护风险。
+- 感谢 LLM。使用 AI 生成大量代码非常容易。但生成代码并不能完成工作。
+  - 代码中可能隐藏着潜在的错误。需要验证功能是否按预期工作，以及代码更改是否破坏了现有功能。
+  - 开发人员可能缺乏对 AI 生成代码的理解。如果存在太多开发人员不太理解的代码，项目可能会失控，就像这样：
 
-- *单元测试在解决上述问题时十分关键*，而 aider 也能辅助生成测试代码。
-  - 尽管 AI 生成的测试代码可能需要人工检查或修正，但相对来说，这些测试代码往往更容易理解。
-  - 执行单元测试不仅有助于验证代码正确性和发现问题，还能帮助开发人员更好地理解 AI 生成代码的运行原理，从而增强对新代码的信心。
+#+BEGIN_HTML
+  <img src="https://i.redd.it/puzjerkgcfqe1.jpeg" width="300" />
+#+END_HTML
 
-** [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] 风格的 AI 编程工作流
+- *单元测试对上述两个问题都很有用*。aider 可以帮助编写单元测试。
+  - AI 生成的测试需要手动检查/修复。但通常测试代码更容易理解。
+  - 运行单元测试有助于验证代码的正确性/识别代码中的错误。它还有助于开发人员更好地理解 AI 生成的代码如何工作，并且可以给开发人员更多对新代码的信心。
+
+** 一个弱 [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] 风格的 AI 编程工作流
 
 1. **实施或修改代码**：
-   - 针对已有代码：将光标置于函数内部，或选中代码区域后使用 ~aider-function-or-region-refactor~ 命令；
-   - 针对新代码：请在 TODO 注释行上直接使用 ~aider-implement-todo~ 命令。
-   
+   - 对于现有代码：在函数中使用光标或在选定区域上使用 ~aider-function-or-region-refactor~
+   - 对于新代码：在 TODO 注释上使用 ~aider-implement-todo~
+
    *添加新代码的示例*：
-   
+
    光标在此注释上：
    #+BEGIN_SRC python :eval never
    # TODO: Implement a function that checks if a number is prime
    #+END_SRC
-   
+
    运行 ~aider-implement-todo~ 可能会生成：
    #+BEGIN_SRC python :eval never
    def is_prime(n):
@@ -248,54 +266,69 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
                return False
        return True
    #+END_SRC
-   
+
    如果建议不令人满意，使用 ~Ask Question~ 进行改进，并使用 ~Go Ahead~ 确认更改。
 
-2. **生成测试**：通过 ~aider-write-unit-test~ 验证您的实现。运行测试以验证代码行为。
+2. **生成测试**：使用 ~aider-write-unit-test~ 验证您的实现。运行测试以验证代码行为。
    - ~aider-write-unit-test~ 可以在代码实现之前用于编写单元测试，只需在单元测试类中调用该函数。我用它测试过力扣问题，效果很好。
 
 3. **完善代码和测试**：根据需要使用其他提示或手动调整进一步重构。~aider-refactor-book-method~ 提供了 [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower 的重构书籍]] 中的几种重构技术。
 
-4. 返回步骤 1
+4. 转到 1
+
+- 或者，如果您更喜欢严格的 TDD 实践，您可能想尝试 ~aider-tdd-cycle~，它将遵循红-绿-重构循环。
 
 * 常见问题
 
-- 如何审查/接受代码更改？ 
+- 如何审查/接受代码更改？
   - 与 cursor 相比，aider 有不同的方式来处理代码更改。[[https://github.com/tninja/aider.el/issues/98][讨论]]
   - 注意：*Aider v0.77.0 自动接受 /architect 命令的更改。如果您想像以前那样在接受更改之前审查代码更改（适用于 aider.el 中的许多命令），可以在 aider-args 或 .aider.conf.yml 中使用 "--no-auto-accept-architect" 禁用该标志*。
 
 - 如何禁用 aider 的自动提交功能？
   - 在 aider-args 中添加 --no-auto-commits。aider-args 直接传递给 aider CLI。[[https://aider.chat/docs/config/options.html][aider 选项参考]]
 
-- aider 支持哪些类型的模型？是否支持本地部署的模型？
+- aider 支持哪些类型的模型？aider 是否支持本地模型？
   - 是的。Aider 通过 [[https://github.com/BerriAI/litellm][LiteLLM]] 支持它。请参考 [[https://aider.chat/docs/llms/other.html][aider 文档]]。
-   
-- 如何让 aider 用中文回复？
+
+- 在大型单体仓库中，aider 需要很长时间来扫描仓库。如何改进？
+  - Aider 使用 .aiderignore 文件来处理这个问题，[[https://aider.chat/docs/faq.html#can-i-use-aider-in-a-large-mono-repo][详情]]，或者，您可以在 aider-args 中使用 --no-git 关闭 git。
+  - 或者，在 emacs 中通过以下方式使用 --subtree-only：
+    - 使用 dired、eshell 或 shell 缓冲区转到要包含的目录（子树）
+    - C-c a a 触发 aider-run-aider
+    - 回答关于 --subtree-only 的问题为是，它将添加该标志
+
+- 如何让 aider 使用您的口语？
   - 使用 [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider 编码约定]]。在我的情况下，我在 CONVENTIONS.md 文件中添加了 "- reply in Chinese"，并通过 [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]] 加载工作。或者，将类似以下内容放入 aider-args 变量中。
     - "--read" (expand-file-name "~/.emacs.d/.emacs/aider/CONVENTIONS.md")
 
 - 如何在 aider 会话缓冲区中输入多行提示？
   - aider 本身支持这一点，[[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][文档]]。
-  - 使用 aider 提示文件（~aider-open-prompt-file~，~C-c a p~）编写多行提示（我们不希望它们消失，对吧？特别是如果它不完美需要修改，而且我们可能想在以后的某个时候重用它）。
+  - 使用 aider 提示文件（~aider-open-prompt-file~，~C-c a p~）编写多行提示
 
 - aider.el 能与 tramp 一起工作吗？（aider 在远程机器上运行）
   - artyom-smushkov 使 aider-add-current-file 支持 tramp 文件：https://github.com/tninja/aider.el/issues/36
   - mgcyung 说它可以这样工作：https://github.com/tninja/aider.el/issues/85
 
-* 未来工作
+- 如何自定义 aider-comint-mode 的提示和输入颜色？
+  - Spike-Leung 说 [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][为其添加钩子会有帮助]]
+
+* TODO 未来工作
 
 ** 功能
 
-- 更多上下文敏感的代码更改/代码阅读命令 [1/1]
+- 更多上下文敏感的代码更改/代码阅读命令 [2/3]
   - [X] 当前的 aider-ask-question 需要改进，因为可能有很多不同的问题要问
+  - [X] 如何将候选列表功能移植到 aider-plain-read-string
   - [ ] 思考如何改进函数的候选列表
-  - [ ] 如何将候选列表功能移植到 aider-plain-read-string
+- 更多关于改进代码质量工具（如单元测试）的思考 [3/3]
+  - [X] 代码重构函数
+  - [X] TDD 函数
+  - [X] 代码阅读函数
+  - [ ] 遗留代码支持
 - 更多关于如何简化菜单/命令的思考
-- 更多关于改进代码质量工具（如单元测试）的思考
-- 标记发布版本，使其在 melpa stable 上可用
 
 ** 代码质量
- 
+
 - 更好的单元测试/集成测试。希望是自动化的。
 
 * 其他 Emacs AI 编码工具
@@ -306,3 +339,6 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
   - [[https://github.com/copilot-emacs/copilot.el][copilot.el]]：GitHub Copilot 的 Emacs 插件
   - [[https://github.com/chep/copilot-chat.el][copilot-chat.el]]：在 Emacs 中与 GitHub Copilot 聊天
   - [[https://github.com/karthink/gptel][gptel]]：Emacs 中最受欢迎/广泛使用的 LLM 客户端
+
+- 依赖此包的包
+  - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]：用于 Aider.el 集成的 Org Babel 函数
