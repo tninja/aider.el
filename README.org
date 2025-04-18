@@ -310,6 +310,9 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 - How to customize the aider-comint-mode prompt and input color?
   - Spike-Leung said [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][add hook to it will help]]
 
+- Why aider-code-change got disabled in transient menu?
+  - It is not recommended. Discussed here: https://github.com/tninja/aider.el/issues/128
+
 * TODO Future work
 
 ** Feature
