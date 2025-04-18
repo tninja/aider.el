@@ -44,19 +44,24 @@ This is the file name without path."
   "Send text to the Aider buffer.
 If universal argument (C-u) is provided, send the current paragraph line by line.
 If region is active, send the selected region line by line.
-Otherwise, send the line under cursor."
+Otherwise, send the line under cursor.
+After sending, return cursor to the original buffer."
   (interactive "P")
-  (cond
-   ;; If universal argument is provided, send paragraph by line
-   (arg
-    (aider-send-block-by-line))
-   ;; If region is active, send region by line
-   ((region-active-p)
-    (aider-send-region-by-line))
-   ;; Otherwise, send current line
-   (t
-    (let ((line (thing-at-point 'line t)))
-      (aider--send-command (string-trim line) t)))))
+  (let ((orig-buffer (current-buffer)))  ; Store the original buffer
+    (cond
+     ;; If universal argument is provided, send paragraph by line
+     (arg
+      (aider-send-block-by-line))
+     ;; If region is active, send region by line
+     ((region-active-p)
+      (aider-send-region-by-line))
+     ;; Otherwise, send current line
+     (t
+      (let ((line (thing-at-point 'line t)))
+        (aider--send-command (string-trim line) t))))
+    ;; Return to the original buffer
+    (when (buffer-live-p orig-buffer)
+      (pop-to-buffer orig-buffer))))
 
 (defun aider--extract-filename-from-command (command-str)
   "Extract filename from COMMAND-STR if it matches an aider command pattern.
@@ -97,20 +102,25 @@ Uses `mark-paragraph` to select the current paragraph, then sends it by line."
 
 ;;;###autoload
 (defun aider-send-block-or-region ()
-  "Send the block or selected region to aider as a single prompt."
+  "Send the block or selected region to aider as a single prompt.
+After sending, return cursor to the original buffer."
   (interactive)
-  (if (region-active-p)
-      (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
-        (unless (string-empty-p region-text)
-          (aider--send-command region-text t)))
-    (save-excursion                     ; preserve cursor position
-      (let ((region-text
-             (progn
-               (mark-paragraph)         ; mark paragraph
-               (buffer-substring-no-properties (region-beginning) (region-end)))))
-        (unless (string-empty-p region-text)
-          (aider--send-command region-text t))
-        (deactivate-mark)))))  ; deactivate mark after sending
+  (let ((orig-buffer (current-buffer)))  ; Store the original buffer
+    (if (region-active-p)
+        (let ((region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+          (unless (string-empty-p region-text)
+            (aider--send-command region-text t)))
+      (save-excursion                     ; preserve cursor position
+        (let ((region-text
+               (progn
+                 (mark-paragraph)         ; mark paragraph
+                 (buffer-substring-no-properties (region-beginning) (region-end)))))
+          (unless (string-empty-p region-text)
+            (aider--send-command region-text t))
+          (deactivate-mark))))  ; deactivate mark after sending
+    ;; Return to the original buffer
+    (when (buffer-live-p orig-buffer)
+      (pop-to-buffer orig-buffer))))
 
 ;;;###autoload
 (defun aider-open-prompt-file ()
