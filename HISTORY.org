@@ -1,6 +1,12 @@
 
 * Release history
 
+** main branch change
+
+- aider comint session input line shouldn't apply markdown rendering, based on issue found by ahyatt: https://github.com/tninja/aider.el/issues/126
+- aider--magit-generate-feature-branch-diff-file fetch remote branch firstly
+- aider-send-line-or-region and aider-send-block-or-region keep focus in the aider prompt file after sending prompt to aider session, it is more smooth during using
+
 ** v0.8.0
 
 - Fix the installation command in README.org, provided by magthe.

@@ -180,6 +180,12 @@ If input looks like a commit hash, it generates diff for that single commit.
 Otherwise, it's treated as base branch and diff is generated against HEAD."
   (interactive)
   (let* ((git-root (magit-toplevel))
+         ;; Ensure we're in a git repo
+         (git-repo-error (unless git-root
+                           (user-error "Not in a git repository")))
+         ;; Fetch from all remotes to ensure we have the latest branches
+         (git-fetch-all (progn (message "Fetching from all remotes to ensure latest branches...")
+                               (magit-run-git "fetch" "--all")))
          (raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
          (range (string-trim raw-range))
          ;; Check if it's a commit hash by verifying:
@@ -203,9 +209,19 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (diff-file (if is-commit-hash
                          (concat git-root range ".diff")
                        (concat git-root base-branch "." feature-branch ".diff"))))
-    ;; Verify we're in a git repo
-    (unless git-root
-      (user-error "Not in a git repository"))
+    ;; Verify branches exist (for non-commit-hash cases)
+    (unless is-commit-hash
+      ;; Check base branch
+      (unless (or (magit-branch-p base-branch)
+                  (magit-branch-p (concat "origin/" base-branch))
+                  (magit-rev-verify base-branch))
+        (user-error "Base branch '%s' not found locally or in remotes" base-branch))
+      ;; Check feature branch if it's not HEAD
+      (when (and (not (string= feature-branch "HEAD"))
+                 (not (magit-branch-p feature-branch))
+                 (not (magit-branch-p (concat "origin/" feature-branch)))
+                 (not (magit-rev-verify feature-branch)))
+        (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
     ;; Display message about what we're doing
     (cond
      (is-commit-hash

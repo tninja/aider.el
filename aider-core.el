@@ -51,14 +51,22 @@ When nil, use standard `display-buffer' behavior.")
 (declare-function evil-define-key* "evil" (state map key def))
 
 (defun aider--apply-markdown-highlighting ()
-  "Set up markdown highlighting for aider buffer with optimized performance."
+  "Set up markdown highlighting for aider buffer with optimized performance.
+Ignore lines starting with '>' (command prompts/input)."
   ;; 1) Use `markdown-mode`'s syntax table:
   (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
   ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
   (setq-local syntax-propertize-function #'markdown-syntax-propertize)
-  ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting:
+  ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting,
+  ;;    but add a rule to prevent markdown highlighting on lines starting with '>'.
   (setq-local font-lock-defaults
-              (list markdown-mode-font-lock-keywords
+              (list (cons
+                     ;; Rule to apply default face to prompt lines, without overriding.
+                     ;; This aims to prevent subsequent markdown rules in this list
+                     ;; from applying, while still allowing comint-highlight-input.
+                     '("^>.*$" 0 'default nil)
+                     ;; Original markdown keywords
+                     markdown-mode-font-lock-keywords)
                     nil ;; KEYWORDS-ONLY
                     nil ;; CASE-FOLD
                     nil ;; SYNTAX-ALIST
@@ -67,6 +75,8 @@ When nil, use standard `display-buffer' behavior.")
   (setq-local markdown-fontify-code-blocks-natively t)
   ;; https://github.com/tninja/aider.el/issues/113
   ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
+  ;; Note: The rule added above is a more targeted way to handle prompts than disabling these globally.
+  ;; Consider if these are still needed or can be re-enabled depending on desired appearance for non-prompt text.
   (setq-local markdown-regex-bold nil)
   (setq-local markdown-regex-italic nil)
   (setq-local markdown-regex-strike-through nil)
