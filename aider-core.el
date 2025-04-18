@@ -58,14 +58,13 @@ Ignore lines starting with '>' (command prompts/input)."
   ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
   (setq-local syntax-propertize-function #'markdown-syntax-propertize)
   ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting,
-  ;;    but add a rule to ignore lines starting with '>'.
+  ;;    but add a rule to prevent markdown highlighting on lines starting with '>'.
   (setq-local font-lock-defaults
               (list (cons
-                     ;; Rule to prevent highlighting on lines starting with '>'
-                     ;; - Matches the entire line starting with '>'
-                     ;; - Applies 'nil' face (default face)
-                     ;; - 't' overrides subsequent rules for this region
-                     '("^>.*$" 0 nil t)
+                     ;; Rule to apply default face to prompt lines, without overriding.
+                     ;; This aims to prevent subsequent markdown rules in this list
+                     ;; from applying, while still allowing comint-highlight-input.
+                     '("^>.*$" 0 'default nil)
                      ;; Original markdown keywords
                      markdown-mode-font-lock-keywords)
                     nil ;; KEYWORDS-ONLY
