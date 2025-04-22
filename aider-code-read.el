@@ -176,24 +176,28 @@ Assumes the current file has been added to the Aider context."
     (aider--send-command (format "/ask %s" user-input) t)))
 
 (defun aider--analyze-module ()
-  "Analyze current directory/module using architectural reading technique."
-  (let* ((dir-name (file-name-directory (buffer-file-name)))
-         (initial-prompt
-          (format "Analyze the module represented by the files in directory '%s' using an architectural perspective (based on the files added):
-1. Module's likely role in the overall system
-2. Package organization and structure observed
-3. Key components and their interactions within the added files
-4. External dependencies and interfaces used by these files
-5. Internal module architecture patterns observed
-6. Configuration management hints
-7. Testing strategy hints (e.g., presence of test files)
-8. Integration patterns with other modules (if inferrable)
-9. Deployment considerations mentioned" (directory-file-name dir-name)))
-         (user-input (aider-read-string "Enter module analysis instructions: " initial-prompt)))
-    ;; Add all relevant files in the directory first
-    (aider-add-same-type-files-under-dir)
-    ;; Then send the command
-    (aider--send-command (format "/ask %s" user-input) t)))
+  "Analyze a specified module/directory using architectural reading technique.
+Adds the specified directory read-only to Aider before asking for analysis details."
+  (let* ((dir-name (read-directory-name "Enter module directory to analyze: " nil nil t)) ; t for mustmatch
+         (formatted-dir (aider--format-file-path (aider--get-file-path dir-name))))
+    ;; Add the directory read-only first
+    (aider--send-command (format "/read-only %s" formatted-dir) nil)
+    ;; Now proceed with asking the user
+    (let* ((initial-prompt
+            (format "The directory '%s' has been added read-only.
+Analyze the module represented by this directory using an architectural perspective:
+1. Module's likely role in the overall system.
+2. Package organization and structure observed.
+3. Key components and their interactions.
+4. External dependencies and interfaces used.
+5. Internal module architecture patterns observed.
+6. Configuration management hints.
+7. Testing strategy hints (e.g., presence of test files).
+8. Integration patterns with other modules.
+9. Deployment considerations mentioned." (file-name-as-directory dir-name))) ; Use file-name-as-directory for consistent trailing slash
+           (user-input (aider-read-string "Enter module analysis instructions: " initial-prompt)))
+      ;; Send the analysis command
+      (aider--send-command (format "/ask %s" user-input) t))))
 
 ;; --- New Functions for Specific Concerns ---
 
@@ -249,31 +253,6 @@ Assumes the current file has been added to the Aider context."
     (aider--send-command (format "/ask %s" user-input) t)))
 
 ;; --- Helper Functions (Unchanged) ---
-
-(defun aider-add-same-type-files-under-dir ()
-  "Add all files with same suffix as current file under current directory to Aider.
-If there are more than 40 files, refuse to add and show warning message."
-  (interactive)
-  (if (not buffer-file-name)
-      (message "Current buffer is not visiting a file")
-    (let* ((current-suffix (file-name-extension buffer-file-name))
-           (dir (file-name-directory buffer-file-name))
-           (max-files 40)
-           (files (directory-files dir t
-                                   (concat "\\." current-suffix "$")
-                                   t))) ; t means don't include . and ..
-      (if (> (length files) max-files)
-          (message "Too many files (%d, > %d) found with suffix .%s. Aborting."
-                   (length files) max-files current-suffix)
-        (let ((formatted-files (mapcar #'aider--format-file-path
-                                       (mapcar (lambda (f) (aider--get-file-path f)) files)))
-              (command nil))
-          (when formatted-files
-            (setq command (concat "/add " (mapconcat #'identity formatted-files " ")))
-            (aider--send-command command t)
-            (message "Added %d files with suffix .%s"
-                     (length files) current-suffix))
-          )))))
 
 (defun aider--get-class-at-point ()
   "Get the class name at point. Support multiple programming languages."

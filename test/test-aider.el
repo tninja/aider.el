@@ -1,5 +1,8 @@
 (require 'ert)
 
+;; all the tests need to refactor or rewrite due to the large
+;; refactoring of aider.el
+
 (ert-deftest aider-buffer-name-test ()
   "Test the aider-buffer-name function."
   ;; Test normal git repo case
