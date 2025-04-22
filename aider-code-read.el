@@ -181,7 +181,7 @@ Adds the specified directory read-only to Aider before asking for analysis detai
   (let* ((dir-name (read-directory-name "Enter module directory to analyze: " nil nil t)) ; t for mustmatch
          (formatted-dir (aider--format-file-path (aider--get-file-path dir-name))))
     ;; Add the directory read-only first
-    (aider--send-command (format "/read-only %s" formatted-dir) t)
+    (aider--send-command (format "/read-only %s" formatted-dir) nil)
     ;; Now proceed with asking the user
     (let* ((initial-prompt
             (format "The directory '%s' has been added read-only.
