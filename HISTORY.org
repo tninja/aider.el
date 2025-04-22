@@ -1,6 +1,10 @@
 
 * Release history
 
+** main branch change
+
+- fix aider--analyze-module function. It now accept a module directory provided by user, /read-only, and then analyze the module using the prompt.
+
 ** v0.8.1
 
 - aider--magit-generate-feature-branch-diff-file fetch remote branch firstly
