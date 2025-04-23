@@ -103,7 +103,8 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--model" "sonnet")))
+  (setq aider-args '("--model" "sonnet"))
+  (require 'aider-doom))
 #+END_SRC
 
 The aider prefix is ~A~.
