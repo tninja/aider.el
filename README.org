@@ -1,4 +1,4 @@
-#+TITLE: aider.el : aider (AI Pair Programming) Inside Emacs
+#+TITLE: AI assisted programming in Emacs with Aider 
 
 [[file:README.zh-cn.org][中文版]]
 
