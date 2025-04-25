@@ -1,4 +1,4 @@
-;;; aider.el --- Interact with Aider: AI pair programming made simple -*- lexical-binding: t; -*-
+;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.8.1
