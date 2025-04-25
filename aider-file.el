@@ -184,8 +184,6 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (git-repo-error (unless git-root
                            (user-error "Not in a git repository")))
          ;; Fetch from all remotes to ensure we have the latest branches
-         (git-fetch-all (progn (message "Fetching from all remotes to ensure latest branches...")
-                               (magit-run-git "fetch" "--all")))
          (raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
          (range (string-trim raw-range))
          ;; Check if it's a commit hash by verifying:
@@ -209,6 +207,8 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (diff-file (if is-commit-hash
                          (concat git-root range ".diff")
                        (concat git-root base-branch "." feature-branch ".diff"))))
+    (progn (message "Fetching from all remotes to ensure latest branches...")
+           (magit-run-git "fetch" "--all"))
     ;; Verify branches exist (for non-commit-hash cases)
     (unless is-commit-hash
       ;; Check base branch
