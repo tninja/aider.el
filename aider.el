@@ -44,6 +44,7 @@
 (require 'aider-agile)
 (require 'aider-code-read)
 (require 'aider-legacy-code)
+(require 'aider-bootstrap)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o4-mini" ;; very powerful. good for difficult task
@@ -110,6 +111,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
     ("d" "Code Reading" aider-code-read)
+    ("b" "Code Bootstrap" aider-bootstrap-code)
     ("e" "Debug Exception" aider-debug-exception)
     ("H" "Help (C-u: homepage)" aider-help)
     ]
