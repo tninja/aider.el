@@ -33,7 +33,7 @@
   "Return appropriate refactoring techniques based on REGION-ACTIVE."
   (if region-active
       ;; Refactoring techniques for selected regions
-      '(("Ask LLM for Suggestion" . "Let the LLM analyze the context and suggest the best refactoring technique.") ;; <-- Added
+      '(("Suggest Refactoring Strategy" . "Let the LLM analyze the context and suggest the best refactoring technique.") ;; <-- Added
         ("Extract Method" . "Extract the selected code into a new method named [METHOD_NAME]. Identify parameters and return values needed, and place the new method in an appropriate location.")
         ("Extract Variable" . "Replace this complex expression with a well-named variable [VARIABLE_NAME]. Choose a name that clearly explains the expression's purpose.")
         ("Extract Parameter" . "Extract this expression into a new parameter named [PARAMETER_NAME] for the containing function. Update all call sites to pass this value as an argument.")
@@ -45,7 +45,7 @@
         ("Introduce Assertion" . "Add an assertion to the selected location to document an assumption about the program state. Specify the condition to assert [ASSERTION_CONDITION].")
         ("Consolidate Conditional Expression" . "Combine multiple conditional checks within the selection that lead to the same result into a single, clearer conditional expression."))
     ;; Refactoring techniques for entire functions or files
-    '(("Ask LLM for Suggestion" . "Let the LLM analyze the context and suggest the best refactoring technique.") ;; <-- Added
+    '(("Suggest Refactoring Strategy" . "Let the LLM analyze the context and suggest the best refactoring technique.") ;; <-- Added
       ("Rename Variable/Method" . "Rename [CURRENT_NAME] to [NEW_NAME]. Ensure all references are updated consistently following naming conventions appropriate for this codebase.")
       ("Inline Method" . "Replace calls to method [METHOD_NAME] with its body. Ensure the inlining doesn't change behavior or introduce bugs, and remove the original method if it's no longer needed.")
       ("Inline Variable" . "Replace all references to variable [VARIABLE_NAME] with its value. Ensure the inlining doesn't change behavior or introduce bugs.")
