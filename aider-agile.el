@@ -158,7 +158,6 @@ Works across different programming languages."
                      "Select refactoring technique for selected region: " ;; Updated prompt
                    "Select refactoring technique: ")) ;; Updated prompt
          (selected-technique (completing-read prompt technique-names nil t))) ;; Use selected-technique directly
-
     ;; Check if user selected "Ask LLM" or a specific technique
     (if (not (string= selected-technique "Ask LLM for Suggestion"))
         ;; User selected a specific refactoring technique
@@ -189,7 +188,7 @@ Works across different programming languages."
              (prompt (format "Analyze the following code context and suggest *one* most appropriate refactoring technique.\nContext: %s%s\n\nProvide only the name of the suggested technique (e.g., 'Extract Method', 'Simplify Conditional', 'Improve Naming'). Do not provide explanations or code examples."
                              context-info
                              code-snippet))
-             (command (format "/aitask \"%s\"" prompt)))
+             (command (format "/ask \"%s\"" prompt)))
         (aider--send-command command nil nil) ;; Use aider--send-command for /aitask
         (message "Requesting refactoring suggestion from Aider. Check the Aider buffer for the response.")))))
 
