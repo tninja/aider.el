@@ -5,6 +5,10 @@
 
 - fix aider--analyze-module function. It now accept a module directory provided by user, /read-only, and then analyze the module using the prompt.
 
+- Add [Suggest Refactoring Strategy] menu item in the code refactoring tool
+- refactor aider-agile.el, breakdown large methods to smaller ones
+- Make TDD refactoring stage call aider-refactor-book-method, and tell it to pass all tests
+
 ** v0.8.1
 
 - aider--magit-generate-feature-branch-diff-file fetch remote branch firstly
