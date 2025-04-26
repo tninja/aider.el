@@ -174,7 +174,7 @@
          (code-snippet (if region-active
                            (format "\n```\n%s\n```" region-text)
                          ""))
-         (prompt (format "Analyze the following code context and suggest appropriate refactoring strategy.\nContext: %s%s\n"
+         (prompt (format "Analyze the following code context and suggest appropriate refactoring strategy. Context: %s%s"
                          context-info
                          code-snippet)))
     (aider-current-file-command-and-switch "/ask " prompt)
