@@ -141,29 +141,36 @@
          t)))
      (t technique-description))))
 
-(defun aider--handle-specific-refactoring (selected-technique all-techniques context)
-  "Handle the case where a specific refactoring technique is chosen."
+(defun aider--handle-specific-refactoring (selected-technique all-techniques context tdd-mode)
+  "Handle the case where a specific refactoring technique is chosen.
+If TDD-MODE is non-nil, adds TDD constraints to the instruction."
   (let* ((region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
          (context-description (plist-get context :context-description))
          (technique-description (cdr (assoc selected-technique all-techniques)))
          (prompt-with-params (aider--process-refactoring-parameters
                               selected-technique technique-description context))
-         (initial-instruction (format "%s %s. %s"
-                                      selected-technique
-                                      context-description
-                                      prompt-with-params))
+         (base-instruction (format "%s %s. %s"
+                                   selected-technique
+                                   context-description
+                                   prompt-with-params))
+         ;; Add TDD constraint if in TDD mode
+         (tdd-constraint (if tdd-mode " Ensure all tests still pass after refactoring." ""))
+         (initial-instruction (concat base-instruction tdd-constraint))
          (final-instruction (aider-read-string "Edit refactoring instruction: " initial-instruction))
          (command (if region-active
                       (format "\"%s\n\nSelected code:\n%s\""
                               final-instruction
                               region-text)
-                    (format "\"%s\"" final-instruction))))
+                    (format "\"%s\"" final-instruction)))
+         (message-suffix (if tdd-mode " during TDD refactor stage" "")))
     (aider-current-file-command-and-switch "/architect " command)
-    (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique)))
+    (message "%s refactoring request sent to Aider%s. After code refactored, better to re-run unit-tests."
+             selected-technique message-suffix)))
 
-(defun aider--handle-ask-llm-suggestion (context)
-  "Handle the case where the user asks the LLM for a refactoring suggestion."
+(defun aider--handle-ask-llm-suggestion (context tdd-mode)
+  "Handle the case where the user asks the LLM for a refactoring suggestion.
+If TDD-MODE is non-nil, adds TDD constraints to the prompt."
   (let* ((region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
          (current-function (plist-get context :current-function))
@@ -174,33 +181,41 @@
          (code-snippet (if region-active
                            (format "\n```\n%s\n```" region-text)
                          ""))
-         (prompt (format "Analyze the following code context and suggest appropriate refactoring strategy. Context: %s%s"
-                         context-info
-                         code-snippet)))
+         ;; Add TDD constraint if in TDD mode
+         (tdd-constraint (if tdd-mode " Ensure all tests still pass after refactoring." ""))
+         (base-prompt (format "Analyze the following code context and suggest appropriate refactoring strategy. Context: %s%s"
+                              context-info
+                              code-snippet))
+         (prompt (concat base-prompt tdd-constraint))
+         (message-suffix (if tdd-mode " during TDD refactor stage" "")))
+    ;; Send the prompt using the /ask command
     (aider-current-file-command-and-switch "/ask " prompt)
-    (message "Requesting refactoring suggestion from Aider. If you are happy with the suggestion, use 'go ahead' to accept the change")))
+    ;; Inform the user
+    (message "Requesting refactoring suggestion from Aider%s. If you are happy with the suggestion, use 'go ahead' to accept the change"
+             message-suffix)))
 
 ;;;###autoload
-(defun aider-refactor-book-method ()
-  "Apply famous refactoring techniques from Martin Fowler's book.
-Uses current context (function, class, selected region) to generate appropriate prompts.
-Works across different programming languages."
+(defun aider-refactor-book-method (&optional tdd-mode)
+  "Apply refactoring techniques or request suggestions.
+Uses current context (function, class, selected region).
+If TDD-MODE is non-nil, adjusts prompts and instructions for the TDD refactor stage."
+  ;; The `interactive` spec needs to handle the optional argument if called directly,
+  ;; but here it's primarily called programmatically from aider-tdd-cycle or interactively without args.
+  ;; For interactive calls, tdd-mode will be nil.
   (interactive)
   (let* ((context (aider--get-refactoring-context))
          (region-active (plist-get context :region-active))
-         (region-text (plist-get context :region-text))
-         (context-description (plist-get context :context-description))
-         ;; Get all refactoring techniques including "Ask LLM"
+         ;; Get all refactoring techniques including "Suggest Refactoring Strategy"
          (all-techniques (aider--get-refactoring-techniques region-active))
          (technique-names (mapcar #'car all-techniques))
-         (prompt (if region-active
-                     "Select refactoring technique for selected region: " ;; Updated prompt
-                   "Select refactoring technique: ")) ;; Updated prompt
+         (prompt-prefix (if tdd-mode "Select TDD refactoring technique" "Select refactoring technique"))
+         (prompt-suffix (if region-active " for selected region: " ": "))
+         (prompt (concat prompt-prefix prompt-suffix))
          (selected-technique (completing-read prompt technique-names nil t)))
     ;; Dispatch to appropriate handler based on user selection
-    (if (string= selected-technique "Ask LLM for Suggestion")
-        (aider--handle-ask-llm-suggestion context)
-      (aider--handle-specific-refactoring selected-technique all-techniques context))))
+    (if (string= selected-technique "Suggest Refactoring Strategy") ;; Corrected string
+        (aider--handle-ask-llm-suggestion context tdd-mode)
+      (aider--handle-specific-refactoring selected-technique all-techniques context tdd-mode))))
 
 (defun aider--tdd-red-stage (function-name)
   "Handle the Red stage of the TDD cycle: Write a failing test."
@@ -270,8 +285,8 @@ Works with both source code and test files that have been added to aider."
      ((= stage-num 1) (aider--tdd-red-stage function-name))
      ;; Green stage - make test pass
      ((= stage-num 2) (aider--tdd-green-stage function-name))
-     ;; Refactor stage
-     ((= stage-num 3) (aider--tdd-refactor-stage function-name)))))
+     ;; Refactor stage - call the main refactoring function in TDD mode
+     ((= stage-num 3) (aider-refactor-book-method t)))))
 
 (provide 'aider-agile)
 ;;; aider-agile.el ends here
