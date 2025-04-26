@@ -27,52 +27,7 @@
                                (file-name (format "in file '%s'" file-name))
                                (t "in current context")))))
 
-(defun aider--suggest-refactoring-technique (context)
-  "Suggest appropriate refactoring technique based on CONTEXT."
-  (let* ((region-active (plist-get context :region-active))
-         (region-text (plist-get context :region-text))
-         (current-function (plist-get context :current-function))
-         (file-name (plist-get context :file-name))
-         (suggestion nil))
-    (cond
-     ;; If region is active, analyze its content
-     (region-active
-      (cond
-       ;; Check if it contains conditional statements
-       ((and region-text (string-match-p "\\(if\\|else\\|switch\\|case\\|\\?\\)" region-text))
-        (setq suggestion "Simplify Conditional Logic")) ;; <-- Changed
-       ;; Check if it contains numeric or string literals
-       ((and region-text (string-match-p "\\([0-9]+\\|\"[^\"]*\"\\|'[^']*'\\)" region-text))
-        (setq suggestion "Address Magic Numbers/Literals")) ;; <-- Changed
-       ;; Check if it's a complex expression
-       ((and region-text (string-match-p "[+-/*&|!<>=]" region-text))
-        (setq suggestion "Simplify Expression")) ;; <-- Changed
-       ;; Default suggestion for regions
-       (t (setq suggestion "Extract Method")))) ;; <-- Kept as is
-     ;; If no region but we have current function
-     (current-function
-      (cond
-       ;; Check if function name is too long, might need refactoring
-       ((> (length current-function) 30)
-        (setq suggestion "Review Function Length/Complexity")) ;; <-- Changed
-       ;; Default suggestion for functions
-       (t (setq suggestion "Improve Naming")))) ;; <-- Changed
-     ;; Default suggestion
-     (t (setq suggestion "Review Code Organization/Structure"))) ;; <-- Changed
-    suggestion))
-
-(defun aider--get-refactoring-techniques-with-suggestion (region-active suggestion)
-  "Return refactoring techniques with SUGGESTION as first item based on REGION-ACTIVE."
-  (let ((techniques (aider--get-refactoring-techniques region-active)))
-    (when suggestion
-      (let ((suggestion-desc (cdr (assoc suggestion techniques))))
-        (when suggestion-desc
-          ;; Create a new list with suggestion as the first item
-          (setq techniques 
-                (cons 
-                 (cons (format "✓ %s (Suggested)" suggestion) suggestion-desc)
-                 (remove (assoc suggestion techniques) techniques))))))
-    techniques))
+;; Removed aider--suggest-refactoring-technique and aider--get-refactoring-techniques-with-suggestion
 
 (defun aider--get-refactoring-techniques (region-active)
   "Return appropriate refactoring techniques based on REGION-ACTIVE."
@@ -196,37 +151,47 @@ Works across different programming languages."
          (region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
          (context-description (plist-get context :context-description))
-         ;; Get suggested refactoring technique
-         (suggested-technique (aider--suggest-refactoring-technique context))
-         ;; Get refactoring techniques with suggestion
-         (refactoring-techniques (aider--get-refactoring-techniques-with-suggestion 
-                                 region-active suggested-technique))
-         (technique-names (mapcar #'car refactoring-techniques))
+         ;; Get all refactoring techniques including "Ask LLM"
+         (all-techniques (aider--get-refactoring-techniques region-active))
+         (technique-names (mapcar #'car all-techniques))
          (prompt (if region-active
-                     "Select refactoring technique for selected region: "
-                   "Select refactoring technique: "))
-         (selected-technique-with-label (completing-read prompt technique-names nil t))
-         ;; Extract actual technique name (remove "✓ " and " (Suggested)" parts)
-         (selected-technique (replace-regexp-in-string 
-                             "^✓ \\(.*?\\) (Suggested)$" "\\1" 
-                             selected-technique-with-label))
-         ;; Get technique description (need to look up description for original technique name)
-         (original-techniques (aider--get-refactoring-techniques region-active))
-         (technique-description (cdr (assoc selected-technique original-techniques)))
-         (prompt-with-params (aider--process-refactoring-parameters 
-                             selected-technique technique-description context))
-         (initial-final-instruction (format "%s %s. %s"
-                                         selected-technique
-                                         context-description
-                                         prompt-with-params))
-         (final-instruction (aider-read-string "Edit refactoring instruction: " initial-final-instruction))
-         (command (if region-active
-                     (format "\"%s\n\nSelected code:\n%s\""
-                             final-instruction
-                             region-text)
-                   (format "\"%s\"" final-instruction))))
-    (aider-current-file-command-and-switch "/architect " command)
-    (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique)))
+                     "Select refactoring technique for selected region: " ;; Updated prompt
+                   "Select refactoring technique: ")) ;; Updated prompt
+         (selected-technique (completing-read prompt technique-names nil t))) ;; Use selected-technique directly
+
+    ;; Check if user selected "Ask LLM" or a specific technique
+    (if (not (string= selected-technique "Ask LLM for Suggestion"))
+        ;; User selected a specific refactoring technique
+        (let* ((technique-description (cdr (assoc selected-technique all-techniques))) ;; Moved lookup here
+               (prompt-with-params (aider--process-refactoring-parameters
+                                   selected-technique technique-description context))
+               (initial-final-instruction (format "%s %s. %s"
+                                               selected-technique
+                                               context-description
+                                               prompt-with-params))
+               (final-instruction (aider-read-string "Edit refactoring instruction: " initial-final-instruction))
+               (command (if region-active
+                           (format "\"%s\n\nSelected code:\n%s\""
+                                   final-instruction
+                                   region-text)
+                         (format "\"%s\"" final-instruction))))
+          (aider-current-file-command-and-switch "/architect " command)
+          (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique))
+      ;; User selected "Ask LLM for Suggestion"
+      (let* ((current-function (plist-get context :current-function))
+             (context-info (cond
+                            (region-active "Selected code region")
+                            (current-function (format "Function '%s'" current-function))
+                            (t "Current buffer context")))
+             (code-snippet (if region-active
+                               (format "\n```\n%s\n```" region-text)
+                             ""))
+             (prompt (format "Analyze the following code context and suggest *one* most appropriate refactoring technique.\nContext: %s%s\n\nProvide only the name of the suggested technique (e.g., 'Extract Method', 'Simplify Conditional', 'Improve Naming'). Do not provide explanations or code examples."
+                             context-info
+                             code-snippet))
+             (command (format "/aitask \"%s\"" prompt)))
+        (aider--send-command command nil nil) ;; Use aider--send-command for /aitask
+        (message "Requesting refactoring suggestion from Aider. Check the Aider buffer for the response.")))))
 
 ;;;###autoload
 (defun aider-tdd-cycle ()
