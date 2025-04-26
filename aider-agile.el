@@ -40,25 +40,25 @@
       (cond
        ;; Check if it contains conditional statements
        ((and region-text (string-match-p "\\(if\\|else\\|switch\\|case\\|\\?\\)" region-text))
-        (setq suggestion "Decompose Conditional"))
+        (setq suggestion "Simplify Conditional Logic")) ;; <-- Changed
        ;; Check if it contains numeric or string literals
        ((and region-text (string-match-p "\\([0-9]+\\|\"[^\"]*\"\\|'[^']*'\\)" region-text))
-        (setq suggestion "Replace Magic Number with Symbolic Constant"))
+        (setq suggestion "Address Magic Numbers/Literals")) ;; <-- Changed
        ;; Check if it's a complex expression
        ((and region-text (string-match-p "[+-/*&|!<>=]" region-text))
-        (setq suggestion "Extract Variable"))
+        (setq suggestion "Simplify Expression")) ;; <-- Changed
        ;; Default suggestion for regions
-       (t (setq suggestion "Extract Method"))))
+       (t (setq suggestion "Extract Method")))) ;; <-- Kept as is
      ;; If no region but we have current function
      (current-function
       (cond
        ;; Check if function name is too long, might need refactoring
        ((> (length current-function) 30)
-        (setq suggestion "Extract Method"))
+        (setq suggestion "Review Function Length/Complexity")) ;; <-- Changed
        ;; Default suggestion for functions
-       (t (setq suggestion "Rename Variable/Method"))))
+       (t (setq suggestion "Improve Naming")))) ;; <-- Changed
      ;; Default suggestion
-     (t (setq suggestion "Extract Class")))
+     (t (setq suggestion "Review Code Organization/Structure"))) ;; <-- Changed
     suggestion))
 
 (defun aider--get-refactoring-techniques-with-suggestion (region-active suggestion)
