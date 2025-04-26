@@ -141,6 +141,46 @@
          t)))
      (t technique-description))))
 
+(defun aider--handle-specific-refactoring (selected-technique all-techniques context)
+  "Handle the case where a specific refactoring technique is chosen."
+  (let* ((region-active (plist-get context :region-active))
+         (region-text (plist-get context :region-text))
+         (context-description (plist-get context :context-description))
+         (technique-description (cdr (assoc selected-technique all-techniques)))
+         (prompt-with-params (aider--process-refactoring-parameters
+                              selected-technique technique-description context))
+         (initial-instruction (format "%s %s. %s"
+                                      selected-technique
+                                      context-description
+                                      prompt-with-params))
+         (final-instruction (aider-read-string "Edit refactoring instruction: " initial-instruction))
+         (command (if region-active
+                      (format "\"%s\n\nSelected code:\n%s\""
+                              final-instruction
+                              region-text)
+                    (format "\"%s\"" final-instruction))))
+    (aider-current-file-command-and-switch "/architect " command)
+    (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique)))
+
+(defun aider--handle-ask-llm-suggestion (context)
+  "Handle the case where the user asks the LLM for a refactoring suggestion."
+  (let* ((region-active (plist-get context :region-active))
+         (region-text (plist-get context :region-text))
+         (current-function (plist-get context :current-function))
+         (context-info (cond
+                        (region-active "Selected code region")
+                        (current-function (format "Function '%s'" current-function))
+                        (t "Current buffer context")))
+         (code-snippet (if region-active
+                           (format "\n```\n%s\n```" region-text)
+                         ""))
+         (prompt (format "Analyze the following code context and suggest appropriate refactoring strategy.\nContext: %s%s\n"
+                         context-info
+                         code-snippet))
+         (command (format "/ask \"%s\"" prompt)))
+    (aider--send-command command t) ;; Use aider--send-command for /ask
+    (message "Requesting refactoring suggestion from Aider. If you are happy with the suggestion, use 'go ahead' to accept the change")))
+
 ;;;###autoload
 (defun aider-refactor-book-method ()
   "Apply famous refactoring techniques from Martin Fowler's book.
@@ -157,40 +197,11 @@ Works across different programming languages."
          (prompt (if region-active
                      "Select refactoring technique for selected region: " ;; Updated prompt
                    "Select refactoring technique: ")) ;; Updated prompt
-         (selected-technique (completing-read prompt technique-names nil t))) ;; Use selected-technique directly
-    ;; Check if user selected "Ask LLM" or a specific technique
-    (if (not (string= selected-technique "Ask LLM for Suggestion"))
-        ;; User selected a specific refactoring technique
-        (let* ((technique-description (cdr (assoc selected-technique all-techniques))) ;; Moved lookup here
-               (prompt-with-params (aider--process-refactoring-parameters
-                                   selected-technique technique-description context))
-               (initial-final-instruction (format "%s %s. %s"
-                                               selected-technique
-                                               context-description
-                                               prompt-with-params))
-               (final-instruction (aider-read-string "Edit refactoring instruction: " initial-final-instruction))
-               (command (if region-active
-                           (format "\"%s\n\nSelected code:\n%s\""
-                                   final-instruction
-                                   region-text)
-                         (format "\"%s\"" final-instruction))))
-          (aider-current-file-command-and-switch "/architect " command)
-          (message "%s refactoring request sent to Aider. After code refactored, better to re-run unit-tests." selected-technique))
-      ;; User selected "Ask LLM for Suggestion"
-      (let* ((current-function (plist-get context :current-function))
-             (context-info (cond
-                            (region-active "Selected code region")
-                            (current-function (format "Function '%s'" current-function))
-                            (t "Current buffer context")))
-             (code-snippet (if region-active
-                               (format "\n```\n%s\n```" region-text)
-                             ""))
-             (prompt (format "Analyze the following code context and suggest appropriate refactoring strategy.\nContext: %s%s\n"
-                             context-info
-                             code-snippet))
-             (command (format "/ask \"%s\"" prompt)))
-        (aider--send-command command t) ;; Use aider--send-command for /aitask
-        (message "Requesting refactoring suggestion from Aider. If you are happy with the suggestion, use 'go ahead' to accept the change")))))
+         (selected-technique (completing-read prompt technique-names nil t)))
+    ;; Dispatch to appropriate handler based on user selection
+    (if (string= selected-technique "Ask LLM for Suggestion")
+        (aider--handle-ask-llm-suggestion context)
+      (aider--handle-specific-refactoring selected-technique all-techniques context))))
 
 ;;;###autoload
 (defun aider-tdd-cycle ()
