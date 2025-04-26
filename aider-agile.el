@@ -204,6 +204,51 @@ Works across different programming languages."
         (aider--handle-ask-llm-suggestion context)
       (aider--handle-specific-refactoring selected-technique all-techniques context))))
 
+(defun aider--tdd-red-stage (function-name)
+  "Handle the Red stage of the TDD cycle: Write a failing test."
+  (let* ((initial-input
+          (if function-name
+              (format "Write a failing test for function '%s': " function-name)
+            "Write a failing test for this feature: "))
+         (feature-desc (aider-read-string "Describe the feature to test: " initial-input))
+         (tdd-instructions
+          (format "%s Follow TDD principles - write only the test now, not the implementation. The test should fail when run because the functionality doesn't exist yet."
+                  feature-desc)))
+    (aider-current-file-command-and-switch "/architect " tdd-instructions)))
+
+(defun aider--tdd-green-stage (function-name)
+  "Handle the Green stage of the TDD cycle: Make the test pass."
+  (let* ((initial-input
+          (if function-name
+              (format "Implement function '%s' with minimal code to make tests pass: " function-name)
+            "Implement the minimal code needed to make the failing test pass: "))
+         (implementation-desc (aider-read-string "Implementation instruction: " initial-input))
+         (tdd-instructions
+          (format "%s Follow TDD principles - implement only the minimal code needed to make the test pass. Don't over-engineer or implement features not required by the test."
+                  implementation-desc)))
+    (aider-current-file-command-and-switch "/architect " tdd-instructions)))
+
+(defun aider--tdd-refactor-stage (function-name)
+  "Handle the Refactor stage of the TDD cycle: Improve code quality."
+  (let* ((context-desc (if function-name
+                           (format "in function '%s'" function-name)
+                         "in this code"))
+         (initial-input (format "Refactor the code %s while ensuring all tests continue to pass: " context-desc))
+         (refactoring-suggestions
+          (list
+           (format "Improve naming of variables and functions %s" context-desc)
+           (format "Extract duplicated code into helper methods %s" context-desc)
+           (format "Simplify complex conditionals %s" context-desc)
+           (format "Improve code organization and structure %s" context-desc)))
+         (refactor-desc (aider-read-string
+                         "Describe the refactoring needed: "
+                         initial-input
+                         refactoring-suggestions))
+         (tdd-instructions
+          (format "%s Follow TDD principles - improve code quality without changing behavior. Ensure all tests still pass after refactoring."
+                  refactor-desc)))
+    (aider-current-file-command-and-switch "/architect " tdd-instructions)))
+
 ;;;###autoload
 (defun aider-tdd-cycle ()
   "Guide through Test Driven Development cycle (Red-Green-Refactor).
