@@ -241,27 +241,6 @@ If TDD-MODE is non-nil, adjusts prompts and instructions for the TDD refactor st
                   implementation-desc)))
     (aider-current-file-command-and-switch "/architect " tdd-instructions)))
 
-(defun aider--tdd-refactor-stage (function-name)
-  "Handle the Refactor stage of the TDD cycle: Improve code quality."
-  (let* ((context-desc (if function-name
-                           (format "in function '%s'" function-name)
-                         "in this code"))
-         (initial-input (format "Refactor the code %s while ensuring all tests continue to pass: " context-desc))
-         (refactoring-suggestions
-          (list
-           (format "Improve naming of variables and functions %s" context-desc)
-           (format "Extract duplicated code into helper methods %s" context-desc)
-           (format "Simplify complex conditionals %s" context-desc)
-           (format "Improve code organization and structure %s" context-desc)))
-         (refactor-desc (aider-read-string
-                         "Describe the refactoring needed: "
-                         initial-input
-                         refactoring-suggestions))
-         (tdd-instructions
-          (format "%s Follow TDD principles - improve code quality without changing behavior. Ensure all tests still pass after refactoring."
-                  refactor-desc)))
-    (aider-current-file-command-and-switch "/architect " tdd-instructions)))
-
 ;;;###autoload
 (defun aider-tdd-cycle ()
   "Guide through Test Driven Development cycle (Red-Green-Refactor).
