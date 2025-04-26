@@ -185,11 +185,11 @@ Works across different programming languages."
              (code-snippet (if region-active
                                (format "\n```\n%s\n```" region-text)
                              ""))
-             (prompt (format "Analyze the following code context and suggest *one* most appropriate refactoring technique.\nContext: %s%s\n\nProvide only the name of the suggested technique (e.g., 'Extract Method', 'Simplify Conditional', 'Improve Naming'). Only suggestion. Do not make the code change."
+             (prompt (format "Analyze the following code context and suggest appropriate refactoring strategy.\nContext: %s%s\n"
                              context-info
                              code-snippet))
              (command (format "/ask \"%s\"" prompt)))
-        (aider--send-command command nil t) ;; Use aider--send-command for /aitask
+        (aider--send-command command t) ;; Use aider--send-command for /aitask
         (message "Requesting refactoring suggestion from Aider. If you are happy with the suggestion, use 'go ahead' to accept the change")))))
 
 ;;;###autoload
