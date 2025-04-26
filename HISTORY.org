@@ -4,6 +4,8 @@
 ** main branch change
 
 - fix aider--analyze-module function. It now accept a module directory provided by user, /read-only, and then analyze the module using the prompt.
+- Better color rendering for aider-comint-buffer, especially on prompt input line
+  - from the line and below in this PR: https://github.com/MatthewZMD/aidermacs/pull/119/files#diff-1865a6c95bb14150b7acdc358d45da54237ced17219de644e1194b6e1bcab04eR387
 
 ** v0.8.1
 
