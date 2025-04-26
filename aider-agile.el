@@ -27,8 +27,6 @@
                                (file-name (format "in file '%s'" file-name))
                                (t "in current context")))))
 
-;; Removed aider--suggest-refactoring-technique and aider--get-refactoring-techniques-with-suggestion
-
 (defun aider--get-refactoring-techniques (region-active)
   "Return appropriate refactoring techniques based on REGION-ACTIVE."
   (if region-active
