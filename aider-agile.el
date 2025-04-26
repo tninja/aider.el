@@ -27,6 +27,53 @@
                                (file-name (format "in file '%s'" file-name))
                                (t "in current context")))))
 
+(defun aider--suggest-refactoring-technique (context)
+  "Suggest appropriate refactoring technique based on CONTEXT."
+  (let* ((region-active (plist-get context :region-active))
+         (region-text (plist-get context :region-text))
+         (current-function (plist-get context :current-function))
+         (file-name (plist-get context :file-name))
+         (suggestion nil))
+    (cond
+     ;; If region is active, analyze its content
+     (region-active
+      (cond
+       ;; Check if it contains conditional statements
+       ((and region-text (string-match-p "\\(if\\|else\\|switch\\|case\\|\\?\\)" region-text))
+        (setq suggestion "Decompose Conditional"))
+       ;; Check if it contains numeric or string literals
+       ((and region-text (string-match-p "\\([0-9]+\\|\"[^\"]*\"\\|'[^']*'\\)" region-text))
+        (setq suggestion "Replace Magic Number with Symbolic Constant"))
+       ;; Check if it's a complex expression
+       ((and region-text (string-match-p "[+-/*&|!<>=]" region-text))
+        (setq suggestion "Extract Variable"))
+       ;; Default suggestion for regions
+       (t (setq suggestion "Extract Method"))))
+     ;; If no region but we have current function
+     (current-function
+      (cond
+       ;; Check if function name is too long, might need refactoring
+       ((> (length current-function) 30)
+        (setq suggestion "Extract Method"))
+       ;; Default suggestion for functions
+       (t (setq suggestion "Rename Variable/Method"))))
+     ;; Default suggestion
+     (t (setq suggestion "Extract Class")))
+    suggestion))
+
+(defun aider--get-refactoring-techniques-with-suggestion (region-active suggestion)
+  "Return refactoring techniques with SUGGESTION as first item based on REGION-ACTIVE."
+  (let ((techniques (aider--get-refactoring-techniques region-active)))
+    (when suggestion
+      (let ((suggestion-desc (cdr (assoc suggestion techniques))))
+        (when suggestion-desc
+          ;; Create a new list with suggestion as the first item
+          (setq techniques 
+                (cons 
+                 (cons (format "✓ %s (Suggested)" suggestion) suggestion-desc)
+                 (remove (assoc suggestion techniques) techniques))))))
+    techniques))
+
 (defun aider--get-refactoring-techniques (region-active)
   "Return appropriate refactoring techniques based on REGION-ACTIVE."
   (if region-active
@@ -147,13 +194,23 @@ Works across different programming languages."
          (region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
          (context-description (plist-get context :context-description))
-         (refactoring-techniques (aider--get-refactoring-techniques region-active))
+         ;; Get suggested refactoring technique
+         (suggested-technique (aider--suggest-refactoring-technique context))
+         ;; Get refactoring techniques with suggestion
+         (refactoring-techniques (aider--get-refactoring-techniques-with-suggestion 
+                                 region-active suggested-technique))
          (technique-names (mapcar #'car refactoring-techniques))
          (prompt (if region-active
                      "Select refactoring technique for selected region: "
                    "Select refactoring technique: "))
-         (selected-technique (completing-read prompt technique-names nil t))
-         (technique-description (cdr (assoc selected-technique refactoring-techniques)))
+         (selected-technique-with-label (completing-read prompt technique-names nil t))
+         ;; Extract actual technique name (remove "✓ " and " (Suggested)" parts)
+         (selected-technique (replace-regexp-in-string 
+                             "^✓ \\(.*?\\) (Suggested)$" "\\1" 
+                             selected-technique-with-label))
+         ;; Get technique description (need to look up description for original technique name)
+         (original-techniques (aider--get-refactoring-techniques region-active))
+         (technique-description (cdr (assoc selected-technique original-techniques)))
          (prompt-with-params (aider--process-refactoring-parameters 
                              selected-technique technique-description context))
          (initial-final-instruction (format "%s %s. %s"
