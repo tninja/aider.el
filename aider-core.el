@@ -190,7 +190,8 @@ Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
 Optional LOG, when non-nil, logs the command to the message area."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
-      (let* ((command (aider--process-message-if-multi-line command))
+      (let* ((command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
+             (command (aider--process-message-if-multi-line command))
              (aider-process (get-buffer-process aider-buffer)))
         ;; Check if the corresponding aider buffer has an active process
         (if (and aider-process (comint-check-proc aider-buffer))
