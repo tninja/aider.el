@@ -322,11 +322,12 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
   - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [4/4]
+- More thinking on improving code quality tool such as unit-test [4/5]
   - [X] Code refactoring functions
   - [X] TDD functions
   - [X] Code reading functions 
   - [X] Legacy code support
+  - [ ] Bootstrap code or document
 - More thinking on how to simplify the menu / commands
 
 ** Code quality
