@@ -109,9 +109,9 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 
 The aider prefix is ~A~.
 
-- Start and open the aider buffer: =[SPC] A o=
-- Add the current file with =[SPC] A a c=
-- Reset the aider session with =[SPC] A r=
+- Start and open the aider buffer: =[SPC] A p a=
+- Add the current file with =[SPC] A f f=
+- Reset the aider session with =[SPC] A p s=
 [[file:./doom_menus.png]]
 
 - *However, transient menu is more recommended than doom menu*, cause I constantly use that one so it is better maintained.
