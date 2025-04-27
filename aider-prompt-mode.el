@@ -39,6 +39,39 @@ This is the file name without path."
     map)
   "Keymap for Aider Prompt Mode.")
 
+(defun aider--handle-subtree-command (subdir-rel-path)
+  "Switch to or start an Aider session for SUBDIR-REL-PATH relative to git root."
+  (let ((git-root (magit-toplevel)))
+    (if git-root
+        (let* ((subdir-full-path (expand-file-name subdir-rel-path git-root))
+               (expected-aider-buffer-name
+                (let ((default-directory subdir-full-path)) ; Temporarily set default-directory
+                  (aider-buffer-name)))
+               (existing-buffer (get-buffer expected-aider-buffer-name)))
+          (if existing-buffer
+              (progn
+                (message "Aider session already available. Switching to it.")
+                (pop-to-buffer existing-buffer))
+            (if (file-directory-p subdir-full-path)
+                (progn
+                  (message "Starting Aider in subtree: %s" subdir-rel-path)
+                  (let ((default-directory subdir-full-path))
+                    ;; Pass t for the subtree-only argument
+                    (aider-run-aider nil t))) ; Pass nil for edit-args, t for subtree-only
+              (message "Error: Subdirectory '%s' not found or not a directory relative to git root '%s'." subdir-rel-path git-root))))
+      (message "Error: Not in a git repository. Cannot use subtree-only."))))
+
+(defun aider--send-trimmed-line (line)
+  "Trim LINE and send it as a command to Aider if not empty.
+Handles special /subtree-only command."
+  (let ((trimmed-line (string-trim line)))
+    (if (string-match "^subtree-only +\\(.*\\)" trimmed-line)
+        ;; Handle subtree-only command by calling the new function
+        (aider--handle-subtree-command (match-string 1 trimmed-line))
+      ;; Original behavior for other commands
+      (unless (string-empty-p trimmed-line)
+        (aider--send-command trimmed-line t)))))
+
 ;;;###autoload
 (defun aider-send-line-or-region (&optional arg)
   "Send text to the Aider buffer.
@@ -57,8 +90,7 @@ After sending, return cursor to the original buffer."
       (aider-send-region-by-line))
      ;; Otherwise, send current line
      (t
-      (let ((line (thing-at-point 'line t)))
-        (aider--send-command (string-trim line) t))))
+      (aider--send-trimmed-line (thing-at-point 'line t))))
     ;; Return to the original buffer
     (when (buffer-live-p orig-buffer)
       (pop-to-buffer orig-buffer))))
@@ -83,11 +115,7 @@ returns nil."
       (let ((region-text (buffer-substring-no-properties
                           (region-beginning)
                           (region-end))))
-        (mapc (lambda (line)
-                (let ((trimmed-line (string-trim line)))
-                  (unless (string-empty-p trimmed-line)
-                    (aider--send-command trimmed-line t))))
-              (split-string region-text "\n")))
+        (mapc #'aider--send-trimmed-line (split-string region-text "\n")))
     (message "No region selected.")))
 
 ;;;###autoload
@@ -166,12 +194,13 @@ If file doesn't exist, create it with command binding help and sample prompt."
 
 (defun aider-prompt-mode-setup-font-lock ()
   "Setup custom font lock for aider commands."
-  (let ((green-commands '("/add" "/read-only" "/architect" "/ask" "/copy" "/copy-context"
-                           "/drop" "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
-                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-                           "/tokens" "/voice" "/web" "go ahead"))
-        (red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint")))
+  (let* ((red-commands '("/clear" "/code" "/commit" "/exit" "/quit" "/reset" "/undo" "/lint"))
+         ;; Derive green commands by removing red commands from the main list
+         (green-commands (seq-filter (lambda (cmd)
+                                       (not (member cmd red-commands)))
+                                     aider--command-list))
+         ;; Add "go ahead" and "subtree-only" separately
+         (green-commands (append green-commands '("go ahead" "subtree-only"))))
     ;; Append custom font lock keywords to org-mode's defaults
     (font-lock-add-keywords nil
      `((,(regexp-opt green-commands) . font-lock-type-face)

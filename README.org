@@ -312,7 +312,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - Spike-Leung said [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][add hook to it will help]]
 
 - Why aider-code-change got disabled in transient menu?
-  - It is not recommended. The code quality is not as good as /architect. Discussed here: https://github.com/tninja/aider.el/issues/128
+  - It bypass code review and is not recommended. The code quality is not as good as /architect. Discussed here: https://github.com/tninja/aider.el/issues/128
 
 * TODO Future work
 

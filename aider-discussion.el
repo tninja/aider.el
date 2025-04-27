@@ -28,7 +28,8 @@ Focuses on understanding, analyzing, improving the selected code or function."
                   (function-name (format "About function '%s': " function-name))
                   (region-active "Question for the selected region: ")
                   (t "Question: ")))
-         (candidate-list '("What is your suggestion on the most important thing to do"
+         (candidate-list '("What kind of question do you have about this code?"
+                           "What is your suggestion on the most important thing to do"
                           "Carefully review this file and suggest improvements"
                           "What does this code do? Explain the logic of this code step by step"
                           "What are the inputs and outputs of this code?"
