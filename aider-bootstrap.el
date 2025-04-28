@@ -264,17 +264,17 @@ For each file, provide a brief description of its purpose and basic content."
                                          nil t "Customer Segmentation"))
          (time-period (aider-read-string "Analysis time period: " "Last 3 months"))
          (analysis-tools (completing-read-multiple "Select analysis tools (space-separated): " 
-                                                 '("PostgreSQL" "Python" "R" "Pandas" "Scikit-learn") 
+                                                 '("PostgreSQL" "Python" "R" "Pandas" "Scikit-learn")
                                                  nil t))
          (include-dashboards (y-or-n-p "Include dashboard recommendations? "))
          (include-ml (y-or-n-p "Include machine learning models? "))
          (tools-text (if analysis-tools
-                         (format "Include org-babel code blocks for %s with appropriate examples for each tool: 
+                         (format "Include org-babel code blocks for %s with appropriate examples for each tool:
 - PostgreSQL: data extraction, customer metrics, and cohort analysis
 - Python: data manipulation with pandas, visualization with matplotlib/seaborn
 - R: statistical analysis with tidyverse, modeling, and ggplot2 visualizations
 - Machine learning: %s examples for predictive modeling
-" 
+"
                                  (string-join analysis-tools ", ")
                                  (if include-ml "scikit-learn/caret" ""))
                        ""))
