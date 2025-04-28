@@ -11,6 +11,31 @@
 (require 'aider-core)
 (require 'aider-file) ; For aider-add-current-file
 
+;; Add this new function definition here
+(defun aider--get-extension-for-language (language)
+  "Return a common file extension for the given LANGUAGE string."
+  (cond
+   ((string-equal language "Python") ".py")
+   ((string-equal language "JavaScript") ".js")
+   ((string-equal language "TypeScript") ".ts")
+   ((string-equal language "Java") ".java")
+   ((string-equal language "Go") ".go")
+   ((string-equal language "Ruby") ".rb")
+   ((string-equal language "Rust") ".rs")
+   ((string-equal language "C++") ".cpp")
+   ((string-equal language "C") ".c")
+   ((string-equal language "C#") ".cs")
+   ((string-equal language "PHP") ".php")
+   ((string-equal language "Swift") ".swift")
+   ((string-equal language "Kotlin") ".kt")
+   ((string-equal language "Scala") ".scala")
+   ((string-equal language "Lisp") ".lisp")
+   ((string-equal language "Clojure") ".clj")
+   ((string-equal language "Haskell") ".hs")
+   ((string-equal language "Perl") ".pl")
+   ((string-equal language "Shell") ".sh")
+   (t ".txt"))) ; Default extension
+
 (defun aider--detect-language-from-mode ()
   "Attempt to detect the programming language based on the current major mode."
   (let ((mode-name (symbol-name major-mode)))
