@@ -221,9 +221,10 @@ If the current buffer is already the Aider buffer, do nothing."
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
 ;;;###autoload
-(defun aider-run-aider (&optional edit-args)
+(defun aider-run-aider (&optional edit-args subtree-only)
   "Create a comint-based buffer and run \"aider\" for interactive conversation.
 With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
+If SUBTREE-ONLY is non-nil, add '--subtree-only' argument.
 If current buffer is a dired, eshell, or shell buffer, ask if user wants to use --subtree-only mode."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
@@ -243,13 +244,17 @@ If current buffer is a dired, eshell, or shell buffer, ask if user wants to use 
       ;; Check if --subtree-only is already in the arguments
       (unless (member "--subtree-only" current-args)
         (setq current-args (append current-args '("--subtree-only")))))
+    ;; Add --subtree-only if the parameter is set and it's not already present
+    (when (and subtree-only (not (member "--subtree-only" current-args)))
+      (setq current-args (append current-args '("--subtree-only")))
+      (message "Adding --subtree-only argument as requested."))
     (unless (comint-check-proc buffer-name)
       (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
         (aider-comint-mode))
       (message "%s" (if current-args
                        (format "Running aider from %s, with args: %s" default-directory (mapconcat #'identity current-args " "))
-                     "Running aider with no args provided.")))
+                     (format "Running aider from %s with no args provided." default-directory))))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
@@ -262,24 +267,19 @@ Optional LOG, when non-nil, logs the command to the message area."
 (defun aider-core--command-completion ()
   "Provide auto completion for common commands in aider buffer.
 When the current line starts with '/', this function returns a candidate list
-of common commands such as \"/add\", \"/ask\", \"/drop\", etc."
+of common commands."
   (save-excursion
     (let* ((line-start (line-beginning-position))
            (line-end (line-end-position))
            (line-str (buffer-substring-no-properties line-start line-end)))
       (when (string-match "^/\\(\\w*\\)" line-str)
+        ;; Define the list of commands as a constant
         (let* ((beg (+ line-start (match-beginning 0)))
                (end (+ line-start (match-end 0)))
-               (commands '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
-                           "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
-                           "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-                           "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
-                           "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-                           "/tokens" "/voice" "/web"))
                (prefix (match-string 0 line-str))
                (candidates (seq-filter (lambda (cmd)
                                          (string-prefix-p prefix cmd))
-                                       commands)))
+                                       aider--command-list)))
           (when candidates
             (list beg end candidates :exclusive 'no)))))))
 
@@ -326,6 +326,15 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
+
+(defconst aider--command-list
+  '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
+    "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
+    "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+    "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
+    "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
+    "/tokens" "/voice" "/web")
+  "A list of common Aider commands for completion.")
 
 (provide 'aider-core)
 
