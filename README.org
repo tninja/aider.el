@@ -295,6 +295,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
     - Used dired, eshell, or shell buffer to go to the directory (subtree) to be included
     - C-c a a to trigger aider-run-aider
     - Answer yes about --subtree-only question, it will add the flag
+  - Or, in aider prompt file, use ~subtree-only <dir>~ to specify where to start, and use C-c C-n to start aider session at that directory, it start with --subtree-only 
    
 - How to let aider work with your speaking language?
   - use [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider coding conventions]]. In my case, I added "- reply in Chinese" to the CONVENTIONS.md file, and load work through [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]]. Or, put sth like following into aider-args variable. 
