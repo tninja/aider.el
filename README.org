@@ -173,6 +173,10 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 
 [[file:./aider_prompt_file.png]]
 
+- start aider session in a sub-tree inside aider prompt file:
+  - Use ~subtree-only <dir>~ to start aider session in a sub-tree, where <dir> is the directory to start the session.
+  - This is useful when you want to work on a sub-directory of a large mono repo, and don't want to wait for aider to scan the entire repo.
+
 **** [[./snippets/aider-prompt-mode][Prompt Snippets]]
 
 - Prompts for aider might share similar structure. Yasnippet can be used to help reusing these prompts.
@@ -203,20 +207,12 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 ** AI assisted Code reading
 
 - [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
+
 * Pros and Cons 
+
 ** Pros: UI, Context Awareness AI Pair Programming
 
-- Pop-up Menu (~aider-transient-menu~)
-
-- Git repository-specific Aider session management
-  
-- Integrating context (buffer / things under cursor / region) with aider, semi-automatically build up prompt. easy search / reuse previous prompt with helm
-  
-- Menu items for AI-assistant programming workflow. AI assisted Agile development methods. AI assisted Code reading
-  
-- Aider prompt file to organize relative large code change task, and make it reproducible. Interacting with aider session from it following ESS way. Yasnippet support to reuse good prompts from community.
-
-- AI assisted Code reading tools based on classic book
+- Already introduced in this README
 
 ** Cons: aider session in comint is not fancy
 
