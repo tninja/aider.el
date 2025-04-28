@@ -12,54 +12,37 @@
 (require 'aider-file) ; For aider-add-current-file
 
 ;; Add this new function definition here
-(defun aider--get-extension-for-language (language)
-  "Return a common file extension for the given LANGUAGE string."
-  (cond
-   ((string-equal language "Python") ".py")
-   ((string-equal language "JavaScript") ".js")
-   ((string-equal language "TypeScript") ".ts")
-   ((string-equal language "Java") ".java")
-   ((string-equal language "Go") ".go")
-   ((string-equal language "Ruby") ".rb")
-   ((string-equal language "Rust") ".rs")
-   ((string-equal language "C++") ".cpp")
-   ((string-equal language "C") ".c")
-   ((string-equal language "C#") ".cs")
-   ((string-equal language "PHP") ".php")
-   ((string-equal language "Swift") ".swift")
-   ((string-equal language "Kotlin") ".kt")
-   ((string-equal language "Scala") ".scala")
-   ((string-equal language "Lisp") ".lisp")
-   ((string-equal language "Clojure") ".clj")
-   ((string-equal language "Haskell") ".hs")
-   ((string-equal language "Perl") ".pl")
-   ((string-equal language "Shell") ".sh")
-   (t ".txt"))) ; Default extension
-
-(defun aider--detect-language-from-mode ()
-  "Attempt to detect the programming language based on the current major mode."
-  (let ((mode-name (symbol-name major-mode)))
+(defun aider--get-language-from-extension (filename)
+  "Return a programming language name based on FILENAME's extension."
+  (let ((extension (file-name-extension filename)))
     (cond
-     ((string-match "python" mode-name) "Python")
-     ((string-match "js\\|javascript" mode-name) "JavaScript")
-     ((string-match "typescript" mode-name) "TypeScript")
-     ((string-match "java-" mode-name) "Java")
-     ((string-match "go-" mode-name) "Go")
-     ((string-match "ruby" mode-name) "Ruby")
-     ((string-match "rust" mode-name) "Rust")
-     ((string-match "c\\+\\+" mode-name) "C++")
-     ((string-match "^c-" mode-name) "C")
-     ((string-match "csharp" mode-name) "C#")
-     ((string-match "php" mode-name) "PHP")
-     ((string-match "swift" mode-name) "Swift")
-     ((string-match "kotlin" mode-name) "Kotlin")
-     ((string-match "scala" mode-name) "Scala")
-     ((string-match "lisp" mode-name) "Lisp")
-     ((string-match "clojure" mode-name) "Clojure")
-     ((string-match "haskell" mode-name) "Haskell")
-     ((string-match "perl" mode-name) "Perl")
-     ((string-match "sh\\|bash" mode-name) "Shell")
-     (t "Unknown"))))
+     ((null extension) "Unknown") ; No extension
+     ((string-equal extension "py") "Python")
+     ((string-equal extension "js") "JavaScript")
+     ((string-equal extension "ts") "TypeScript")
+     ((string-equal extension "java") "Java")
+     ((string-equal extension "go") "Go")
+     ((string-equal extension "rb") "Ruby")
+     ((string-equal extension "rs") "Rust")
+     ((string-equal extension "cpp") "C++")
+     ((string-equal extension "c") "C")
+     ((string-equal extension "h") "C") ; Also C/C++ header
+     ((string-equal extension "hpp") "C++") ; Also C++ header
+     ((string-equal extension "cs") "C#")
+     ((string-equal extension "php") "PHP")
+     ((string-equal extension "swift") "Swift")
+     ((string-equal extension "kt") "Kotlin")
+     ((string-equal extension "scala") "Scala")
+     ((string-equal extension "lisp") "Lisp")
+     ((string-equal extension "clj") "Clojure")
+     ((string-equal extension "hs") "Haskell")
+     ((string-equal extension "pl") "Perl")
+     ((string-equal extension "sh") "Shell")
+     ((string-equal extension "bash") "Shell")
+     ((string-equal extension "md") "Markdown")
+     ((string-equal extension "org") "Org Mode")
+     ((string-equal extension "txt") "Text")
+     (t "Unknown")))) ; Default for unknown extensions
 
 ;;;###autoload
 (defun aider-bootstrap-code ()
@@ -86,18 +69,16 @@ Provides a selection of language-agnostic bootstrapping prompts."
 ;; --- Internal Helper Functions for Bootstrapping ---
 
 (defun aider--bootstrap-basic-file ()
-  "Generate a basic file structure for the current language."
+  "Generate a basic file structure for a new file."
   (interactive)
-  (let* ((detected-language (aider--detect-language-from-mode))
-         (language (aider-read-string "Programming language: " detected-language))
-         (file-purpose (aider-read-string "Describe the main purpose of this file: "))
-         ;; Add filename prompt
-         (suggested-filename (concat (downcase (replace-regexp-in-string "[^a-zA-Z0-9-]" "_" file-purpose))
-                                     (aider--get-extension-for-language language)))
-         (filename (read-file-name "Save file as: " nil nil t suggested-filename))
+  (let* ((file-purpose (aider-read-string "Describe the main purpose of this file: "))
+         ;; Ask for full filename including extension
+         (filename (read-file-name "Enter filename (including extension): " nil nil t))
+         ;; Derive language from filename
+         (language (aider--get-language-from-extension filename))
          ;; Generate prompt *before* switching buffer
-         (initial-prompt (format "Generate a basic file structure in %s for a file intended for '%s'. Include standard header comments (if applicable for %s), common imports (if predictable), and a basic entry point (like a main function or initial setup)."
-                               language file-purpose language))
+         (initial-prompt (format "Generate a basic file structure in %s for a file named '%s' intended for '%s'. Include standard header comments (if applicable for %s), common imports (if predictable), and a basic entry point (like a main function or initial setup)."
+                               language (file-name-nondirectory filename) file-purpose language))
          (user-prompt (aider-read-string "Basic File Structure instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     ;; Create/find file, add it, then send command
@@ -106,19 +87,17 @@ Provides a selection of language-agnostic bootstrapping prompts."
     (aider--send-command command t)))
 
 (defun aider--bootstrap-class-module-outline ()
-  "Generate an outline for a class or module."
+  "Generate an outline for a class or module in a new file."
   (interactive)
-  (let* ((detected-language (aider--detect-language-from-mode))
-         (language (aider-read-string "Programming language: " detected-language))
-         (name (aider-read-string "Name for the class/module: "))
+  (let* ((name (aider-read-string "Name for the class/module: "))
          (purpose (aider-read-string "Briefly describe its purpose: "))
-         ;; Add filename prompt
-         (suggested-filename (concat (downcase (replace-regexp-in-string "[^a-zA-Z0-9-]" "_" name))
-                                     (aider--get-extension-for-language language)))
-         (filename (read-file-name "Save file as: " nil nil t suggested-filename))
+         ;; Ask for full filename including extension
+         (filename (read-file-name "Enter filename (including extension): " nil nil t))
+         ;; Derive language from filename
+         (language (aider--get-language-from-extension filename))
          ;; Generate prompt *before* switching buffer
-         (initial-prompt (format "Generate a basic outline for a class or module named '%s' in %s. Its purpose is: '%s'. Include placeholders for initialization (constructor), key public methods, potential private helper methods, and essential attributes. Add docstrings/comments explaining each part."
-                               name language purpose))
+         (initial-prompt (format "Generate a basic outline in %s for a class or module named '%s' in file '%s'. Its purpose is: '%s'. Include placeholders for initialization (constructor), key public methods, potential private helper methods, and essential attributes. Add docstrings/comments explaining each part."
+                               language name (file-name-nondirectory filename) purpose))
          (user-prompt (aider-read-string "Class/Module Outline instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     ;; Create/find file, add it, then send command
@@ -127,19 +106,17 @@ Provides a selection of language-agnostic bootstrapping prompts."
     (aider--send-command command t)))
 
 (defun aider--bootstrap-cli-app ()
-  "Generate a basic structure for a command-line application."
+  "Generate a basic structure for a command-line application in a new file."
   (interactive)
-  (let* ((detected-language (aider--detect-language-from-mode))
-         (language (aider-read-string "Programming language: " detected-language))
-         (app-name (aider-read-string "Name of the CLI application: "))
+  (let* ((app-name (aider-read-string "Name of the CLI application: "))
          (purpose (aider-read-string "Briefly describe its main function: "))
-         ;; Add filename prompt
-         (suggested-filename (concat (downcase (replace-regexp-in-string "[^a-zA-Z0-9-]" "_" app-name))
-                                     (aider--get-extension-for-language language)))
-         (filename (read-file-name "Save file as: " nil nil t suggested-filename))
+         ;; Ask for full filename including extension
+         (filename (read-file-name "Enter filename (including extension): " nil nil t))
+         ;; Derive language from filename
+         (language (aider--get-language-from-extension filename))
          ;; Generate prompt *before* switching buffer
-         (initial-prompt (format "Generate a basic structure for a command-line application named '%s' in %s. Purpose: '%s'. Include argument parsing (using a common library for %s, e.g., argparse in Python, getopt in C, commander in Node.js), a main execution function, basic help message handling, and placeholder logic for the core task."
-                               app-name language purpose language))
+         (initial-prompt (format "Generate a basic structure in %s for a command-line application named '%s' in file '%s'. Purpose: '%s'. Include argument parsing (using a common library for %s, e.g., argparse in Python, getopt in C, commander in Node.js), a main execution function, basic help message handling, and placeholder logic for the core task."
+                               language app-name (file-name-nondirectory filename) purpose language))
          (user-prompt (aider-read-string "CLI Application instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     ;; Create/find file, add it, then send command
@@ -152,7 +129,7 @@ Provides a selection of language-agnostic bootstrapping prompts."
   (interactive)
   (let* ((project-name (aider-read-string "Project Name: " (file-name-nondirectory default-directory)))
          (purpose (aider-read-string "Briefly describe the project's purpose: "))
-         ;; Add filename prompt
+         ;; Keep suggestion for standard filename
          (suggested-filename "README.md")
          (filename (read-file-name "Save file as: " nil nil t suggested-filename))
          ;; Generate prompt *before* switching buffer
@@ -168,13 +145,13 @@ Provides a selection of language-agnostic bootstrapping prompts."
 (defun aider--bootstrap-project-structure ()
   "Generate a complete project structure."
   (interactive)
-  (let* ((detected-language (aider--detect-language-from-mode))
-         (project-type (completing-read "Project type: "
-                                       '("Web Application" "CLI Tool" "Library/Package" 
-                                         "API Service" "Data Processing" "Desktop Application") 
+  (let* ((project-type (completing-read "Project type: "
+                                       '("Web Application" "CLI Tool" "Library/Package"
+                                         "API Service" "Data Processing" "Desktop Application")
                                        nil t))
          (project-name (aider-read-string "Project name: " (file-name-nondirectory default-directory)))
-         (language (aider-read-string "Primary language: " detected-language))
+         ;; Keep language prompt here as it's about the overall project, not a single file
+         (language (aider-read-string "Primary language: " "Python")) ; Example default
          (initial-prompt (format "Generate a complete project structure for a %s named '%s' using %s. Include:
 1. Directory structure with explanations
 2. Key files (source code, tests, configuration)
@@ -188,27 +165,25 @@ For each file, provide a brief description of its purpose and basic content."
     (aider--send-command command t)))
 
 (defun aider--bootstrap-data-model ()
-  "Generate database model/schema code."
+  "Generate database model/schema code in a new file."
   (interactive)
-  (let* ((detected-language (aider--detect-language-from-mode))
-         (language (aider-read-string "Programming language: " detected-language))
-         (db-type (completing-read "Database type: " 
+  (let* ((db-type (completing-read "Database type: "
                                   '("PostgreSQL" "MySQL" "SQLite" "MongoDB" "Oracle" "SQL Server" "DynamoDB")
                                   nil t "PostgreSQL"))
          (entity-name (aider-read-string "Entity name (e.g., 'User', 'Product'): "))
          (fields-str (aider-read-string "Fields (e.g., 'id:int, name:string, created_at:datetime'): "))
-         ;; Add filename prompt
-         (suggested-filename (concat (downcase (replace-regexp-in-string "[^a-zA-Z0-9-]" "_" entity-name))
-                                     "_model" (aider--get-extension-for-language language)))
-         (filename (read-file-name "Save file as: " nil nil t suggested-filename))
+         ;; Ask for full filename including extension
+         (filename (read-file-name "Enter filename (including extension): " nil nil t))
+         ;; Derive language from filename
+         (language (aider--get-language-from-extension filename))
          ;; Generate prompt *before* switching buffer
-         (initial-prompt (format "Generate a database model for '%s' with these fields: %s in %s for %s database. Include:
+         (initial-prompt (format "Generate a database model in %s for '%s' with these fields: %s in file '%s' for %s database. Include:
 1. Complete model/schema definition
 2. Field types and constraints
 3. Relationships (if applicable)
 4. Indexes (if applicable)
 5. Comments explaining the structure"
-                               entity-name fields-str language db-type))
+                               language entity-name fields-str (file-name-nondirectory filename) db-type))
          (user-prompt (aider-read-string "Data Model instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     ;; Create/find file, add it, then send command
@@ -219,24 +194,24 @@ For each file, provide a brief description of its purpose and basic content."
 (defun aider--bootstrap-docker-config ()
   "Generate Docker configuration files."
   (interactive)
-  (let* ((detected-language (aider--detect-language-from-mode))
-         (language (aider-read-string "Primary language: " detected-language))
-         (config-type (completing-read "Configuration type: " 
-                                      '("Dockerfile" "Docker Compose" "Both") 
+  (let* (;; Keep this language prompt as it informs content, not filename derivation
+         (language (aider-read-string "Primary language for application content: " "Python")) ; Example default
+         (config-type (completing-read "Configuration type: "
+                                      '("Dockerfile" "Docker Compose" "Both")
                                       nil t "Both"))
          (services (when (or (string= config-type "Docker Compose") (string= config-type "Both"))
                      (aider-read-string "Services (comma-separated, e.g., 'app, db, cache'): ")))
          (multi-stage (when (or (string= config-type "Dockerfile") (string= config-type "Both"))
                         (y-or-n-p "Use multi-stage build? ")))
          (multi-stage-text (if multi-stage "Use a multi-stage build approach to minimize image size. " ""))
-         ;; Add filename prompt - suggest based on type
+         ;; Keep filename prompt with suggestions based on type
          (suggested-filename (cond
                               ((string= config-type "Dockerfile") "Dockerfile")
                               ((string= config-type "Docker Compose") "docker-compose.yml")
                               (t "docker-setup.txt"))) ; For "Both" or other cases
          (filename (read-file-name "Save file as: " nil nil t suggested-filename))
-         ;; Generate prompt *before* switching buffer
-         (initial-prompt 
+         ;; Generate prompt *before* switching buffer - uses the explicitly prompted 'language'
+         (initial-prompt
           (cond
            ((string= config-type "Dockerfile")
             (format "Generate a Dockerfile for a %s application. %sInclude:
