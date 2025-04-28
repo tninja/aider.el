@@ -111,7 +111,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
     ("d" "Code Reading" aider-code-read)
-    ("b" "Code Bootstrap" aider-bootstrap-code)
+    ("b" "Code/Doc Bootstrap" aider-bootstrap-code)
     ("e" "Debug Exception" aider-debug-exception)
     ("H" "Help (C-u: homepage)" aider-help)
     ]

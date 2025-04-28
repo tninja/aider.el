@@ -42,6 +42,7 @@
      ((string-equal extension "md") "Markdown")
      ((string-equal extension "org") "Org Mode")
      ((string-equal extension "txt") "Text")
+     ((string-equal extension "sql") "SQL")
      (t "Unknown")))) ; Default for unknown extensions
 
 ;;;###autoload
