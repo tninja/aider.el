@@ -278,10 +278,10 @@ For each file, provide a brief description of its purpose and basic content."
                                  (string-join analysis-tools ", ")
                                  (if include-ml "scikit-learn/caret" ""))
                        ""))
-         (dashboard-text (if include-dashboards 
-                             "Include a section on dashboard recommendations with metrics to track and visualization suggestions. " 
+         (dashboard-text (if include-dashboards
+                             "Include a section on dashboard recommendations with metrics to track and visualization suggestions. "
                            ""))
-         ;; Add filename prompt
+         ;; Keep suggestion for standard filename extension
          (suggested-filename (concat (downcase (replace-regexp-in-string "[^a-zA-Z0-9-]" "-" report-title)) ".org"))
          (filename (read-file-name "Save report as: " nil nil t suggested-filename))
          ;; Generate prompt *before* switching buffer
