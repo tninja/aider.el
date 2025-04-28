@@ -9,6 +9,8 @@
 - Add [Suggest Refactoring Strategy] menu item in the code refactoring tool
 - refactor aider-agile.el, breakdown large methods to smaller ones
 - Make TDD refactoring stage call aider-refactor-book-method, and tell it to pass all tests
+- Add "subtree-only" command in aider-prompt-mode.el, when user send "subtree-only <dir>" with C-c C-n, it will start aider session at the given directory with --subtree-only
+- fix doom keybinding in README.org
 
 ** v0.8.1
 
@@ -22,6 +24,7 @@
 - Introduce aider-legacy-code.el, it provides legacy code handling techniques based on Michael Feathers' "Working Effectively with Legacy Code" for the Aider package.
 - Re-organize README to make it easier to read.
 - Fix the bug in aider--analyze-program-structure, provided by EdmondFrank.
+- remove +aider-code-change+ menu item, since It bypass code review. The code quality is not as good as /architect.
 
 ** v0.7.0
 
