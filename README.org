@@ -1,3 +1,5 @@
+[[file:./icon.png]]
+
 #+TITLE: AI assisted programming in Emacs with Aider 
 
 [[file:README.zh-cn.org][中文版]]
