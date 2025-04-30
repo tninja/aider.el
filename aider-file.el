@@ -179,13 +179,13 @@ If input contains '..' it's treated as base..feature branch range.
 If input looks like a commit hash, it generates diff for that single commit.
 Otherwise, it's treated as base branch and diff is generated against HEAD."
   (interactive)
-  (let* ((git-root (magit-toplevel))
-         ;; Ensure we're in a git repo
-         (git-repo-error (unless git-root
-                           (user-error "Not in a git repository")))
-         ;; Fetch from all remotes to ensure we have the latest branches
-         (raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
-         (range (string-trim raw-range))
+  (let ((git-root (magit-toplevel)))
+    ;; Ensure we're in a git repo
+    (unless git-root
+      (user-error "Not in a git repository"))
+    ;; Fetch from all remotes to ensure we have the latest branches
+    (let* ((raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
+           (range (string-trim raw-range))
          ;; Check if it's a commit hash by verifying:
          ;; 1. It doesn't contain '..'
          ;; 2. It's not a branch name
@@ -252,7 +252,7 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
                      (concat "--output=" diff-file))
       ;; Open diff file
       (find-file diff-file)
-      (message "Generated diff file: %s" diff-file))))
+      (message "Generated diff file: %s" diff-file)))))
 
 ;;;###autoload
 (defun aider-open-history ()
