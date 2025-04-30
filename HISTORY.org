@@ -1,7 +1,7 @@
 
 * Release history
 
-** main branch change
+** v0.8.2
 
 - fix aider--analyze-module function. It now accept a module directory provided by user, /read-only, and then analyze the module using the prompt.
 - Better color rendering for aider-comint-buffer, especially on prompt input line
