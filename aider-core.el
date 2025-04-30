@@ -258,8 +258,8 @@ If current buffer is a dired, eshell, or shell buffer, ask if user wants to use 
       (with-current-buffer buffer-name
         (aider-comint-mode))
       (message "%s" (if current-args
-                       (format "Running aider from %s, with args: %s" default-directory (mapconcat #'identity current-args " "))
-                     (format "Running aider from %s with no args provided." default-directory))))
+                       (format "Running aider from %s, with args: %s.\nMay the AI force be with you!" default-directory (mapconcat #'identity current-args " "))
+                     (format "Running aider from %s with no args provided.\nMay the AI force be with you!" default-directory))))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)
