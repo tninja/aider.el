@@ -207,9 +207,9 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (diff-file (if is-commit-hash
                          (concat git-root range ".diff")
                        (concat git-root base-branch "." feature-branch ".diff"))))
-    (progn (message "Fetching from all remotes to ensure latest branches...")
-           (magit-run-git "fetch" "--all"))
-    ;; Verify branches exist (for non-commit-hash cases)
+      (progn (message "Fetching from all remotes to ensure latest branches...")
+             (magit-run-git "fetch" "--all"))
+      ;; Verify branches exist (for non-commit-hash cases)
     (unless is-commit-hash
       ;; Check base branch
       (unless (or (magit-branch-p base-branch)
