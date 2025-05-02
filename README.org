@@ -40,13 +40,27 @@
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the emacs dependency library [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
-- Install aider.el with the following code:
+- Install aider.el with the following instruction:
 
-*** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
-If you have Straight installed
+*** With Melpa + package-install (recommended)
+
+Enable installation of packages from MELPA by adding an entry to package-archives after (require 'package) and before the call to package-initialize in your init.el or .emacs file: 
+
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+#+END_SRC
+
+- Use M-x package-refresh-contents or M-x package-list-packages to ensure that Emacs has fetched the MELPA package list 
+- Use M-x package-install to install [[https://melpa.org/#/aider][aider]] package
+- Import and configure aider.el in your init.el or .emacs file:
+
 #+BEGIN_SRC emacs-lisp
   (use-package aider
-    :straight (:host github :repo "tninja/aider.el")
     :config
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
@@ -64,33 +78,28 @@ If you have Straight installed
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
 
-- *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
-- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
-
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (Emacs 30+ built-in)
 - Install aider.el by running the following code within Emacs
   - You'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
+
 #+BEGIN_SRC emacs-lisp
 (package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
 #+END_SRC
 
-The config part is as same as above straight one
+The config part is as same as above one
 
-*** With Melpa + package-install
-
-Enable installation of packages from MELPA by adding an entry to package-archives after (require 'package) and before the call to package-initialize in your init.el or .emacs file: 
-
+*** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
+If you have Straight installed
 #+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
-;; and `package-pinned-packages`. Most users will not need or want to do this.
-;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el")
+    :config
+    ;; rest of configs
+    )
 #+END_SRC
 
-- Use M-x package-refresh-contents or M-x package-list-packages to ensure that Emacs has fetched the MELPA package list 
-- Use M-x package-install to install aider package
+- *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
+- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
 
 ** Doom Installation and Configuration
 
@@ -326,7 +335,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - [X] TDD functions
   - [X] Code reading functions 
   - [X] Legacy code support
-  - [ ] Bootstrap code or document
+  - [ ] Bootstrap code or document from scratch
 - More thinking on how to simplify the menu / commands
 
 ** Code quality
