@@ -1,6 +1,13 @@
 
 * Release history
 
+** v0.8.3
+
+- fix: aider--process-message-if-multi-line: it will not add {aider..aider} block, when the str already contains {aider string. It cause /ask made change for multi-line prompt. (I thought it is an aider bug but it isn't: Aider-AI/aider#3893). The bug is not very obvious because aider-input-sender function didn't print the modification on the aider session.
+- fix: aider--send-command trim both leading and triming \n before sending. so it won't unnecessarily wrap prompt with {aider..aider} block
+- aider--analyze-module and aider--plot-module-architecture do not ask user to provide module directory (it might add non-relevant files and adding cost). Now add related files for the module is user's responsibility before using this two functions.
+- aider--batch-add-dired-marked-files-with-command will use git root relative path for /add command. Since in --subtree-only session the full path add doesn't work.
+
 ** v0.8.2
 
 - fix aider--analyze-module function. It now accept a module directory provided by user, /read-only, and then analyze the module using the prompt.

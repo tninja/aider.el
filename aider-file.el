@@ -106,10 +106,16 @@ If Magit is not installed, report that it is required."
 ;; New function to add multiple Dired marked files to Aider buffer
 (defun aider--batch-add-dired-marked-files-with-command (command-prefix)
   "Add multiple Dired marked files to the Aider buffer with COMMAND-PREFIX.
-COMMAND-PREFIX should be either \"/add\" or \"/read-only\"."
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (let ((command (concat command-prefix " " (mapconcat #'expand-file-name files " "))))
+COMMAND-PREFIX should be either \"/add\" or \"/read-only\".
+Uses relative paths if files are in a git repository."
+  (let ((absolute-files (dired-get-marked-files)))
+    (if absolute-files
+        (let* (;; Convert absolute paths to relative paths if needed
+               (relative-files (mapcar #'aider--get-file-path absolute-files))
+               ;; Format paths (e.g., add quotes for spaces)
+               (formatted-files (mapcar #'aider--format-file-path relative-files))
+               ;; Construct the command string
+               (command (concat command-prefix " " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
@@ -179,13 +185,13 @@ If input contains '..' it's treated as base..feature branch range.
 If input looks like a commit hash, it generates diff for that single commit.
 Otherwise, it's treated as base branch and diff is generated against HEAD."
   (interactive)
-  (let* ((git-root (magit-toplevel))
-         ;; Ensure we're in a git repo
-         (git-repo-error (unless git-root
-                           (user-error "Not in a git repository")))
-         ;; Fetch from all remotes to ensure we have the latest branches
-         (raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
-         (range (string-trim raw-range))
+  (let ((git-root (magit-toplevel)))
+    ;; Ensure we're in a git repo
+    (unless git-root
+      (user-error "Not in a git repository"))
+    ;; Fetch from all remotes to ensure we have the latest branches
+    (let* ((raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
+           (range (string-trim raw-range))
          ;; Check if it's a commit hash by verifying:
          ;; 1. It doesn't contain '..'
          ;; 2. It's not a branch name
@@ -207,9 +213,9 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (diff-file (if is-commit-hash
                          (concat git-root range ".diff")
                        (concat git-root base-branch "." feature-branch ".diff"))))
-    (progn (message "Fetching from all remotes to ensure latest branches...")
-           (magit-run-git "fetch" "--all"))
-    ;; Verify branches exist (for non-commit-hash cases)
+      (progn (message "Fetching from all remotes to ensure latest branches...")
+             (magit-run-git "fetch" "--all"))
+      ;; Verify branches exist (for non-commit-hash cases)
     (unless is-commit-hash
       ;; Check base branch
       (unless (or (magit-branch-p base-branch)
@@ -252,7 +258,7 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
                      (concat "--output=" diff-file))
       ;; Open diff file
       (find-file diff-file)
-      (message "Generated diff file: %s" diff-file))))
+      (message "Generated diff file: %s" diff-file)))))
 
 ;;;###autoload
 (defun aider-open-history ()
