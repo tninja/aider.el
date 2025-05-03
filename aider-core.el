@@ -165,7 +165,9 @@ If not in a git repository and no buffer file exists, an error is raised."
 https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
 If STR contains newlines, wrap it in {aider\\nstr\\naider}.
 Otherwise return STR unchanged."
-  (if (string-match-p "\n" str)
+  ;; Only wrap if contains newline and not already wrapped with \"{aider\"
+  (if (and (string-match-p "\n" str)
+           (not (string-match-p "{aider" str)))
       (format "{aider\n%s\naider}" str)
     str))
 
