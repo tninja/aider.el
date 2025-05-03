@@ -178,16 +178,12 @@ Assumes the current file has been added to the Aider context."
     (aider--send-command (format "/ask %s" user-input) t)))
 
 (defun aider--analyze-module ()
-  "Analyze a specified module/directory using architectural reading technique.
-Adds the specified directory read-only to Aider before asking for analysis details."
-  (let* ((dir-name (read-directory-name "Enter module directory to analyze: " nil nil t)) ; t for mustmatch
-         (formatted-dir (aider--format-file-path (aider--get-file-path dir-name))))
-    ;; Add the directory read-only first
-    (aider--send-command (format "/read-only %s" formatted-dir) nil)
-    ;; Now proceed with asking the user
-    (let* ((initial-prompt
-            (format "The directory '%s' has been added read-only.
-Analyze the module represented by this directory using an architectural perspective:
+  "Analyze the module represented by files/directories already added to Aider
+using an architectural reading technique."
+  ;; Removed directory prompting and adding
+  (let* ((initial-prompt
+          ;; Updated prompt to refer to the existing Aider context
+          "Please analyze the module represented by the files/directories currently in the Aider context using an architectural perspective:
 1. Module's likely role in the overall system.
 2. Package organization and structure observed.
 3. Key components and their interactions.
@@ -196,10 +192,10 @@ Analyze the module represented by this directory using an architectural perspect
 6. Configuration management hints.
 7. Testing strategy hints (e.g., presence of test files).
 8. Integration patterns with other modules.
-9. Deployment considerations mentioned." (file-name-as-directory dir-name))) ; Use file-name-as-directory for consistent trailing slash
-           (user-input (aider-read-string "Enter module analysis instructions: " initial-prompt)))
-      ;; Send the analysis command
-      (aider--send-command (format "/ask %s" user-input) t))))
+9. Deployment considerations mentioned.")
+         (user-input (aider-read-string "Enter module analysis instructions: " initial-prompt)))
+    ;; Send the analysis command - no change here
+    (aider--send-command (format "/ask %s" user-input) t)))
 
 (defun aider--plot-module-architecture ()
   "Analyze the module represented by files/directories already added to Aider
