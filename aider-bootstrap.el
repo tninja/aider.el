@@ -82,9 +82,6 @@ Provides a selection of language-agnostic bootstrapping prompts."
                                language (file-name-nondirectory filename) file-purpose language))
          (user-prompt (aider-read-string "Basic File Structure instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (defun aider--bootstrap-class-module-outline ()
@@ -101,9 +98,6 @@ Provides a selection of language-agnostic bootstrapping prompts."
                                language name (file-name-nondirectory filename) purpose))
          (user-prompt (aider-read-string "Class/Module Outline instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (defun aider--bootstrap-cli-app ()
@@ -120,9 +114,6 @@ Provides a selection of language-agnostic bootstrapping prompts."
                                language app-name (file-name-nondirectory filename) purpose language))
          (user-prompt (aider-read-string "CLI Application instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (defun aider--bootstrap-readme ()
@@ -138,9 +129,6 @@ Provides a selection of language-agnostic bootstrapping prompts."
                                project-name purpose))
          (user-prompt (aider-read-string "README Template instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (defun aider--bootstrap-project-structure ()
@@ -187,9 +175,6 @@ For each file, provide a brief description of its purpose and basic content."
                                language entity-name fields-str (file-name-nondirectory filename) db-type))
          (user-prompt (aider-read-string "Data Model instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (defun aider--bootstrap-docker-config ()
@@ -237,9 +222,6 @@ For each file, provide a brief description of its purpose and basic content."
 5. Clear comments throughout" language multi-stage-text services))))
          (user-prompt (aider-read-string "Docker Configuration instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (defun aider--bootstrap-org-data-analysis-report ()
@@ -309,9 +291,6 @@ Include placeholder text that guides the user on what to write in each section, 
          (user-prompt (aider-read-string "Web Customer Data Analysis Report instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     ;; Remove old check for .org file
-    ;; Create/find file, add it, then send command
-    (find-file filename)
-    (aider-add-current-file)
     (aider--send-command command t)))
 
 (provide 'aider-bootstrap)
