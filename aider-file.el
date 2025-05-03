@@ -106,10 +106,16 @@ If Magit is not installed, report that it is required."
 ;; New function to add multiple Dired marked files to Aider buffer
 (defun aider--batch-add-dired-marked-files-with-command (command-prefix)
   "Add multiple Dired marked files to the Aider buffer with COMMAND-PREFIX.
-COMMAND-PREFIX should be either \"/add\" or \"/read-only\"."
-  (let ((files (dired-get-marked-files)))
-    (if files
-        (let ((command (concat command-prefix " " (mapconcat #'expand-file-name files " "))))
+COMMAND-PREFIX should be either \"/add\" or \"/read-only\".
+Uses relative paths if files are in a git repository."
+  (let ((absolute-files (dired-get-marked-files)))
+    (if absolute-files
+        (let* (;; Convert absolute paths to relative paths if needed
+               (relative-files (mapcar #'aider--get-file-path absolute-files))
+               ;; Format paths (e.g., add quotes for spaces)
+               (formatted-files (mapcar #'aider--format-file-path relative-files))
+               ;; Construct the command string
+               (command (concat command-prefix " " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command t))
       (message "No files marked in Dired."))))
 
