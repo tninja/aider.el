@@ -202,26 +202,22 @@ Analyze the module represented by this directory using an architectural perspect
       (aider--send-command (format "/ask %s" user-input) t))))
 
 (defun aider--plot-module-architecture ()
-  "Analyze a module/directory and generate a DOT graph representation.
-Adds the specified directory read-only to Aider before asking for analysis details."
-  (let* ((dir-name (read-directory-name "Enter module directory to plot: " nil nil t)) ; t for mustmatch
-         (formatted-dir (aider--format-file-path (aider--get-file-path dir-name))))
-    ;; Add the directory read-only first
-    (aider--send-command (format "/read-only %s" formatted-dir) nil)
-    ;; Now proceed with asking the user
-    (let* ((initial-prompt
-            (format "The directory '%s' has been added read-only.
-Please analyze the architecture of the module within this directory and generate an ASCII art diagram representing the structure.
+  "Analyze the module represented by files/directories already added to Aider
+and generate an ASCII art diagram representation."
+  ;; Removed directory prompting and adding
+  (let* ((initial-prompt
+          ;; Updated prompt to refer to the existing Aider context
+          "Please analyze the architecture of the module represented by the files/directories currently in the Aider context and generate an ASCII art diagram representing the structure.
 Focus on:
 1.  **Key Components:** Identify the main classes, modules, or significant functions. Represent these clearly as boxes or nodes in the ASCII diagram.
 2.  **Relationships/Connectors:** Show the primary interactions between components (e.g., calls, dependencies) using lines or arrows (`->`, `--`, `<-`). Label connections where clarity is needed.
 3.  **Layout:** Arrange the diagram logically to show dependencies and structure (e.g., top-down, left-to-right flow if applicable). Keep it reasonably compact.
 4.  **Clarity:** Use standard ASCII characters (`+`, `-`, `|`, `/`, `\`) to draw the diagram. Ensure it's readable in a fixed-width font environment.
-Generate *only* the ASCII art diagram."
-                    (file-name-as-directory dir-name))) ; Use file-name-as-directory for consistent trailing slash
-           (user-input (aider-read-string "Enter ASCII diagram generation instructions: " initial-prompt))) ; Changed prompt text
-      ;; Send the analysis command
-      (aider--send-command (format "/ask %s" user-input) t))))
+Generate *only* the ASCII art diagram.")
+         ;; Updated user prompt text
+         (user-input (aider-read-string "Edit ASCII diagram generation instructions for current context: " initial-prompt)))
+    ;; Send the analysis command - no change here
+    (aider--send-command (format "/ask %s" user-input) t)))
 
 ;; --- New Functions for Specific Concerns ---
 
