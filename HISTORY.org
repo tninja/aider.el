@@ -1,6 +1,11 @@
 
 * Release history
 
+** Main branch change
+
+- aider--analyze-module and aider--plot-module-architecture do not ask user to provide module directory (it might add non-relevant files and adding cost). Now add related files for the module is user's responsibility before using this two functions.
+- aider--batch-add-dired-marked-files-with-command will use git root relative path for /add command. Since in --subtree-only session the full path add doesn't work.
+
 ** v0.8.2
 
 - fix aider--analyze-module function. It now accept a module directory provided by user, /read-only, and then analyze the module using the prompt.
