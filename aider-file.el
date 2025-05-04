@@ -172,7 +172,7 @@ Otherwise, add the current file as read-only."
   "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session. SUFFIX-INPUT is a comma-separated list of file suffixes without dots."
   (interactive
    (list (read-directory-name "Module directory: " nil nil t)
-         (read-string "File suffixes (comma-separated) [py,java,el,sh,go]: " "py,java,el,sh,go")))
+         (read-string "File suffixes (comma-separated): " "py,java,el,sh,go")))
   (let* ((suffixes (split-string suffix-input "\\s-*,\\s-*" t))
          (files (aider--get-files-in-directory directory suffixes))
          (rel-paths (mapcar #'aider--get-file-path files))
