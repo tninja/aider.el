@@ -89,11 +89,11 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
    ["File Operation"
     ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
+    ("M" "Add Module (C-u: readonly)" aider-add-module)
     ("O" "Drop Current File" aider-drop-current-file)
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
     ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
-    ("h" "Open History" aider-open-history)
     ]
    ["Code Change"
     ("r" "Change Function/Region" aider-function-or-region-refactor)
@@ -111,6 +111,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("Q" "Question without Context" aider-general-question)
     ("d" "Code Reading" aider-code-read)
     ("e" "Debug Exception" aider-debug-exception)
+    ("h" "Open History" aider-open-history)
     ("H" "Help (C-u: homepage)" aider-help)
     ]
    ])
