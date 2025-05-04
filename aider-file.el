@@ -162,6 +162,16 @@ Otherwise, add the current file as read-only."
   ;;   (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml."))
   )
 
+;; add a function, aider-add-module. It will ask user to provide:
+;; 1. the directory of the module
+;; 2. file suffixed need to be included, by default it is a list of
+;; common programming language file suffixed, separated by comma, for
+;; example, "py,java,el,sh,go"
+;; then it will find a list of files in the directory, this should be
+;; in a separate helper function. And then add those files to the
+;; aider session. the syntax is /add <file1> <file2> ...
+;; message to user that how many files are added under the module directory
+
 ;;;###autoload
 (defun aider-pull-or-review-diff-file ()
   "Review a diff file with Aider or generate one if not viewing a diff.
