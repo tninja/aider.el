@@ -162,15 +162,26 @@ Otherwise, add the current file as read-only."
   ;;   (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml."))
   )
 
-;; add a function, aider-add-module. It will ask user to provide:
-;; 1. the directory of the module
-;; 2. file suffixed need to be included, by default it is a list of
-;; common programming language file suffixed, separated by comma, for
-;; example, "py,java,el,sh,go"
-;; then it will find a list of files in the directory, this should be
-;; in a separate helper function. And then add those files to the
-;; aider session. the syntax is /add <file1> <file2> ...
-;; message to user that how many files are added under the module directory
+(defun aider--get-files-in-directory (directory suffixes)
+  "Retrieve list of files in DIRECTORY matching SUFFIXES. SUFFIXES is a list of strings without dot."
+  (let ((regex (concat "\\.\\(" (mapconcat #'regexp-quote suffixes "\\|") "\\)$")))
+    (directory-files-recursively directory regex)))
+
+;;;###autoload
+(defun aider-add-module (directory suffix-input)
+  "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session. SUFFIX-INPUT is a comma-separated list of file suffixes without dots."
+  (interactive
+   (list (read-directory-name "Module directory: " nil nil t)
+         (read-string "File suffixes (comma-separated) [py,java,el,sh,go]: " "py,java,el,sh,go")))
+  (let* ((suffixes (split-string suffix-input "\\s-*,\\s-*" t))
+         (files (aider--get-files-in-directory directory suffixes))
+         (rel-paths (mapcar #'aider--get-file-path files))
+         (formatted-paths (mapcar #'aider--format-file-path rel-paths)))
+    (if files
+        (progn
+         (aider--send-command (concat "/add " (mapconcat #'identity formatted-paths " ")) t)
+         (message "Added %d files from %s" (length files) directory))
+      (message "No files with suffixes %s found in %s" suffix-input directory))))
 
 ;;;###autoload
 (defun aider-pull-or-review-diff-file ()
