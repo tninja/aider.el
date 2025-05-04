@@ -168,19 +168,27 @@ Otherwise, add the current file as read-only."
     (directory-files-recursively directory regex)))
 
 ;;;###autoload
-(defun aider-add-module (directory suffix-input)
-  "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session. SUFFIX-INPUT is a comma-separated list of file suffixes without dots."
+(defun aider-add-module (&optional read-only directory suffix-input)
+  "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session.
+SUFFIX-INPUT is a comma-separated list of file suffixes without dots.
+With a prefix argument (C-u), files are added read-only (/read-only)."
   (interactive
-   (list (read-directory-name "Module directory: " nil nil t)
-         (read-string "File suffixes (comma-separated): " "py,java,scala,el,sql,sh,go,js,ts,cpp,c,hpp,h,php,rb")))
-  (let* ((suffixes (split-string suffix-input "\\s-*,\\s-*" t))
-         (files (aider--get-files-in-directory directory suffixes))
-         (rel-paths (mapcar #'aider--get-file-path files))
-         (formatted-paths (mapcar #'aider--format-file-path rel-paths)))
+   (list current-prefix-arg
+         (read-directory-name "Module directory: " nil nil t)
+         (read-string "File suffixes (comma-separated): "
+                      "py,java,scala,el,sql,sh,go,js,ts,cpp,c,hpp,h,php,rb")))
+  (let* ((cmd-prefix   (if read-only "/read-only" "/add"))
+         (suffixes     (split-string suffix-input "\\s-*,\\s-*" t))
+         (files        (aider--get-files-in-directory directory suffixes))
+         (rel-paths    (mapcar #'aider--get-file-path files))
+         (formatted    (mapcar #'aider--format-file-path rel-paths)))
     (if files
         (progn
-         (aider--send-command (concat "/add " (mapconcat #'identity formatted-paths " ")) t)
-         (message "Added %d files from %s" (length files) directory))
+          (aider--send-command (concat cmd-prefix " " (mapconcat #'identity formatted " ")) t)
+         (message (if read-only
+                      "Added %d files as read-only from %s"
+                    "Added %d files from %s")
+                  (length files) directory))
       (message "No files with suffixes %s found in %s" suffix-input directory))))
 
 ;;;###autoload
