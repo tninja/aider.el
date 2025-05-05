@@ -3,9 +3,14 @@ on:
   issues:
     types: [labeled]
 
+permissions:
+  issues: read
+  pull-requests: write
+  contents: write
+
 jobs:
   generate:
-    uses: mirrajabi/aider-github-workflows/.github/workflows/aider-issue-to-pr.yml@v1.0.0
+    uses: mirrajabi/aider-github-workflows/.github/workflows/aider-issue-to-pr.yml@main
     # Check if the label is 'aider'
     if: github.event.label.name == 'aider'
     with:
@@ -14,6 +19,6 @@ jobs:
       # Exit if the action is taking longer than 10 minutes
       chat-timeout: 10
       api_key_env_name: OPENAI_API_KEY
-      model: o3-mini-2025-01-31
+      model: o4-mini
     secrets: 
       api_key_env_value: ${{ secrets.OPENAI_API_KEY }}
