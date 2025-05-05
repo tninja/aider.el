@@ -55,7 +55,7 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
     ;; Add to history if non-empty, single-line and save
     (unless (or (string-empty-p input) (string-match "\n" input))
       (push input history)
-      (setq history (mapcar #'substring-no-properties history))
+      ;; (setq history (mapcar #'substring-no-properties history))
       (with-temp-file history-file
         (let ((history-entries (cl-subseq history
                                           0 (min (length history)
