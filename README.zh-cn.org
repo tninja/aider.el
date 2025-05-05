@@ -103,7 +103,8 @@
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--model" "sonnet")))
+  (setq aider-args '("--model" "sonnet"))
+  (require 'aider-doom))
 #+END_SRC
 
 aider 前缀是 ~A~。
