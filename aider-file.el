@@ -164,7 +164,18 @@ Otherwise, generate the diff."
   (interactive)
   (if (and buffer-file-name (string-match-p "\\.diff$" buffer-file-name))
       (let* ((file-name (file-name-nondirectory buffer-file-name))
-             (init-prompt (format "Please review this diff file (%s), identify bug, and provide feedback on the changes" file-name))
+             (init-prompt (format "Please perform a comprehensive code review of this diff file (%s). Analyze the changes for:
+1. Potential bugs, edge cases, or logic errors
+2. Security vulnerabilities or performance issues
+3. Adherence to best practices and design patterns
+4. Code readability and maintainability
+5. Completeness of implementation
+6. Suggestions for improvements or alternative approaches
+
+For each issue found, please explain:
+- The specific location in the code
+- Why it's problematic
+- A recommended solution" file-name))
              (prompt (aider-read-string "Enter diff review prompt: " init-prompt)))
         (aider-current-file-command-and-switch "/ask " prompt))
     (aider--magit-generate-feature-branch-diff-file)))
