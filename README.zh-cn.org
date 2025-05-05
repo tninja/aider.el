@@ -342,3 +342,181 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 - 依赖此包的包
   - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]：用于 Aider.el 集成的 Org Babel 函数
+[[file:./icon.png]]
+
+#+TITLE: 在 Emacs 中使用 Aider 进行 AI 辅助编程
+
+[[file:README.org][英文原文]]
+
+* 目录
+
+- [[#introduction][介绍]]
+- [[#installation][安装]]
+  - [[#vanilla-emacs-installation][原生 Emacs 安装]]
+  - [[#doom-installation-and-configuration][Doom 安装与配置]]
+  - [[#helm-support][Helm 支持]]
+- [[#most-used-features-integrated-into-the-aider-menu][常用功能（集成在 Aider 菜单中）]]
+- [[#methods-from-classic-books][经典书籍中的方法]]
+- [[#pros-and-cons][优缺点]]
+- [[#be-careful-about-ai-generated-code][谨慎对待 AI 生成的代码]]
+- [[#faq][常见问题]]
+- [[#future-work][未来工作]]
+- [[#other-emacs-ai-coding-tool][其他 Emacs AI 编程工具]]
+
+* 介绍
+
+- 你是否喜欢 [[https://www.cursor.com/][Cursor AI 代码编辑器]] 的 AI 功能，却更喜欢在 Emacs 中工作？
+- [[https://github.com/paul-gauthier/aider][Aider]] 是一个知名且高效的终端 AI 结对编程工具。
+- aider.el 为 Emacs 提供了一个简洁的用户界面，力求降低在 Emacs 中使用 Aider 的学习成本。
+  - 仓库中大多数 Elisp 代码由 Aider 或 aider.el 生成。
+  - aider.el 致力于成为一个日常可用、稳定的生产力工具，所有功能在合并前均经过充分测试。
+
+[[file:./transient_menu.png]]
+
+* 安装
+
+- 要求 Emacs 版本 ≥ 26.1
+
+** 原生 Emacs 安装
+
+1. 参照 [[https://aider.chat/docs/install.html][官方文档]] 安装 Aider CLI；
+2. 使用包管理器安装依赖：Transient、Magit 和 Markdown-mode；
+3. 通过 MELPA 安装 aider.el（推荐）：
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'package)
+   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+   (package-initialize)
+   #+END_SRC
+
+   然后执行 M-x package-refresh-contents、M-x package-install RET aider RET。
+
+4. 在 init.el 或 .emacs 中添加：
+
+   #+BEGIN_SRC emacs-lisp
+   (use-package aider
+     :config
+     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+     (setenv "ANTHROPIC_API_KEY" "<你的 Anthropic API Key>")
+     ;; 或使用 ChatGPT 模型
+     ;; (setq aider-args '("--model" "o4-mini"))
+     ;; (setenv "OPENAI_API_KEY" "<你的 OpenAI API Key>")
+     ;; 如果使用个人配置文件：
+     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
+     (global-set-key (kbd "C-c a") 'aider-transient-menu))
+   #+END_SRC
+
+** Doom 安装与配置
+
+1. 在 doom/packages.el 中添加：
+
+   #+BEGIN_SRC emacs-lisp
+   (package! aider :recipe (:host github :repo "tninja/aider.el"))
+   #+END_SRC
+
+2. 在 doom/config.el 中添加：
+
+   #+BEGIN_SRC emacs-lisp
+   (use-package aider
+     :config
+     (setq aider-args '("--model" "sonnet"))
+     (require 'aider-doom))
+   #+END_SRC
+
+   在 Doom 中按 SPC A p 调出 transient 菜单。
+
+** Helm 支持
+
+若偏好 Helm 的模糊搜索功能，可在配置中加入：
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'aider-helm)
+   #+END_SRC
+
+* 常用功能（集成在 Aider 菜单中）
+
+*** 会话管理
+- aider-run-aider：启动基于 comint 的交互式会话，自动绑定至当前 Git 仓库；支持多会话并行；
+- C-u 前缀可动态修改 aider-args；在 Dired/Eshell/Shell 下可启用 --subtree-only 加速扫描；
+- aider-switch-to-buffer：切换并打开 Aider 缓冲区，可在其他窗口或新 frame 中显示。
+
+*** 文件操作
+- aider-add-current-file-or-dired-marked-files：添加当前缓冲区文件或 Dired 标记文件，C-u 可只读添加；
+- aider-add-files-in-current-window：添加当前窗口所有缓冲区对应的文件；
+- aider-drop-current-file：移除当前文件；
+- aider-magit-show-last-commit-or-log：查看最近提交或日志；
+- aider-undo-last-change：撤销最近的 AI 代码更改；
+- aider-pull-or-review-diff-file：拉取或审查差异；
+- aider-open-history：查看操作历史。
+
+*** 编写与重构
+- aider-function-or-region-refactor：针对函数或选区进行重构；
+- aider-implement-todo：根据 TODO 注释在原地生成代码实现；
+- aider-architect-discussion：交互式架构级重构与讨论；
+- aider-write-unit-test：为当前函数或文件生成单元测试，或补全测试文件；
+- aider-refactor-book-method：应用经典重构书籍中的技术；
+- aider-tdd-cycle：执行严格的红-绿-重构循环；
+- aider-legacy-code：AI 辅助遗留代码处理。
+
+*** 讨论与问答
+- aider-ask-question：在上下文中向 Aider 提问；
+- aider-go-ahead：确认并执行 AI 建议；
+- aider-general-question：全局提问；
+- aider-debug-exception：调试异常；
+- aider-help：打开帮助页面。
+
+*** 提示文件
+- 在 Org 提示文件中编写多行 prompt，按 C-c C-n（单行）或 C-c C-c（多行）发送；
+- 支持 Markdown 语法高亮、AI 命令补全、文件路径补全；
+- 集成 Yasnippet 片段，提高提示重用效率。
+
+* 经典书籍中的方法
+
+- Refactoring（Martin Fowler）：~aider-refactor-book-method~
+- Test Driven Development by Example（Kent Beck）：~aider-tdd-cycle~
+- Working Effectively with Legacy Code（Michael Feathers）：~aider-legacy-code~
+- Code Reading（Diomidis Spinellis）：~aider-code-read~
+
+* 优缺点
+
+** 优点
+- 弹出式菜单 UI，简洁高效调用 AI 辅助命令；
+- 会话上下文与当前文件/光标/选区深度集成；
+- 支持 Helm 快速重用历史提示；
+- Org 提示文件可组织复杂任务，支持多行提示与片段重用。
+
+** 缺点
+- 基于 comint，缺少富文本和文件跟踪功能；
+- 无法原生执行 AI 注释（Watch），需借助 ~aider-implement-todo~ 变通。
+
+* 谨慎对待 AI 生成的代码
+
+- AI 生成实现和测试后，务必手动验证并运行单元测试，以防潜在错误。
+
+* 常见问题
+
+- 如何审查/接受改动？  
+  Aider v0.77.0 起 /architect 命令自动接受，可通过 "--no-auto-accept-architect" 关闭。
+
+- 如何禁用自动提交？  
+  在 aider-args 中添加 "--no-auto-commits"。
+
+- 支持哪些模型？能否本地运行？  
+  支持 Anthropic、OpenAI、Gemini 及 LiteLLM 本地模型。
+
+- 大仓库加载缓慢？  
+  可配置 .aiderignore，或使用 "--no-git"，或启用 "--subtree-only"。
+
+- 如何自定义 comint 提示和配色？  
+  增加 comint-mode 钩子进行定制。
+
+* 未来工作
+
+- 增强上下文敏感的重构与阅读命令；
+- 提升单元测试与集成测试质量；
+- 精简菜单结构与命令参数。
+
+* 其他 Emacs AI 编程工具
+
+- ancilla.el、chatgpt-shell、copilot.el、copilot-chat.el、gptel 等  
+- ob-aider.el：Org Babel 集成支持
