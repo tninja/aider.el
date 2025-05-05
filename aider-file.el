@@ -171,7 +171,6 @@ Otherwise, generate the diff."
 4. Code readability and maintainability
 5. Completeness of implementation
 6. Suggestions for improvements or alternative approaches
-
 For each issue found, please explain:
 - The specific location in the code
 - Why it's problematic
