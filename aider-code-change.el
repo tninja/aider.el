@@ -34,7 +34,7 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
 (defun aider-architect-discussion ()
   "Discuss with aider with the given prompt, and choose if we want to accept it."
   (interactive)
-  (let ((command (aider-read-string "Enter architect discussion question: ")))
+  (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
     (aider-current-file-command-and-switch "/architect " command)))
 
 (defun aider-region-refactor-generate-command (region-text function-name user-command)

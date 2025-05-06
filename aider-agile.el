@@ -179,11 +179,12 @@ If TDD-MODE is non-nil, adds TDD constraints to the prompt."
          (code-snippet (if region-active
                            (format "\n```\n%s\n```" region-text)
                          ""))
-         ;; Get the main instruction from the user
-         (user-instruction (aider-read-string "Edit suggestion request: " "Analyze the following code context and suggest appropriate refactoring strategy."))
-         ;; Add TDD constraint if in TDD mode
-         (tdd-constraint (if tdd-mode " Ensure all tests still pass after refactoring." ""))
-         ;; Construct the prompt using user input and context
+                 ;; Get the main instruction from the user
+                 (user-instruction (aider-read-string "Edit suggestion request: "
+                                                      "Analyze the code context below. Identify potential refactoring opportunities (e.g., complexity, duplication, clarity). Suggest the most impactful refactoring technique and explain why.")) ;; Improved initial-input
+                 ;; Add TDD constraint if in TDD mode
+                 (tdd-constraint (if tdd-mode " Ensure all tests still pass after refactoring." ""))
+                 ;; Construct the prompt using user input and context
          (base-prompt (format "%s Context: %s%s"
                               user-instruction
                               context-info
