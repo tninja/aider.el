@@ -23,6 +23,6 @@ jobs:
     # secrets: 
     #   api_key_env_value: ${{ secrets.GEMINI_API_KEY }}
       api_key_env_name: OPENAI_API_KEY
-      model: o4-mini
+      model: gpt-4.1-mini
     secrets: 
       api_key_env_value: ${{ secrets.OPENAI_API_KEY }}
