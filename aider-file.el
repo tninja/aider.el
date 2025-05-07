@@ -162,6 +162,35 @@ Otherwise, add the current file as read-only."
   ;;   (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml."))
   )
 
+(defun aider--get-files-in-directory (directory suffixes)
+  "Retrieve list of files in DIRECTORY matching SUFFIXES. SUFFIXES is a list of strings without dot."
+  (let ((regex (concat "\\.\\(" (mapconcat #'regexp-quote suffixes "\\|") "\\)$")))
+    (directory-files-recursively directory regex)))
+
+;;;###autoload
+(defun aider-add-module (&optional read-only directory suffix-input)
+  "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session.
+SUFFIX-INPUT is a comma-separated list of file suffixes without dots.
+With a prefix argument (C-u), files are added read-only (/read-only)."
+  (interactive
+   (list current-prefix-arg
+         (read-directory-name "Module directory: " nil nil t)
+         (read-string "File suffixes (comma-separated): "
+                      "py,java,scala,el,sql,sh,go,js,ts,cpp,c,hpp,h,php,rb")))
+  (let* ((cmd-prefix   (if read-only "/read-only" "/add"))
+         (suffixes     (split-string suffix-input "\\s-*,\\s-*" t))
+         (files        (aider--get-files-in-directory directory suffixes))
+         (rel-paths    (mapcar #'aider--get-file-path files))
+         (formatted    (mapcar #'aider--format-file-path rel-paths)))
+    (if files
+        (progn
+          (aider--send-command (concat cmd-prefix " " (mapconcat #'identity formatted " ")) t)
+         (message (if read-only
+                      "Added %d files as read-only from %s"
+                    "Added %d files from %s")
+                  (length files) directory))
+      (message "No files with suffixes %s found in %s" suffix-input directory))))
+
 ;;;###autoload
 (defun aider-pull-or-review-diff-file ()
   "Review a diff file with Aider or generate one if not viewing a diff.
