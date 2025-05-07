@@ -291,7 +291,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - Note: *Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with "--no-auto-accept-architect" in either aider-args or .aider.conf.yml*.
 
 - How to disable to aider auto-commit?    
-  - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
+  - add --no-auto-commits to aider-args or ~/.aider.conf.yml. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
 
 - What kind of model aider support? Can aider support local model?
   - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].
