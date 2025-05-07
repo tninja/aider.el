@@ -5,6 +5,13 @@
 
 - Add aider-add-module function, it will add files with suffix in the module directory to aider session. It will be useful for the whole module level analysis and code change.
 
+** v0.8.4
+
+- Improve prompts for 
+  - diff review: aider-pull-or-review-diff-file
+  - code refactoring suggestion: aider--handle-ask-llm-suggestion 
+  - debug exception: aider-debug-exception
+
 ** v0.8.3
 
 - fix: aider--process-message-if-multi-line: it will not add {aider..aider} block, when the str already contains {aider string. It cause /ask made change for multi-line prompt. (I thought it is an aider bug but it isn't: Aider-AI/aider#3893). The bug is not very obvious because aider-input-sender function didn't print the modification on the aider session.

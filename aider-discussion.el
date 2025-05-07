@@ -79,8 +79,8 @@ Focuses on understanding, analyzing, improving the selected code or function."
 (defun aider-debug-exception ()
   "Ask Aider to investigate an exception."
   (interactive)
-  (let ((command (aider-read-string "Enter exception, can be multiple lines: ")))
-    (aider--send-command (concat "/ask Investigate the following exception, with current added files as context: " command) t)))
+  (let ((command (aider-read-string "Enter exception details (can be multiple lines): ")))
+    (aider--send-command (concat "/ask Investigate the following exception, using the added files as context:\n" command) t))) ;; Add newline for clarity
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
@@ -90,7 +90,7 @@ With prefix argument HOMEPAGE, open the Aider home page in a browser."
   (interactive "P")
   (if homepage
       (aider-open-aider-home)
-    (let ((command (aider-read-string "Enter help question: ")))
+    (let ((command (aider-read-string "Enter help question about Aider usage: ")))
       (aider-current-file-command-and-switch "/help " command))))
 
 ;;;###autoload

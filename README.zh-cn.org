@@ -40,30 +40,41 @@
 - 使用您的包管理器安装 Emacs 依赖库 [[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]] 和 [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]]。
 - 使用以下代码安装 aider.el：
 
-*** 使用 [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
-如果您已安装 Straight
+*** With Melpa + package-install (推荐)
+
+在 init.el 或 .emacs 文件中的 (require 'package) 之后和 package-initialize 调用之前，通过向 package-archives 添加条目来启用从 MELPA 安装包：
+
 #+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :straight (:host github :repo "tninja/aider.el")
-    :config
-    ;; 对于最新的 claude sonnet 模型
-    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
-    (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
-    ;; 或 chatgpt 模型
-    ;; (setq aider-args '("--model" "o4-mini"))
-    ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
-    ;; 或 gemini 模型
-    ;; (setq aider-args '("--model" "gemini-exp"))
-    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
-    ;; 或使用您的个人配置文件
-    ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
-    ;; ;;
-    ;; 可选：为临时菜单设置键绑定
-    (global-set-key (kbd "C-c a") 'aider-transient-menu))
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
 #+END_SRC
 
-- *aider-args 直接传递给 aider CLI*，[[https://aider.chat/docs/config/options.html][aider 选项参考]]
-- 如果 aider-args 为空（默认），它将使用 ~/.aider.conf.yml 文件。这样，aider CLI 和 aider.el 共享相同的配置
+- 使用 M-x package-refresh-contents 或 M-x package-list-packages 确保 Emacs 已获取 MELPA 包列表
+- 使用 M-x package-install 安装 [[https://melpa.org/#/aider][aider]] 包
+- 在您的 init.el 或 .emacs 文件中导入并配置 aider.el：
+
+#+BEGIN_SRC emacs-lisp
+  (use-package aider
+    :config
+    ;; For latest claude sonnet model
+    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+    (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+    ;; Or chatgpt model
+    ;; (setq aider-args '("--model" "o4-mini"))
+    ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
+    ;; Or gemini model
+    ;; (setq aider-args '("--model" "gemini-exp"))
+    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
+    ;; Or use your personal config file
+    ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
+    ;; ;;
+    ;; Optional: Set a key binding for the transient menu
+    (global-set-key (kbd "C-c a") 'aider-transient-menu))
+#+END_SRC
 
 *** 使用 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]（Emacs 30+ 内置）
 - 通过在 Emacs 中运行以下代码安装 aider.el
@@ -72,23 +83,20 @@
 (package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
 #+END_SRC
 
-配置部分与上面的 straight 相同
+配置部分与上面的 Melpa 方式相同
 
-*** With Melpa + package-install
-
-在 init.el 或 .emacs 文件中的 (require 'package) 之后和 package-initialize 调用之前，通过向 package-archives 添加条目来启用从 MELPA 安装包：
-
+*** 使用 [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
+如果您已安装 Straight
 #+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; 如果需要，可以注释/取消注释此行以启用 MELPA Stable。请参阅 `package-archive-priorities`
-;; 和 `package-pinned-packages`。大多数用户不需要或不想这样做。
-;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(package-initialize)
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el")
+    :config
+    ;; rest of configs
+    )
 #+END_SRC
 
-- 使用 M-x package-refresh-contents 或 M-x package-list-packages 确保 Emacs 已获取 MELPA 包列表
-- 使用 M-x package-install 安装 aider 包
+- *aider-args 直接传递给 aider CLI*，[[https://aider.chat/docs/config/options.html][aider 选项参考]]
+- 如果 aider-args 为空（默认），它将使用 ~/.aider.conf.yml 文件。这样，aider CLI 和 aider.el 共享相同的配置
 
 ** Doom 安装和配置
 
@@ -103,22 +111,21 @@
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--model" "sonnet")))
+  (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+  (require 'aider-doom))
 #+END_SRC
 
 aider 前缀是 ~A~。
 
-- 启动并打开 aider 缓冲区：=[SPC] A o=
-- 使用 =[SPC] A a c= 添加当前文件
-- 使用 =[SPC] A r= 重置 aider 会话
+- 启动并打开 aider 缓冲区：=[SPC] A p a=
+- 添加当前文件：=[SPC] A f f=
+- 重置 aider 会话：=[SPC] A p s=
 [[file:./doom_menus.png]]
 
 - *然而，更推荐使用临时菜单而不是 doom 菜单*，因为我经常使用临时菜单，所以它得到了更好的维护。
   - 任何想为 doom 菜单做贡献的人，欢迎帮助改进。谢谢。
-
-** 可选功能
-
-*** Helm 支持
+ 
+** Helm 支持
 
 Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使用之前写过的提示，这可能会节省大量输入时间。*如果您可以接受 helm，强烈推荐这个插件*。
 
@@ -174,6 +181,10 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 [[file:./aider_prompt_file.png]]
 
+- 在 aider 提示文件中启动子树内的 aider 会话：
+  - 使用 ~subtree-only <dir>~ 在子树中启动 aider 会话，其中 <dir> 是启动会话的目录。
+  - 当您想在大型单一仓库的子目录中工作，并且不想等待 aider 扫描整个仓库时，这很有用。
+
 **** [[./snippets/aider-prompt-mode][提示片段]]
 
 - aider 的提示可能共享类似的结构。可以使用 Yasnippet 来帮助重用这些提示。
@@ -204,20 +215,12 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 ** AI 辅助代码阅读
 
 - [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]]: ~aider-code-read~
+
 * 优点和缺点
+
 ** 优点：用户界面、上下文感知 AI 结对编程
 
-- 弹出菜单 (~aider-transient-menu~)
-
-- 针对 Git 仓库的专属 Aider 会话管理
-
-- 将代码上下文（缓冲区/光标下的内容/选区）与 aider 整合，半自动构建提示。通过 helm 轻松搜索/重用之前的提示
-
-- AI 辅助编程工作流的菜单项。AI 辅助敏捷开发方法。AI 辅助代码阅读
-
-- Aider 提示文件用于组织相对较大的代码更改任务，并使其可重现。从中以 ESS 方式与 aider 会话交互。Yasnippet 支持重用社区的优秀提示。
-
-- 基于经典书籍的 AI 辅助代码阅读工具
+- 已在本 README 中介绍
 
 ** 缺点：comint 中的 aider 会话不够 fancy
 
@@ -296,6 +299,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
     - 使用 dired、eshell 或 shell 缓冲区转到要包含的目录（子树）
     - C-c a a 触发 aider-run-aider
     - 回答关于 --subtree-only 的问题为是，它将添加该标志
+  - 或者，在 aider 提示文件中，使用 ~subtree-only <dir>~ 来指定从哪里开始，并使用 C-c C-n 在该目录启动 aider 会话，它会以 --subtree-only 启动
 
 - 如何让 aider 使用您的口语？
   - 使用 [[https://aider.chat/docs/usage/conventions.html#specifying-coding-conventions][aider 编码约定]]。在我的情况下，我在 CONVENTIONS.md 文件中添加了 "- reply in Chinese"，并通过 [[https://aider.chat/docs/config/aider_conf.html][.aider.conf.yml]] 加载工作。或者，将类似以下内容放入 aider-args 变量中。
@@ -312,6 +316,9 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - 如何自定义 aider-comint-mode 的提示和输入颜色？
   - Spike-Leung 说 [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][为其添加钩子会有帮助]]
 
+- 为何 aider-code-change 在 transient 菜单中被禁用？
+  - 它绕过了代码审查，因此不推荐使用。其代码质量不如 /architect。讨论见：https://github.com/tninja/aider.el/issues/128
+
 * TODO 未来工作
 
 ** 功能
@@ -320,11 +327,12 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
   - [X] 当前的 aider-ask-question 需要改进，因为可能有很多不同的问题要问
   - [X] 如何将候选列表功能移植到 aider-plain-read-string
   - [ ] 思考如何改进函数的候选列表
-- 更多关于改进代码质量工具（如单元测试）的思考 [3/3]
+- 更多关于改进代码质量工具（如单元测试）的思考 [4/5]
   - [X] 代码重构函数
   - [X] TDD 函数
   - [X] 代码阅读函数
-  - [ ] 遗留代码支持
+  - [X] 遗留代码支持
+  - [ ] 从头开始引导代码或文档
 - 更多关于如何简化菜单/命令的思考
 
 ** 代码质量
