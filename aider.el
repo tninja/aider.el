@@ -8,12 +8,12 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; Tired of coding alone? This package + Aider (https://aider.chat/)
-;; brings an AI pair programmer *inside* Emacs! Aider works seamlessly
+;; Boost your programming efficiency! This package + Aider (https://aider.chat/)
+;; brings AI-assisted programming capabilities *inside* Emacs! Aider works seamlessly
 ;; with both *new* and *existing* codebases in your local Git repo,
-;; using AI models (Claude, ChatGPT, even local ones!) to help you. It
+;; using AI models (Claude, ChatGPT, Gemini, even local ones!) to assist you. It
 ;; can suggest improvements, squash bugs, or even write whole new
-;; sections of code. Boost your coding with AI, without ever leaving
+;; sections of code. Enhance your coding with AI without ever leaving
 ;; your Emacs comfort zone. The package also supports AI-assisted Agile
 ;; development workflows and AI-assisted code reading to help you understand
 ;; complex codebases faster and more thoroughly.
