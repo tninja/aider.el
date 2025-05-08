@@ -209,7 +209,7 @@ Optional LOG, when non-nil, logs the command to the message area."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
+              (aider--comint-send-string-syntax-highlight aider-buffer command)
               ;; Provide feedback to the user
               (when log
                 (message "Sent command to aider buffer: %s" (string-trim command)))
