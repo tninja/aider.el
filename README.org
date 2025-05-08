@@ -180,7 +180,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 
 - People happy with sending code from editor buffer to comint buffer (eg. ESS, python-mode, scala-mode) might like this. This is a interactive and reproducible way
 
-- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line. To my experience, this is the most used method in aider prompt file.
+- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line (~C-u C-c C-n~). To my experience, this is the most used method in aider prompt file.
 
 - ~C-c C-c~ key is for multi-line prompt. The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
 
