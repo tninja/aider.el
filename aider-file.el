@@ -329,7 +329,7 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
          (raw-range (read-string "Branch range (base..feature), commit hash, base branch, or staged: " "staged"))
          (diff-params (aider--parse-diff-range raw-range))
          (diff-file-name-part (plist-get diff-params :diff-file-name-part))
-         (diff-file (concat git-root diff-file-name-part ".diff")))
+         (diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root)))
     ;; Generate diff based on type
     (if (eq (plist-get diff-params :type) 'staged)
         (aider--generate-staged-diff diff-file)
