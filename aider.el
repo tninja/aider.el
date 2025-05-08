@@ -144,6 +144,18 @@ With prefix argument CLEAR, clear the buffer contents instead of just resetting.
   (aider--send-command "/exit"))
 
 ;;; Model selection functions
+(defun aider--maybe-prompt-and-set-reasoning-effort (command model)
+  "Conditionally prompt for and set reasoning effort for certain models.
+This is typically done when COMMAND is \"/model\" and MODEL matches
+specific patterns (e.g., OpenAI's o4, o3, o1 series)."
+  (when (and (string= command "/model")
+             (string-match-p "^\\(o4\\|o3\\|o1\\)" model))
+    (let* ((efforts '("low" "medium" "high"))
+           (effort (completing-read "Select reasoning effort: " efforts nil t nil nil "medium")))
+      (when effort
+        (aider--send-command (format "/reasoning-effort %s" effort) t)
+        (message "Reasoning effort set to %s for model %s" effort model)))))
+
 ;;;###autoload
 (defun aider-change-model (leaderboards)
   "Interactively select and change AI model in current aider session.
@@ -159,14 +171,7 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
         (aider--send-command (format "%s %s" command model) t)
         (message "%s changed to %s, customize aider-popular-models for the model candidates"
                  (substring command 1) model)
-        ;; Only ask reasoning effort when using /model and model matches pattern
-        (when (and (string= command "/model")
-                   (string-match-p "^\\(o4\\|o3\\|o1\\)" model))
-          (let* ((efforts '("low" "medium" "high"))
-                 (effort (completing-read "Select reasoning effort: " efforts nil t nil nil "medium")))
-            (when effort
-              (aider--send-command (format "/reasoning-effort %s" effort) t)
-              (message "Reasoning effort set to %s for model %s" effort model))))))))
+        (aider--maybe-prompt-and-set-reasoning-effort command model)))))
 
 (provide 'aider)
 
