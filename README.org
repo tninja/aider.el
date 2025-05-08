@@ -228,8 +228,9 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 * Cons of aider.el
 
 - The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
-  - *color rendering markdown-mode.el is applied and largely improved this*.
+  - *color rendering from markdown-mode.el is applied in aider comint session buffer it and largely improved this*.
   - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
+  - [[https://github.com/akermu/emacs-libvterm][vterm based interactive session]] can make the aider session close to the user experience of using aider in terminal. Considering that comint based solution is battle tested for many years and it is very stable, and long term maintainability of the project, aider.el only use comint session based solution. 
 
 * Be careful about AI generated code
 
