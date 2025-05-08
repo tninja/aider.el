@@ -2,6 +2,10 @@
 
 #+TITLE: AI assisted programming in Emacs with Aider 
 
+[[https://melpa.org/#/aider][https://melpa.org/packages/aider-badge.svg]]
+[[https://stable.melpa.org/#/aider][https://stable.melpa.org/packages/aider-badge.svg]]
+[[https://github.com/tninja/aider.el/graphs/contributors][https://img.shields.io/github/contributors/tninja/aider.el.svg]]
+
 [[file:README.zh-cn.org][中文版]]
 
 * Table of Contents
