@@ -263,7 +263,6 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
                   (setq feature-branch "HEAD"))
                 (concat base-branch "." feature-branch)))))) ; for filename part
        (diff-file (concat git-root diff-file-name-part ".diff")))
-
     ;; Main logic based on is-cached-diff
     (if is-cached-diff
         ;; Handle cached diff
@@ -304,7 +303,7 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
                        (concat "--output=" diff-file))))
     ;; Open diff file (common to both paths)
     (find-file diff-file)
-    (message "Generated diff file: %s" diff-file)))
+    (message "Generated diff file: %s" diff-file))))
 
 ;;;###autoload
 (defun aider-open-history ()
