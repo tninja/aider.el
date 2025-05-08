@@ -9,6 +9,7 @@
 - README improvement
 - Updated Chinese version of README
 - aider-pull-or-review-diff-file support pull changes for magit staged files, as default option
+- refactor the code review function since it has grown very large, with C-c a R (LLM suggest the refactoring strategy and I go ahead to accept it).
 
 ** v0.8.4
 
