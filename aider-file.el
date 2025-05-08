@@ -231,73 +231,80 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
     ;; Fetch from all remotes to ensure we have the latest branches
     (let* ((raw-range (read-string "Branch range (base..feature), commit hash, base branch, or cached: " "cached"))
            (range (string-trim raw-range))
-         ;; Check if it's a commit hash by verifying:
-         ;; 1. It doesn't contain '..'
-         ;; 2. It's not a branch name
-         ;; 3. It can be verified as a valid revision
-         ;; 4. It matches the format of a commit hash (at least 7 hex chars)
-         (is-commit-hash (and (not (string-match-p "\\.\\." range))
-                              (not (magit-branch-p range))
-                              (magit-rev-verify range)
-                              (string-match-p "^[0-9a-f]\\{7,\\}$" range)))
-         (branches (cond
-                    (is-commit-hash
-                     (list (concat range "^") range))
-                    ((string-match-p "\\.\\." range)
-                     (split-string range "\\.\\."))
-                    (t
-                     (list range "HEAD"))))
-         (base-branch (car branches))
-         (feature-branch (cadr branches))
-         (diff-file (if is-commit-hash
-                         (concat git-root range ".diff")
-                       (concat git-root base-branch "." feature-branch ".diff"))))
-      (progn (message "Fetching from all remotes to ensure latest branches...")
-             (magit-run-git "fetch" "--all"))
-      ;; Verify branches exist (for non-commit-hash cases)
-    (unless is-commit-hash
-      ;; Check base branch
-      (unless (or (magit-branch-p base-branch)
-                  (magit-branch-p (concat "origin/" base-branch))
-                  (magit-rev-verify base-branch))
-        (user-error "Base branch '%s' not found locally or in remotes" base-branch))
-      ;; Check feature branch if it's not HEAD
-      (when (and (not (string= feature-branch "HEAD"))
-                 (not (magit-branch-p feature-branch))
-                 (not (magit-branch-p (concat "origin/" feature-branch)))
-                 (not (magit-rev-verify feature-branch)))
-        (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
-    ;; Display message about what we're doing
-    (cond
-     (is-commit-hash
-      (message "Generating diff for single commit: %s" range))
-     ((string-match-p "\\.\\." range)
-      (message "Generating diff between branches: %s..%s" base-branch feature-branch))
-     (t
-      (message "Generating diff between %s and HEAD" base-branch)))
-    ;; Check if repo is clean
-    (when (magit-anything-modified-p)
-      (message "Repository has uncommitted changes. You might want to commit or stash them first")
-      (sleep-for 1))
-    ;; Store current branch to return to it
-    (let ((original-branch (magit-get-current-branch)))
-      ;; Git operations
-      (unless is-commit-hash
-        ;; Only do branch operations for branch comparisons
-        (message "Checking out %s..." base-branch)
-        (magit-run-git "checkout" base-branch) ; Switch to base branch first
-        (magit-run-git "checkout" original-branch) ; Return to original branch
-        (when (not (string= feature-branch "HEAD"))
-          (message "Checking out %s..." feature-branch)
-          (magit-run-git "checkout" feature-branch)
-          (magit-run-git "checkout" original-branch))) ; Return to original branch
-      ;; Generate diff file
-      (message "Generating diff file...")
-      (magit-run-git "diff" (concat base-branch ".." feature-branch)
-                     (concat "--output=" diff-file))
-      ;; Open diff file
-      (find-file diff-file)
-      (message "Generated diff file: %s" diff-file)))))
+       (range (string-trim raw-range))
+       (is-cached-diff (string= range "cached"))
+       ;; These are populated only if not is-cached-diff
+       (is-commit-hash nil)
+       (base-branch nil)
+       (feature-branch nil)
+       ;; Determine diff-file name and parts needed for git diff command
+       (diff-file-name-part
+        (if is-cached-diff
+            "cached"
+          ;; Else, not cached, so determine if commit or branch range
+          (progn
+            (setq is-commit-hash (and (not (string-match-p "\\.\\." range))
+                                      (not (magit-branch-p range))
+                                      (magit-rev-verify range)
+                                      (string-match-p "^[0-9a-f]\\{7,\\}$" range)))
+            (if is-commit-hash
+                (progn
+                  (setq base-branch (concat range "^"))
+                  (setq feature-branch range)
+                  range) ; for filename part
+              ;; Else, branch range
+              (progn
+                (if (string-match-p "\\.\\." range)
+                    (let ((parts (split-string range "\\.\\.")))
+                      (setq base-branch (car parts))
+                      (setq feature-branch (cadr parts)))
+                  ;; Else, single branch name given, compare against HEAD
+                  (setq base-branch range)
+                  (setq feature-branch "HEAD"))
+                (concat base-branch "." feature-branch)))))) ; for filename part
+       (diff-file (concat git-root diff-file-name-part ".diff")))
+
+    ;; Main logic based on is-cached-diff
+    (if is-cached-diff
+        ;; Handle cached diff
+        (progn
+          (message "Generating diff for cached (staged) changes...")
+          (magit-run-git "diff" "--cached" (concat "--output=" diff-file)))
+      ;; Handle commit or branch diff
+      (progn
+        (message "Fetching from all remotes to ensure latest branches...")
+        (magit-run-git "fetch" "--all")
+        ;; Verify branches exist (only if not a commit hash)
+        (unless is-commit-hash
+          (unless (or (magit-branch-p base-branch)
+                      (magit-branch-p (concat "origin/" base-branch))
+                      (magit-rev-verify base-branch))
+            (user-error "Base branch '%s' not found locally or in remotes" base-branch))
+          (when (and (not (string= feature-branch "HEAD"))
+                     (not (magit-branch-p feature-branch))
+                     (not (magit-branch-p (concat "origin/" feature-branch)))
+                     (not (magit-rev-verify feature-branch)))
+            (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
+        ;; Display message about what we're doing
+        (cond
+         (is-commit-hash
+          (message "Generating diff for single commit: %s" range))
+         ;; Check if original input `range` contained ".." for branch pair
+         ((string-match-p "\\.\\." raw-range)
+          (message "Generating diff between branches: %s..%s" base-branch feature-branch))
+         (t ; Assumed base branch vs HEAD
+          (message "Generating diff between %s and HEAD" base-branch)))
+        ;; Check if repo is clean (only if not doing cached diff, as cached implies uncommitted changes)
+        (when (magit-anything-modified-p)
+          (message "Repository has uncommitted changes. You might want to commit or stash them first")
+          (sleep-for 1))
+        ;; Generate diff file
+        (message "Generating diff file...")
+        (magit-run-git "diff" (concat base-branch ".." feature-branch)
+                       (concat "--output=" diff-file))))
+    ;; Open diff file (common to both paths)
+    (find-file diff-file)
+    (message "Generated diff file: %s" diff-file)))
 
 ;;;###autoload
 (defun aider-open-history ()
