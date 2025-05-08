@@ -4,6 +4,10 @@
 ** Main branch change
 
 - Add aider-add-module function, it will add files with suffix in the module directory to aider session. It will be useful for the whole module level analysis and code change.
+- Add recently added aider command, "/reasoning-effort" and "/think-tokens", to keyword highlight
+- aider-change-model will ask reasoning-effort for chatgpt o4,o3,o1 model, when it is main model change
+- README improvement
+- Updated Chinese version of README
 
 ** v0.8.4
 
