@@ -226,15 +226,14 @@ Signal an error if not in a git repository."
   "Parse RAW-RANGE input and determine diff type and parameters.
 Returns a plist with :type, :base-branch, :feature-branch, and :diff-file-name-part."
   (let* ((range (string-trim raw-range))
-         (is-cached-diff (string= range "cached"))
+         (is-staged-diff (string= range "staged"))
          (is-commit-hash nil)
          (base-branch nil)
          (feature-branch nil)
          (diff-file-name-part nil))
-    
-    (if is-cached-diff
-        (setq diff-file-name-part "cached")
-      ;; Not cached, determine if commit hash or branch range
+    (if is-staged-diff
+        (setq diff-file-name-part "staged")
+      ;; Not staged, determine if commit hash or branch range
       (setq is-commit-hash (and (not (string-match-p "\\.\\." range))
                                 (not (magit-branch-p range))
                                 (magit-rev-verify range)
@@ -253,8 +252,7 @@ Returns a plist with :type, :base-branch, :feature-branch, and :diff-file-name-p
           (setq base-branch range)
           (setq feature-branch "HEAD"))
         (setq diff-file-name-part (concat base-branch "." feature-branch))))
-    
-    (list :type (if is-cached-diff 'cached (if is-commit-hash 'commit 'branch))
+    (list :type (if is-staged-diff 'staged (if is-commit-hash 'commit 'branch))
           :base-branch base-branch
           :feature-branch feature-branch
           :diff-file-name-part diff-file-name-part
@@ -268,7 +266,6 @@ Signal an error if either branch doesn't exist."
               (magit-branch-p (concat "origin/" base-branch))
               (magit-rev-verify base-branch))
     (user-error "Base branch '%s' not found locally or in remotes" base-branch))
-  
   ;; Verify feature branch exists (if not HEAD)
   (when (and (not (string= feature-branch "HEAD"))
              (not (magit-branch-p feature-branch))
@@ -276,9 +273,9 @@ Signal an error if either branch doesn't exist."
              (not (magit-rev-verify feature-branch)))
     (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
 
-(defun aider--generate-cached-diff (diff-file)
-  "Generate diff for cached (staged) changes and save to DIFF-FILE."
-  (message "Generating diff for cached (staged) changes...")
+(defun aider--generate-staged-diff (diff-file)
+  "Generate diff for staged (staged) changes and save to DIFF-FILE."
+  (message "Generating diff for staged (staged) changes...")
   (magit-run-git "diff" "--cached" (concat "--output=" diff-file)))
 
 (defun aider--generate-branch-or-commit-diff (diff-params diff-file)
@@ -288,15 +285,12 @@ DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range
         (base-branch (plist-get diff-params :base-branch))
         (feature-branch (plist-get diff-params :feature-branch))
         (raw-range (plist-get diff-params :raw-range)))
-    
     ;; Fetch latest branches
     (message "Fetching from all remotes to ensure latest branches...")
     (magit-run-git "fetch" "--all")
-    
     ;; Verify branches exist (only if not a commit hash)
     (unless (eq type 'commit)
       (aider--verify-branches base-branch feature-branch))
-    
     ;; Display message about what we're doing
     (cond
      ((eq type 'commit)
@@ -307,12 +301,10 @@ DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range
       (message "Generating diff between branches: %s..%s" base-branch feature-branch))
      (t ; Assumed base branch vs HEAD
       (message "Generating diff between %s and HEAD" base-branch)))
-    
     ;; Check if repo is clean
     (when (magit-anything-modified-p)
       (message "Repository has uncommitted changes. You might want to commit or stash them first")
       (sleep-for 1))
-    
     ;; Generate diff file
     (message "Generating diff file...")
     (magit-run-git "diff" (concat base-branch ".." feature-branch)
@@ -334,16 +326,14 @@ If input looks like a commit hash, it generates diff for that single commit.
 Otherwise, it's treated as base branch and diff is generated against HEAD."
   (interactive)
   (let* ((git-root (aider--validate-git-repository))
-         (raw-range (read-string "Branch range (base..feature), commit hash, base branch, or cached: " "cached"))
+         (raw-range (read-string "Branch range (base..feature), commit hash, base branch, or staged: " "staged"))
          (diff-params (aider--parse-diff-range raw-range))
          (diff-file-name-part (plist-get diff-params :diff-file-name-part))
          (diff-file (concat git-root diff-file-name-part ".diff")))
-    
     ;; Generate diff based on type
-    (if (eq (plist-get diff-params :type) 'cached)
-        (aider--generate-cached-diff diff-file)
+    (if (eq (plist-get diff-params :type) 'staged)
+        (aider--generate-staged-diff diff-file)
       (aider--generate-branch-or-commit-diff diff-params diff-file))
-    
     ;; Open the generated diff file
     (aider--open-diff-file diff-file)))
 
