@@ -19,10 +19,16 @@
 ;; complex codebases faster and more thoroughly.
 ;;
 ;; To use aider.el, you need to install the Aider command line tool: https://aider.chat/#getting-started
+;; After that, configure it with (use sonnet as example):
+;; 
+;; (use-package aider
+;;   :config
+;;   ;; For latest claude sonnet model
+;;   (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+;;   (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+;;   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 ;;
-;; In-editor Aider experience:
-;; - Manages Aider sessions per Git repo.
-;; - Menu for AI-assisted coding
+;; For more details, see https://github.com/tninja/aider.el
 ;;
 ;; Alternatives to aidermacs:
 ;; - More Focus on build prompts using your code (buffer/selection).
