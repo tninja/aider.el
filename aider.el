@@ -18,6 +18,8 @@
 ;; development workflows and AI-assisted code reading to help you understand
 ;; complex codebases faster and more thoroughly.
 ;;
+;; To use aider.el, you need to install the Aider command line tool: https://aider.chat/#getting-started
+;;
 ;; In-editor Aider experience:
 ;; - Manages Aider sessions per Git repo.
 ;; - Menu for AI-assisted coding
@@ -26,8 +28,8 @@
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Reuse prompts easily, fuzzy search with helm.
 ;; - Organize project with repo specific Aider prompt file
-;; - More Focus on code quality tool (Code Review, Agile + AI).
-;; - Snippets for community prompts.
+;; - Agile development tool and Code reading tools from classic books.
+;; - Diff review tools, snippets for community prompts.
 ;; - Less configurations, simplified menu.
 
 ;;; Code:
