@@ -229,7 +229,7 @@ Otherwise, it's treated as base branch and diff is generated against HEAD."
     (unless git-root
       (user-error "Not in a git repository"))
     ;; Fetch from all remotes to ensure we have the latest branches
-    (let* ((raw-range (read-string "Branch range (base..feature), commit hash, or base branch: " "main"))
+    (let* ((raw-range (read-string "Branch range (base..feature), commit hash, base branch, or cached: " "cached"))
            (range (string-trim raw-range))
          ;; Check if it's a commit hash by verifying:
          ;; 1. It doesn't contain '..'
