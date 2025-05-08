@@ -8,6 +8,7 @@
 - aider-change-model will ask reasoning-effort for chatgpt o4,o3,o1 model, when it is main model change
 - README improvement
 - Updated Chinese version of README
+- aider-pull-or-review-diff-file support pull changes for magit staged files, as default option
 
 ** v0.8.4
 
