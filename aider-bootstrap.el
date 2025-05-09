@@ -46,7 +46,7 @@
      (t "Unknown")))) ; Default for unknown extensions
 
 ;;;###autoload
-(defun aider-bootstrap-code ()
+(defun aider-bootstrap ()
   "Bootstrap common code structures using Aider.
 Provides a selection of language-agnostic bootstrapping prompts."
   (interactive)
