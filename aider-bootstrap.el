@@ -57,7 +57,8 @@ Provides a selection of language-agnostic bootstrapping prompts."
             ("README Template" . aider--bootstrap-readme)
             ("Project Structure" . aider--bootstrap-project-structure)
             ("Database Model/Schema" . aider--bootstrap-data-model)
-            ("Docker Configuration" . aider--bootstrap-docker-config)))
+            ("Docker Configuration" . aider--bootstrap-docker-config)
+            ("Email Draft" . aider--bootstrap-email))) ; Add this line
          (technique-names (mapcar #'car bootstrap-techniques))
          (prompt "Select bootstrapping technique: ")
          (selected-technique (completing-read prompt technique-names nil t))
@@ -220,6 +221,31 @@ For each file, provide a brief description of its purpose and basic content."
 4. Environment variables
 5. Clear comments throughout" language multi-stage-text services))))
          (user-prompt (aider-read-string "Docker Configuration instruction: " initial-prompt))
+         (command (format "/architect \"%s\"" user-prompt)))
+    (aider--send-command command t)))
+
+;; Add the new function aider--bootstrap-email here
+(defun aider--bootstrap-email ()
+  "Generate a draft for an email."
+  (interactive)
+  (let* ((recipient (aider-read-string "Recipient (To, e.g., 'colleague@example.com', 'Hiring Manager'): "))
+         (subject-idea (aider-read-string "Subject idea/topic: "))
+         (purpose (aider-read-string "Main purpose/goal of the email: "))
+         (key-points (aider-read-string "Key points to include (comma-separated or brief list): "))
+         (tone (completing-read "Desired tone: "
+                                '("Formal" "Informal" "Persuasive" "Friendly" "Neutral" "Urgent")
+                                nil t "Formal"))
+         (call-to-action (aider-read-string "Call to action (if any, e.g., 'reply by Friday', 'click this link'): "))
+         (filename (read-file-name "Save email draft as: " nil nil t "email_draft.txt"))
+         (initial-prompt (format "Draft an email to '%s' with a subject line related to '%s'.
+The main purpose of this email is: '%s'.
+Key points to include are:
+%s
+The desired tone is '%s'.
+If applicable, include the following call to action: '%s'.
+Please provide a complete email draft including a suitable subject line, greeting, body, and closing. The output should be saved to the file '%s'."
+                               recipient subject-idea purpose key-points tone call-to-action (file-name-nondirectory filename)))
+         (user-prompt (aider-read-string "Email Draft instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     (aider--send-command command t)))
 
