@@ -57,8 +57,7 @@ Provides a selection of language-agnostic bootstrapping prompts."
             ("README Template" . aider--bootstrap-readme)
             ("Project Structure" . aider--bootstrap-project-structure)
             ("Database Model/Schema" . aider--bootstrap-data-model)
-            ("Docker Configuration" . aider--bootstrap-docker-config)
-            ("Web Customer Data Analysis Report" . aider--bootstrap-org-data-analysis-report)))
+            ("Docker Configuration" . aider--bootstrap-docker-config)))
          (technique-names (mapcar #'car bootstrap-techniques))
          (prompt "Select bootstrapping technique: ")
          (selected-technique (completing-read prompt technique-names nil t))
@@ -222,75 +221,6 @@ For each file, provide a brief description of its purpose and basic content."
 5. Clear comments throughout" language multi-stage-text services))))
          (user-prompt (aider-read-string "Docker Configuration instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
-    (aider--send-command command t)))
-
-(defun aider--bootstrap-org-data-analysis-report ()
-  "Generate an Org-mode template for a data analysis report focused on web company customer data."
-  (interactive)
-  (let* ((report-title (aider-read-string "Report title: " "Web Customer Data Analysis Report"))
-         (data-source-type (completing-read "Primary data source: " 
-                                           '("PostgreSQL Database" 
-                                             "Web Analytics" 
-                                             "CRM Data"
-                                             "Customer Events Log"
-                                             "Mixed Sources") 
-                                           nil t "PostgreSQL Database"))
-         (analysis-focus (completing-read "Analysis focus: " 
-                                         '("Customer Segmentation" 
-                                           "Conversion Funnel Analysis" 
-                                           "Retention Analysis" 
-                                           "Behavioral Patterns" 
-                                           "Churn Prediction"
-                                           "Customer Lifetime Value"
-                                           "A/B Test Results"
-                                           "Feature Usage Analysis") 
-                                         nil t "Customer Segmentation"))
-         (time-period (aider-read-string "Analysis time period: " "Last 3 months"))
-         (analysis-tools (completing-read-multiple "Select analysis tools (space-separated): " 
-                                                 '("PostgreSQL" "Python" "R" "Pandas" "Scikit-learn")
-                                                 nil t))
-         (include-dashboards (y-or-n-p "Include dashboard recommendations? "))
-         (include-ml (y-or-n-p "Include machine learning models? "))
-         (tools-text (if analysis-tools
-                         (format "Include org-babel code blocks for %s with appropriate examples for each tool:
-- PostgreSQL: data extraction, customer metrics, and cohort analysis
-- Python: data manipulation with pandas, visualization with matplotlib/seaborn
-- R: statistical analysis with tidyverse, modeling, and ggplot2 visualizations
-- Machine learning: %s examples for predictive modeling
-"
-                                 (string-join analysis-tools ", ")
-                                 (if include-ml "scikit-learn/caret" ""))
-                       ""))
-         (dashboard-text (if include-dashboards
-                             "Include a section on dashboard recommendations with metrics to track and visualization suggestions. "
-                           ""))
-         ;; Keep suggestion for standard filename extension
-         (suggested-filename (concat (downcase (replace-regexp-in-string "[^a-zA-Z0-9-]" "-" report-title)) ".org"))
-         (filename (read-file-name "Save report as: " nil nil t suggested-filename))
-         ;; Generate prompt *before* switching buffer
-         (initial-prompt (format "Generate a comprehensive Org-mode template for a web company customer data analysis report titled '%s'. The report analyzes '%s' data focusing on %s over %s. %s%sThe template should include:
-1. A properly structured Org document with title, author, date, and table of contents
-2. Standard sections for a web analytics/customer data report:
-   - Executive Summary
-   - Business Context and Objectives
-   - Data Sources and Methodology
-   - Customer Segmentation/Profiling
-   - Key Metrics and KPIs
-   - Detailed Analysis Findings
-   - Business Recommendations
-   - Technical Appendix (queries, code)
-3. Proper use of Org-mode features:
-   - Headings with appropriate levels
-   - Properties and tags for filtering
-   - TODO items for analysis steps
-   - Tables for key metrics
-   - Export options for HTML/PDF/presentations
-Include placeholder text that guides the user on what to write in each section, with specific focus on actionable business insights from customer data."
-                               report-title data-source-type analysis-focus time-period 
-                               tools-text dashboard-text))
-         (user-prompt (aider-read-string "Web Customer Data Analysis Report instruction: " initial-prompt))
-         (command (format "/architect \"%s\"" user-prompt)))
-    ;; Remove old check for .org file
     (aider--send-command command t)))
 
 (provide 'aider-bootstrap)
