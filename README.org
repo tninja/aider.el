@@ -2,6 +2,10 @@
 
 #+TITLE: AI assisted programming in Emacs with Aider 
 
+[[https://melpa.org/#/aider][https://melpa.org/packages/aider-badge.svg]]
+[[https://stable.melpa.org/#/aider][https://stable.melpa.org/packages/aider-badge.svg]]
+[[https://github.com/tninja/aider.el/graphs/contributors][https://img.shields.io/github/contributors/tninja/aider.el.svg]]
+
 [[file:README.zh-cn.org][中文版]]
 
 * Table of Contents
@@ -13,7 +17,7 @@
   - [[#helm-support][Helm Support]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
 - [[#methods-from-classic-books][Methods from classic books]]
-- [[#pros-and-cons][Pros and Cons]]
+- [[#cons-of-aider.el][Cons of aider.el]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 - [[#faq][FAQ]]
 - [[#future-work][Future work]]
@@ -78,6 +82,9 @@ Enable installation of packages from MELPA by adding an entry to package-archive
     (global-set-key (kbd "C-c a") 'aider-transient-menu))
 #+END_SRC
 
+- *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
+- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
+
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (Emacs 30+ built-in)
 - Install aider.el by running the following code within Emacs
   - You'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
@@ -97,9 +104,6 @@ If you have Straight installed
     ;; rest of configs
     )
 #+END_SRC
-
-- *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
-- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
 
 ** Doom Installation and Configuration
 
@@ -162,13 +166,15 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 *** Support for Agile Development
   - aider-write-unit-test :: If the current buffer is main source code file, generate comprehensive unit tests for the current function or file. If the cursor is in a test source code file, when the cursor is on a test function, implement the test function. Otherwise, provide description to implement the test function (or spec).
   - If main source code break and test function fails, use ~aider-function-or-region-refactor~ on the failed test function to ask Aider to fix the code to make the test pass.
-  - aider-refactor-book-method :: for code refactoring using techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]]
+  - aider-refactor-book-method :: for code refactoring using techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]], you can also let AI make the decision on how to refactor, example: [[https://github.com/tninja/aider.el/pull/146/commits/811a8eca47dfba3c52a33afba7bb11a8a69689b1][this commit]] addressing [[https://github.com/tninja/aider.el/pull/146#discussion_r2078182430][this comment]]
+  - aider-pull-or-review-diff-file :: let aider to pull and review the code change.
 
 *** Questions on code
   - aider-ask-question :: Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
     - You can ask any question on the code. Eg. Explain the function, review the code and find the bug, etc
     - A couple common used prompts provided when you are using aider-helm.el
   - aider-go-ahead :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
+  - aider-code-read :: Choose the method from the book, [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]], to analyze the region / function / file / module. 
 
 *** Aider prompt file
 
@@ -178,7 +184,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 
 - People happy with sending code from editor buffer to comint buffer (eg. ESS, python-mode, scala-mode) might like this. This is a interactive and reproducible way
 
-- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line. To my experience, this is the most used method in aider prompt file.
+- ~C-c C-n~ key can be used to send the current prompt line to the comint buffer. Or batch send selected region line by line (~C-u C-c C-n~). To my experience, this is the most used method in aider prompt file.
 
 - ~C-c C-c~ key is for multi-line prompt. The following example shows ~C-c C-c~ key pressed when cursor is on the prompt.
 
@@ -219,21 +225,12 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 
 - [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
 
-* Pros and Cons 
-
-** Pros: UI, Context Awareness AI Pair Programming
-
-- Already introduced in this README
-
-** Cons: aider session in comint is not fancy
+* Cons of aider.el
 
 - The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
-  - *color rendering markdown-mode.el is applied and largely improved this*.
+  - *color rendering from markdown-mode.el is applied in aider comint session buffer it and largely improved this*.
   - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
-
-- *It's generally not advantageous to interact with Aider extensively through the comint terminal directly.* Instead, since the comint terminal is well integrated with other parts of emacs, it is encouraged to generate and send prompt to it, either from:
-  - Code buffer directly by _aider code change related commands_ or _ask question related commands_. It make less context switching, and it help building up prompt, reducing manual typing.
-  - Aider prompt file (~aider-open-prompt-file~, ~C-c a p~). This is the traditional way in emacs to communicate with comint buffer (just like ESS, python-mode, scala-mode, etc). It is easy to revisit your used commands, organize and manage large code change requiring more prompts and break them into sub-tasks (cause it is org), and it is easy for multi-line prompts. Recently, syntax highlight, completion and snippets were added to this file, and it is now a good place to write and organize your prompts.
+  - [[https://github.com/akermu/emacs-libvterm][vterm based interactive session]] can make the aider session close to the user experience of using aider in terminal. Considering that comint based solution is battle tested for many years and it is very stable, and long term maintainability of the project, aider.el only use comint session based solution. 
 
 * Be careful about AI generated code
 
@@ -291,7 +288,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - Note: *Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with "--no-auto-accept-architect" in either aider-args or .aider.conf.yml*.
 
 - How to disable to aider auto-commit?    
-  - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
+  - add --no-auto-commits to aider-args or ~/.aider.conf.yml. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
 
 - What kind of model aider support? Can aider support local model?
   - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].

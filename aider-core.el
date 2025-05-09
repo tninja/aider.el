@@ -48,6 +48,16 @@ When nil, use standard `display-buffer' behavior.")
     map)
   "Keymap for `aider-comint-mode'.")
 
+(defconst aider--command-list
+  '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
+    "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
+    "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
+    "/load" "/ls" "/map" "/map-refresh" "/think-tokens" "/tokens"
+    "/model" "/editor-model" "/weak-model" "/models" "/reasoning-effort"
+    "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
+    "/voice" "/web")
+  "A list of common Aider commands for completion.")
+
 (declare-function evil-define-key* "evil" (state map key def))
 
 (defun aider--apply-markdown-highlighting ()
@@ -200,7 +210,7 @@ Optional LOG, when non-nil, logs the command to the message area."
         (if (and aider-process (comint-check-proc aider-buffer))
             (progn
               ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer (concat command "\n"))
+              (aider--comint-send-string-syntax-highlight aider-buffer command)
               ;; Provide feedback to the user
               (when log
                 (message "Sent command to aider buffer: %s" (string-trim command)))
@@ -334,15 +344,6 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
-
-(defconst aider--command-list
-  '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
-    "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"
-    "/paste" "/help" "/chat-mode" "/diff" "/editor" "/git"
-    "/load" "/ls" "/map" "/map-refresh" "/model" "/editor-model" "/weak-model" "/models"
-    "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
-    "/tokens" "/voice" "/web")
-  "A list of common Aider commands for completion.")
 
 (provide 'aider-core)
 

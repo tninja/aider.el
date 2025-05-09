@@ -8,26 +8,34 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; Tired of coding alone? This package + Aider (https://aider.chat/)
-;; brings an AI pair programmer *inside* Emacs! Aider works seamlessly
+;; Boost your programming efficiency! This package + Aider (https://aider.chat/)
+;; brings AI-assisted programming capabilities *inside* Emacs! Aider works seamlessly
 ;; with both *new* and *existing* codebases in your local Git repo,
-;; using AI models (Claude, ChatGPT, even local ones!) to help you. It
+;; using AI models (Claude, ChatGPT, Gemini, even local ones!) to assist you. It
 ;; can suggest improvements, squash bugs, or even write whole new
-;; sections of code. Boost your coding with AI, without ever leaving
+;; sections of code. Enhance your coding with AI without ever leaving
 ;; your Emacs comfort zone. The package also supports AI-assisted Agile
 ;; development workflows and AI-assisted code reading to help you understand
 ;; complex codebases faster and more thoroughly.
 ;;
-;; In-editor Aider experience:
-;; - Manages Aider sessions per Git repo.
-;; - Menu for AI-assisted coding
+;; To use aider.el, you need to install the Aider command line tool: https://aider.chat/#getting-started
+;; After that, configure it with (use sonnet as example):
+;; 
+;; (use-package aider
+;;   :config
+;;   ;; For latest claude sonnet model
+;;   (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+;;   (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+;;   (global-set-key (kbd "C-c a") 'aider-transient-menu))
+;;
+;; For more details, see https://github.com/tninja/aider.el
 ;;
 ;; Alternatives to aidermacs:
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Reuse prompts easily, fuzzy search with helm.
 ;; - Organize project with repo specific Aider prompt file
-;; - More Focus on code quality tool (Code Review, Agile + AI).
-;; - Snippets for community prompts.
+;; - Agile development tool and Code reading tools from classic books.
+;; - Diff review tools, snippets for community prompts.
 ;; - Less configurations, simplified menu.
 
 ;;; Code:
@@ -90,11 +98,11 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
    ["File Operation"
     ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window" aider-add-files-in-current-window)
+    ("M" "Add Module (C-u: readonly)" aider-add-module)
     ("O" "Drop Current File" aider-drop-current-file)
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
     ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
-    ("h" "Open History" aider-open-history)
     ]
    ["Code Change"
     ("r" "Change Function/Region" aider-function-or-region-refactor)
@@ -113,6 +121,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("d" "Code Reading" aider-code-read)
     ("b" "Code/Doc Bootstrap" aider-bootstrap-code)
     ("e" "Debug Exception" aider-debug-exception)
+    ("h" "Open History" aider-open-history)
     ("H" "Help (C-u: homepage)" aider-help)
     ]
    ])
@@ -145,6 +154,18 @@ With prefix argument CLEAR, clear the buffer contents instead of just resetting.
   (aider--send-command "/exit"))
 
 ;;; Model selection functions
+(defun aider--maybe-prompt-and-set-reasoning-effort (command model)
+  "Conditionally prompt for and set reasoning effort for certain models.
+This is typically done when COMMAND is \"/model\" and MODEL matches
+specific patterns (e.g., OpenAI's o4, o3, o1 series)."
+  (when (and (string= command "/model")
+             (string-match-p "^\\(o4\\|o3\\|o1\\)" model))
+    (let* ((efforts '("low" "medium" "high"))
+           (effort (completing-read "Select reasoning effort: " efforts nil t nil nil "medium")))
+      (when effort
+        (aider--send-command (format "/reasoning-effort %s" effort) t)
+        (message "Reasoning effort set to %s for model %s" effort model)))))
+
 ;;;###autoload
 (defun aider-change-model (leaderboards)
   "Interactively select and change AI model in current aider session.
@@ -159,7 +180,8 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
       (when model
         (aider--send-command (format "%s %s" command model) t)
         (message "%s changed to %s, customize aider-popular-models for the model candidates"
-                 (substring command 1) model)))))
+                 (substring command 1) model)
+        (aider--maybe-prompt-and-set-reasoning-effort command model)))))
 
 (provide 'aider)
 

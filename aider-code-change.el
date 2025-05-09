@@ -42,9 +42,9 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
 REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
   (let ((processed-region-text region-text))
     (if function-name
-        (format "/architect \"in function %s, for the following code block, %s: %s\"\n"
+        (format "/architect \"in function %s, for the following code block, %s: %s\""
                 function-name user-command processed-region-text)
-      (format "/architect \"for the following code block, %s: %s\"\n"
+      (format "/architect \"for the following code block, %s: %s\""
               user-command processed-region-text))))
 
 ;;;###autoload
