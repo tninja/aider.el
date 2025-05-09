@@ -58,7 +58,8 @@ Provides a selection of language-agnostic bootstrapping prompts."
             ("Project Structure" . aider--bootstrap-project-structure)
             ("Database Model/Schema" . aider--bootstrap-data-model)
             ("Docker Configuration" . aider--bootstrap-docker-config)
-            ("Email Draft" . aider--bootstrap-email))) ; Add this line
+            ("Email Draft" . aider--bootstrap-email)
+            ("General Plan Outline" . aider--bootstrap-general-plan)))
          (technique-names (mapcar #'car bootstrap-techniques))
          (prompt "Select bootstrapping technique: ")
          (selected-technique (completing-read prompt technique-names nil t))
