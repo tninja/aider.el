@@ -239,14 +239,47 @@ For each file, provide a brief description of its purpose and basic content."
          (call-to-action (aider-read-string "Call to action (if any, e.g., 'reply by Friday', 'click this link'): "))
          (filename (read-file-name "Save email draft as: " nil nil t "email_draft.txt"))
          (initial-prompt (format "Draft an email to '%s' with a subject line related to '%s'.
-The main purpose of this email is: '%s'.
-Key points to include are:
-%s
-The desired tone is '%s'.
-If applicable, include the following call to action: '%s'.
-Please provide a complete email draft including a suitable subject line, greeting, body, and closing. The output should be saved to the file '%s'."
-                               recipient subject-idea purpose key-points tone call-to-action (file-name-nondirectory filename)))
+    The main purpose of this email is: '%s'.
+    Key points to include are:
+    %s
+    The desired tone is '%s'.
+    If applicable, include the following call to action: '%s'.
+    Please provide a complete email draft including a suitable subject line, greeting, body, and closing. The output should be saved to the file '%s'."
+                                   recipient subject-idea purpose key-points tone call-to-action (file-name-nondirectory filename)))
          (user-prompt (aider-read-string "Email Draft instruction: " initial-prompt))
+         (command (format "/architect \"%s\"" user-prompt)))
+    (aider--send-command command t)))
+
+(defun aider--bootstrap-general-plan ()
+  "Generate a general plan outline for various purposes."
+  (interactive)
+  (let* ((objective (aider-read-string "What is the main objective or goal of this plan? (e.g., 'Develop new login feature', 'Plan family weekend trip'): "))
+         (timeframe (aider-read-string "What is the timeframe for this plan? (e.g., 'Next 2 weeks', 'This weekend', 'Q3'): "))
+         (key-people (aider-read-string "Who are the key people involved or who is this plan for? (e.g., 'Dev team', 'Myself', 'The family'): "))
+         (main-areas (aider-read-string "What are the key areas or main tasks to consider? (comma-separated, e.g., 'Backend, Frontend, Testing' or 'Activities, Logistics, Budget'): "))
+         (constraints (aider-read-string "Any specific constraints or important considerations? (e.g., 'Limited budget', 'Existing codebase dependencies', 'Kid-friendly options'): "))
+         (filename (read-file-name "Save plan outline as: " nil nil t "plan_outline.txt"))
+         (initial-prompt (format "Generate a plan outline for the objective: '%s'.
+    This plan is intended for '%s' and aims to be accomplished within '%s'.
+    The plan should be saved in a file named '%s'.
+    Key areas or main tasks to cover:
+    %s
+    Specific constraints or important considerations:
+    %s
+    Please structure the output as a clear and actionable plan outline. This might include:
+    - A suitable title for the plan.
+    - Sections for each key area or main task identified.
+    - Within each section, list potential sub-tasks, action items, milestones, or points to consider.
+    - If applicable, suggest a logical flow or dependencies between tasks.
+    - Incorporate the specified constraints and considerations throughout the plan.
+    The goal is to create a practical starting point that can be further detailed by the user."
+                                   objective
+                                   key-people
+                                   timeframe
+                                   (file-name-nondirectory filename)
+                                   main-areas
+                                   constraints))
+         (user-prompt (aider-read-string "General Plan Outline instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     (aider--send-command command t)))
 
