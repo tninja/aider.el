@@ -185,12 +185,16 @@ If file doesn't exist, create it with command binding help and sample prompt."
 
 (defun aider--setup-snippets ()
   "Setup YASnippet directories for `aider-prompt-mode`."
-  (when (featurep 'yasnippet)
-    (let ((snippet-dir (expand-file-name "snippets"
-                                         (file-name-directory (file-truename (locate-library "aider"))))))
-      (require 'yasnippet)
-      (add-to-list 'yas-snippet-dirs snippet-dir t)
-      (yas-load-directory snippet-dir))))
+  (condition-case nil
+      (when (require 'yasnippet nil t)
+        (let ((snippet-dir (expand-file-name "snippets"
+                                           (file-name-directory (file-truename (locate-library "aider"))))))
+          (when (file-directory-p snippet-dir)
+            (unless (boundp 'yas-snippet-dirs)
+              (setq yas-snippet-dirs nil))
+            (add-to-list 'yas-snippet-dirs snippet-dir t)
+            (ignore-errors (yas-load-directory snippet-dir)))))
+    (error nil))) ;; Suppress all errors
 
 (defun aider-prompt-mode-setup-font-lock ()
   "Setup custom font lock for aider commands."
@@ -203,8 +207,8 @@ If file doesn't exist, create it with command binding help and sample prompt."
          (green-commands (append green-commands '("go ahead" "subtree-only"))))
     ;; Append custom font lock keywords to org-mode's defaults
     (font-lock-add-keywords nil
-     `((,(regexp-opt green-commands) . font-lock-type-face)
-       (,(regexp-opt red-commands) . font-lock-warning-face)))
+                            `((,(regexp-opt green-commands) . font-lock-type-face)
+                              (,(regexp-opt red-commands) . font-lock-warning-face)))
     ;; Force font lock refresh
     (when (fboundp 'font-lock-flush)
       (font-lock-flush))
