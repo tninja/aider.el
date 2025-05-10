@@ -8,6 +8,8 @@
 
 ;;; Code:
 
+(require 's)
+
 (require 'aider-core)
 (require 'aider-file) ; For aider-add-current-file
 
