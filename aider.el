@@ -1,8 +1,8 @@
 ;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.8.4
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5"))
+;; Version: 0.9.0
+;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: agent ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding 
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
@@ -52,6 +52,7 @@
 (require 'aider-agile)
 (require 'aider-code-read)
 (require 'aider-legacy-code)
+(require 'aider-bootstrap)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "o4-mini" ;; very powerful. good for difficult task
@@ -118,6 +119,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("y" "Then Go Ahead" aider-go-ahead)
     ("Q" "Question without Context" aider-general-question)
     ("d" "Code Reading" aider-code-read)
+    ("b" "Code/Doc Bootstrap" aider-bootstrap)
     ("e" "Debug Exception" aider-debug-exception)
     ("h" "Open History" aider-open-history)
     ("H" "Help (C-u: homepage)" aider-help)
