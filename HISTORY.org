@@ -1,7 +1,7 @@
 
 * Release history
 
-** Main branch change
+** v0.9.0
 
 - Add aider-add-module function, it will add files with suffix in the module directory to aider session. It will be useful for the whole module level analysis and code change.
 - Add recently added aider command, "/reasoning-effort" and "/think-tokens", to keyword highlight
