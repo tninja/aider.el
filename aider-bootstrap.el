@@ -26,6 +26,7 @@ Provides a selection of language-agnostic bootstrapping prompts."
             ("Project Structure" . aider--bootstrap-project-structure)
             ("Database Model/Schema" . aider--bootstrap-data-model)
             ("Docker Configuration" . aider--bootstrap-docker-config)
+            ("Contextual Note Generation" . aider--bootstrap-contextual-note)
             ("General Plan Outline" . aider--bootstrap-general-plan)
             ("Org-mode Slides Outline" . aider--bootstrap-org-slides)))
          (technique-names (mapcar #'car bootstrap-techniques))
@@ -226,6 +227,58 @@ For each file, provide a brief description of its purpose and basic content."
          (user-prompt (aider-read-string "Docker Configuration instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     (aider--send-command command t)))
+
+(defun aider--bootstrap-contextual-note ()
+  "Generate or update a note based on the current Aider context and user queries."
+  (interactive)
+  (let* ((action-choice (completing-read "Action: " '("Create new note" "Update existing note") nil t nil "Create new note"))
+         (is-update (string-equal action-choice "Update existing note"))
+         (note-filename
+          (if is-update
+              (read-file-name "Enter filename of the note to update: " nil nil t)
+            (read-file-name "Enter filename for the new note (e.g., notes.md, report.org): " nil nil t "context_notes.md")))
+         (context-questions (aider-read-string "Key questions/topics for the note (regarding current context): ")))
+    (when (s-blank? note-filename)
+      (message "Note filename cannot be empty.")
+      (error "Filename required"))
+    (when (s-blank? context-questions)
+      (message "Context questions cannot be empty.")
+      (error "Context questions required"))
+    (let* ((prompt-intro
+            (if is-update
+                (format "Please update the content of the file '%s'. This file should have just been added to our context. The update should focus on incorporating new insights or refining existing content based on the current overall context (other added files) and the following points:"
+                        (file-name-nondirectory note-filename))
+              (format "Generate content for a new note file named '%s'. This note should synthesize information from the current context (files already added to our discussion) to address the following:"
+                      (file-name-nondirectory note-filename))))
+           (is-org-file (string-suffix-p ".org" note-filename :ignore-case))
+           (prompt-questions (format "\nKey Questions/Topics:\n%s" context-questions))
+           (base-update-instructions
+            (concat "\nWhen incorporating new information or elaborating on existing points based on the key questions/topics, "
+                    "please use a structured outlining approach: use clear headings for main topics and sub-headings/bullet points for details. "
+                    "Ensure the overall updated note remains coherent and well-organized, integrating this new perspective with the existing content of the file."))
+           (base-create-instructions
+            (concat "\nOrganize the information as a detailed hierarchical outline. "
+                    "Use clear headings for main topics derived from the key questions/topics you were given. "
+                    "Under each heading, use sub-headings and bullet points to present supporting details, synthesized information from the context, and answers to the specific aspects of the questions. "
+                    "Ensure the output is suitable for direct inclusion in the specified file."))
+           (org-specific-instructions
+            (if is-org-file
+                (concat " Since the target file is an Org-mode file, please use Org-mode syntax for headings (e.g., `* Main Topic`, `** Sub-topic`), lists (e.g., `- item`), and consider using checkboxes (e.g., `- [ ] Actionable item`) for actionable points if appropriate, to structure the content effectively.")
+              ""))
+           (final-prompt (concat prompt-intro prompt-questions
+                                 (if is-update
+                                     (concat base-update-instructions org-specific-instructions)
+                                   (concat base-create-instructions org-specific-instructions))))
+           (command (format "/architect \"%s\"" final-prompt)))
+      (if is-update
+          (progn
+            (unless (file-exists-p note-filename)
+              (error "Note file '%s' does not exist. Cannot update." note-filename))
+            ;; Add the existing note file to Aider's context
+            (aider--send-command (format "/add %s" (shell-quote-argument note-filename)) t)))
+      ;; Send the main architect command
+      (aider--send-command command t)
+      (message "Contextual note generation/update request sent to Aider for '%s'." (file-name-nondirectory note-filename)))))
 
 (defun aider--bootstrap-general-plan ()
   "Generate a general plan outline for various purposes."
