@@ -11,6 +11,29 @@
 (require 'aider-core)
 (require 'aider-file) ; For aider-add-current-file
 
+;;;###autoload
+(defun aider-bootstrap ()
+  "Bootstrap common code structures using Aider.
+Provides a selection of language-agnostic bootstrapping prompts."
+  (interactive)
+  (let* ((bootstrap-techniques
+          '(("Basic File Structure" . aider--bootstrap-basic-file)
+            ("Class/Module Outline" . aider--bootstrap-class-module-outline)
+            ("Basic CLI Application" . aider--bootstrap-cli-app)
+            ("README Template" . aider--bootstrap-readme)
+            ("Project Structure" . aider--bootstrap-project-structure)
+            ("Database Model/Schema" . aider--bootstrap-data-model)
+            ("Docker Configuration" . aider--bootstrap-docker-config)
+            ("General Plan Outline" . aider--bootstrap-general-plan)
+            ("Org-mode Slides Outline" . aider--bootstrap-org-slides)))
+         (technique-names (mapcar #'car bootstrap-techniques))
+         (prompt "Select bootstrapping technique: ")
+         (selected-technique (completing-read prompt technique-names nil t))
+         (technique-function (cdr (assoc selected-technique bootstrap-techniques))))
+    (if technique-function
+        (funcall technique-function)
+      (message "No valid bootstrapping technique selected."))))
+
 ;; Add this new function definition here
 (defun aider--get-language-from-extension (filename)
   "Return a programming language name based on FILENAME's extension."
@@ -44,29 +67,6 @@
      ((string-equal extension "txt") "Text")
      ((string-equal extension "sql") "SQL")
      (t "Unknown")))) ; Default for unknown extensions
-
-;;;###autoload
-(defun aider-bootstrap ()
-  "Bootstrap common code structures using Aider.
-Provides a selection of language-agnostic bootstrapping prompts."
-  (interactive)
-  (let* ((bootstrap-techniques
-          '(("Basic File Structure" . aider--bootstrap-basic-file)
-            ("Class/Module Outline" . aider--bootstrap-class-module-outline)
-            ("Basic CLI Application" . aider--bootstrap-cli-app)
-            ("README Template" . aider--bootstrap-readme)
-            ("Project Structure" . aider--bootstrap-project-structure)
-            ("Database Model/Schema" . aider--bootstrap-data-model)
-            ("Docker Configuration" . aider--bootstrap-docker-config)
-            ("General Plan Outline" . aider--bootstrap-general-plan)
-            ("Org-mode Slides Outline" . aider--bootstrap-org-slides)))
-         (technique-names (mapcar #'car bootstrap-techniques))
-         (prompt "Select bootstrapping technique: ")
-         (selected-technique (completing-read prompt technique-names nil t))
-         (technique-function (cdr (assoc selected-technique bootstrap-techniques))))
-    (if technique-function
-        (funcall technique-function)
-      (message "No valid bootstrapping technique selected."))))
 
 ;; --- Internal Helper Functions for Bootstrapping ---
 
