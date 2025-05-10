@@ -4,7 +4,7 @@
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; This file provides functions to bootstrap common code structures using Aider.
+;; This file provides functions to bootstrap common code / doc structures using Aider.
 
 ;;; Code:
 
