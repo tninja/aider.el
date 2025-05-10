@@ -59,7 +59,7 @@ Provides a selection of language-agnostic bootstrapping prompts."
             ("Database Model/Schema" . aider--bootstrap-data-model)
             ("Docker Configuration" . aider--bootstrap-docker-config)
             ("General Plan Outline" . aider--bootstrap-general-plan)
-            ("Org-mode Slides Outline" . aider--bootstrap-org-slides))) ; Add this line
+            ("Org-mode Slides Outline" . aider--bootstrap-org-slides)))
          (technique-names (mapcar #'car bootstrap-techniques))
          (prompt "Select bootstrapping technique: ")
          (selected-technique (completing-read prompt technique-names nil t))
