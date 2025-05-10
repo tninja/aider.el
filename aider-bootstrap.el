@@ -263,28 +263,42 @@ For each file, provide a brief description of its purpose and basic content."
   (interactive)
   (let* ((title (aider-read-string "What is the title of your presentation?: "))
          (author (aider-read-string "Who is the author? (Leave blank if not needed): "))
+         (goal (aider-read-string "Primary goal/objective? (e.g., inform, persuade, train): "))
+         (key-takeaways (aider-read-string "Key takeaways for the audience? (2-3 points): "))
          (main-sections (aider-read-string "Main sections/topics? (comma-separated, e.g., Intro, Topic A, Conclusion): "))
          (audience (aider-read-string "(Optional) Target audience?: "))
+         (style (aider-read-string "Desired style/tone? (e.g., formal, technical, engaging): "))
+         (duration (aider-read-string "(Optional) Estimated duration? (e.g., 20 mins, 1 hour): "))
+         (call-to-action (aider-read-string "(Optional) Specific call to action at the end?: "))
          (num-slides-approx (aider-read-string "(Optional) Approx. number of slides?: "))
          (filename (read-file-name "Save Org slides as: " nil nil t (concat (s-replace " " "_" (downcase title)) ".org")))
          (initial-prompt
           (format "Generate an Org-mode slide outline for a presentation titled '%s'%s.
     The presentation should be saved in a file named '%s'.
+    Primary Goal/Objective: %s.
+    Key Takeaways for Audience: %s.
     Main sections/topics to cover: %s.
-    %s%s
+    Desired Style/Tone: %s.
+    %s%s%s%s
     Please structure the output as a valid Org-mode file with:
-    1. Standard Org-mode metadata at the top (e.g., #+TITLE:, #+AUTHOR:, #+OPTIONS: toc:nil num:nil).
+    1. Standard Org-mode metadata at the top (e.g., #+TITLE:, #+AUTHOR:, #+DATE:, #+OPTIONS: toc:nil num:nil).
        Consider including common Org export options for reveal.js like `#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js`, `#+REVEAL_THEME: sky`, `#+REVEAL_SLIDE_NUMBER: c/t`.
-    2. Top-level headlines (e.g., `* Section Title`) for each main section.
+    2. Top-level headlines (e.g., `* Section Title`) for each main section, reflecting the presentation's goal and key takeaways.
     3. Second-level headlines (e.g., `** Slide Title`) for individual slides within each section.
-    4. For each slide, provide 2-3 bullet points or a brief placeholder sentence suggesting content.
-    5. Include an introductory slide (e.g., Title Slide) and a concluding/Q&A slide.
-    The goal is to create a well-structured Org-mode file that can serve as a starting point for a presentation."
+    4. For each slide, provide 2-3 bullet points or a brief placeholder sentence suggesting content. This content should align with the specified style/tone.
+    5. Include an introductory slide (e.g., Title Slide, Agenda/Objective Slide) and a concluding slide (e.g., Summary of Key Takeaways, Call to Action, Q&A).
+    The content placeholders should be guided by the goal, key takeaways, and desired tone.
+    The goal is to create a well-structured Org-mode file that serves as a detailed starting point for a presentation."
                   title
                   (if (s-blank? author) "" (format " by '%s'" author))
                   (file-name-nondirectory filename)
+                  goal
+                  key-takeaways
                   main-sections
+                  style
                   (if (s-blank? audience) "" (format "Target audience: %s.\n    " audience))
+                  (if (s-blank? duration) "" (format "Estimated duration: %s.\n    " duration))
+                  (if (s-blank? call-to-action) "" (format "Call to Action: %s.\n    " call-to-action))
                   (if (s-blank? num-slides-approx) "" (format "Aim for approximately %s slides.\n    " num-slides-approx))))
          (user-prompt (aider-read-string "Org-mode Slides Outline instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
