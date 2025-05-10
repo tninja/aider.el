@@ -58,7 +58,8 @@ Provides a selection of language-agnostic bootstrapping prompts."
             ("Project Structure" . aider--bootstrap-project-structure)
             ("Database Model/Schema" . aider--bootstrap-data-model)
             ("Docker Configuration" . aider--bootstrap-docker-config)
-            ("General Plan Outline" . aider--bootstrap-general-plan)))
+            ("General Plan Outline" . aider--bootstrap-general-plan)
+            ("Org-mode Slides Outline" . aider--bootstrap-org-slides))) ; Add this line
          (technique-names (mapcar #'car bootstrap-techniques))
          (prompt "Select bootstrapping technique: ")
          (selected-technique (completing-read prompt technique-names nil t))
@@ -254,6 +255,38 @@ For each file, provide a brief description of its purpose and basic content."
                                    main-areas
                                    constraints))
          (user-prompt (aider-read-string "General Plan Outline instruction: " initial-prompt))
+         (command (format "/architect \"%s\"" user-prompt)))
+    (aider--send-command command t)))
+
+(defun aider--bootstrap-org-slides ()
+  "Generate an Org-mode slide outline for a presentation."
+  (interactive)
+  (let* ((title (aider-read-string "What is the title of your presentation?: "))
+         (author (aider-read-string "Who is the author? (Leave blank if not needed): "))
+         (main-sections (aider-read-string "Main sections/topics? (comma-separated, e.g., Intro, Topic A, Conclusion): "))
+         (audience (aider-read-string "(Optional) Target audience?: "))
+         (num-slides-approx (aider-read-string "(Optional) Approx. number of slides?: "))
+         (filename (read-file-name "Save Org slides as: " nil nil t (concat (s-replace " " "_" (downcase title)) ".org")))
+         (initial-prompt
+          (format "Generate an Org-mode slide outline for a presentation titled '%s'%s.
+    The presentation should be saved in a file named '%s'.
+    Main sections/topics to cover: %s.
+    %s%s
+    Please structure the output as a valid Org-mode file with:
+    1. Standard Org-mode metadata at the top (e.g., #+TITLE:, #+AUTHOR:, #+OPTIONS: toc:nil num:nil).
+       Consider including common Org export options for reveal.js like `#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js`, `#+REVEAL_THEME: sky`, `#+REVEAL_SLIDE_NUMBER: c/t`.
+    2. Top-level headlines (e.g., `* Section Title`) for each main section.
+    3. Second-level headlines (e.g., `** Slide Title`) for individual slides within each section.
+    4. For each slide, provide 2-3 bullet points or a brief placeholder sentence suggesting content.
+    5. Include an introductory slide (e.g., Title Slide) and a concluding/Q&A slide.
+    The goal is to create a well-structured Org-mode file that can serve as a starting point for a presentation."
+                  title
+                  (if (s-blank? author) "" (format " by '%s'" author))
+                  (file-name-nondirectory filename)
+                  main-sections
+                  (if (s-blank? audience) "" (format "Target audience: %s.\n    " audience))
+                  (if (s-blank? num-slides-approx) "" (format "Aim for approximately %s slides.\n    " num-slides-approx))))
+         (user-prompt (aider-read-string "Org-mode Slides Outline instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     (aider--send-command command t)))
 
