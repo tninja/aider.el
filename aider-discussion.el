@@ -77,6 +77,10 @@ With a prefix argument, calls `aider-general-question` instead."
   (interactive)
   (aider--send-command "go ahead" t))
 
+;; add an interactive function, aider-copy-to-clipboard. It is similar
+;; to aider-go-ahead, but just send command /copy to aider session.
+;; Then show message in mini-buffer: Last assistant message copied to the clipboard
+
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
 (defun aider-debug-exception ()
