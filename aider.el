@@ -117,6 +117,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("q" "Question (C-u no context)" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
     ("d" "Code Reading" aider-code-read)
+    ("c" "Copy To Clipboard" aider-copy-to-clipboard)
     ("e" "Debug Exception" aider-debug-exception)
     ("h" "Open History" aider-open-history)
     ("H" "Help (C-u: homepage)" aider-help)

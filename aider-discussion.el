@@ -82,7 +82,8 @@ With a prefix argument, calls `aider-general-question` instead."
   "Copy the last assistant message to the clipboard via Aider."
   (interactive)
   (aider--send-command "/copy" t)
-  (message "Last assistant message copied to the clipboard"))
+  ;; (message "Last assistant message copied to the clipboard")
+  )
 
 ;; New function to get command from user and send it prefixed with "/ask ", might be tough for AI at this moment
 ;;;###autoload
