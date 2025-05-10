@@ -258,6 +258,21 @@ Returns a plist with :type, :base-branch, :feature-branch, and :diff-file-name-p
           :diff-file-name-part diff-file-name-part
           :raw-range raw-range)))
 
+(defun aider--get-full-branch-ref (branch)
+  "Get full reference for BRANCH, handling remote branches properly.
+If branch exists locally, use it as is. If it only exists in a remote,
+use the remote reference (e.g., origin/branch). Git can diff remote branches
+directly without checking them out locally."
+  (cond
+   ;; Check if it's a valid local branch or ref
+   ((or (magit-branch-p branch) (magit-rev-verify branch))
+    branch)
+   ;; Check if it exists as a remote branch
+   ((magit-branch-p (concat "origin/" branch))
+    (concat "origin/" branch))
+   ;; Return as is (might be a commit hash or special ref)
+   (t branch)))
+
 (defun aider--verify-branches (base-branch feature-branch)
   "Verify that BASE-BRANCH and FEATURE-BRANCH exist.
 Signal an error if either branch doesn't exist."
@@ -291,6 +306,11 @@ DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range
     ;; Verify branches exist (only if not a commit hash)
     (unless (eq type 'commit)
       (aider--verify-branches base-branch feature-branch))
+    ;; Get full branch references (handling remote branches)
+    (unless (eq type 'commit)
+      (setq base-branch (aider--get-full-branch-ref base-branch))
+      (unless (string= feature-branch "HEAD")
+        (setq feature-branch (aider--get-full-branch-ref feature-branch))))
     ;; Display message about what we're doing
     (cond
      ((eq type 'commit)
