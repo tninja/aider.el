@@ -280,15 +280,18 @@ For each file, provide a brief description of its purpose and basic content."
     Main sections/topics to cover: %s.
     Desired Style/Tone: %s.
     %s%s%s%s
-    Please structure the output as a valid Org-mode file with:
+    Please structure the output as a valid Org-mode file suitable for export to both reveal.js and LaTeX Beamer. Include:
     1. Standard Org-mode metadata at the top (e.g., #+TITLE:, #+AUTHOR:, #+DATE:, #+OPTIONS: toc:nil num:nil).
-       Consider including common Org export options for reveal.js like `#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js`, `#+REVEAL_THEME: sky`, `#+REVEAL_SLIDE_NUMBER: c/t`.
+       Also include common setup lines for both reveal.js and Beamer export backends. For example:
+       For reveal.js: `#+REVEAL_ROOT: https://cdn.jsdelivr.net/npm/reveal.js`, `#+REVEAL_THEME: sky` (or other themes like league, black, white), `#+REVEAL_SLIDE_NUMBER: c/t`.
+       For Beamer: `#+LATEX_CLASS: beamer`, `#+LATEX_CLASS_OPTIONS: [presentation]`, `#+BEAMER_THEME: Madrid` (or other themes like AnnArbor, Warsaw), `#+BEAMER_COLORTHEME: default`.
+       These options can be included with comments or guidance for the user on selecting the backend.
     2. Top-level headlines (e.g., `* Section Title`) for each main section, reflecting the presentation's goal and key takeaways.
-    3. Second-level headlines (e.g., `** Slide Title`) for individual slides within each section.
+    3. Second-level headlines (e.g., `** Slide Title`) for individual slides within each section. This structure should be compatible with both export backends.
     4. For each slide, provide 2-3 bullet points or a brief placeholder sentence suggesting content. This content should align with the specified style/tone.
     5. Include an introductory slide (e.g., Title Slide, Agenda/Objective Slide) and a concluding slide (e.g., Summary of Key Takeaways, Call to Action, Q&A).
     The content placeholders should be guided by the goal, key takeaways, and desired tone.
-    The goal is to create a well-structured Org-mode file that serves as a detailed starting point for a presentation."
+    The goal is to create a well-structured Org-mode file that serves as a detailed starting point for a presentation, compatible with both reveal.js and Beamer export."
                   title
                   (if (s-blank? author) "" (format " by '%s'" author))
                   (file-name-nondirectory filename)
