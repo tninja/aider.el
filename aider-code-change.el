@@ -76,6 +76,7 @@ Otherwise, refactor the function under cursor."
                              "Simplify this code, reduce complexity and improve readability while preserving functionality"
                              "Fix potential bugs or issues in this code"
                              "Make this code more maintainable and easier to test"
+                             "Generate Docstring/Comment for This"
                              "Improve error handling and edge cases"
                              "Optimize this code for better performance"
                              "Extract this logic into a separate helper function")))
