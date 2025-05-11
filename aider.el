@@ -112,17 +112,17 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("R" "Refactor Code" aider-refactor-book-method)
     ("T" "Test Driven Development" aider-tdd-cycle)
     ("l" "Work with Legacy Code" aider-legacy-code)
+    ("b" "Code/Doc Bootstrap" aider-bootstrap)
     ;; ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
-    ("q" "Question on Function/Region" aider-ask-question)
+    ("q" "Question (C-u no context)" aider-ask-question)
     ("y" "Then Go Ahead" aider-go-ahead)
-    ("Q" "Question without Context" aider-general-question)
     ("d" "Code Reading" aider-code-read)
-    ("b" "Code/Doc Bootstrap" aider-bootstrap)
+    ("c" "Copy To Clipboard" aider-copy-to-clipboard)
     ("e" "Debug Exception" aider-debug-exception)
     ("h" "Open History" aider-open-history)
-    ("H" "Help (C-u: homepage)" aider-help)
+    ("?" "Help (C-u: homepage)" aider-help)
     ]
    ])
 
