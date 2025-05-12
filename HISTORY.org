@@ -13,6 +13,7 @@
 - aider-pull-or-review-diff-file: add function to resolve branch refs for remote branch handling
 - aider-prompt-mode: improve robustness of snippet directory setup
 - expose aider /copy command as a menu item
+- Add experimental feature, aider-bootstrap.el. It introduce functions to bootstrap common code / doc structures using Aider.
 
 ** v0.8.4
 
