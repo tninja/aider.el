@@ -69,12 +69,12 @@ Enable installation of packages from MELPA by adding an entry to package-archive
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+    ;; Or gemini model
+    ;; (setq aider-args '("--model" "gemini"))
+    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
-    ;; Or gemini model
-    ;; (setq aider-args '("--model" "gemini-exp"))
-    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or use your personal config file
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
@@ -84,6 +84,8 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
 - if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
+
+- The example models: sonnet, gemini, o4-mini, they charge money, and you need to ask for api key add fund to your api account firstly
 
 *** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (Emacs 30+ built-in)
 - Install aider.el by running the following code within Emacs
