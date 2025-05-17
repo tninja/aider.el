@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
-# name: create-tests
-# key: tests
+# name: Create Unit Tests
+# key: unittests
 # contributor: Matic Vertačnik
 # --
-/ask Create two tests for the above function. One that is expected to pass and one that is expected to fail.
+/architect Generate two unit tests for the provided code: one that is expected to pass and one that is expected to fail. Ensure the tests cover both success and error conditions.
 $0
