@@ -7,7 +7,7 @@
 
 /add ${2:file_to_change}
 
-/ask Given example changes in $1, Please suggest change for the following request, use english in comment: ${3:change_requirement}
+/ask Given example changes in $1, Please suggest change for the following request, use English in comment: ${3:change_requirement}
 
 /ask ${4:feedback_prompt}
 
