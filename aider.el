@@ -30,13 +30,14 @@
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
 ;;
-;; Alternatives to aidermacs:
+;; Comparison of aider.el to aidermacs:
 ;; - More Focus on build prompts using your code (buffer/selection).
-;; - Reuse prompts easily, fuzzy search with helm.
-;; - Organize project with repo specific Aider prompt file
-;; - Agile development tool and Code reading tools from classic books.
-;; - Diff review tools, snippets for community prompts.
 ;; - Less configurations, simplified menu.
+;; - Reuse prompts easily, fuzzy search with helm.
+;; - Agile development, Diff review and Code reading tools from classic books.
+;; - Organize project with repo specific Aider prompt file, with snippets from community.
+;; - Diff extract and review tools
+;; - More Focus on stability and long term maintainability
 
 ;;; Code:
 
