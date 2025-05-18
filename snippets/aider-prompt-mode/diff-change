@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Suggest Change Given Diff
+# key: diff-change
+# contributor: Kang Tu
+# --
+/read-only ${1:diff_filename.diff}
+
+/add ${2:file_to_change}
+
+/ask Given example changes in $1, Please suggest change for the following request, use english in comment: ${3:change_requirement}
+
+/ask ${4:feedback_prompt}
+
+go ahead
