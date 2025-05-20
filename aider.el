@@ -58,7 +58,7 @@
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "gemini"  ;; SOTA
-                                  "o4-mini" ;; very powerful. good for difficult task
+                                  "o4-mini" ;; good for difficult task
                                   ;; "gemini-exp"  ;; google stop this free service :(
                                   "deepseek"  ;; low price, pretty good performance
                                   )
