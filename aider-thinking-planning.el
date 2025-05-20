@@ -183,6 +183,21 @@ structured discussion with Aider using the
 ;; completing-reading of candidates of either Sequential Thinking or
 ;; Software Planning, call corresponding function
 
+;;;###autoload
+(defun aider-thinking-or-planning ()
+  "Offer a choice between Sequential Thinking and Software Planning and start the selected session."
+  (interactive)
+  (let* ((choices '("Sequential Thinking" "Software Planning"))
+         (prompt "Choose thinking/planning mode: ")
+         (choice (completing-read prompt choices nil t)))
+    (cond
+     ((string-equal choice "Sequential Thinking")
+      (call-interactively #'aider-start-sequential-thinking))
+     ((string-equal choice "Software Planning")
+      (call-interactively #'aider-start-software-planning))
+     (t
+      (message "Invalid choice. No session started.")))))
+
 (provide 'aider-thinking-planning)
 
 ;;; aider-software-planning.el ends here
