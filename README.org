@@ -155,15 +155,15 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 
 ** Sequential Thinking & Software Planning
 
-- Sequential Thinking is a popular MCP server for dynamic and reflective problem-solving through a structured thinking process.
-- Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
-- The functionality of this two MCPs are imported as elisp functions and integrated to menu (C-c a P)
+- aider-thinking-or-planning :: use Sequential Thinking or Software Planning (~C-c a P~)
+  - Sequential Thinking is a popular MCP server for dynamic and reflective problem-solving through a structured thinking process.
+  - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
 
 ** Bootstrap New File 
 
-- Bootstrap common code structures using Aider (Code, Config, Doc, Slides, etc)
+- aider-bootstrap :: Bootstrap common code structures using Aider (Code, Config, Doc, Slides, etc, ~C-c a b~)
 
-* Frequently used features (integrated into the aider menu)
+* Frequently used features
 
 *** Aider session management
   - aider-run-aider :: Creates a comint-based, *git repo-specific Aider session* for interactive conversation.
