@@ -7,7 +7,9 @@
 ;;; Commentary:
 ;; This file provides functionality for interactive software planning sessions
 ;; with Aider, guided by a structured prompting methodology.
-;; Given code and prompt from, and credit to this repo: https://github.com/NightTrek/Software-planning-mcp
+;; Given code and prompt from, and credit to two mcp servers:
+;; 1. https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
+;; 2. https://github.com/NightTrek/Software-planning-mcp
 
 ;;; Code:
 
@@ -179,10 +181,6 @@ structured discussion with Aider using the
               (message "Sequential thinking session started for: %s" problem-topic))
           (message "Aider buffer could not be created or found. Session not started."))))))
 
-;; add an interactive function aider-thinking-or-planning, given
-;; completing-reading of candidates of either Sequential Thinking or
-;; Software Planning, call corresponding function
-
 ;;;###autoload
 (defun aider-thinking-or-planning ()
   "Offer a choice between Sequential Thinking and Software Planning and start the selected session."
@@ -200,4 +198,4 @@ structured discussion with Aider using the
 
 (provide 'aider-thinking-planning)
 
-;;; aider-software-planning.el ends here
+;;; aider-thinking-planning.el ends here
