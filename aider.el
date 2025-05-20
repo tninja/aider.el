@@ -54,6 +54,7 @@
 (require 'aider-code-read)
 (require 'aider-legacy-code)
 (require 'aider-bootstrap)
+(require 'aider-software-planning)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "gemini"  ;; SOTA
@@ -123,6 +124,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("d" "Code Reading" aider-code-read)
     ("c" "Copy To Clipboard" aider-copy-to-clipboard)
     ("e" "Debug Exception" aider-debug-exception)
+    ("P" "Software Planning" aider-start-software-planning)
     ("h" "Open History" aider-open-history)
     ("?" "Help (C-u: homepage)" aider-help)
     ]

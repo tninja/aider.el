@@ -1,12 +1,13 @@
 ;;; aider-software-planning.el --- Software planning features for Aider -*- lexical-binding: t; -*-
 
-;; Author: Your Name <youremail@example.com>
+;; Author: Kang Tu <tninja@gmail.com>
 
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
 ;; This file provides functionality for interactive software planning sessions
 ;; with Aider, guided by a structured prompting methodology.
+;; Given code and prompt from, and credit to this repo: https://github.com/NightTrek/Software-planning-mcp
 
 ;;; Code:
 
@@ -92,7 +93,7 @@ a structured planning discussion with Aider using the
         (unless (get-buffer (aider-buffer-name))
           (call-interactively #'aider-run-aider))
         (if (get-buffer (aider-buffer-name))
-            (let ((initial-message (format "%s\n\nMy goal is: %s"
+            (let ((initial-message (format "/ask %s\n\nMy goal is: %s"
                                            aider-software-planning--sequential-thinking-prompt
                                            goal)))
               (aider--send-command initial-message t)
