@@ -1,4 +1,4 @@
-;;; aider-thinking-planning.el --- Software planning features for Aider -*- lexical-binding: t; -*-
+;;; aider-thinking-planning.el --- Thinking / Planning features for Aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 
@@ -8,6 +8,11 @@
 ;; This file provides functionality for interactive sequential
 ;; thinking, and software planning sessions
 ;; with Aider, guided by a structured prompting methodology.
+;;
+;; Sequential Thinking is a popular MCP server for dynamic and reflective problem-solving through a structured thinking process.
+;;
+;; Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
+;;
 ;; Given code and prompt from, and credit to two mcp servers:
 ;; 1. https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
 ;; 2. https://github.com/NightTrek/Software-planning-mcp
@@ -15,6 +20,85 @@
 ;;; Code:
 
 (require 'aider-core)
+
+(defconst aider--sequential-thinking-tool-description-prompt
+  "A detailed tool for dynamic and reflective problem-solving through thoughts.
+This tool helps analyze problems through a flexible thinking process that can adapt and evolve.
+Each thought can build on, question, or revise previous insights as understanding deepens.
+
+When to use this tool:
+- Breaking down complex problems into steps
+- Planning and design with room for revision
+- Analysis that might need course correction
+- Problems where the full scope might not be clear initially
+- Problems that require a multi-step solution
+- Tasks that need to maintain context over multiple steps
+- Situations where irrelevant information needs to be filtered out
+
+Key features:
+- You can adjust total_thoughts up or down as you progress
+- You can question or revise previous thoughts
+- You can add more thoughts even after reaching what seemed like the end
+- You can express uncertainty and explore alternative approaches
+- Not every thought needs to build linearly - you can branch or backtrack
+- Generates a solution hypothesis
+- Verifies the hypothesis based on the Chain of Thought steps
+- Repeats the process until satisfied
+- Provides a correct answer
+
+Parameters explained:
+- thought: Your current thinking step, which can include:
+* Regular analytical steps
+* Revisions of previous thoughts
+* Questions about previous decisions
+* Realizations about needing more analysis
+* Changes in approach
+* Hypothesis generation
+* Hypothesis verification
+- next_thought_needed: True if you need more thinking, even if at what seemed like the end
+- thought_number: Current number in sequence (can go beyond initial total if needed)
+- total_thoughts: Current estimate of thoughts needed (can be adjusted up/down)
+- is_revision: A boolean indicating if this thought revises previous thinking
+- revises_thought: If is_revision is true, which thought number is being reconsidered
+- branch_from_thought: If branching, which thought number is the branching point
+- branch_id: Identifier for the current branch (if any)
+- needs_more_thoughts: If reaching end but realizing more thoughts needed
+
+You should:
+1. Start with an initial estimate of needed thoughts, but be ready to adjust
+2. Feel free to question or revise previous thoughts
+3. Don't hesitate to add more thoughts if needed, even at the \"end\"
+4. Express uncertainty when present
+5. Mark thoughts that revise previous thinking or branch into new paths
+6. Ignore information that is irrelevant to the current step
+7. Generate a solution hypothesis when appropriate
+8. Verify the hypothesis based on the Chain of Thought steps
+9. Repeat the process until satisfied with the solution
+10. Provide a single, ideally correct answer as the final output
+11. Only set next_thought_needed to false when truly done and a satisfactory answer is reached"
+  "The prompt text describing the MCP Sequential Thinking Tool, for guiding Aider.")
+
+;;;###autoload
+(defun aider-start-sequential-thinking ()
+  "Start an interactive sequential thinking session with Aider.
+Prompts the user for a problem or topic and initiates a
+structured discussion with Aider using the
+`aider--sequential-thinking-tool-description-prompt`."
+  (interactive)
+  (let ((problem-topic (aider-read-string "Enter your problem/topic for sequential thinking: ")))
+    (if (string-empty-p problem-topic)
+        (message "Problem/topic cannot be empty. Session not started.")
+      (progn
+        ;; Ensure Aider is running
+        (unless (get-buffer (aider-buffer-name))
+          (call-interactively #'aider-run-aider))
+        (if (get-buffer (aider-buffer-name))
+            (let ((initial-message (format "/ask %s\n\nMy problem/topic is: %s"
+                                           aider--sequential-thinking-tool-description-prompt
+                                           problem-topic)))
+              (aider--send-command initial-message t)
+              (message "Sequential thinking session started for: %s" problem-topic))
+          (message "Aider buffer could not be created or found. Session not started."))))))
 
 (defconst aider-software-planning--sequential-thinking-prompt
   "You are a senior software architect guiding the development of a software feature through a question-based sequential thinking process. Your role is to:
@@ -102,85 +186,6 @@ a structured planning discussion with Aider using the
               (aider--send-command initial-message t)
               (message "Software planning session started for goal: %s" goal))
           (message "Aider buffer could not be created or found. Planning session not started."))))))
-
-(defconst aider--sequential-thinking-tool-description-prompt
-  "A detailed tool for dynamic and reflective problem-solving through thoughts.
-This tool helps analyze problems through a flexible thinking process that can adapt and evolve.
-Each thought can build on, question, or revise previous insights as understanding deepens.
-
-When to use this tool:
-- Breaking down complex problems into steps
-- Planning and design with room for revision
-- Analysis that might need course correction
-- Problems where the full scope might not be clear initially
-- Problems that require a multi-step solution
-- Tasks that need to maintain context over multiple steps
-- Situations where irrelevant information needs to be filtered out
-
-Key features:
-- You can adjust total_thoughts up or down as you progress
-- You can question or revise previous thoughts
-- You can add more thoughts even after reaching what seemed like the end
-- You can express uncertainty and explore alternative approaches
-- Not every thought needs to build linearly - you can branch or backtrack
-- Generates a solution hypothesis
-- Verifies the hypothesis based on the Chain of Thought steps
-- Repeats the process until satisfied
-- Provides a correct answer
-
-Parameters explained:
-- thought: Your current thinking step, which can include:
-* Regular analytical steps
-* Revisions of previous thoughts
-* Questions about previous decisions
-* Realizations about needing more analysis
-* Changes in approach
-* Hypothesis generation
-* Hypothesis verification
-- next_thought_needed: True if you need more thinking, even if at what seemed like the end
-- thought_number: Current number in sequence (can go beyond initial total if needed)
-- total_thoughts: Current estimate of thoughts needed (can be adjusted up/down)
-- is_revision: A boolean indicating if this thought revises previous thinking
-- revises_thought: If is_revision is true, which thought number is being reconsidered
-- branch_from_thought: If branching, which thought number is the branching point
-- branch_id: Identifier for the current branch (if any)
-- needs_more_thoughts: If reaching end but realizing more thoughts needed
-
-You should:
-1. Start with an initial estimate of needed thoughts, but be ready to adjust
-2. Feel free to question or revise previous thoughts
-3. Don't hesitate to add more thoughts if needed, even at the \"end\"
-4. Express uncertainty when present
-5. Mark thoughts that revise previous thinking or branch into new paths
-6. Ignore information that is irrelevant to the current step
-7. Generate a solution hypothesis when appropriate
-8. Verify the hypothesis based on the Chain of Thought steps
-9. Repeat the process until satisfied with the solution
-10. Provide a single, ideally correct answer as the final output
-11. Only set next_thought_needed to false when truly done and a satisfactory answer is reached"
-  "The prompt text describing the MCP Sequential Thinking Tool, for guiding Aider.")
-
-;;;###autoload
-(defun aider-start-sequential-thinking ()
-  "Start an interactive sequential thinking session with Aider.
-Prompts the user for a problem or topic and initiates a
-structured discussion with Aider using the
-`aider--sequential-thinking-tool-description-prompt`."
-  (interactive)
-  (let ((problem-topic (aider-read-string "Enter your problem/topic for sequential thinking: ")))
-    (if (string-empty-p problem-topic)
-        (message "Problem/topic cannot be empty. Session not started.")
-      (progn
-        ;; Ensure Aider is running
-        (unless (get-buffer (aider-buffer-name))
-          (call-interactively #'aider-run-aider))
-        (if (get-buffer (aider-buffer-name))
-            (let ((initial-message (format "/ask %s\n\nMy problem/topic is: %s"
-                                           aider--sequential-thinking-tool-description-prompt
-                                           problem-topic)))
-              (aider--send-command initial-message t)
-              (message "Sequential thinking session started for: %s" problem-topic))
-          (message "Aider buffer could not be created or found. Session not started."))))))
 
 ;;;###autoload
 (defun aider-thinking-or-planning ()
