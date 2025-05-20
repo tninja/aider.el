@@ -161,7 +161,7 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 
 ** Bootstrap New File 
 
-- aider-bootstrap :: Bootstrap common code structures using Aider (Code, Config, Doc, Slides, etc, ~C-c a b~)
+- aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a b~)
 
 * Frequently used features
 
