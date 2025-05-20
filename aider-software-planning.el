@@ -1,12 +1,11 @@
-;;; aider-software-planning.el --- Thinking / Planning features for Aider -*- lexical-binding: t; -*-
+;;; aider-software-planning.el --- Software Planning features for Aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; This file provides functionality for interactive sequential
-;; thinking, and software planning sessions
+;; This file provides functionality for interactive software planning sessions
 ;; with Aider, guided by a structured prompting methodology.
 ;;
 ;; Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
