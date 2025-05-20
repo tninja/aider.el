@@ -15,8 +15,8 @@
   - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
   - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
   - [[#helm-support][Helm Support]]
+- [[#recent-new-features][Recent New Features]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
-- [[#methods-from-classic-books][Methods from classic books]]
 - [[#cons-of-aider.el][Cons of aider.el]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 - [[#faq][FAQ]]
@@ -36,6 +36,7 @@
 - [[./HISTORY.org][Recent change history]]
 
 [[file:./transient_menu.png]]
+
 * Installation
 
 - Emacs need to be >= 26.1
@@ -339,12 +340,13 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
   - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [4/5]
+- More thinking on improving code quality tool such as unit-test [5/5]
   - [X] Code refactoring functions
   - [X] TDD functions
   - [X] Code reading functions 
   - [X] Legacy code support
-  - [ ] Bootstrap code or document from scratch
+  - [X] Bootstrap code or document from scratch
+- [ ] Import useful MCP feature to aider
 - More thinking on how to simplify the menu / commands
 
 ** Code quality
