@@ -37,7 +37,7 @@
 ;; - Agile development, Diff review and Code reading tools from classic books.
 ;; - Organize project with repo specific Aider prompt file, with snippets from community.
 ;; - Diff extract and review tools
-;; - More Focus on stability and long term maintainability
+;; - More Focus on stability and long term maintainability (e.g. pure comint, do not parse aider output)
 
 ;;; Code:
 
