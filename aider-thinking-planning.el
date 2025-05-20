@@ -1,11 +1,12 @@
-;;; aider-software-planning.el --- Software planning features for Aider -*- lexical-binding: t; -*-
+;;; aider-thinking-planning.el --- Software planning features for Aider -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:
-;; This file provides functionality for interactive software planning sessions
+;; This file provides functionality for interactive sequential
+;; thinking, and software planning sessions
 ;; with Aider, guided by a structured prompting methodology.
 ;; Given code and prompt from, and credit to two mcp servers:
 ;; 1. https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking
