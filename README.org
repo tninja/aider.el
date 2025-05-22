@@ -15,8 +15,8 @@
   - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
   - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
   - [[#helm-support][Helm Support]]
+- [[#recent-new-features][Recent New Features]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
-- [[#methods-from-classic-books][Methods from classic books]]
 - [[#cons-of-aider.el][Cons of aider.el]]
 - [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 - [[#faq][FAQ]]
@@ -139,9 +139,31 @@ The aider prefix is ~A~.
 
 Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is highly recommended if you are OK with helm*.
 
-If you used installed aider.el through melpa and package-install, just neecd to ~(require 'aider-helm)~
+If you used installed aider.el through melpa and package-install, just need to ~(require 'aider-helm)~
 
-* Most used features (integrated into the aider menu)
+* Recent New Features
+
+** AI assisted Agile development (from book)
+
+- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Refactoring: Improving the Design of Existing Code, by  Martin Fowler]]: ~aider-refactor-book-method~
+  - On top of that, ask LLM to suggest the refactoring strategy given current function or selected region
+- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][Test Driven Development: By Example, by Kent Beck]]: ~aider-tdd-cycle~
+- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][Working Effectively with Legacy Code, by Michael Feathers]]: ~aider-legacy-code~
+
+** AI assisted Code reading (from book)
+
+- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
+
+** Sequential Thinking & Software Planning
+
+- aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
+  - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
+
+** Bootstrap New File 
+
+- aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a b~)
+
+* Frequently used features
 
 *** Aider session management
   - aider-run-aider :: Creates a comint-based, *git repo-specific Aider session* for interactive conversation.
@@ -215,18 +237,6 @@ If you used installed aider.el through melpa and package-install, just neecd to 
 - / key to trigger aider command completion
 - file path completion will be triggered automatically after certain command
 - use TAB key to enter prompt from mini-buffer, or helm with completion
-
-* Methods from classic books
-
-** AI assisted Agile development
-
-- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Refactoring: Improving the Design of Existing Code, by  Martin Fowler]]: ~aider-refactor-book-method~
-- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][Test Driven Development: By Example, by Kent Beck]]: ~aider-tdd-cycle~
-- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][Working Effectively with Legacy Code, by Michael Feathers]]: ~aider-legacy-code~
-
-** AI assisted Code reading
-
-- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
 
 * Cons of aider.el
 
@@ -330,12 +340,13 @@ If you used installed aider.el through melpa and package-install, just neecd to 
   - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
   - [X] How to port the candidate list feature to aider-plain-read-string
   - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [4/5]
+- More thinking on improving code quality tool such as unit-test [5/5]
   - [X] Code refactoring functions
   - [X] TDD functions
   - [X] Code reading functions 
   - [X] Legacy code support
-  - [ ] Bootstrap code or document from scratch
+  - [X] Bootstrap code or document from scratch
+- [ ] Import useful MCP feature to aider
 - More thinking on how to simplify the menu / commands
 
 ** Code quality

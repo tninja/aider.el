@@ -4,6 +4,7 @@
 ** Main branch change
 
 - Add diff-change aider code snippet, it is a useful pattern to let aider suggest code change given diff as example
+- Add aider-software-planning.el: start a software planning session with Aider
 
 ** v0.9.0
 

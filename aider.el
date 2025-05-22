@@ -30,7 +30,7 @@
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
 ;;
-;; Comparison of aider.el to aidermacs:
+;; Comparison of aider.el to aidermacs (a fork version of aider.el):
 ;; - More Focus on build prompts using your code (buffer/selection).
 ;; - Less configurations, simplified menu.
 ;; - Reuse prompts easily, fuzzy search with helm.
@@ -54,10 +54,11 @@
 (require 'aider-code-read)
 (require 'aider-legacy-code)
 (require 'aider-bootstrap)
+(require 'aider-software-planning)
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "gemini"  ;; SOTA
-                                  "o4-mini" ;; very powerful. good for difficult task
+                                  "o4-mini" ;; good for difficult task
                                   ;; "gemini-exp"  ;; google stop this free service :(
                                   "deepseek"  ;; low price, pretty good performance
                                   )
@@ -123,6 +124,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("d" "Code Reading" aider-code-read)
     ("c" "Copy To Clipboard" aider-copy-to-clipboard)
     ("e" "Debug Exception" aider-debug-exception)
+    ("P" "Software Planning" aider-start-software-planning)
     ("h" "Open History" aider-open-history)
     ("?" "Help (C-u: homepage)" aider-help)
     ]
