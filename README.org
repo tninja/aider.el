@@ -351,6 +351,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - [X] Legacy code support
   - [X] Bootstrap code or document from scratch
 - [ ] Import useful MCP feature to aider
+- [ ] Learn and migrate useful feature from popular AI coding tool
 - More thinking on how to simplify the menu / commands
 
 ** Code quality
