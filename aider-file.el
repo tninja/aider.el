@@ -94,46 +94,6 @@ If Magit is not installed, report that it is required."
       (magit-log-current nil)
     (magit-show-commit "HEAD")))
 
-;;;###autoload
-(defun aider-magit-blame-analyze ()
-  "Analyze current file or region Git history with AI for deeper insights.
-If region is active, analyze just that region. Otherwise analyze entire file.
-Combines magit-blame history tracking with AI analysis to help understand
-code evolution and the reasoning behind changes."
-  (interactive)
-  (unless buffer-file-name
-    (user-error "Current buffer is not associated with a file"))
-  (let* ((file-path (buffer-file-name))
-         (file-name (file-name-nondirectory file-path))
-         (has-region (use-region-p))
-         (line-start (if has-region
-                         (line-number-at-pos (region-beginning))
-                       1))
-         (line-end (if has-region
-                       (line-number-at-pos (region-end))
-                     (line-number-at-pos (point-max))))
-         (region-text (if has-region
-                          (buffer-substring-no-properties 
-                           (region-beginning) (region-end))
-                        nil))
-         (blame-args (list "blame" "-l" 
-                           (format "-L%d,%d" line-start line-end)
-                           file-path))
-         (blame-output (with-temp-buffer
-                         (apply #'process-file "git" nil t nil blame-args)
-                         (buffer-string)))
-         (context (format "File: %s\nLines: %d-%d\n\n" 
-                          file-path line-start line-end))
-         (code-sample (if has-region
-                          (concat "Selected code:\n```\n" region-text "\n```\n\n")
-                        ""))
-         (default-analysis "Please provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design")
-         (analysis-instructions (aider-read-string "Analysis instructions: " default-analysis))
-         (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
-                         context code-sample blame-output analysis-instructions)))
-    (aider-add-current-file)
-    (aider--send-command (concat "/ask " prompt) t)))
-
 ;; Modified function to get command from user and send it based on selected region
 ;;;###autoload
 (defun aider-undo-last-change ()
@@ -409,6 +369,46 @@ If the history file does not exist, notify the user."
       (if (file-exists-p history-file)
           (find-file-other-window history-file)
         (message "History file does not exist: %s" history-file)))))
+
+;;;###autoload
+(defun aider-magit-blame-analyze ()
+  "Analyze current file or region Git history with AI for deeper insights.
+If region is active, analyze just that region. Otherwise analyze entire file.
+Combines magit-blame history tracking with AI analysis to help understand
+code evolution and the reasoning behind changes."
+  (interactive)
+  (unless buffer-file-name
+    (user-error "Current buffer is not associated with a file"))
+  (let* ((file-path (buffer-file-name))
+         (file-name (file-name-nondirectory file-path))
+         (has-region (use-region-p))
+         (line-start (if has-region
+                         (line-number-at-pos (region-beginning))
+                       1))
+         (line-end (if has-region
+                       (line-number-at-pos (region-end))
+                     (line-number-at-pos (point-max))))
+         (region-text (if has-region
+                          (buffer-substring-no-properties 
+                           (region-beginning) (region-end))
+                        nil))
+         (blame-args (list "blame" "-l" 
+                           (format "-L%d,%d" line-start line-end)
+                           file-path))
+         (blame-output (with-temp-buffer
+                         (apply #'process-file "git" nil t nil blame-args)
+                         (buffer-string)))
+         (context (format "File: %s\nLines: %d-%d\n\n" 
+                          file-path line-start line-end))
+         (code-sample (if has-region
+                          (concat "Selected code:\n```\n" region-text "\n```\n\n")
+                        ""))
+         (default-analysis "Please provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design")
+         (analysis-instructions (aider-read-string "Analysis instructions: " default-analysis))
+         (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
+                         context code-sample blame-output analysis-instructions)))
+    (aider-add-current-file)
+    (aider--send-command (concat "/ask " prompt) t)))
 
 (provide 'aider-file)
 
