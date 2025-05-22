@@ -32,11 +32,11 @@
 ;;
 ;; Comparison of aider.el to aidermacs (a fork version of aider.el):
 ;; - More Focus on build prompts using your code (buffer/selection).
-;; - Less configurations, simplified menu.
+;; - Less configurations (transparent to aider config), simplified menu.
 ;; - Reuse prompts easily, fuzzy search with helm.
-;; - Agile development, Diff review and Code reading tools from classic books.
+;; - Agile development and Code reading tools from classic books.
+;; - Diff extract and code review tools
 ;; - Organize project with repo specific Aider prompt file, with snippets from community.
-;; - Diff extract and review tools
 ;; - More Focus on stability and long term maintainability (e.g. pure comint, do not parse aider output)
 
 ;;; Code:
