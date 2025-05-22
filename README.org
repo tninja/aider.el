@@ -159,6 +159,10 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
   - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
 
+** File change history analysis with magit-blame integration 
+
+- aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region.
+
 ** Bootstrap New File 
 
 - aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a b~)
