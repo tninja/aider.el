@@ -129,7 +129,8 @@ code evolution and the reasoning behind changes."
                         ""))
          (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\nPlease provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design"
                          context code-sample blame-output)))
-    (aider--send-command (concat "/ask " prompt))))
+    (aider-add-current-file)
+    (aider--send-command (concat "/ask " prompt) t)))
 
 ;; Modified function to get command from user and send it based on selected region
 ;;;###autoload
