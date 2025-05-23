@@ -154,18 +154,18 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
 
-** Sequential Thinking & Software Planning
+** Software Planning Discussion
 
 - aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
   - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
 
 ** File change history analysis with magit-blame integration 
 
-- aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region.
+- aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region (~C-c a b~).
 
 ** Bootstrap New File 
 
-- aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a b~)
+- aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a B~)
 
 * Frequently used features
 

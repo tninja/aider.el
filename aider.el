@@ -106,7 +106,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
     ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
-    ("B" "Git Blame Analysis" aider-magit-blame-analyze)
+    ("b" "Git Blame Analysis" aider-magit-blame-analyze)
     ]
    ["Code Change"
     ("r" "Change Function/Region" aider-function-or-region-refactor)
@@ -116,7 +116,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("R" "Refactor Code" aider-refactor-book-method)
     ("T" "Test Driven Development" aider-tdd-cycle)
     ("l" "Work with Legacy Code" aider-legacy-code)
-    ("b" "Code/Doc Bootstrap" aider-bootstrap)
+    ("B" "Code/Doc Bootstrap" aider-bootstrap)
     ;; ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
