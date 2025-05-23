@@ -352,7 +352,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [X] Bootstrap code or document from scratch
 - [ ] Import useful MCP feature to aider
 - [ ] Learn and migrate useful feature from popular AI coding tool
-- [ ] Bette way to batch add relevant files from repo to aider session
+- [ ] Better way to batch add relevant files from repo to aider session
 - More thinking on how to simplify the menu / commands
 
 ** Code quality
