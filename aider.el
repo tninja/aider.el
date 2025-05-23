@@ -1,9 +1,9 @@
 ;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.9.0
+;; Version: 0.10.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
-;; Keywords: agent ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding 
+;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
 
@@ -32,11 +32,11 @@
 ;;
 ;; Comparison of aider.el to aidermacs (a fork version of aider.el):
 ;; - More Focus on build prompts using your code (buffer/selection).
-;; - Less configurations, simplified menu.
+;; - Less configurations (transparent to aider config), simplified menu.
 ;; - Reuse prompts easily, fuzzy search with helm.
-;; - Agile development, Diff review and Code reading tools from classic books.
+;; - Agile development and Code reading tools from classic books.
+;; - Diff extract and code review tools
 ;; - Organize project with repo specific Aider prompt file, with snippets from community.
-;; - Diff extract and review tools
 ;; - More Focus on stability and long term maintainability (e.g. pure comint, do not parse aider output)
 
 ;;; Code:
@@ -106,6 +106,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change" aider-undo-last-change)
     ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
+    ("b" "Git Blame Analysis" aider-magit-blame-analyze)
     ]
    ["Code Change"
     ("r" "Change Function/Region" aider-function-or-region-refactor)
@@ -115,7 +116,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ("R" "Refactor Code" aider-refactor-book-method)
     ("T" "Test Driven Development" aider-tdd-cycle)
     ("l" "Work with Legacy Code" aider-legacy-code)
-    ("b" "Code/Doc Bootstrap" aider-bootstrap)
+    ("B" "Code/Doc Bootstrap" aider-bootstrap)
     ;; ("c" "Direct Code Change" aider-code-change)
     ]
    ["Discussion"
