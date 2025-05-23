@@ -3,7 +3,7 @@
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.10.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
-;; Keywords: agent ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding 
+;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
 
