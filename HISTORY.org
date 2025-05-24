@@ -1,6 +1,12 @@
 
 * Release history
 
+** Main branch change
+
+- Fix error during redisplay (jit-lock-function) when working with comint mode
+  - https://github.com/tninja/aider.el/issues/159 by velimir
+  - change came from https://github.com/MatthewZMD/aidermacs/pull/131/files by @CeleritasCelery    
+
 ** v0.10.0
 
 - Add diff-change aider code snippet, it is a useful pattern to let aider suggest code change given diff as example
