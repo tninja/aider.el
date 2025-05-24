@@ -408,7 +408,8 @@ code evolution and the reasoning behind changes."
          (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
                          context code-sample blame-output analysis-instructions)))
     (aider-add-current-file)
-    (aider--send-command (concat "/ask " prompt) t)))
+    (aider--send-command (concat "/ask " prompt) t)
+    (message "Press (S) to skip questions when it pop up")))
 
 (provide 'aider-file)
 
