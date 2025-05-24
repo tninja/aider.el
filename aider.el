@@ -130,7 +130,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 ;; The instruction in the autoload comment is needed, see
 ;; https://github.com/magit/transient/issues/280.
 ;;;###autoload (autoload 'aider-transient-menu "aider" "Transient menu for Aider commands." t)
-(transient-define-prefix aider-transient-menu ()
+(transient-define-prefix aider-transient-menu
   "Transient menu for Aider commands."
   `["Aider: AI Pair Programming"
     ["Aider Process"   ,@aider--menu-aider-process]
