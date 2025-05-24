@@ -56,6 +56,35 @@
 (require 'aider-bootstrap)
 (require 'aider-software-planning)
 
+
+(defcustom aider-popular-models '("sonnet"  ;; really good in practical
+                                  "gemini"  ;; SOTA
+                                  "o4-mini" ;; good for difficult task
+                                  ;; "gemini-exp"  ;; google stop this free service :(
+                                  "deepseek"  ;; low price, pretty good performance
+                                  )
+  "List of available AI models for selection.
+Each model should be in the format expected by the aider command line interface.
+Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
+  :type '(repeat string)
+  :group 'aider)
+
+(defclass aider--switch-to-buffer-type (transient-lisp-variable)
+  ((variable :initform 'aider--switch-to-buffer-other-frame)
+   (format :initform "%k %d %v")
+   (reader :initform #'transient-lisp-variable--read-value))
+  "Class for toggling `aider--switch-to-buffer-other-frame`.")
+
+(transient-define-infix aider--infix-switch-to-buffer-other-frame ()
+  "Toggle `aider--switch-to-buffer-other-frame` between nil and t."
+  :class 'aider--switch-to-buffer-type
+  :key "^"
+  :description "Open in new frame"
+  :reader (lambda (_prompt _initial-input _history)
+           (not aider--switch-to-buffer-other-frame)))
+
+;; Transient menu for Aider commands
+
 ;; Define each menu section as a reusable variable
 (defconst aider--menu-aider-process
   '((aider--infix-switch-to-buffer-other-frame)
@@ -100,43 +129,31 @@
     ("?" "Help (C-u: homepage)"       aider-help))
   "Transient menu items for the “Discussion” section.")
 
-(defcustom aider-popular-models '("sonnet"  ;; really good in practical
-                                  "gemini"  ;; SOTA
-                                  "o4-mini" ;; good for difficult task
-                                  ;; "gemini-exp"  ;; google stop this free service :(
-                                  "deepseek"  ;; low price, pretty good performance
-                                  )
-  "List of available AI models for selection.
-Each model should be in the format expected by the aider command line interface.
-Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
-  :type '(repeat string)
-  :group 'aider)
-
-(defclass aider--switch-to-buffer-type (transient-lisp-variable)
-  ((variable :initform 'aider--switch-to-buffer-other-frame)
-   (format :initform "%k %d %v")
-   (reader :initform #'transient-lisp-variable--read-value))
-  "Class for toggling `aider--switch-to-buffer-other-frame`.")
-
-(transient-define-infix aider--infix-switch-to-buffer-other-frame ()
-  "Toggle `aider--switch-to-buffer-other-frame` between nil and t."
-  :class 'aider--switch-to-buffer-type
-  :key "^"
-  :description "Open in new frame"
-  :reader (lambda (_prompt _initial-input _history)
-           (not aider--switch-to-buffer-other-frame)))
-
-;; Transient menu for Aider commands
 ;; The instruction in the autoload comment is needed, see
 ;; https://github.com/magit/transient/issues/280.
 ;;;###autoload (autoload 'aider-transient-menu "aider" "Transient menu for Aider commands." t)
-(transient-define-prefix aider-transient-menu
+(transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
-  `["Aider: AI Pair Programming"
-    ["Aider Process"   ,@aider--menu-aider-process]
-    ["File Operation"  ,@aider--menu-file-operation]
-    ["Code Change"     ,@aider--menu-code-change]
-    ["Discussion"      ,@aider--menu-discussion]])
+  ["Aider: AI Pair Programming"
+   ["Aider Process"   aider--menu-aider-process]
+   ["File Operation"  aider--menu-file-operation]
+   ["Code Change"     aider--menu-code-change]
+   ["Discussion"      aider--menu-discussion]])
+
+(transient-define-prefix aider-transient-menu-2cols ()
+  "Transient menu for Aider commands."
+  ["Aider: AI Pair Programming"
+   ["Aider Process"   aider--menu-aider-process]
+   ["File Operation"  aider--menu-file-operation]]
+  [["Code Change"     aider--menu-code-change]
+   ["Discussion"      aider--menu-discussion]])
+
+(transient-define-prefix aider-transient-menu-1col ()
+  "Transient menu for Aider commands."
+  ["Aider Process"   aider--menu-aider-process]
+  ["File Operation"  aider--menu-file-operation]
+  ["Code Change"     aider--menu-code-change]
+  ["Discussion"      aider--menu-discussion])
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
 ;;;###autoload
