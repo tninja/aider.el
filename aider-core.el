@@ -81,9 +81,11 @@ Ignore lines starting with '>' (command prompts/input)."
   ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
   ;; Note: The rule added above is a more targeted way to handle prompts than disabling these globally.
   ;; Consider if these are still needed or can be re-enabled depending on desired appearance for non-prompt text.
-  (setq-local markdown-regex-bold nil)
-  (setq-local markdown-regex-italic nil)
-  (setq-local markdown-regex-strike-through nil)
+  ;; Use non-matching regex patterns instead of nil to avoid type errors in jit-lock-function
+  (setq-local markdown-regex-italic
+              "\\(?:^\\|[^\\]\\)\\(?1:\\(?2:[*]\\)\\(?3:[^ \n\t\\]\\|[^ \n\t*]\\(?:.\\|\n[^\n]\\)*?[^\\ ]\\)\\(?4:\\2\\)\\)")
+  (setq-local markdown-regex-bold
+              "\\(?1:^\\|[^\\]\\)\\(?2:\\(?3:\\*\\*\\)\\(?4:[^ \n\t\\]\\|[^ \n\t]\\(?:.\\|\n[^\n]\\)*?[^\\ ]\\)\\(?5:\\3\\)\\)")
   ;; 5) Jit-lock and other
   (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
   (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
