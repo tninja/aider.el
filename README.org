@@ -331,6 +331,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - artyom-smushkov make aider-add-current-file support tramp file: https://github.com/tninja/aider.el/issues/36
   - mgcyung said it can work in this way: https://github.com/tninja/aider.el/issues/85
 
+- My screen is narrow, the transient menu is too wide, how to make it more readable? (https://github.com/tninja/aider.el/issues/157)
+  - Use ~aider-transient-menu-1col~ or ~aider-transient-menu-2cols~ to use 1 column or 2 columns transient menu.
+
 - How to customize the aider-comint-mode prompt and input color?
   - Spike-Leung said [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][add hook to it will help]]
 
