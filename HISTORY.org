@@ -3,6 +3,8 @@
 
 ** Main branch change
 
+- Make transient menu be able to fit in narrow screen
+  - https://github.com/tninja/aider.el/issues/157 by markokocic
 - Fix error during redisplay (jit-lock-function) when working with comint mode
   - https://github.com/tninja/aider.el/issues/159 by velimir
   - change came from https://github.com/MatthewZMD/aidermacs/pull/131/files by @CeleritasCelery    
