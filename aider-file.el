@@ -167,6 +167,29 @@ Otherwise, add the current file as read-only."
   (let ((regex (concat "\\.\\(" (mapconcat #'regexp-quote suffixes "\\|") "\\)$")))
     (directory-files-recursively directory regex)))
 
+(defun aider--filter-files-by-content-regex (files content-regex)
+  "Filter FILES based on CONTENT-REGEX using grep.
+Return a list of files whose content matches CONTENT-REGEX.
+Return original FILES if CONTENT-REGEX is nil or empty.
+Return nil if grep errors or no files match."
+  (if (and files content-regex (not (string-empty-p content-regex)))
+      (let* ((grep-args (list* "-l" "-E" content-regex files))
+             (temp-buffer (generate-new-buffer " *grep-output*"))
+             (exit-status
+              (apply #'call-process "grep" nil (list temp-buffer nil) nil grep-args)))
+        (prog1
+            (if (or (zerop exit-status) (= exit-status 1)) ; 0 for match, 1 for no match
+                (with-current-buffer temp-buffer
+                  (if (zerop exit-status) ; Only parse if matches were found
+                      (split-string (buffer-string) "\n" t)
+                    nil)) ; No files matched
+              (progn ; Handle grep errors (exit status > 1)
+                (message "Error running grep: %s"
+                         (with-current-buffer temp-buffer (buffer-string)))
+                nil)) ; Return nil on error
+          (kill-buffer temp-buffer)))
+    files)) ; If no regex or no initial files, use original files
+
 ;;;###autoload
 (defun aider-add-module (&optional read-only directory suffix-input content-regex)
   "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session.
@@ -182,26 +205,9 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
   (let* ((cmd-prefix   (if read-only "/read-only" "/add"))
          (suffixes     (split-string suffix-input "\\s-*,\\s-*" t))
          (files-by-suffix (aider--get-files-in-directory directory suffixes))
-         (filtered-files
-          (if (and files-by-suffix content-regex (not (string-empty-p content-regex)))
-              (let* ((grep-args (list* "-l" "-E" content-regex files-by-suffix))
-                     (temp-buffer (generate-new-buffer " *grep-output*"))
-                     (exit-status
-                      (apply #'call-process "grep" nil (list temp-buffer nil) nil grep-args)))
-                (prog1
-                    (if (or (zerop exit-status) (= exit-status 1)) ; 0 for match, 1 for no match
-                        (with-current-buffer temp-buffer
-                          (if (zerop exit-status) ; Only parse if matches were found
-                              (split-string (buffer-string) "\n" t)
-                            nil)) ; No files matched
-                      (progn ; Handle grep errors (exit status > 1)
-                        (message "Error running grep: %s"
-                                 (with-current-buffer temp-buffer (buffer-string)))
-                        nil)) ; Return nil on error
-                  (kill-buffer temp-buffer)))
-            files-by-suffix)) ; If no regex or no initial files, use files-by-suffix
-         (rel-paths    (mapcar #'aider--get-file-path filtered-files))
-         (formatted    (mapcar #'aider--format-file-path rel-paths)))
+         (filtered-files (aider--filter-files-by-content-regex files-by-suffix content-regex))
+         (rel-paths    (if filtered-files (mapcar #'aider--get-file-path filtered-files) nil))
+         (formatted    (if rel-paths (mapcar #'aider--format-file-path rel-paths) nil)))
     (if filtered-files
         (progn
           (aider--send-command (concat cmd-prefix " " (mapconcat #'identity formatted " ")) t)
