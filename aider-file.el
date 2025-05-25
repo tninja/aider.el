@@ -176,7 +176,7 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
    (list current-prefix-arg
          (read-directory-name "Module directory: " nil nil t)
          (read-string "File suffixes (comma-separated): "
-                      "py,java,scala,el,sql,sh,go,js,ts,cpp,c,hpp,h,php,rb")))
+                      "py,java,scala,el,sql")))
   (let* ((cmd-prefix   (if read-only "/read-only" "/add"))
          (suffixes     (split-string suffix-input "\\s-*,\\s-*" t))
          (files        (aider--get-files-in-directory directory suffixes))
