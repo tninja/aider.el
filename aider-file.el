@@ -168,28 +168,56 @@ Otherwise, add the current file as read-only."
     (directory-files-recursively directory regex)))
 
 ;;;###autoload
-(defun aider-add-module (&optional read-only directory suffix-input)
+(defun aider-add-module (&optional read-only directory suffix-input content-regex)
   "Add all files from DIRECTORY with SUFFIX-INPUT to Aider session.
 SUFFIX-INPUT is a comma-separated list of file suffixes without dots.
+If CONTENT-REGEX is provided, only files whose content matches the regex are added.
 With a prefix argument (C-u), files are added read-only (/read-only)."
   (interactive
    (list current-prefix-arg
          (read-directory-name "Module directory: " nil nil t)
          (read-string "File suffixes (comma-separated): "
-                      "py,java,scala,el,sql")))
+                      "py,java,scala,el,sql")
+         (read-string "Content regex (empty for none): " nil)))
   (let* ((cmd-prefix   (if read-only "/read-only" "/add"))
          (suffixes     (split-string suffix-input "\\s-*,\\s-*" t))
-         (files        (aider--get-files-in-directory directory suffixes))
-         (rel-paths    (mapcar #'aider--get-file-path files))
+         (files-by-suffix (aider--get-files-in-directory directory suffixes))
+         (filtered-files
+          (if (and files-by-suffix content-regex (not (string-empty-p content-regex)))
+              (let* ((grep-args (list* "-l" "-E" content-regex files-by-suffix))
+                     (temp-buffer (generate-new-buffer " *grep-output*"))
+                     (exit-status
+                      (apply #'call-process "grep" nil (list temp-buffer nil) nil grep-args)))
+                (prog1
+                    (if (or (zerop exit-status) (= exit-status 1)) ; 0 for match, 1 for no match
+                        (with-current-buffer temp-buffer
+                          (if (zerop exit-status) ; Only parse if matches were found
+                              (split-string (buffer-string) "\n" t)
+                            nil)) ; No files matched
+                      (progn ; Handle grep errors (exit status > 1)
+                        (message "Error running grep: %s"
+                                 (with-current-buffer temp-buffer (buffer-string)))
+                        nil)) ; Return nil on error
+                  (kill-buffer temp-buffer)))
+            files-by-suffix)) ; If no regex or no initial files, use files-by-suffix
+         (rel-paths    (mapcar #'aider--get-file-path filtered-files))
          (formatted    (mapcar #'aider--format-file-path rel-paths)))
-    (if files
+    (if filtered-files
         (progn
           (aider--send-command (concat cmd-prefix " " (mapconcat #'identity formatted " ")) t)
          (message (if read-only
-                      "Added %d files as read-only from %s"
-                    "Added %d files from %s")
-                  (length files) directory))
-      (message "No files with suffixes %s found in %s" suffix-input directory))))
+                      "Added %d files as read-only from %s%s"
+                    "Added %d files from %s%s")
+                  (length filtered-files) directory
+                  (if (and content-regex (not (string-empty-p content-regex)))
+                      (format " (matching content regex '%s')" content-regex)
+                    "")))
+      (message (format "No files found in %s with suffixes %s%s"
+                       directory
+                       suffix-input
+                       (if (and content-regex (not (string-empty-p content-regex)))
+                           (format " that also match content regex '%s'" content-regex)
+                         ""))))))
 
 ;;;###autoload
 (defun aider-pull-or-review-diff-file ()
