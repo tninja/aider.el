@@ -30,14 +30,16 @@
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
 ;;
-;; Comparison of aider.el to aidermacs (a fork version of aider.el):
-;; - More Focus on build prompts using your code (buffer/selection).
-;; - Less configurations (transparent to aider config), simplified menu.
-;; - Reuse prompts easily, fuzzy search with helm.
-;; - Agile development and Code reading tools from classic books.
-;; - Diff extract and code review tools
-;; - Organize project with repo specific Aider prompt file, with snippets from community.
-;; - More Focus on stability and long term maintainability (e.g. pure comint, do not parse aider output)
+;; Comparing to its forked peer (aidermacs), Aider.el has brought in lots of application-level features and tools to enhance daily programming. These include:
+;;   - AI-assisted agile development methodologies (like TDD, refactoring and legacy code handling based on established software engineering books)
+;;   - Diff extraction and AI code review tools
+;;   - Advanced code / module reading assistant
+;;   - Project software planning discussion capabilities
+;;   - Integration with magit-blame for historical code analysis
+;;   - Utilities for bootstrapping new files and projects.
+;;   - Organize project with repo specific Aider prompt file
+;;   - Snippets from community and aider use experience and pattern
+;; Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
 ;;; Code:
 
@@ -97,9 +99,9 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   "Transient menu items for the “Aider Process” section.")
 
 (defconst aider--menu-file-operation
-  '(("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
+  '(("f" "Add Current/Marked File (C-u: readonly)"  aider-add-current-file-or-dired-marked-files)
     ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
-    ("M" "Add Module (C-u: readonly)"               aider-add-module)
+    ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
     ("O" "Drop Current File"                        aider-drop-current-file)
     ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
     ("u" "Undo Last Change"                         aider-undo-last-change)
