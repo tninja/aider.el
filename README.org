@@ -313,6 +313,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 * FAQ
 
+- transient-define-group undefined error:
+  - Please install latest transient package. The version need to be >= 20250520.1040, so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
+
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
   - Note: *Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with "--no-auto-accept-architect" in either aider-args or .aider.conf.yml*.
@@ -352,9 +355,6 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - Why aider-code-change got disabled in transient menu?
   - It bypass code review and is not recommended. The code quality is not as good as /architect. Discussed here: https://github.com/tninja/aider.el/issues/128
 
-- transient-define-group undefined error:
-  - Please install latest transient package. The version need to be >= 20250520.1040, so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
-
 * TODO Future work
 
 ** Feature
@@ -389,3 +389,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - Package depends on this
   - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]: Org Babel functions for Aider.el integration
+
+* Contributing
+
+- Contributions are welcome! Please feel free to submit a Pull Request.

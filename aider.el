@@ -98,7 +98,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("o" "Select Model (C-u: leaderboard)" aider-change-model)
   ("x" "Exit Aider"                      aider-exit))
 
-
 ;;; Transient menu items for the “File Operation” section.
 (transient-define-group aider--menu-file-operation
   ("f" "Add Current/Marked File (C-u: readonly)"  aider-add-current-file-or-dired-marked-files)
@@ -109,7 +108,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
   ("b" "File Evolution Analysis"                  aider-magit-blame-analyze))
-
 
 ;;; Transient menu items for the “Code Change” section.
 (transient-define-group aider--menu-code-change
@@ -153,7 +151,6 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
    ;; adjust space to align
    ["     "  ""]
    ["Discussion" aider--menu-discussion]])
-
 
 (transient-define-prefix aider-transient-menu-1col ()
   "Transient menu for Aider commands."
