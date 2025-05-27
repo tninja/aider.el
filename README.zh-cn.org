@@ -180,6 +180,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
     - 使用 aider-helm.el 时提供了几个常用的提示
   - aider-go-ahead :: 当您使用上述命令要求 aider 建议更改时，甚至在几轮讨论之后，当您对解决方案满意时，可以使用此命令要求 Aider 继续实施更改。
   - aider-code-read :: 从书籍 [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]] 中选择方法，分析区域/函数/文件/模块。
+  - aider-start-software-planning :: 通过基于问题的顺序思考过程，与 Aider 开始一个交互式的软件规划讨论过程。
 
 *** Aider 提示文件
 
