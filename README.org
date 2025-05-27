@@ -55,7 +55,7 @@
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the emacs dependency library [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]] (version >= 20250520.1040), [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
 - Install aider.el with the following instruction:
 
 *** With Melpa + package-install (recommended)
@@ -351,6 +351,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - Why aider-code-change got disabled in transient menu?
   - It bypass code review and is not recommended. The code quality is not as good as /architect. Discussed here: https://github.com/tninja/aider.el/issues/128
+
+- transient-define-group undefined error:
+  - Please install latest transient package. The version need to be >= 20250520.1040, so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
 
 * TODO Future work
 
