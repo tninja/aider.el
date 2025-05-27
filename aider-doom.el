@@ -22,7 +22,7 @@
                     :desc "Input with Repo Prompt File" "p" #'aider-open-prompt-file
                     :desc "Reset Aider (C-u: clear)" "s" #'aider-reset
                     :desc "Select Model (C-u: leaderboard)" "o" #'aider-change-model
-                    :desc "Clear Aider buffer" "c" #'aider-clear-buffer ; Kept from original
+                    :desc "Clear Aider buffer" "c" #'aider-clear-buffer
                     :desc "Exit Aider" "x" #'aider-exit)
 
                    (:prefix ("f" . "Files")
@@ -46,8 +46,8 @@
                     :desc "Code/Doc Bootstrap" "B" #'aider-bootstrap)
 
                    (:prefix ("d" . "Discuss")
-                    :desc "Question (C-u no context)" "q" #'aider-ask-question
-                    :desc "General question" "Q" #'aider-general-question ; Kept from original
+                    :desc "Ask question" "q" #'aider-ask-question
+                    :desc "General question" "Q" #'aider-general-question
                     :desc "Then Go Ahead" "y" #'aider-go-ahead
                     :desc "Code Reading" "d" #'aider-code-read
                     :desc "Copy To Clipboard" "c" #'aider-copy-to-clipboard
