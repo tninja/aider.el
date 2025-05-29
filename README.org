@@ -341,6 +341,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - How to enter multi-line prompts in aider session buffer?
   - aider itself support that, [[https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages][doc]].
+  - C-c RET: https://github.com/MatthewZMD/aidermacs/issues/139
   - use aider prompt file (~aider-open-prompt-file~, ~C-c a p~) to write multi-line prompts
 
 - Can aider.el work with tramp? (aider running on remote machine)
