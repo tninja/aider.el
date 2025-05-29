@@ -282,12 +282,10 @@ If current buffer is a dired, eshell, or shell buffer, ask if user wants to use 
                          aider-args)))
     ;; Handle --subtree-only prompting for special modes
     (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
-
     ;; Add --subtree-only if the parameter is set and it's not already present
     (when (and subtree-only (not (member "--subtree-only" current-args)))
       (setq current-args (append current-args '("--subtree-only")))
       (message "Adding --subtree-only argument as requested."))
-
     (unless (comint-check-proc buffer-name)
       (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
       (with-current-buffer buffer-name
