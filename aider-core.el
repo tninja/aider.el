@@ -253,14 +253,24 @@ If current buffer is a dired, eshell, or shell buffer, ask if user wants to use 
                            (split-string
                             (read-string "Edit aider arguments: "
                                          (mapconcat #'identity aider-args " ")))
-                         aider-args)))
+                         aider-args))
+         (git-root-path (magit-toplevel))
+         (is-default-dir-the-git-root
+           (and git-root-path
+                (stringp git-root-path)
+                (not (string-match-p "fatal" git-root-path))
+                ;; Compare canonical paths of default-directory and git-root-path
+                (string= (file-truename (expand-file-name default-directory))
+                         (file-truename git-root-path)))))
     ;; Check if current buffer is in dired-mode, eshell-mode, or shell-mode and prompt for --subtree-only
     (when (and (memq major-mode '(dired-mode eshell-mode shell-mode))
-               (y-or-n-p (format "Current buffer is %s. Use --subtree-only mode?"
+               (not is-default-dir-the-git-root) ; <-- Add this condition
+               (y-or-n-p (format "Current buffer is %s and current directory (%s) is not git root. Use --subtree-only mode?" ; <-- Modify this format string
                                  (cond ((eq major-mode 'dired-mode) "a directory")
                                        ((eq major-mode 'eshell-mode) "eshell")
                                        ((eq major-mode 'shell-mode) "shell")
-                                       (t "")))))
+                                       (t ""))
+                                 (abbreviate-file-name default-directory))))
       ;; Check if --subtree-only is already in the arguments
       (unless (member "--subtree-only" current-args)
         (setq current-args (append current-args '("--subtree-only")))))
