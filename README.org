@@ -327,6 +327,12 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - What kind of model aider support? Can aider support local model?
   - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].
 
+- How to add file to aider session using menu?
+  - single file, in that file buffer, C-c a f
+  - two or three files, open all of them in current window as different buffer, C-c a w
+  - a few files, in same directory, or have same regex pattern: mark them in dired buffer (or find-grep-dired result with regex), C-c a f.
+  - whole project / module, certain types of suffix file (eg. *.py, *.java), C-c a M
+
 - In large mono repo, aider take long time to scan the repo. How to improve?
   - Aider use .aiderignore file to handle this, [[https://aider.chat/docs/faq.html#can-i-use-aider-in-a-large-mono-repo][detail]], or, you can turn off git with --no-git in aider-args.
   - Or, use the --subtree-only with following way in emacs:
