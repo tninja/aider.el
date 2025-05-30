@@ -240,6 +240,32 @@ If the current buffer is already the Aider buffer, do nothing."
             (goto-char (point-max))))
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
+(defun aider--is-default-directory-git-root ()
+  "Return t if `default-directory' is the root of a Git repository, nil otherwise."
+  (let ((git-root-path (magit-toplevel)))
+    (and git-root-path
+         (stringp git-root-path)
+         (not (string-match-p "fatal" git-root-path))
+         ;; Compare canonical paths of default-directory and git-root-path
+         (string= (file-truename (expand-file-name default-directory))
+                  (file-truename git-root-path)))))
+
+(defun aider--maybe-prompt-subtree-only-for-special-modes (current-args)
+  "For dired, eshell, or shell modes, if not in git root, prompt for --subtree-only.
+Return potentially modified CURRENT-ARGS."
+  (if (and (memq major-mode '(dired-mode eshell-mode shell-mode))
+           (not (aider--is-default-directory-git-root))
+           (y-or-n-p (format "Current buffer is %s and current directory (%s) is not git root. Use --subtree-only mode?"
+                             (cond ((eq major-mode 'dired-mode) "a directory")
+                                   ((eq major-mode 'eshell-mode) "eshell")
+                                   ((eq major-mode 'shell-mode) "shell")
+                                   (t ""))
+                             (abbreviate-file-name default-directory))))
+      (if (member "--subtree-only" current-args)
+          current-args
+        (append current-args '("--subtree-only")))
+    current-args))
+
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args subtree-only)
   "Create a comint-based buffer and run \"aider\" for interactive conversation.
@@ -254,16 +280,8 @@ If current buffer is a dired, eshell, or shell buffer, ask if user wants to use 
                             (read-string "Edit aider arguments: "
                                          (mapconcat #'identity aider-args " ")))
                          aider-args)))
-    ;; Check if current buffer is in dired-mode, eshell-mode, or shell-mode and prompt for --subtree-only
-    (when (and (memq major-mode '(dired-mode eshell-mode shell-mode))
-               (y-or-n-p (format "Current buffer is %s. Use --subtree-only mode?"
-                                 (cond ((eq major-mode 'dired-mode) "a directory")
-                                       ((eq major-mode 'eshell-mode) "eshell")
-                                       ((eq major-mode 'shell-mode) "shell")
-                                       (t "")))))
-      ;; Check if --subtree-only is already in the arguments
-      (unless (member "--subtree-only" current-args)
-        (setq current-args (append current-args '("--subtree-only")))))
+    ;; Handle --subtree-only prompting for special modes
+    (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
     ;; Add --subtree-only if the parameter is set and it's not already present
     (when (and subtree-only (not (member "--subtree-only" current-args)))
       (setq current-args (append current-args '("--subtree-only")))
