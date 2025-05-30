@@ -85,9 +85,48 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   :reader (lambda (_prompt _initial-input _history)
            (not aider--switch-to-buffer-other-frame)))
 
+;; C-u prefix argument highlighting support
+(defvar aider--cu-compatible-commands
+  '(aider-run-aider aider-reset aider-change-model 
+    aider-add-current-file-or-dired-marked-files
+    aider-add-module aider-magit-show-last-commit-or-log
+    aider-ask-question aider-help aider-send-line-or-region)
+  "List of commands that support C-u prefix arguments.")
+
+(defface aider-cu-highlight
+  '((t :inherit warning :weight bold))
+  "Face used to highlight C-u compatible menu items when prefix is active."
+  :group 'aider)
+
+;; Add visual feedback for C-u compatible commands in transient
+(defun aider--highlight-cu-commands ()
+  "Highlight C-u compatible commands in aider transient menus when C-u is active."
+  (when (and current-prefix-arg
+             (string-match "aider" (buffer-name)))
+    (save-excursion
+      (goto-char (point-min))
+      (let ((inhibit-read-only t))
+        (while (re-search-forward "^\\s-*\\([a-zA-Z]\\)\\s-+\\(.+?\\)\\s-*$" nil t)
+          (let ((key (match-string 1))
+                (desc (match-string 2)))
+            (when (cl-some (lambda (cmd) 
+                             (string-match (symbol-name cmd) desc))
+                           aider--cu-compatible-commands)
+              (put-text-property (match-beginning 2) (match-end 2) 
+                               'face 'aider-cu-highlight))))))))
+
+;; Hook into transient setup for aider menus
+(add-hook 'transient-setup-hook
+          (lambda ()
+            (when (memq this-command '(aider-transient-menu 
+                                       aider-transient-menu-2cols 
+                                       aider-transient-menu-1col))
+              (run-with-timer 0.01 nil #'aider--highlight-cu-commands))))
+
 ;; Transient menu for Aider commands
 
 ;; Define each menu section as a reusable variable
+
 ;;; Transient menu items for the “Aider Process” section.
 (transient-define-group aider--menu-aider-process
   (aider--infix-switch-to-buffer-other-frame)
@@ -166,6 +205,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     ""
     "Discussion"
     aider--menu-discussion]])
+
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
 ;;;###autoload
