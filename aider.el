@@ -107,12 +107,13 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
       (goto-char (point-min))
       (let ((inhibit-read-only t))
         (while (re-search-forward "^\\s-*\\([a-zA-Z]\\)\\s-+\\(.+?\\)\\s-*$" nil t)
-          (let ((key (match-string 1))
-                (desc (match-string 2)))
-            (when (cl-some (lambda (cmd) 
-                             (string-match (symbol-name cmd) desc))
-                           aider--cu-compatible-commands)
-              (put-text-property (match-beginning 2) (match-end 2) 
+          (let* ((key-str (match-string 1))
+                 ;; desc-str (match-string 2) is the text to highlight
+                 (key-char (aref key-str 0))
+                 (suffix-obj (transient-suffix-object key-char this-command))
+                 (actual-cmd (and suffix-obj (transient-suffix-command suffix-obj))))
+            (when (and actual-cmd (memq actual-cmd aider--cu-compatible-commands))
+              (put-text-property (match-beginning 2) (match-end 2)
                                'face 'aider-cu-highlight))))))))
 
 ;; Hook into transient setup for aider menus
