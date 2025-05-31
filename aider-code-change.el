@@ -231,7 +231,7 @@ to include in each error report."
 (defun aider--determine-flycheck-scope-parameters (apply-to-whole-file-p)
   "Determine and return the scope for Flycheck error fixing.
 Returns a list (SCOPE-START SCOPE-END SCOPE-DESCRIPTION).
-Signals a 'user-error' if a valid scope cannot be determined.
+Signals a `user-error` if a valid scope cannot be determined.
 APPLY-TO-WHOLE-FILE-P is non-nil if C-u prefix was used."
   (let (scope-start scope-end scope-description)
     (cond
