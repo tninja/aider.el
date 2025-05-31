@@ -404,11 +404,15 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
       ('branch-range
        (setq base-branch (read-string "Base branch name: "))
        (setq feature-branch (read-string "Feature branch name: "))
-       (let ((scope-choice (completing-read "Are branches local or remote? "
-                                            '(("Local" . local)
-                                              ("Remote (will try to prefix with 'origin/' if needed)" . remote))
-                                            nil t nil nil "Local")))
-         (setq branch-scope (cdr scope-choice)))
+       (let* ((scope-alist '(("Local" . local)
+                             ("Remote (will try to prefix with 'origin/' if needed)" . remote)))
+              (raw-scope-choice (completing-read "Are branches local or remote? "
+                                                 scope-alist
+                                                 nil t nil nil "Local")))
+         (setq branch-scope
+               (if (consp raw-scope-choice)
+                   (cdr raw-scope-choice)
+                 (cdr (assoc raw-scope-choice scope-alist)))))
        (setq diff-file-name-part (concat (replace-regexp-in-string "/" "-" base-branch)
                                          "."
                                          (replace-regexp-in-string "/" "-" feature-branch)))
