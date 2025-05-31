@@ -50,6 +50,7 @@
 (require 'aider-core)
 (require 'aider-prompt-mode)
 (require 'aider-file)
+(require 'aider-git)
 (require 'aider-code-change)
 (require 'aider-discussion)
 (require 'aider-agile)
