@@ -30,7 +30,7 @@
   :group 'aider)
 
 (defcustom aider-auto-trigger-prompt nil
-  "When non-nil, automatically trigger prompt insertion for commands like /ask, /code, etc."
+  "Auto-trigger prompt insertion for /ask, /code, etc. if non-nil."
   :type 'boolean
   :group 'aider)
 
@@ -270,7 +270,7 @@ If the current buffer is already the Aider buffer, do nothing."
                   (file-truename git-root-path)))))
 
 (defun aider--maybe-prompt-subtree-only-for-special-modes (current-args)
-  "For dired, eshell, or shell modes, if not in git root, prompt for --subtree-only.
+  "Prompt for --subtree-only in dired/eshell/shell if not in git root.
 Return potentially modified CURRENT-ARGS."
   (if (and (memq major-mode '(dired-mode eshell-mode shell-mode))
            (not (aider--is-default-directory-git-root))
@@ -287,10 +287,10 @@ Return potentially modified CURRENT-ARGS."
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args subtree-only)
-  "Create a comint-based buffer and run \"aider\" for interactive conversation.
-With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
-If SUBTREE-ONLY is non-nil, add '--subtree-only' argument.
-If current buffer is a dired, eshell, or shell buffer, ask if user wants to use --subtree-only mode."
+  "Run \"aider\" in a comint buffer for interactive conversation.
+With C-u EDIT-ARGS, prompt to edit `aider-args`.
+If SUBTREE-ONLY is non-nil, add '--subtree-only'.
+Prompts for --subtree-only in dired/eshell/shell if needed."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
