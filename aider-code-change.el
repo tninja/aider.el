@@ -198,8 +198,32 @@ Otherwise:
   (interactive)
   (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
     (cl-find-if (lambda (err)
-                  (and (>= (point) (flycheck-error-pos err))
-                       (<= (point) (flycheck-error-end-pos err))))
+                  (let ((start-pos (flycheck-error-pos err)))
+                    ;; Ensure start-pos is a valid number before proceeding.
+                    (when (integerp start-pos)
+                      (let* ((start-line (flycheck-error-line err))
+                             (end-line (flycheck-error-end-line err))
+                             (end-col (flycheck-error-end-column err))
+                             ;; Calculate the end position.
+                             (calculated-end-pos
+                              (cond
+                               ;; Case 1: end-line and end-column are both valid integers.
+                               ((and (integerp end-line) (integerp end-col))
+                                (save-excursion
+                                  (goto-char (point-min))
+                                  (forward-line (1- end-line))
+                                  (move-to-column (1- end-col)) ; flycheck columns are 1-based.
+                                  (point)))
+                               ;; Case 2: end-line is valid, but end-column is not. Error spans to end of end-line.
+                               ((integerp end-line)
+                                (save-excursion (goto-char (point-min)) (forward-line (1- end-line)) (line-end-position)))
+                               ;; Case 3: end-line is not valid. Use start-line and its end.
+                               ((integerp start-line)
+                                (save-excursion (goto-char (point-min)) (forward-line (1- start-line)) (line-end-position)))
+                               ;; Fallback: if start-line is also not an integer.
+                               (t (1+ start-pos)))))
+                        (and (>= (point) start-pos)     ; Point is at or after the start of the error.
+                             (< (point) calculated-end-pos)))))) ; Point is before the end of the error (exclusive end).
                 flycheck-current-errors)))
 
 ;;;###autoload
