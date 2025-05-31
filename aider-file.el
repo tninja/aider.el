@@ -303,12 +303,10 @@ Returns a cons cell (RESOLVED-BASE . RESOLVED-FEATURE)."
        ;; Input is already commit^ and commit
        (setq resolved-base-branch input-base-branch)
        (setq resolved-feature-branch input-feature-branch))
-
       ('base-vs-head
        ;; Base branch can be local or remote, feature is HEAD
        (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
        (setq resolved-feature-branch "HEAD")) ; HEAD is always resolved correctly by git
-
       ('branch-range
        (pcase branch-scope
          ('local
@@ -341,11 +339,9 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
 
     (message "Fetching from all remotes to ensure latest branches...")
     (magit-run-git "fetch" "--all")
-
     ;; Verify input branches for relevant types
     (when (memq type '(base-vs-head branch-range))
       (aider--verify-branches input-base-branch input-feature-branch))
-
     ;; Display message about what we're doing
     (pcase type
       ('commit
@@ -355,11 +351,9 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
       ('branch-range
        (message "Generating diff between branches: %s..%s (%s)"
                 resolved-base-branch resolved-feature-branch (or branch-scope "unknown-scope"))))
-
     (when (magit-anything-modified-p)
       (message "Repository has uncommitted changes. You might want to commit or stash them first.")
       (sleep-for 1))
-
     (message "Generating diff file: %s" diff-file)
     (magit-run-git "diff" (concat resolved-base-branch ".." resolved-feature-branch)
                    (concat "--output=" diff-file))))
@@ -383,14 +377,12 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
          ;; Declare variables that will be set in pcase
          base-branch feature-branch commit-hash branch-scope ;; branch-scope: 'local or 'remote
          diff-file-name-part diff-params diff-file)
-
     (pcase (cdr diff-type-choice)
       ('staged
        (setq diff-file-name-part "staged")
        (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
        ;; No diff-params needed for aider--generate-staged-diff directly
        (aider--generate-staged-diff diff-file))
-
       ('base-vs-head
        (setq base-branch (read-string (format "Base branch name (default: %s): "
                                               (or (magit-get-default-remote-branch) "main"))
@@ -403,7 +395,6 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
                                :feature-branch feature-branch
                                :diff-file-name-part diff-file-name-part))
        (aider--generate-branch-or-commit-diff diff-params diff-file))
-
       ('branch-range
        (setq base-branch (read-string "Base branch name: "))
        (setq feature-branch (read-string "Feature branch name: "))
@@ -422,7 +413,6 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
                                :branch-scope branch-scope
                                :diff-file-name-part diff-file-name-part))
        (aider--generate-branch-or-commit-diff diff-params diff-file))
-
       ('commit
        (setq commit-hash (read-string "Commit hash: "))
        (setq base-branch (concat commit-hash "^")) ; Diff against parent
@@ -434,7 +424,6 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
                                :feature-branch feature-branch
                                :diff-file-name-part diff-file-name-part))
        (aider--generate-branch-or-commit-diff diff-params diff-file)))
-
     ;; Open the diff file if it was generated (i.e., diff-file is non-nil)
     ;; For 'staged' case, diff-file is set directly. For others, it's set before calling generate.
     (when diff-file
