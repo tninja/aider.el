@@ -266,7 +266,7 @@ With a prefix argument (C-u), applies to the entire file.
 Otherwise, applies to the active region if any.
 If no region is active and no prefix argument, applies to the current function.
 If not in a function, no region active, and no prefix arg, an error is signaled.
-This command requires the 'flycheck' package to be installed and available."
+This command requires the `flycheck` package to be installed and available."
   (interactive "P")
   (unless (featurep 'flycheck)
     (user-error "Flycheck package not found. This feature is unavailable."))
