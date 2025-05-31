@@ -443,7 +443,6 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
             (cdr (assoc raw-diff-type-choice diff-type-alist))))
          ;; Variable to hold the path of the generated diff file
          (diff-file))
-
     (setq diff-file
           (pcase selected-diff-type-value
             ('staged       (aider--handle-staged-diff-generation git-root))
@@ -454,19 +453,6 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
 
     (when diff-file
       (aider--open-diff-file diff-file))))
-
-;;;###autoload
-(defun aider-open-history ()
-  "Open the Aider history file (.aider.chat-history.md under repo git root).
-If the history file does not exist, notify the user."
-  (interactive)
-  (let ((git-root (magit-toplevel)))
-    (unless git-root
-      (user-error "Not inside a git repository"))
-    (let ((history-file (expand-file-name ".aider.chat.history.md" git-root)))
-      (if (file-exists-p history-file)
-          (find-file-other-window history-file)
-        (message "History file does not exist: %s" history-file)))))
 
 ;;;###autoload
 (defun aider-magit-blame-analyze ()
