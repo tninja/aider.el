@@ -367,17 +367,25 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
   "Generate a diff file based on user-selected type (staged, branches, commit)."
   (interactive)
   (let* ((git-root (aider--validate-git-repository))
-         (diff-type-choice
+         (diff-type-alist '(("Staged changes" . staged)
+                            ("Base branch vs HEAD" . base-vs-head)
+                            ("Branch range (e.g., base..feature)" . branch-range)
+                            ("Single commit" . commit)))
+         (raw-diff-type-choice
           (completing-read "Select diff type: "
-                           '(("Staged changes" . staged)
-                             ("Base branch vs HEAD" . base-vs-head)
-                             ("Branch range (e.g., base..feature)" . branch-range)
-                             ("Single commit" . commit))
+                           diff-type-alist
                            nil t nil nil "Staged changes"))
+         (selected-diff-type-value
+          (if (consp raw-diff-type-choice)
+              (cdr raw-diff-type-choice)
+            ;; If raw-diff-type-choice is a string, it should be one of the display strings.
+            ;; We look up its corresponding value in the alist.
+            (cdr (assoc raw-diff-type-choice diff-type-alist))))
          ;; Declare variables that will be set in pcase
          base-branch feature-branch commit-hash branch-scope ;; branch-scope: 'local or 'remote
          diff-file-name-part diff-params diff-file)
-    (pcase (cdr diff-type-choice)
+
+    (pcase selected-diff-type-value
       ('staged
        (setq diff-file-name-part "staged")
        (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
