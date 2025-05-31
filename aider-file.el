@@ -294,17 +294,17 @@ Returns a plist with :type, :base-branch, :feature-branch, and :diff-file-name-p
 
 (defun aider--get-full-branch-ref (branch)
   "Get full reference for BRANCH, handling remote branches properly.
-If branch exists locally, use it as is. If it only exists in a remote,
-use the remote reference (e.g., origin/branch). Git can diff remote branches
-directly without checking them out locally."
+Prefer remote branch (origin/BRANCH) if it exists.
+Otherwise, use local branch or ref.
+Git can diff remote branches directly without checking them out locally."
   (cond
-   ;; Check if it's a valid local branch or ref
+   ;; Check if it exists as a remote branch first, unless 'branch' already starts with 'origin/'
+   ((and (not (string-prefix-p "origin/" branch)) (magit-branch-p (concat "origin/" branch)))
+    (concat "origin/" branch))
+   ;; Then check if it's a valid local branch or ref (this will also handle cases like "origin/main" directly)
    ((or (magit-branch-p branch) (magit-rev-verify branch))
     branch)
-   ;; Check if it exists as a remote branch
-   ((magit-branch-p (concat "origin/" branch))
-    (concat "origin/" branch))
-   ;; Return as is (might be a commit hash or special ref)
+   ;; Return as is (might be a commit hash or special ref if not caught above)
    (t branch)))
 
 (defun aider--verify-branches (base-branch feature-branch)
