@@ -192,58 +192,85 @@ Otherwise:
           (aider-current-file-command-and-switch "/architect " user-command)))))))
 
 ;;; New Flycheck integration
-;;;###autoload
-(defun aider-flycheck--diagnostic-at-point ()
-  "Return the Flycheck error at point, or nil."
-  (interactive)
+(defun aider-flycheck--get-errors-in-scope (start end)
+  "Return a list of Flycheck errors within the given START and END buffer positions."
   (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
-    (cl-find-if (lambda (err)
-                  (let ((start-pos (flycheck-error-pos err)))
-                    ;; Ensure start-pos is a valid number before proceeding.
-                    (when (integerp start-pos)
-                      (let* ((start-line (flycheck-error-line err))
-                             (end-line (flycheck-error-end-line err))
-                             (end-col (flycheck-error-end-column err))
-                             ;; Calculate the end position.
-                             (calculated-end-pos
-                              (cond
-                               ;; Case 1: end-line and end-column are both valid integers.
-                               ((and (integerp end-line) (integerp end-col))
-                                (save-excursion
-                                  (goto-char (point-min))
-                                  (forward-line (1- end-line))
-                                  (move-to-column (1- end-col)) ; flycheck columns are 1-based.
-                                  (point)))
-                               ;; Case 2: end-line is valid, but end-column is not. Error spans to end of end-line.
-                               ((integerp end-line)
-                                (save-excursion (goto-char (point-min)) (forward-line (1- end-line)) (line-end-position)))
-                               ;; Case 3: end-line is not valid. Use start-line and its end.
-                               ((integerp start-line)
-                                (save-excursion (goto-char (point-min)) (forward-line (1- start-line)) (line-end-position)))
-                               ;; Fallback: if start-line is also not an integer.
-                               (t (1+ start-pos)))))
-                        (and (>= (point) start-pos)     ; Point is at or after the start of the error.
-                             (< (point) calculated-end-pos)))))) ; Point is before the end of the error (exclusive end).
-                flycheck-current-errors)))
+    (cl-remove-if-not
+     (lambda (err)
+       (let ((pos (flycheck-error-pos err)))
+         (and (integerp pos) (>= pos start) (< pos end))))
+     flycheck-current-errors)))
+
+(defun aider-flycheck--format-error-list (errors file-path-for-error-reporting)
+  "Format a list string for multiple Flycheck ERRORS.
+FILE-PATH-FOR-ERROR-REPORTING is the relative file path to include in each error report."
+  (let ((error-reports '()))
+    (dolist (err errors)
+      (let* ((line (flycheck-error-line err))
+             (col (flycheck-error-column err))
+             (msg (flycheck-error-message err))
+             (error-line-text
+              (save-excursion
+                (goto-char (point-min))
+                (forward-line (1- line))
+                (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
+        (push (format "File: %s:%d:%d\nError: %s\nContext line:\n%s"
+                      file-path-for-error-reporting line col msg error-line-text)
+              error-reports)))
+    (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
 ;;;###autoload
-(defun aider-flycheck-fix-at-point ()
-  "Ask Aider to generate a patch fixing the Flycheck error at point."
+(defun aider-flycheck-fix-errors-in-scope ()
+  "Ask Aider to generate a patch fixing Flycheck errors in the current region, function, or file."
   (interactive)
-  (let ((err (aider-flycheck--diagnostic-at-point)))
-    (unless err
-      (user-error "No Flycheck error at point"))
-    (let* ((git-root (or (magit-toplevel) default-directory))
-           (rel-file (file-relative-name buffer-file-name git-root))
-           (line     (flycheck-error-line err))
-           (col      (flycheck-error-column err))
-           (msg      (flycheck-error-message err))
-           (snippet  (buffer-substring-no-properties
-                      (line-beginning-position) (line-end-position)))
-           (prompt   (format "Please provide a patch to fix the following Flycheck error in %s:%d:%d\n\nError: %s\n\nContext line:\n%s"
-                             rel-file line col msg snippet)))
+  (unless (and buffer-file-name (bound-and-true-p flycheck-mode))
+    (user-error "Flycheck mode is not enabled or buffer is not visiting a file."))
+  (unless flycheck-current-errors
+    (message "No Flycheck errors found in the current buffer.")
+    (cl-return-from aider-flycheck-fix-errors-in-scope nil))
+  (let* ((git-root (or (magit-toplevel) default-directory))
+         (rel-file (file-relative-name buffer-file-name git-root))
+         (scope-start nil)
+         (scope-end nil)
+         (scope-description "")
+         (errors-in-scope '()))
+    (cond
+     ((region-active-p)
+      (setq scope-start (region-beginning)
+            scope-end (region-end)
+            scope-description (format "the selected region (lines %d-%d)"
+                                      (line-number-at-pos scope-start)
+                                      (line-number-at-pos scope-end))))
+     ((which-function)
+      (let ((bounds (bounds-of-thing-at-point 'defun)))
+        (if bounds
+            (setq scope-start (car bounds)
+                  scope-end (cdr bounds)
+                  scope-description (format "function '%s' (lines %d-%d)"
+                                            (which-function)
+                                            (line-number-at-pos scope-start)
+                                            (line-number-at-pos scope-end)))
+          (setq scope-start (point-min)
+                scope-end (point-max)
+                scope-description "the entire file (function bounds not found)"))))
+     (t
+      (setq scope-start (point-min)
+            scope-end (point-max)
+            scope-description "the entire file")))
+    (setq errors-in-scope (aider-flycheck--get-errors-in-scope scope-start scope-end))
+    (unless errors-in-scope
+      (message "No Flycheck errors found in %s." scope-description)
+      (cl-return-from aider-flycheck-fix-errors-in-scope nil))
+    (let* ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file))
+           (prompt
+            (if (string-prefix-p "the entire file" scope-description) ; Handles "the entire file" and "the entire file (function bounds not found)"
+                (format "Please provide a patch to fix the following Flycheck errors in file %s:\n\n%s"
+                        rel-file error-list-string)
+              (format "Please provide a patch to fix the following Flycheck errors in %s of file %s:\n\n%s"
+                      scope-description rel-file error-list-string))))
       (aider-add-current-file)
-      (aider--send-command (concat "/code " prompt) t))))
+      (aider--send-command (concat "/architect " prompt) t)
+      (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description))))
 
 (provide 'aider-code-change)
 
