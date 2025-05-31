@@ -115,6 +115,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("i" "Implement Requirement"       aider-implement-todo)
   ("t" "Architect Discuss/Change"    aider-architect-discussion)
   ("U" "Write Unit Test"             aider-write-unit-test)
+  ("F" "Fix Flycheck Errors (C-u: whole file)"          aider-flycheck-fix-errors-in-scope)
   ("R" "Refactor Code"               aider-refactor-book-method)
   ("T" "Test Driven Development"     aider-tdd-cycle)
   ("l" "Work with Legacy Code"       aider-legacy-code)
