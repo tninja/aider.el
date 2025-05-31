@@ -115,11 +115,15 @@ ignoring leading whitespace."
 (defun aider-implement-todo ()
   "Implement comments with configured keyword in current context.
 If region is selected, implement that specific region.
-If cursor is on a comment line with the configured keyword, implement that specific comment.
-If cursor is inside a function, implement comments with the keyword for that function.
-Otherwise implement comments with the keyword for the entire current file.
+If cursor is on a comment line with the configured keyword,
+implement that specific comment.
+If cursor is inside a function, implement comments with the
+keyword for that function.
+Otherwise implement comments with the keyword for the entire
+current file.
 
-The keyword and its definition are configured in `aider-todo-keyword-pair`."
+The keyword and its definition are configured in
+`aider-todo-keyword-pair`."
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
@@ -193,7 +197,8 @@ Otherwise:
 
 ;;; New Flycheck integration
 (defun aider-flycheck--get-errors-in-scope (start end)
-  "Return a list of Flycheck errors within the given START and END buffer positions."
+  "Return a list of Flycheck errors within the given START and END
+buffer positions."
   (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
     (cl-remove-if-not
      (lambda (err)
@@ -224,7 +229,7 @@ to include in each error report."
     (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
 ;;;###autoload
-(defun aider-flycheck-fix-errors-in-scope (&optional prefix-arg)
+(defun aider-flycheck-fix-errors-in-scope (&optional raw-prefix-arg)
   "Ask Aider to generate a patch fixing Flycheck errors.
 With a prefix argument (C-u), applies to the entire file.
 Otherwise, applies to the active region if any.
@@ -238,7 +243,7 @@ If not in a function, no region active, and no prefix arg, an error is signaled.
     (cl-return-from aider-flycheck-fix-errors-in-scope nil))
   (let* ((git-root (or (magit-toplevel) default-directory))
          (rel-file (file-relative-name buffer-file-name git-root))
-         (apply-to-whole-file-p prefix-arg)
+         (apply-to-whole-file-p raw-prefix-arg)
          (scope-start nil)
          (scope-end nil)
          (scope-description "")
