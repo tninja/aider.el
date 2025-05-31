@@ -87,24 +87,51 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 
 ;; Transient menu for Aider commands
 
+(defun aider--highlight-if-prefix-arg (description)
+  "Return DESCRIPTION, highlighted if `current-prefix-arg` is set."
+  (if current-prefix-arg
+      (propertize description 'face 'font-lock-warning-face)
+    description))
+
+(defun aider--advice-prefix-argument-refresh-transient (orig-fun &rest args)
+  "Advice to refresh the parent transient after a prefix argument command.
+This ensures that UI elements reacting to `current-prefix-arg` (like highlighting
+in Aider's menu) update immediately when a prefix command (e.g., `universal-argument`)
+becomes active on top of it."
+  (let ((result (apply orig-fun args))) ; Apply the original function first. This may change `transient--stack`.
+    ;; If `transient--stack` has more than one element, `(cadr transient--stack)`
+    ;; is the parent transient (e.g., our Aider menu). This is the one we want to refresh.
+    (when (> (length transient--stack) 1)
+      (let ((parent-transient (cadr transient--stack)))
+        ;; Ensure the parent transient's buffer is live before attempting to refresh.
+        ;; `parent-transient` should be a valid transient state object if not nil.
+        (when (buffer-live-p (transient--buffer parent-transient))
+          (transient-refresh parent-transient))))
+    result)) ; Return the original function's result
+
+;; Add advice to prefix argument commands to refresh transient display
+(advice-add 'universal-argument :around #'aider--advice-prefix-argument-refresh-transient)
+(advice-add 'digit-argument :around #'aider--advice-prefix-argument-refresh-transient)
+(advice-add 'negative-argument :around #'aider--advice-prefix-argument-refresh-transient)
+
 ;; Define each menu section as a reusable variable
 ;;; Transient menu items for the “Aider Process” section.
 (transient-define-group aider--menu-aider-process
   (aider--infix-switch-to-buffer-other-frame)
-  ("a" "Run Aider (C-u: args)"           aider-run-aider)
+  ("a" (lambda () (aider--highlight-if-prefix-arg "Run Aider (C-u: args)"))           aider-run-aider)
   ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
-  ("s" "Reset Aider (C-u: clear)"        aider-reset)
-  ("o" "Select Model (C-u: leaderboard)" aider-change-model)
+  ("s" (lambda () (aider--highlight-if-prefix-arg "Reset Aider (C-u: clear)"))        aider-reset)
+  ("o" (lambda () (aider--highlight-if-prefix-arg "Select Model (C-u: leaderboard)")) aider-change-model)
   ("x" "Exit Aider"                      aider-exit))
 
 ;;; Transient menu items for the “File Operation” section.
 (transient-define-group aider--menu-file-operation
-  ("f" "Add Current/Marked File (C-u: readonly)"  aider-add-current-file-or-dired-marked-files)
+  ("f" (lambda () (aider--highlight-if-prefix-arg "Add Current/Marked File (C-u: readonly)"))  aider-add-current-file-or-dired-marked-files)
   ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
-  ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
+  ("M" (lambda () (aider--highlight-if-prefix-arg "Add Module w/o grep (C-u: readonly)"))      aider-add-module)
   ("O" "Drop Current File"                        aider-drop-current-file)
-  ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
+  ("m" (lambda () (aider--highlight-if-prefix-arg "Show Last Commit (C-u: magit-log)"))        aider-magit-show-last-commit-or-log)
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
   ("b" "File Evolution Analysis"                  aider-magit-blame-analyze))
@@ -122,14 +149,14 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 
 ;;; Transient menu items for the “Discussion” section.
 (transient-define-group aider--menu-discussion
-  ("q" "Question (C-u no context)"  aider-ask-question)
+  ("q" (lambda () (aider--highlight-if-prefix-arg "Question (C-u no context)"))  aider-ask-question)
   ("y" "Then Go Ahead"              aider-go-ahead)
   ("d" "Code Reading"               aider-code-read)
   ("c" "Copy To Clipboard"          aider-copy-to-clipboard)
   ("P" "Software Planning"          aider-start-software-planning)
   ("e" "Debug Exception"            aider-debug-exception)
   ("h" "Open History"               aider-open-history)
-  ("?" "Help (C-u: homepage)"       aider-help))
+  ("?" (lambda () (aider--highlight-if-prefix-arg "Help (C-u: homepage)"))       aider-help))
 
 ;; The instruction in the autoload comment is needed, see
 ;; https://github.com/magit/transient/issues/280.
