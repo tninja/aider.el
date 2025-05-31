@@ -391,9 +391,8 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
        ;; No diff-params needed for aider--generate-staged-diff directly
        (aider--generate-staged-diff diff-file))
       ('base-vs-head
-       (setq base-branch (read-string (format "Base branch name (default: %s): "
-                                              (or (magit-get-default-remote-branch) "main"))
-                                      nil nil (or (magit-get-default-remote-branch) "main")))
+       (setq base-branch (read-string "Base branch name: "
+                                      nil nil nil)) ; Removed default value and simplified prompt
        (setq feature-branch "HEAD")
        (setq diff-file-name-part (concat (replace-regexp-in-string "/" "-" base-branch) ".HEAD"))
        (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
