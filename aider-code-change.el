@@ -264,9 +264,9 @@ FILE-PATH-FOR-ERROR-REPORTING is the relative file path to include in each error
     (let* ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file))
            (prompt
             (if (string-prefix-p "the entire file" scope-description) ; Handles "the entire file" and "the entire file (function bounds not found)"
-                (format "Please provide a patch to fix the following Flycheck errors in file %s:\n\n%s"
+                (format "Please fix the following Flycheck errors in file %s:\n\n%s"
                         rel-file error-list-string)
-              (format "Please provide a patch to fix the following Flycheck errors in %s of file %s:\n\n%s"
+              (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
                       scope-description rel-file error-list-string))))
       (aider-add-current-file)
       (aider--send-command (concat "/architect " prompt) t)
