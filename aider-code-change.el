@@ -12,7 +12,7 @@
 (require 'aider-core)
 (require 'aider-file)
 (require 'which-func)
-(require 'flycheck)
+(require 'flycheck nil t)
 (require 'cl-lib)
 (require 'magit)
 
@@ -265,8 +265,11 @@ APPLY-TO-WHOLE-FILE-P is non-nil if C-u prefix was used."
 With a prefix argument (C-u), applies to the entire file.
 Otherwise, applies to the active region if any.
 If no region is active and no prefix argument, applies to the current function.
-If not in a function, no region active, and no prefix arg, an error is signaled."
+If not in a function, no region active, and no prefix arg, an error is signaled.
+This command requires the 'flycheck' package to be installed and available."
   (interactive "P")
+  (unless (featurep 'flycheck)
+    (user-error "Flycheck package not found. This feature is unavailable."))
   (unless (and buffer-file-name (bound-and-true-p flycheck-mode))
     (user-error "Flycheck mode is not enabled or buffer is not visiting a file."))
   (unless flycheck-current-errors
