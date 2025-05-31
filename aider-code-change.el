@@ -218,7 +218,7 @@ Otherwise:
            (prompt   (format "Please provide a patch to fix the following Flycheck error in %s:%d:%d\n\nError: %s\n\nContext line:\n%s"
                              rel-file line col msg snippet)))
       (aider-add-current-file)
-      (aider--send-command (concat "/code " prompt) t)))
+      (aider--send-command (concat "/code " prompt) t))))
 (define-key flycheck-mode-map (kbd "C-c C-f") #'aider-flycheck-fix-at-point)
 (provide 'aider-code-change)
 
