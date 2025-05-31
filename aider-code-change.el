@@ -12,6 +12,8 @@
 (require 'aider-core)
 (require 'aider-file)
 (require 'which-func)
+(require 'flycheck)
+(require 'cl-lib)
 
 (defcustom aider-todo-keyword-pair '("TODO" . "comment line START with string: TODO:")
   "Pair of keyword and its definition for `aider-implement-todo`.
@@ -189,6 +191,34 @@ Otherwise:
           (aider-current-file-command-and-switch "/architect " user-command)))))))
 
 
+;;; New Flycheck integration
+;;;###autoload
+(defun aider-flycheck--diagnostic-at-point ()
+  "Return the Flycheck error at point, or nil."
+  (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
+    (cl-find-if (lambda (err)
+                  (and (>= (point) (flycheck-error-pos err))
+                       (<= (point) (flycheck-error-end-pos err))))
+                flycheck-current-errors)))
+;;;###autoload
+(defun aider-flycheck-fix-at-point ()
+  "Ask Aider to generate a patch fixing the Flycheck error at point."
+  (interactive)
+  (let ((err (aider-flycheck--diagnostic-at-point)))
+    (unless err
+      (user-error "No Flycheck error at point"))
+    (let* ((git-root (or (magit-toplevel) default-directory))
+           (rel-file (file-relative-name buffer-file-name git-root))
+           (line     (flycheck-error-line err))
+           (col      (flycheck-error-column err))
+           (msg      (flycheck-error-message err))
+           (snippet  (buffer-substring-no-properties
+                      (line-beginning-position) (line-end-position)))
+           (prompt   (format "Please provide a patch to fix the following Flycheck error in %s:%d:%d\n\nError: %s\n\nContext line:\n%s"
+                             rel-file line col msg snippet)))
+      (aider-add-current-file)
+      (aider--send-command (concat "/code " prompt) t)))
+(define-key flycheck-mode-map (kbd "C-c C-f") #'aider-flycheck-fix-at-point)
 (provide 'aider-code-change)
 
 ;;; aider-code-change.el ends here
