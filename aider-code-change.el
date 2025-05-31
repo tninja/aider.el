@@ -291,10 +291,12 @@ This command requires the 'flycheck' package to be installed and available."
                        (format "Please fix the following Flycheck errors in file %s:\n\n%s"
                                rel-file error-list-string)
                      (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
-                             scope-description rel-file error-list-string))))
-              (aider-add-current-file)
-              (aider--send-command (concat "/architect " prompt) t)
-              (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description))))))))
+                             scope-description rel-file error-list-string)))
+                   (edited-prompt (aider-read-string "Edit prompt for Aider: " prompt)))
+              (when (and edited-prompt (not (string-blank-p edited-prompt)))
+                (aider-add-current-file)
+                (aider--send-command (concat "/architect " edited-prompt) t)
+                (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))))))
 
 (provide 'aider-code-change)
 
