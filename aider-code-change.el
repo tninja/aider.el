@@ -191,16 +191,17 @@ Otherwise:
                (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
           (aider-current-file-command-and-switch "/architect " user-command)))))))
 
-
 ;;; New Flycheck integration
 ;;;###autoload
 (defun aider-flycheck--diagnostic-at-point ()
   "Return the Flycheck error at point, or nil."
+  (interactive)
   (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
     (cl-find-if (lambda (err)
                   (and (>= (point) (flycheck-error-pos err))
                        (<= (point) (flycheck-error-end-pos err))))
                 flycheck-current-errors)))
+
 ;;;###autoload
 (defun aider-flycheck-fix-at-point ()
   "Ask Aider to generate a patch fixing the Flycheck error at point."
