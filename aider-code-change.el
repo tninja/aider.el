@@ -275,16 +275,18 @@ If not in a function, no region active, and no prefix arg, an error is signaled.
     (unless errors-in-scope
       (message "No Flycheck errors found in %s." scope-description)
       (cl-return-from aider-flycheck-fix-errors-in-scope nil))
-    (let* ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file))
-           (prompt
-            (if (string-equal "the entire file" scope-description)
-                (format "Please fix the following Flycheck errors in file %s:\n\n%s"
-                        rel-file error-list-string)
-              (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
-                      scope-description rel-file error-list-string))))
-      (aider-add-current-file)
-      (aider--send-command (concat "/architect " prompt) t)
-      (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description))))
+    (let ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file)))
+      (if (string-blank-p error-list-string)
+          (message "No actionable Flycheck errors to send for %s. All errors might have been filtered during formatting." scope-description)
+        (let ((prompt
+               (if (string-equal "the entire file" scope-description)
+                   (format "Please fix the following Flycheck errors in file %s:\n\n%s"
+                           rel-file error-list-string)
+                 (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
+                         scope-description rel-file error-list-string))))
+          (aider-add-current-file)
+          (aider--send-command (concat "/architect " prompt) t)
+          (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))
 
 (provide 'aider-code-change)
 
