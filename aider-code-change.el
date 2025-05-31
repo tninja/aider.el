@@ -220,9 +220,13 @@ FILE-PATH-FOR-ERROR-REPORTING is the relative file path to include in each error
     (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
 ;;;###autoload
-(defun aider-flycheck-fix-errors-in-scope ()
-  "Ask Aider to generate a patch fixing Flycheck errors in the current region, function, or file."
-  (interactive)
+(defun aider-flycheck-fix-errors-in-scope (&optional prefix-arg)
+  "Ask Aider to generate a patch fixing Flycheck errors.
+With a prefix argument (C-u), applies to the entire file.
+Otherwise, applies to the active region if any.
+If no region is active and no prefix argument, applies to the current function.
+If not in a function, no region active, and no prefix arg, an error is signaled."
+  (interactive "P")
   (unless (and buffer-file-name (bound-and-true-p flycheck-mode))
     (user-error "Flycheck mode is not enabled or buffer is not visiting a file."))
   (unless flycheck-current-errors
@@ -230,11 +234,16 @@ FILE-PATH-FOR-ERROR-REPORTING is the relative file path to include in each error
     (cl-return-from aider-flycheck-fix-errors-in-scope nil))
   (let* ((git-root (or (magit-toplevel) default-directory))
          (rel-file (file-relative-name buffer-file-name git-root))
+         (apply-to-whole-file-p prefix-arg)
          (scope-start nil)
          (scope-end nil)
          (scope-description "")
          (errors-in-scope '()))
     (cond
+     (apply-to-whole-file-p
+      (setq scope-start (point-min)
+            scope-end (point-max)
+            scope-description "the entire file"))
      ((region-active-p)
       (setq scope-start (region-beginning)
             scope-end (region-end)
@@ -250,20 +259,16 @@ FILE-PATH-FOR-ERROR-REPORTING is the relative file path to include in each error
                                             (which-function)
                                             (line-number-at-pos scope-start)
                                             (line-number-at-pos scope-end)))
-          (setq scope-start (point-min)
-                scope-end (point-max)
-                scope-description "the entire file (function bounds not found)"))))
+          (user-error "Could not determine bounds for function '%s'. Select a region or use C-u for the entire file." (which-function)))))
      (t
-      (setq scope-start (point-min)
-            scope-end (point-max)
-            scope-description "the entire file")))
+      (user-error "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file.")))
     (setq errors-in-scope (aider-flycheck--get-errors-in-scope scope-start scope-end))
     (unless errors-in-scope
       (message "No Flycheck errors found in %s." scope-description)
       (cl-return-from aider-flycheck-fix-errors-in-scope nil))
     (let* ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file))
            (prompt
-            (if (string-prefix-p "the entire file" scope-description) ; Handles "the entire file" and "the entire file (function bounds not found)"
+            (if (string-equal "the entire file" scope-description)
                 (format "Please fix the following Flycheck errors in file %s:\n\n%s"
                         rel-file error-list-string)
               (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
