@@ -327,24 +327,12 @@ Signal an error if either branch doesn't exist."
   (message "Generating diff for staged (staged) changes...")
   (magit-run-git "diff" "--cached" (concat "--output=" diff-file)))
 
-(defun aider--generate-branch-or-commit-diff (diff-params diff-file)
-  "Generate diff based on DIFF-PARAMS and save to DIFF-FILE.
-DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range."
-  (let* ((type (plist-get diff-params :type))
-         ;; These are the original, un-resolved branch names from user input or defaults
-         (input-base-branch (plist-get diff-params :base-branch))
-         (input-feature-branch (plist-get diff-params :feature-branch))
-         (raw-range (plist-get diff-params :raw-range))
-         ;; These will hold the resolved branch names for the git diff command
-         resolved-base-branch
-         resolved-feature-branch)
-    ;; Fetch latest branches
-    (message "Fetching from all remotes to ensure latest branches...")
-    (magit-run-git "fetch" "--all")
-    ;; Verify branches exist (using input names, as aider--verify-branches checks local and remote)
-    (unless (eq type 'commit)
-      (aider--verify-branches input-base-branch input-feature-branch))
-    ;; Determine resolution strategy and resolve branches
+(defun aider--resolve-diff-branches (type input-base-branch input-feature-branch)
+  "Resolve base and feature branches for diff generation.
+TYPE is 'commit or 'branch.
+INPUT-BASE-BRANCH and INPUT-FEATURE-BRANCH are the user-provided or default names.
+Returns a cons cell (RESOLVED-BASE . RESOLVED-FEATURE)."
+  (let (resolved-base-branch resolved-feature-branch)
     (if (eq type 'commit)
         ;; For single commit diff (e.g., commit^..commit)
         (progn
@@ -368,6 +356,28 @@ DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range
                   (if (string= input-feature-branch "HEAD")
                       "HEAD" ; HEAD is special, doesn't need remote resolution like this
                     (aider--get-full-branch-ref input-feature-branch)))))))
+    (cons resolved-base-branch resolved-feature-branch)))
+
+(defun aider--generate-branch-or-commit-diff (diff-params diff-file)
+  "Generate diff based on DIFF-PARAMS and save to DIFF-FILE.
+DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range."
+  (let* ((type (plist-get diff-params :type))
+         ;; These are the original, un-resolved branch names from user input or defaults
+         (input-base-branch (plist-get diff-params :base-branch))
+         (input-feature-branch (plist-get diff-params :feature-branch))
+         (raw-range (plist-get diff-params :raw-range))
+         ;; These will hold the resolved branch names for the git diff command
+         (resolved-branches (aider--resolve-diff-branches type input-base-branch input-feature-branch))
+         (resolved-base-branch (car resolved-branches))
+         (resolved-feature-branch (cdr resolved-branches)))
+    ;; Fetch latest branches
+    (message "Fetching from all remotes to ensure latest branches...")
+    (magit-run-git "fetch" "--all")
+    ;; Verify branches exist (using input names, as aider--verify-branches checks local and remote)
+    ;; Note: Verification happens before final resolution in aider--resolve-diff-branches,
+    ;; but aider--verify-branches itself checks local and remote possibilities.
+    (unless (eq type 'commit)
+      (aider--verify-branches input-base-branch input-feature-branch))
     ;; Display message about what we're doing
     (cond
      ((eq type 'commit)
