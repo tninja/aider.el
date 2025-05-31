@@ -72,12 +72,6 @@ With a prefix argument, calls `aider-general-question` instead."
       (aider--send-command command t))))
 
 ;;;###autoload
-(defun aider-go-ahead ()
-  "Send the command \"go ahead\" to the corresponding aider comint buffer."
-  (interactive)
-  (aider--send-command "go ahead" t))
-
-;;;###autoload
 (defun aider-copy-to-clipboard ()
   "Copy the last assistant message to the clipboard via Aider."
   (interactive)

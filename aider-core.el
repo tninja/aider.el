@@ -48,6 +48,25 @@ When nil, use standard `display-buffer' behavior.")
     map)
   "Keymap for `aider-comint-mode'.")
 
+;;;###autoload
+(defun aider-prompt-insert-file-path ()
+  "Select and insert the relative file path to git repository root."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (file (read-file-name "Select file: " git-root nil t)))
+    (if (and file (file-exists-p file))
+        (let ((relative-path (if git-root
+                                (file-relative-name file git-root)
+                              file)))
+          (insert relative-path))
+      (message "No valid file selected."))))
+
+;;;###autoload
+(defun aider-go-ahead ()
+  "Send the command \"go ahead\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider--send-command "go ahead" t))
+
 (defconst aider--command-list
   '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
     "/drop" "/copy" "/copy-context" "/clear" "/commit" "/exit" "/quit"

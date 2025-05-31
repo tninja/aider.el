@@ -216,19 +216,6 @@ If file doesn't exist, create it with command binding help and sample prompt."
       (font-lock-ensure))))
 
 ;;;###autoload
-(defun aider-prompt-insert-file-path ()
-  "Select and insert the relative file path to git repository root."
-  (interactive)
-  (let* ((git-root (magit-toplevel))
-         (file (read-file-name "Select file: " git-root nil t)))
-    (if (and file (file-exists-p file))
-        (let ((relative-path (if git-root
-                                (file-relative-name file git-root)
-                              file)))
-          (insert relative-path))
-      (message "No valid file selected."))))
-
-;;;###autoload
 (defun aider-prompt-cycle-file-command ()
   "Cycle through file commands in the current line.
 If the line doesn't contain a file command, add '/add ' to the beginning.
