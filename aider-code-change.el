@@ -286,12 +286,12 @@ This command requires the 'flycheck' package to be installed and available."
         (let ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file)))
           (if (string-blank-p error-list-string)
               (message "No actionable Flycheck errors to send for %s." scope-description)
-            (let ((prompt
-                   (if (string-equal "the entire file" scope-description)
-                       (format "Please fix the following Flycheck errors in file %s:\n\n%s"
-                               rel-file error-list-string)
-                     (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
-                             scope-description rel-file error-list-string)))
+            (let* ((prompt
+                    (if (string-equal "the entire file" scope-description)
+                        (format "Please fix the following Flycheck errors in file %s:\n\n%s"
+                                rel-file error-list-string)
+                      (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
+                              scope-description rel-file error-list-string)))
                    (edited-prompt (aider-read-string "Edit prompt for Aider: " prompt)))
               (when (and edited-prompt (not (string-blank-p edited-prompt)))
                 (aider-add-current-file)
