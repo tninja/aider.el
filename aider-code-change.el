@@ -14,6 +14,7 @@
 (require 'which-func)
 (require 'flycheck)
 (require 'cl-lib)
+(require 'magit)
 
 (defcustom aider-todo-keyword-pair '("TODO" . "comment line START with string: TODO:")
   "Pair of keyword and its definition for `aider-implement-todo`.
