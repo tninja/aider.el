@@ -220,7 +220,7 @@ Otherwise:
                              rel-file line col msg snippet)))
       (aider-add-current-file)
       (aider--send-command (concat "/code " prompt) t))))
-(define-key flycheck-mode-map (kbd "C-c C-f") #'aider-flycheck-fix-at-point)
+
 (provide 'aider-code-change)
 
 ;;; aider-code-change.el ends here
