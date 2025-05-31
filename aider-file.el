@@ -330,38 +330,60 @@ Signal an error if either branch doesn't exist."
 (defun aider--generate-branch-or-commit-diff (diff-params diff-file)
   "Generate diff based on DIFF-PARAMS and save to DIFF-FILE.
 DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range."
-  (let ((type (plist-get diff-params :type))
-        (base-branch (plist-get diff-params :base-branch))
-        (feature-branch (plist-get diff-params :feature-branch))
-        (raw-range (plist-get diff-params :raw-range)))
+  (let* ((type (plist-get diff-params :type))
+         ;; These are the original, un-resolved branch names from user input or defaults
+         (input-base-branch (plist-get diff-params :base-branch))
+         (input-feature-branch (plist-get diff-params :feature-branch))
+         (raw-range (plist-get diff-params :raw-range))
+         ;; These will hold the resolved branch names for the git diff command
+         resolved-base-branch
+         resolved-feature-branch)
     ;; Fetch latest branches
     (message "Fetching from all remotes to ensure latest branches...")
     (magit-run-git "fetch" "--all")
-    ;; Verify branches exist (only if not a commit hash)
+    ;; Verify branches exist (using input names, as aider--verify-branches checks local and remote)
     (unless (eq type 'commit)
-      (aider--verify-branches base-branch feature-branch))
-    ;; Get full branch references (handling remote branches)
-    (unless (eq type 'commit)
-      (setq base-branch (aider--get-full-branch-ref base-branch))
-      (unless (string= feature-branch "HEAD")
-        (setq feature-branch (aider--get-full-branch-ref feature-branch))))
+      (aider--verify-branches input-base-branch input-feature-branch))
+    ;; Determine resolution strategy and resolve branches
+    (if (eq type 'commit)
+        ;; For single commit diff (e.g., commit^..commit)
+        (progn
+          (setq resolved-base-branch input-base-branch) ; Already in commit^ form
+          (setq resolved-feature-branch input-feature-branch)) ; Already in commit form
+      ;; For branch diffs
+      (let ((local-base-exists (magit-branch-p input-base-branch))
+            (local-feature-exists (if (string= input-feature-branch "HEAD")
+                                      t ; HEAD is conceptually always local
+                                    (magit-branch-p input-feature-branch))))
+        (if (and local-base-exists local-feature-exists)
+            ;; Strategy 1: Both specified branches exist locally. Use local names directly.
+            (progn
+              (setq resolved-base-branch input-base-branch)
+              (setq resolved-feature-branch input-feature-branch))
+          ;; Strategy 2: At least one branch doesn't exist locally (or isn't specified as local).
+          ;; Use remote-preferring resolution for both, via aider--get-full-branch-ref.
+          (progn
+            (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
+            (setq resolved-feature-branch
+                  (if (string= input-feature-branch "HEAD")
+                      "HEAD" ; HEAD is special, doesn't need remote resolution like this
+                    (aider--get-full-branch-ref input-feature-branch)))))))
     ;; Display message about what we're doing
     (cond
      ((eq type 'commit)
-      (message "Generating diff for single commit: %s" 
+      (message "Generating diff for single commit: %s"
                (plist-get diff-params :diff-file-name-part)))
-     ;; Check if original input contained ".." for branch pair
      ((string-match-p "\\.\\." raw-range)
-      (message "Generating diff between branches: %s..%s" base-branch feature-branch))
+      (message "Generating diff between branches: %s..%s" resolved-base-branch resolved-feature-branch))
      (t ; Assumed base branch vs HEAD
-      (message "Generating diff between %s and HEAD" base-branch)))
+      (message "Generating diff between %s and HEAD" resolved-base-branch)))
     ;; Check if repo is clean
     (when (magit-anything-modified-p)
       (message "Repository has uncommitted changes. You might want to commit or stash them first")
       (sleep-for 1))
     ;; Generate diff file
     (message "Generating diff file...")
-    (magit-run-git "diff" (concat base-branch ".." feature-branch)
+    (magit-run-git "diff" (concat resolved-base-branch ".." resolved-feature-branch)
                    (concat "--output=" diff-file))))
 
 (defun aider--open-diff-file (diff-file)
