@@ -384,7 +384,6 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
          ;; Declare variables that will be set in pcase
          base-branch feature-branch commit-hash branch-scope ;; branch-scope: 'local or 'remote
          diff-file-name-part diff-params diff-file)
-
     (pcase selected-diff-type-value
       ('staged
        (setq diff-file-name-part "staged")
