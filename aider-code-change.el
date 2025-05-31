@@ -203,7 +203,8 @@ Otherwise:
 
 (defun aider-flycheck--format-error-list (errors file-path-for-error-reporting)
   "Format a list string for multiple Flycheck ERRORS.
-FILE-PATH-FOR-ERROR-REPORTING is the relative file path to include in each error report."
+FILE-PATH-FOR-ERROR-REPORTING is the relative file path
+to include in each error report."
   (let ((error-reports '()))
     (dolist (err errors)
       (let* ((line (flycheck-error-line err))
