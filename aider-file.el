@@ -256,42 +256,6 @@ Signal an error if not in a git repository."
       (user-error "Not in a git repository"))
     git-root))
 
-(defun aider--parse-diff-range (raw-range)
-  "Parse RAW-RANGE input and determine diff type and parameters.
-Returns a plist with :type, :base-branch, :feature-branch, and :diff-file-name-part."
-  (let* ((range (string-trim raw-range))
-         (is-staged-diff (string= range "staged"))
-         (is-commit-hash nil)
-         (base-branch nil)
-         (feature-branch nil)
-         (diff-file-name-part nil))
-    (if is-staged-diff
-        (setq diff-file-name-part "staged")
-      ;; Not staged, determine if commit hash or branch range
-      (setq is-commit-hash (and (not (string-match-p "\\.\\." range))
-                                (not (magit-branch-p range))
-                                (magit-rev-verify range)
-                                (string-match-p "^[0-9a-f]\\{7,\\}$" range)))
-      (if is-commit-hash
-          (progn
-            (setq base-branch (concat range "^"))
-            (setq feature-branch range)
-            (setq diff-file-name-part range))
-        ;; Branch range
-        (if (string-match-p "\\.\\." range)
-            (let ((parts (split-string range "\\.\\.")))
-              (setq base-branch (car parts))
-              (setq feature-branch (cadr parts)))
-          ;; Single branch name, compare against HEAD
-          (setq base-branch range)
-          (setq feature-branch "HEAD"))
-        (setq diff-file-name-part (concat base-branch "." feature-branch))))
-    (list :type (if is-staged-diff 'staged (if is-commit-hash 'commit 'branch))
-          :base-branch base-branch
-          :feature-branch feature-branch
-          :diff-file-name-part diff-file-name-part
-          :raw-range raw-range)))
-
 (defun aider--get-full-branch-ref (branch)
   "Get full reference for BRANCH, handling remote branches properly.
 Prefer remote branch (origin/BRANCH) if it exists.
@@ -327,72 +291,76 @@ Signal an error if either branch doesn't exist."
   (message "Generating diff for staged (staged) changes...")
   (magit-run-git "diff" "--cached" (concat "--output=" diff-file)))
 
-(defun aider--resolve-diff-branches (type input-base-branch input-feature-branch)
+(defun aider--resolve-diff-branches (type input-base-branch input-feature-branch &optional branch-scope)
   "Resolve base and feature branches for diff generation.
-TYPE is 'commit or 'branch.
-INPUT-BASE-BRANCH and INPUT-FEATURE-BRANCH are the user-provided or default names.
+TYPE is 'commit, 'base-vs-head, or 'branch-range.
+INPUT-BASE-BRANCH and INPUT-FEATURE-BRANCH are user-provided names.
+BRANCH-SCOPE is 'local or 'remote, used for 'branch-range.
 Returns a cons cell (RESOLVED-BASE . RESOLVED-FEATURE)."
   (let (resolved-base-branch resolved-feature-branch)
-    (if (eq type 'commit)
-        ;; For single commit diff (e.g., commit^..commit)
-        (progn
-          (setq resolved-base-branch input-base-branch) ; Already in commit^ form
-          (setq resolved-feature-branch input-feature-branch)) ; Already in commit form
-      ;; For branch diffs
-      (let ((local-base-exists (magit-branch-p input-base-branch))
-            (local-feature-exists (if (string= input-feature-branch "HEAD")
-                                      t ; HEAD is conceptually always local
-                                    (magit-branch-p input-feature-branch))))
-        (if (and local-base-exists local-feature-exists)
-            ;; Strategy 1: Both specified branches exist locally. Use local names directly.
-            (progn
-              (setq resolved-base-branch input-base-branch)
-              (setq resolved-feature-branch input-feature-branch))
-          ;; Strategy 2: At least one branch doesn't exist locally (or isn't specified as local).
-          ;; Use remote-preferring resolution for both, via aider--get-full-branch-ref.
-          (progn
-            (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
-            (setq resolved-feature-branch
-                  (if (string= input-feature-branch "HEAD")
-                      "HEAD" ; HEAD is special, doesn't need remote resolution like this
-                    (aider--get-full-branch-ref input-feature-branch)))))))
+    (pcase type
+      ('commit
+       ;; Input is already commit^ and commit
+       (setq resolved-base-branch input-base-branch)
+       (setq resolved-feature-branch input-feature-branch))
+
+      ('base-vs-head
+       ;; Base branch can be local or remote, feature is HEAD
+       (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
+       (setq resolved-feature-branch "HEAD")) ; HEAD is always resolved correctly by git
+
+      ('branch-range
+       (pcase branch-scope
+         ('local
+          ;; User asserts branches are local
+          (setq resolved-base-branch input-base-branch)
+          (setq resolved-feature-branch input-feature-branch))
+         ('remote
+          ;; User asserts branches are remote, or should be treated as such.
+          ;; aider--get-full-branch-ref will try to find origin/X if X is given.
+          (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
+          (setq resolved-feature-branch (aider--get-full-branch-ref input-feature-branch)))
+         (_ ; Default or unknown scope, fallback to smart resolution (should not happen with prompt)
+          (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
+          (setq resolved-feature-branch (aider--get-full-branch-ref input-feature-branch))))))
     (cons resolved-base-branch resolved-feature-branch)))
 
 (defun aider--generate-branch-or-commit-diff (diff-params diff-file)
   "Generate diff based on DIFF-PARAMS and save to DIFF-FILE.
-DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range."
+DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
+:base-branch, :feature-branch, :diff-file-name-part, and optionally :branch-scope."
   (let* ((type (plist-get diff-params :type))
-         ;; These are the original, un-resolved branch names from user input or defaults
          (input-base-branch (plist-get diff-params :base-branch))
          (input-feature-branch (plist-get diff-params :feature-branch))
-         (raw-range (plist-get diff-params :raw-range))
-         ;; These will hold the resolved branch names for the git diff command
-         (resolved-branches (aider--resolve-diff-branches type input-base-branch input-feature-branch))
+         (branch-scope (plist-get diff-params :branch-scope)) ; Might be nil for 'commit' or 'base-vs-head'
+         (diff-file-name-part (plist-get diff-params :diff-file-name-part))
+
+         (resolved-branches (aider--resolve-diff-branches type input-base-branch input-feature-branch branch-scope))
          (resolved-base-branch (car resolved-branches))
          (resolved-feature-branch (cdr resolved-branches)))
-    ;; Fetch latest branches
+
     (message "Fetching from all remotes to ensure latest branches...")
     (magit-run-git "fetch" "--all")
-    ;; Verify branches exist (using input names, as aider--verify-branches checks local and remote)
-    ;; Note: Verification happens before final resolution in aider--resolve-diff-branches,
-    ;; but aider--verify-branches itself checks local and remote possibilities.
-    (unless (eq type 'commit)
+
+    ;; Verify input branches for relevant types
+    (when (memq type '(base-vs-head branch-range))
       (aider--verify-branches input-base-branch input-feature-branch))
+
     ;; Display message about what we're doing
-    (cond
-     ((eq type 'commit)
-      (message "Generating diff for single commit: %s"
-               (plist-get diff-params :diff-file-name-part)))
-     ((string-match-p "\\.\\." raw-range)
-      (message "Generating diff between branches: %s..%s" resolved-base-branch resolved-feature-branch))
-     (t ; Assumed base branch vs HEAD
-      (message "Generating diff between %s and HEAD" resolved-base-branch)))
-    ;; Check if repo is clean
+    (pcase type
+      ('commit
+       (message "Generating diff for single commit: %s" diff-file-name-part))
+      ('base-vs-head
+       (message "Generating diff between %s and HEAD" resolved-base-branch))
+      ('branch-range
+       (message "Generating diff between branches: %s..%s (%s)"
+                resolved-base-branch resolved-feature-branch (or branch-scope "unknown-scope"))))
+
     (when (magit-anything-modified-p)
-      (message "Repository has uncommitted changes. You might want to commit or stash them first")
+      (message "Repository has uncommitted changes. You might want to commit or stash them first.")
       (sleep-for 1))
-    ;; Generate diff file
-    (message "Generating diff file...")
+
+    (message "Generating diff file: %s" diff-file)
     (magit-run-git "diff" (concat resolved-base-branch ".." resolved-feature-branch)
                    (concat "--output=" diff-file))))
 
@@ -402,26 +370,75 @@ DIFF-PARAMS is a plist with :type, :base-branch, :feature-branch, and :raw-range
   (message "Generated diff file: %s" diff-file))
 
 (defun aider--magit-generate-feature-branch-diff-file ()
-  "Generate a diff file between base and feature branches or for a single commit.
-The diff file will be named:
-- <feature_branch>.<base_branch>.diff for branch comparison
-- <hash>.diff for a single commit
-and placed in the git root directory.
-If input contains '..' it's treated as base..feature branch range.
-If input looks like a commit hash, it generates diff for that single commit.
-Otherwise, it's treated as base branch and diff is generated against HEAD."
+  "Generate a diff file based on user-selected type (staged, branches, commit)."
   (interactive)
   (let* ((git-root (aider--validate-git-repository))
-         (raw-range (read-string "Branch range (base..feature), commit hash, base branch, or staged: " "staged"))
-         (diff-params (aider--parse-diff-range raw-range))
-         (diff-file-name-part (plist-get diff-params :diff-file-name-part))
-         (diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root)))
-    ;; Generate diff based on type
-    (if (eq (plist-get diff-params :type) 'staged)
-        (aider--generate-staged-diff diff-file)
-      (aider--generate-branch-or-commit-diff diff-params diff-file))
-    ;; Open the generated diff file
-    (aider--open-diff-file diff-file)))
+         (diff-type-choice
+          (completing-read "Select diff type: "
+                           '(("Staged changes" . staged)
+                             ("Base branch vs HEAD" . base-vs-head)
+                             ("Branch range (e.g., base..feature)" . branch-range)
+                             ("Single commit" . commit))
+                           nil t nil nil "Staged changes"))
+         ;; Declare variables that will be set in pcase
+         base-branch feature-branch commit-hash branch-scope ;; branch-scope: 'local or 'remote
+         diff-file-name-part diff-params diff-file)
+
+    (pcase (cdr diff-type-choice)
+      ('staged
+       (setq diff-file-name-part "staged")
+       (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
+       ;; No diff-params needed for aider--generate-staged-diff directly
+       (aider--generate-staged-diff diff-file))
+
+      ('base-vs-head
+       (setq base-branch (read-string (format "Base branch name (default: %s): "
+                                              (or (magit-get-default-remote-branch) "main"))
+                                      nil nil (or (magit-get-default-remote-branch) "main")))
+       (setq feature-branch "HEAD")
+       (setq diff-file-name-part (concat (replace-regexp-in-string "/" "-" base-branch) ".HEAD"))
+       (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
+       (setq diff-params (list :type 'base-vs-head
+                               :base-branch base-branch
+                               :feature-branch feature-branch
+                               :diff-file-name-part diff-file-name-part))
+       (aider--generate-branch-or-commit-diff diff-params diff-file))
+
+      ('branch-range
+       (setq base-branch (read-string "Base branch name: "))
+       (setq feature-branch (read-string "Feature branch name: "))
+       (let ((scope-choice (completing-read "Are branches local or remote? "
+                                            '(("Local" . local)
+                                              ("Remote (will try to prefix with 'origin/' if needed)" . remote))
+                                            nil t nil nil "Local")))
+         (setq branch-scope (cdr scope-choice)))
+       (setq diff-file-name-part (concat (replace-regexp-in-string "/" "-" base-branch)
+                                         "."
+                                         (replace-regexp-in-string "/" "-" feature-branch)))
+       (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
+       (setq diff-params (list :type 'branch-range
+                               :base-branch base-branch
+                               :feature-branch feature-branch
+                               :branch-scope branch-scope
+                               :diff-file-name-part diff-file-name-part))
+       (aider--generate-branch-or-commit-diff diff-params diff-file))
+
+      ('commit
+       (setq commit-hash (read-string "Commit hash: "))
+       (setq base-branch (concat commit-hash "^")) ; Diff against parent
+       (setq feature-branch commit-hash)
+       (setq diff-file-name-part commit-hash)
+       (setq diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root))
+       (setq diff-params (list :type 'commit
+                               :base-branch base-branch
+                               :feature-branch feature-branch
+                               :diff-file-name-part diff-file-name-part))
+       (aider--generate-branch-or-commit-diff diff-params diff-file)))
+
+    ;; Open the diff file if it was generated (i.e., diff-file is non-nil)
+    ;; For 'staged' case, diff-file is set directly. For others, it's set before calling generate.
+    (when diff-file
+      (aider--open-diff-file diff-file))))
 
 ;;;###autoload
 (defun aider-open-history ()
