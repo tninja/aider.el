@@ -380,6 +380,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [ ] Import useful MCP feature to aider
 - [ ] Learn and migrate useful feature from popular AI coding tool
 - [ ] Better way to batch add relevant files from repo to aider session
+- [ ] Consider use existing code tool's output as part of context [/]
+  - [ ] flycheck
+  - [ ] compile output
 - [ ] Thinking on how to simplify the menu / commands
 
 ** Code quality
