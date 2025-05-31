@@ -209,15 +209,18 @@ to include in each error report."
     (dolist (err errors)
       (let* ((line (flycheck-error-line err))
              (col (flycheck-error-column err))
-             (msg (flycheck-error-message err))
-             (error-line-text
-              (save-excursion
-                (goto-char (point-min))
-                (forward-line (1- line))
-                (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
-        (push (format "File: %s:%d:%d\nError: %s\nContext line:\n%s"
-                      file-path-for-error-reporting line col msg error-line-text)
-              error-reports)))
+             (msg (flycheck-error-message err)))
+        (if (and (integerp line) (integerp col))
+            (let* ((error-line-text
+                    (save-excursion
+                      (goto-char (point-min))
+                      (forward-line (1- line))
+                      (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
+              (push (format "File: %s:%d:%d\nError: %s\nContext line:\n%s"
+                            file-path-for-error-reporting line col msg error-line-text)
+                    error-reports))
+          (message "Aider: Skipping Flycheck error with non-integer line/column. Error: %S, Line: %S, Col: %S"
+                   err line col))))
     (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
 ;;;###autoload
