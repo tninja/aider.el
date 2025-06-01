@@ -10,7 +10,7 @@
   - https://github.com/tninja/aider.el/issues/163, found by Spike-Leung and markokocic
   - Fixed by Spike-Leung in https://github.com/tninja/aider.el/pull/164
     - It require latest >= transient-20250520.1040
-    - [ ] will update transient version dependency to 0.9.0 after it got released
+    - [X] will update transient version dependency to 0.9.0 after it got released
 - Better align aider-transient-menu-2col, by Spike-Leung
 - Fix error during redisplay (jit-lock-function) when working with comint mode
   - https://github.com/tninja/aider.el/issues/159 by velimir

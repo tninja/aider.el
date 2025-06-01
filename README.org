@@ -55,7 +55,7 @@
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the emacs dependency library [[https://github.com/magit/transient][Transient]] (version >= 20250520.1040), [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]] (version >= 0.9.0), [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
 - Install aider.el with the following instruction:
 
 *** With Melpa + package-install (recommended)
@@ -315,7 +315,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 * FAQ
 
 - transient-define-group undefined error:
-  - Please install latest transient package. The version need to be >= 20250520.1040, so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
+  - Please install latest stable transient package (version >= 0.9.0), so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
 
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
