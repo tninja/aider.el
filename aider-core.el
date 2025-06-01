@@ -126,15 +126,19 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
-  (when-let ((history-file-path (aider--generate-history-file-name)))
-    (when (file-readable-p history-file-path)
-      ;; Initialize comint ring for this buffer
-      (setq comint-input-ring (make-ring comint-input-ring-size))
-      (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
-        (when parsed-history
-          (dolist (item parsed-history)
-            (when (and item (stringp item))
-              (comint-add-to-input-history item)))))))
+  (condition-case err ; catch any error during history loading
+      (when-let ((history-file-path (aider--generate-history-file-name)))
+        (when (file-readable-p history-file-path)
+          ;; Initialize comint ring for this buffer
+          (setq comint-input-ring (make-ring comint-input-ring-size))
+          (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
+            (when parsed-history
+              (dolist (item parsed-history)
+                (when (and item (stringp item))
+                  (comint-add-to-input-history item)))))))
+    (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
+                    (or history-file-path "unknown location") ; provide file path if available
+                    (error-message-string err)))) ; display the error message
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
