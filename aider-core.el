@@ -125,20 +125,16 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
-
   ;; Load history from .aider.input.history if available
   (when-let ((history-file-path (aider--generate-history-file-name)))
     (when (file-readable-p history-file-path)
       ;; Initialize comint ring for this buffer
-      (setq comint-input-ring (make-vector comint-input-ring-size nil))
-      (setq comint-input-ring-pointer 0)
+      (setq comint-input-ring (make-ring comint-input-ring-size))
       (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
         (when parsed-history
           (dolist (item parsed-history)
-            (comint-add-to-input-history item))))))
-  ;; Prevent comint from writing history for this buffer
-  (setq-local comint-input-ring-file-name nil)
-
+            (when (and item (stringp item))
+              (comint-add-to-input-history item)))))))
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
@@ -170,7 +166,7 @@ Returns nil if neither can be determined."
   (when (and file-path (file-readable-p file-path))
     (with-temp-buffer
       (insert-file-contents file-path)
-      (let ((history-items '()) ; Store final history items here
+      (let ((history-items '())       ; Store final history items here
             (current-multi-line-command-parts nil)) ; Store parts of a {aider...aider} command
         (goto-char (point-min))
         (while (not (eobp))
@@ -190,7 +186,7 @@ Returns nil if neither can be determined."
                       (push content history-items)))
                    (current-multi-line-command-parts
                     (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content))))
-                   (t ; Single line command
+                   (t                   ; Single line command
                     (push content history-items))))
               nil)) ; Ignore non-'+' lines (timestamps or other non-command lines)
           (forward-line 1))
