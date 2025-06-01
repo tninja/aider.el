@@ -388,6 +388,8 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 * AI Assisted Programming related books
 
+The following books introduce how to use AI to assist programming and potentially be helpful to aider / aider.el users.
+
 - [[https://learning.oreilly.com/library/view/ai-assisted-programming/9781098164553/][AI-Assisted Programming]] , by Tom Taulli, April, 2024
 - [[https://learning.oreilly.com/library/view/coding-with-ai/9781394249138/][Coding with AI For Dummies]], by Chris Minnick, March 2024
 - [[https://www.amazon.com/Learn-AI-Assisted-Python-Programming-Second/dp/1633435997/ref=sr_1_19?crid=2MDJBJSIIFHHB&dib=eyJ2IjoiMSJ9.r49jgbX_SxOsAZOy3KnPP9rvtd9VmO1Jjn2Gcon-UgRSwLnzEtcArbaYhW-0h3PyxiJt_4RpfEqhGuiHyh8H-r11rZXxGPxnlIZh0eEaxrvpfKmKJO-mVPk2NRiNp_HRvy8BQqRSeqxMAmuCtGEfu-XofuacCNaxrTDIgNNL23MCTymRqIYQKCJlgW6MUvE00RLnIUYy3j-MSUILOhRpj3HLIJnN0jTyWI8MXfJ3oZGvw4orwskyYZR7kb1_fDX7LLF622PXZmiWn-wFEergew7_6G5D31icv4uNlcIC1Ts.Vf51k-Ag1zVOkmkjkDiVWjpoky698yTcppUBllLxjs4&dib_tag=se&keywords=AI+programming&qid=1748737750&sprefix=ai+programming%2Caps%2C352&sr=8-19][Learn AI-Assisted Python Programming, Second Edition: With GitHub Copilot and ChatGPT]], by Leo Porter etc, Oct 29, 2024
