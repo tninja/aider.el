@@ -125,10 +125,80 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
+
+  ;; Load history from .aider.input.history if available
+  (when-let ((history-file-path (aider--generate-history-file-name)))
+    (when (file-readable-p history-file-path)
+      ;; Initialize comint ring for this buffer
+      (setq comint-input-ring (make-vector comint-input-ring-size nil))
+      (setq comint-input-ring-pointer 0)
+      (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
+        (when parsed-history
+          (dolist (item parsed-history)
+            (comint-add-to-input-history item))))))
+  ;; Prevent comint from writing history for this buffer
+  (setq-local comint-input-ring-file-name nil)
+
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
     (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+
+;; --- History Functions ---
+
+(defun aider--get-git-repo-root ()
+  "Return the top-level directory of the current git repository, or nil."
+  (let ((git-root (magit-toplevel)))
+    (when (and git-root (stringp git-root) (not (string-match-p "fatal" git-root)))
+      (file-truename git-root))))
+
+(defun aider--get-relevant-directory-for-history ()
+  "Return the top-level directory of the current git repository,
+or the directory of the current buffer's file if not in a git repo.
+Returns nil if neither can be determined."
+  (or (aider--get-git-repo-root)
+      (when-let ((bfn (buffer-file-name)))
+        (file-name-directory (file-truename bfn)))))
+
+(defun aider--generate-history-file-name ()
+  "Generate the path for .aider.input.history in the git repo root or current buffer's file directory."
+  (when-let ((relevant-dir (aider--get-relevant-directory-for-history)))
+    (expand-file-name ".aider.input.history" relevant-dir)))
+
+(defun aider--parse-aider-cli-history (file-path)
+  "Parse .aider.input.history file and return a list of commands (oldest to newest)."
+  (when (and file-path (file-readable-p file-path))
+    (with-temp-buffer
+      (insert-file-contents file-path)
+      (let ((history-items '()) ; Store final history items here
+            (current-multi-line-command-parts nil)) ; Store parts of a {aider...aider} command
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+            (if (string-match "^\\+[ \t]*\\(.*\\)" line) ; Line starts with '+'
+                (let ((content (match-string 1 line)))
+                  (cond
+                   ((string= content "{aider")
+                    (setq current-multi-line-command-parts (list content)))
+                   ((string= content "aider}")
+                    (if current-multi-line-command-parts
+                        (progn
+                          (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content)))
+                          (push (string-join current-multi-line-command-parts "\n") history-items)
+                          (setq current-multi-line-command-parts nil))
+                      ;; else, it's a standalone "aider}" not part of a block, treat as single line
+                      (push content history-items)))
+                   (current-multi-line-command-parts
+                    (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content))))
+                   (t ; Single line command
+                    (push content history-items))))
+              nil)) ; Ignore non-'+' lines (timestamps or other non-command lines)
+          (forward-line 1))
+        ;; If a multi-line block was started but not properly terminated by "aider}"
+        ;; add what was collected as a single (potentially multi-line) command.
+        (when current-multi-line-command-parts
+          (push (string-join current-multi-line-command-parts "\n") history-items))
+        (reverse history-items))))) ; Reverse to get chronological order (oldest first)
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
