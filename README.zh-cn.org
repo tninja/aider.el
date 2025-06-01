@@ -49,7 +49,7 @@
 
 ** 原生 Emacs 安装
 - [[https://aider.chat/docs/install.html][安装 aider]]
-- 使用您的包管理器安装 Emacs 依赖库 [[https://github.com/magit/transient][Transient]] (版本 >= 20250520.1040)、[[https://github.com/magit/magit][Magit]] 和 [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]]。
+- 使用您的包管理器安装 Emacs 依赖库 [[https://github.com/magit/transient][Transient]] (版本 >= 0.9.0)、[[https://github.com/magit/magit][Magit]] 和 [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]]。
 - 使用以下代码安装 aider.el：
 
 *** With Melpa + package-install (推荐)
@@ -304,7 +304,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 * 常见问题
 
 - transient-define-group undefined error:
-  - 请安装最新的 transient 包。版本需要 >= 20250520.1040，以便它具有 [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group 宏]]
+  - 请安装最新的 transient 包。版本需要 >= 0.9.0，以便它具有 [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group 宏]]
 
 - 如何审查/接受代码更改？
   - 与 cursor 相比，aider 有不同的方式来处理代码更改。[[https://github.com/tninja/aider.el/issues/98][讨论]]
