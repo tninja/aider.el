@@ -41,7 +41,7 @@
   - [[./aider-git.el][Code evolution analysis]] with git blame
   - [[./aider-bootstrap.el][Utilities for bootstrapping new files and projects]].
   - Organize project with repo specific [[./aider-prompt-mode.el][Aider prompt file]]
-  - [[./snippets][Snippets]] from community and aider use experience and pattern
+  - [[./snippets][Snippets]] from community and aider use pattern / workflow
 
 - Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
