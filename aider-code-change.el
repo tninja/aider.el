@@ -224,8 +224,15 @@ to include in each error report."
               (push (format "File: %s:%d:%d\nError: %s\nContext line:\n%s"
                             file-path-for-error-reporting line col msg error-line-text)
                     error-reports))
-          (message "Aider: Skipping Flycheck error with non-integer line/column. Error: %S, Line: %S, Col: %S"
-                   err line col))))
+          (progn
+            (message "Aider: Flycheck error for %s. Line: %S, Col: %S. Full location/context not available. Sending general error info."
+                     file-path-for-error-reporting line col)
+            (push (format "File: %s (Location: Line %s, Column %s)\nError: %s"
+                          file-path-for-error-reporting
+                          (if (integerp line) (format "%d" line) "N/A")
+                          (if (integerp col) (format "%d" col) "N/A")
+                          msg)
+                  error-reports)))))
     (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
 (defun aider--determine-flycheck-scope-parameters (apply-to-whole-file-p)
