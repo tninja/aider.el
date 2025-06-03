@@ -19,6 +19,9 @@
 - Redesign diff generation function: aider--magit-generate-feature-branch-diff-file
   - Redesign the function to make it more clear to user: at first, let user choose diff type (eg. staged, base branch, branch range, commit hash. For branch range, ask user if it is local or remote. Then perform corresponding action given these detail requirement.
   - Move git related feature to aider-git.el
+- Let aider-comint-session be able to scroll up / search the prompt across sessions
+  - By parsing .aider.input.history file, use ctrl + up / down key to scroll, alt + r to search
+  - [ ] TODO: integrate .aider.input.history with aider-helm.el 
 
 ** v0.10.0
 
