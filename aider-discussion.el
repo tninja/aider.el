@@ -18,7 +18,7 @@
 (defun aider-ask-question (&optional prefix)
   "Ask aider question about specific code.
 Focuses on understanding, analyzing, improving the selected code or function.
-With a prefix argument, calls `aider-general-question` instead."
+With a prefix argument PREFIX, calls `aider-general-question` instead."
   (interactive "P")
   (if prefix
       (aider-general-question)
