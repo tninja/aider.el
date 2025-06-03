@@ -21,7 +21,7 @@
   - Move git related feature to aider-git.el
 - Let aider-comint-session be able to scroll up / search the prompt across sessions
   - By parsing .aider.input.history file, use ctrl + up / down key to scroll, alt + r to search
-  - [ ] TODO: integrate .aider.input.history with aider-helm.el 
+  - [X] TODO: integrate .aider.input.history with aider-helm.el 
 
 ** v0.10.0
 
