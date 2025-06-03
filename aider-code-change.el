@@ -98,7 +98,7 @@ Otherwise, refactor the function under cursor."
       (aider-current-file-command-and-switch
        "/architect "
        (concat (format "refactor %s: " function-name) instruction))))
-      (message "Refactoring request sent to Aider")))))
+      (message "Code change request sent to Aider")))))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.

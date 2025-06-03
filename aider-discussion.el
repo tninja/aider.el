@@ -87,6 +87,19 @@ With a prefix argument, calls `aider-general-question` instead."
   (let ((command (aider-read-string "Enter exception details (can be multiple lines): ")))
     (aider--send-command (concat "/ask Investigate the following exception, using the added files as context:\n" command) t))) ;; Add newline for clarity
 
+;;;###autoload
+(defun aider-open-history ()
+  "Open the Aider history file (.aider.chat-history.md under repo git root).
+If the history file does not exist, notify the user."
+  (interactive)
+  (let ((git-root (magit-toplevel)))
+    (unless git-root
+      (user-error "Not inside a git repository"))
+    (let ((history-file (expand-file-name ".aider.chat.history.md" git-root)))
+      (if (file-exists-p history-file)
+          (find-file-other-window history-file)
+        (message "History file does not exist: %s" history-file)))))
+
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
 (defun aider-help (&optional homepage)

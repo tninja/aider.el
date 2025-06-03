@@ -34,18 +34,18 @@
   - aider.el aim to be a stable productivity tool we can use daily. I will carefully test the Features / Functions in this library before code merging.
 
 - After more than eight months of development, aider.el is more than a simple aider UI now. Comparing to its forked peer (aidermacs), Aider.el has brought in lots of application-level features and tools to enhance daily programming. These include:
-  - AI-assisted agile development methodologies (like TDD, refactoring and legacy code handling based on established software engineering books)
-  - Diff extraction and AI code review tools
-  - Advanced code / module reading assistant
-  - Project software planning discussion capabilities
-  - Integration with magit-blame for historical code analysis
-  - Utilities for bootstrapping new files and projects.
-  - Organize project with repo specific Aider prompt file
-  - Snippets from community and aider use experience and pattern
+  - AI-assisted agile development methodologies (like [[./aider-agile.el][TDD, refactoring]] and [[./aider-legacy-code.el][legacy code handling]] based on established software engineering books)
+  - [[./aider-git.el][Diff extraction and AI code review tools]]
+  - [[./aider-code-read.el][Advanced code / module reading assistant]]
+  - [[./aider-software-planning.el][Project software planning discussion capabilities]]
+  - [[./aider-git.el][Code evolution analysis]] with git blame
+  - [[./aider-bootstrap.el][Utilities for bootstrapping new files and projects]].
+  - Organize project with repo specific [[./aider-prompt-mode.el][Aider prompt file]]
+  - [[./snippets][Snippets]] from community and aider use pattern / workflow
 
 - Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
-- [[./HISTORY.org][Recent change history]]
+- Aider.el is under active development. [[./HISTORY.org][Recent change history]]
 
 [[file:./transient_menu.png]]
 
@@ -55,7 +55,7 @@
 
 ** Vanilla Emacs Installation
 - [[https://aider.chat/docs/install.html][Install aider]]
-- Install the emacs dependency library [[https://github.com/magit/transient][Transient]] (version >= 20250520.1040), [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
+- Install the emacs dependency library [[https://github.com/magit/transient][Transient]] (version >= 0.9.0), [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
 - Install aider.el with the following instruction:
 
 *** With Melpa + package-install (recommended)
@@ -315,7 +315,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 * FAQ
 
 - transient-define-group undefined error:
-  - Please install latest transient package. The version need to be >= 20250520.1040, so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
+  - Please install latest stable transient package (version >= 0.9.0), so that it have [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group macro]]
 
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
@@ -388,6 +388,18 @@ If you used installed aider.el through melpa and package-install, just need to ~
 ** Code quality
  
 - Better unit-test / integration test of this package. Hopefully it is automated.
+
+* AI Assisted Programming related books
+
+The following books introduce how to use AI to assist programming and potentially be helpful to aider / aider.el users.
+
+- [[https://learning.oreilly.com/library/view/ai-assisted-programming/9781098164553/][AI-Assisted Programming]] , by Tom Taulli, April, 2024
+- [[https://learning.oreilly.com/library/view/coding-with-ai/9781394249138/][Coding with AI For Dummies]], by Chris Minnick, March 2024
+- [[https://www.amazon.com/Learn-AI-Assisted-Python-Programming-Second/dp/1633435997/ref=sr_1_19?crid=2MDJBJSIIFHHB&dib=eyJ2IjoiMSJ9.r49jgbX_SxOsAZOy3KnPP9rvtd9VmO1Jjn2Gcon-UgRSwLnzEtcArbaYhW-0h3PyxiJt_4RpfEqhGuiHyh8H-r11rZXxGPxnlIZh0eEaxrvpfKmKJO-mVPk2NRiNp_HRvy8BQqRSeqxMAmuCtGEfu-XofuacCNaxrTDIgNNL23MCTymRqIYQKCJlgW6MUvE00RLnIUYy3j-MSUILOhRpj3HLIJnN0jTyWI8MXfJ3oZGvw4orwskyYZR7kb1_fDX7LLF622PXZmiWn-wFEergew7_6G5D31icv4uNlcIC1Ts.Vf51k-Ag1zVOkmkjkDiVWjpoky698yTcppUBllLxjs4&dib_tag=se&keywords=AI+programming&qid=1748737750&sprefix=ai+programming%2Caps%2C352&sr=8-19][Learn AI-Assisted Python Programming, Second Edition: With GitHub Copilot and ChatGPT]], by Leo Porter etc, Oct 29, 2024
+- [[https://learning.oreilly.com/library/view/ai-powered-developer/9781633437616/][AI-Powered Developer]], by Nathan Crocker, September 2024
+- [[https://www.amazon.com/Software-Testing-Generative-Mark-Winteringham/dp/1633437361/ref=sr_1_34?crid=2MDJBJSIIFHHB&dib=eyJ2IjoiMSJ9.r49jgbX_SxOsAZOy3KnPP9rvtd9VmO1Jjn2Gcon-UgRSwLnzEtcArbaYhW-0h3PyxiJt_4RpfEqhGuiHyh8H-r11rZXxGPxnlIZh0eEaxrvpfKmKJO-mVPk2NRiNp_HRvy8BQqRSeqxMAmuCtGEfu-XofuacCNaxrTDIgNNL23MCTymRqIYQKCJlgW6MUvE00RLnIUYy3j-MSUILOhRpj3HLIJnN0jTyWI8MXfJ3oZGvw4orwskyYZR7kb1_fDX7LLF622PXZmiWn-wFEergew7_6G5D31icv4uNlcIC1Ts.Vf51k-Ag1zVOkmkjkDiVWjpoky698yTcppUBllLxjs4&dib_tag=se&keywords=AI+programming&qid=1748737750&sprefix=ai+programming%2Caps%2C352&sr=8-34][Software Testing with Generative AI]], by Mark Winteringham, Dec 2024
+- [[https://learning.oreilly.com/library/view/-/9781098162269/][Generative AI for Software Development]], by Sergio Pereira, will be published in August, 2025
+- [[https://learning.oreilly.com/library/view/beyond-vibe-coding/9798341634749/][Beyond Vibe Coding]], by Addy Osmani, will be published in August, 2025
 
 * Other Emacs AI coding tool
 
