@@ -34,7 +34,7 @@
   - aider.el aim to be a stable productivity tool we can use daily. I will carefully test the Features / Functions in this library before code merging.
 
 - After more than eight months of development, aider.el is more than a simple aider UI now. Comparing to its forked peer (aidermacs), Aider.el has brought in lots of application-level features and tools to enhance daily programming. These include:
-  - [[./aider-agile.el][AI-assisted agile development methodologies]] (like TDD, refactoring and [[./aider-legacy-code.el][legacy code handling]] based on established software engineering books)
+  - AI-assisted agile development methodologies (like [[./aider-agile.el][TDD, refactoring]] and [[./aider-legacy-code.el][legacy code handling]] based on established software engineering books)
   - [[./aider-git.el][Diff extraction and AI code review tools]]
   - [[./aider-code-read.el][Advanced code / module reading assistant]]
   - [[./aider-software-planning.el][Project software planning discussion capabilities]]
