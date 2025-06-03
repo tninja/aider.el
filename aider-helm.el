@@ -35,6 +35,9 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
                                  (aider--parse-aider-cli-history cli-history-file-path) ; Oldest first
                                '()))
          (cli-history-newest-first (reverse parsed-cli-history))
+         (cli-history-newest-first
+          (cl-remove-if-not (lambda (s) (not (string-match "\n" s)))
+                            cli-history-newest-first))
          ;; Combine Helm history and CLI history, then deduplicate. Helm history items take precedence.
          (history (delete-dups (append helm-history cli-history-newest-first)))
          ;; Extract the most recent item from history (if exists)
