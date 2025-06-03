@@ -13,9 +13,9 @@
 
 (require 'cl-lib)  ; For `cl-subseq`
 
+(require 'aider-core)
+
 (declare-function helm-comp-read "helm-mode" (prompt collection &rest args))
-(declare-function aider--generate-history-file-name "aider-core" ())
-(declare-function aider--parse-aider-cli-history "aider-core" (file-path))
 
 (defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input candidate-list)
   "Read a string with Helm completion using specified history file.
