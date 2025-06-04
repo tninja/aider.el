@@ -1,7 +1,7 @@
 
 * Release history
 
-** Main branch change
+** v0.11.0
 
 - Make transient menu be able to fit in narrow screen
   - https://github.com/tninja/aider.el/issues/157 by markokocic

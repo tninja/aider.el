@@ -1,7 +1,7 @@
 ;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.10.0
+;; Version: 0.11.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
