@@ -38,6 +38,7 @@
   - [[./aider-git.el][Diff extraction and AI code review tools]]
   - [[./aider-code-read.el][Advanced code / module reading assistant]]
   - [[./aider-software-planning.el][Project software planning discussion capabilities]]
+  - Let aider to fix the errors reported by flycheck
   - [[./aider-git.el][Code evolution analysis]] with git blame
   - [[./aider-bootstrap.el][Utilities for bootstrapping new files and projects]].
   - Organize project with repo specific [[./aider-prompt-mode.el][Aider prompt file]]
@@ -171,6 +172,13 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
   - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
+
+** Let aider to fix the errors reported by flycheck
+
+- aider-flycheck-fix-errors-in-scope :: Flycheck output will be sent to aider as context to fix the error. It support:
+  - current function
+  - selected region
+  - whole file (C-u)
 
 ** File change history analysis with magit-blame integration 
 
@@ -380,6 +388,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [ ] Import useful MCP feature to aider
 - [ ] Learn and migrate useful feature from popular AI coding tool
 - [ ] Better way to batch add relevant files from repo to aider session
+- [ ] Consider use existing code tool's output as part of context [/]
+  - [ ] flycheck
+  - [ ] compile output
 - [ ] Thinking on how to simplify the menu / commands
 
 ** Code quality
