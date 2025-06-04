@@ -14,6 +14,15 @@
 (require 'savehist)
 (require 'markdown-mode)
 
+;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
+(defun aider--safe-maybe-funcall-regexp (origfn &rest args)
+  "Call `markdown-maybe-funcall-regexp' but on error return empty regex."
+  (condition-case _
+      (apply origfn args)
+    (error "")))
+(advice-add 'markdown-maybe-funcall-regexp
+            :around #'aider--safe-maybe-funcall-regexp)
+
 (defgroup aider nil
   "Customization group for the Aider package."
   :prefix "aider-"
@@ -30,7 +39,7 @@
   :group 'aider)
 
 (defcustom aider-auto-trigger-prompt nil
-  "When non-nil, automatically trigger prompt insertion for commands like /ask, /code, etc."
+  "Auto-trigger prompt insertion for /ask, /code, etc. if non-nil."
   :type 'boolean
   :group 'aider)
 
@@ -47,6 +56,25 @@ When nil, use standard `display-buffer' behavior.")
     (define-key map (kbd "C-c C-y") #'aider-go-ahead)
     map)
   "Keymap for `aider-comint-mode'.")
+
+;;;###autoload
+(defun aider-prompt-insert-file-path ()
+  "Select and insert the relative file path to git repository root."
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (file (read-file-name "Select file: " git-root nil t)))
+    (if (and file (file-exists-p file))
+        (let ((relative-path (if git-root
+                                (file-relative-name file git-root)
+                              file)))
+          (insert relative-path))
+      (message "No valid file selected."))))
+
+;;;###autoload
+(defun aider-go-ahead ()
+  "Send the command \"go ahead\" to the corresponding aider comint buffer."
+  (interactive)
+  (aider--send-command "go ahead" t))
 
 (defconst aider--command-list
   '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
@@ -125,10 +153,80 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
+  ;; Load history from .aider.input.history if available
+  (condition-case err ; catch any error during history loading
+      (when-let ((history-file-path (aider--generate-history-file-name)))
+        (when (file-readable-p history-file-path)
+          ;; Initialize comint ring for this buffer
+          (setq comint-input-ring (make-ring comint-input-ring-size))
+          (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
+            (when parsed-history
+              (dolist (item parsed-history)
+                (when (and item (stringp item))
+                  (comint-add-to-input-history item)))))))
+    (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
+                    (or history-file-path "unknown location") ; provide file path if available
+                    (error-message-string err)))) ; display the error message
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
     (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+
+;; --- History Functions ---
+
+(defun aider--get-git-repo-root ()
+  "Return the top-level directory of the current git repository, or nil."
+  (let ((git-root (magit-toplevel)))
+    (when (and git-root (stringp git-root) (not (string-match-p "fatal" git-root)))
+      (file-truename git-root))))
+
+(defun aider--get-relevant-directory-for-history ()
+  "Return the top-level directory of the current git repository,
+or the directory of the current buffer's file if not in a git repo.
+Returns nil if neither can be determined."
+  (or (aider--get-git-repo-root)
+      (when-let ((bfn (buffer-file-name)))
+        (file-name-directory (file-truename bfn)))))
+
+(defun aider--generate-history-file-name ()
+  "Generate the path for .aider.input.history in the git repo root or current buffer's file directory."
+  (when-let ((relevant-dir (aider--get-relevant-directory-for-history)))
+    (expand-file-name ".aider.input.history" relevant-dir)))
+
+(defun aider--parse-aider-cli-history (file-path)
+  "Parse .aider.input.history file and return a list of commands (oldest to newest)."
+  (when (and file-path (file-readable-p file-path))
+    (with-temp-buffer
+      (insert-file-contents file-path)
+      (let ((history-items '())       ; Store final history items here
+            (current-multi-line-command-parts nil)) ; Store parts of a {aider...aider} command
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+            (if (string-match "^\\+[ \t]*\\(.*\\)" line) ; Line starts with '+'
+                (let ((content (match-string 1 line)))
+                  (cond
+                   ((string= content "{aider")
+                    (setq current-multi-line-command-parts (list content)))
+                   ((string= content "aider}")
+                    (if current-multi-line-command-parts
+                        (progn
+                          (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content)))
+                          (push (string-join current-multi-line-command-parts "\n") history-items)
+                          (setq current-multi-line-command-parts nil))
+                      ;; else, it's a standalone "aider}" not part of a block, treat as single line
+                      (push content history-items)))
+                   (current-multi-line-command-parts
+                    (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content))))
+                   (t                   ; Single line command
+                    (push content history-items))))
+              nil)) ; Ignore non-'+' lines (timestamps or other non-command lines)
+          (forward-line 1))
+        ;; If a multi-line block was started but not properly terminated by "aider}"
+        ;; add what was collected as a single (potentially multi-line) command.
+        (when current-multi-line-command-parts
+          (push (string-join current-multi-line-command-parts "\n") history-items))
+        (reverse history-items))))) ; Reverse to get chronological order (oldest first)
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
@@ -240,12 +338,38 @@ If the current buffer is already the Aider buffer, do nothing."
             (goto-char (point-max))))
       (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
 
+(defun aider--is-default-directory-git-root ()
+  "Return t if `default-directory' is the root of a Git repository, nil otherwise."
+  (let ((git-root-path (magit-toplevel)))
+    (and git-root-path
+         (stringp git-root-path)
+         (not (string-match-p "fatal" git-root-path))
+         ;; Compare canonical paths of default-directory and git-root-path
+         (string= (file-truename (expand-file-name default-directory))
+                  (file-truename git-root-path)))))
+
+(defun aider--maybe-prompt-subtree-only-for-special-modes (current-args)
+  "Prompt for --subtree-only in dired/eshell/shell if not in git root.
+Return potentially modified CURRENT-ARGS."
+  (if (and (memq major-mode '(dired-mode eshell-mode shell-mode))
+           (not (aider--is-default-directory-git-root))
+           (y-or-n-p (format "Current buffer is %s and current directory (%s) is not git root. Use --subtree-only mode?"
+                             (cond ((eq major-mode 'dired-mode) "a directory")
+                                   ((eq major-mode 'eshell-mode) "eshell")
+                                   ((eq major-mode 'shell-mode) "shell")
+                                   (t ""))
+                             (abbreviate-file-name default-directory))))
+      (if (member "--subtree-only" current-args)
+          current-args
+        (append current-args '("--subtree-only")))
+    current-args))
+
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args subtree-only)
-  "Create a comint-based buffer and run \"aider\" for interactive conversation.
-With the universal argument EDIT-ARGS, prompt to edit aider-args before running.
-If SUBTREE-ONLY is non-nil, add '--subtree-only' argument.
-If current buffer is a dired, eshell, or shell buffer, ask if user wants to use --subtree-only mode."
+  "Run \"aider\" in a comint buffer for interactive conversation.
+With C-u EDIT-ARGS, prompt to edit `aider-args`.
+If SUBTREE-ONLY is non-nil, add '--subtree-only'.
+Prompts for --subtree-only in dired/eshell/shell if needed."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb")
@@ -254,16 +378,8 @@ If current buffer is a dired, eshell, or shell buffer, ask if user wants to use 
                             (read-string "Edit aider arguments: "
                                          (mapconcat #'identity aider-args " ")))
                          aider-args)))
-    ;; Check if current buffer is in dired-mode, eshell-mode, or shell-mode and prompt for --subtree-only
-    (when (and (memq major-mode '(dired-mode eshell-mode shell-mode))
-               (y-or-n-p (format "Current buffer is %s. Use --subtree-only mode?"
-                                 (cond ((eq major-mode 'dired-mode) "a directory")
-                                       ((eq major-mode 'eshell-mode) "eshell")
-                                       ((eq major-mode 'shell-mode) "shell")
-                                       (t "")))))
-      ;; Check if --subtree-only is already in the arguments
-      (unless (member "--subtree-only" current-args)
-        (setq current-args (append current-args '("--subtree-only")))))
+    ;; Handle --subtree-only prompting for special modes
+    (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
     ;; Add --subtree-only if the parameter is set and it's not already present
     (when (and subtree-only (not (member "--subtree-only" current-args)))
       (setq current-args (append current-args '("--subtree-only")))

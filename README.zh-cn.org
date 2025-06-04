@@ -9,9 +9,9 @@
   - [[#原生-emacs-安装][原生 Emacs 安装]]
   - [[#doom-安装和配置][Doom 安装和配置]]
   - [[#Helm-支持][Helm 支持]]
+- [[#近期新增功能][近期新增功能]]
 - [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
-- [[#经典书籍中的方法][经典书籍中的方法]]
-- [[#优点和缺点][优点和缺点]]
+- [[#aiderel的缺点][aider.el 的缺点]]
 - [[#注意ai生成的代码][注意AI生成的代码]]
 - [[#常见问题][常见问题]]
 - [[#未来工作][未来工作]]
@@ -27,6 +27,18 @@
   - 本仓库中的大部分 Elisp 代码都是由 Aider 或 aider.el 生成的。
   - aider.el 旨在成为我们可以日常使用的稳定生产力工具。我会在代码合并前仔细测试此库中的功能。
 
+- 经过八个多月的开发，aider.el 现在不仅仅是一个简单的 aider 用户界面。与其分叉的同类项目 (aidermacs) 相比，Aider.el 引入了许多应用级功能和工具来增强日常编程。这些包括：
+  - AI 辅助的敏捷开发方法论（如 TDD、重构和基于已建立的软件工程书籍的遗留代码处理）
+  - Diff 提取和 AI 代码审查工具
+  - 高级代码/模块阅读助手
+  - 项目软件规划讨论功能
+  - 与 magit-blame 集成用于历史代码分析
+  - 用于引导新文件和项目的实用程序。
+  - 使用仓库特定的 Aider 提示文件组织项目
+  - 来自社区和 aider 使用经验和模式的片段
+
+- 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明），菜单也更简化。
+
 - [[./HISTORY.org][最近的变更历史]]
 
 [[file:./transient_menu.png]]
@@ -37,7 +49,7 @@
 
 ** 原生 Emacs 安装
 - [[https://aider.chat/docs/install.html][安装 aider]]
-- 使用您的包管理器安装 Emacs 依赖库 [[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]] 和 [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]]。
+- 使用您的包管理器安装 Emacs 依赖库 [[https://github.com/magit/transient][Transient]] (版本 >= 0.9.0)、[[https://github.com/magit/magit][Magit]] 和 [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]]。
 - 使用以下代码安装 aider.el：
 
 *** With Melpa + package-install (推荐)
@@ -63,12 +75,12 @@
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+    ;; Or gemini model
+    ;; (setq aider-args '("--model" "gemini"))
+    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
-    ;; Or gemini model
-    ;; (setq aider-args '("--model" "gemini-exp"))
-    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or use your personal config file
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
@@ -111,7 +123,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package aider
   :config
-  (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+  (setq aider-args '("--model" "sonnet"))
   (require 'aider-doom))
 #+END_SRC
 
@@ -159,13 +171,16 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 *** 支持敏捷开发
   - aider-write-unit-test :: 如果当前缓冲区是主源代码文件，为当前函数或文件生成全面的单元测试。如果光标在测试源代码文件中，当光标在测试函数上时，实现该测试函数。否则，提供描述来实现测试函数（或规范）。
   - 如果主源代码出现问题且测试函数失败，可以在失败的测试函数上使用 ~aider-function-or-region-refactor~ 要求 Aider 修复代码以使测试通过。
-  - aider-refactor-book-method :: 使用 [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower 的重构书籍]] 中的技术进行代码重构
+  - aider-refactor-book-method :: 使用 [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower 的重构书籍]] 中的技术进行代码重构，您也可以让 AI 决定如何重构，示例：[[https://github.com/tninja/aider.el/pull/146/commits/811a8eca47dfba3c52a33afba7bb11a8a69689b1][此提交]] 解决了 [[https://github.com/tninja/aider.el/pull/146#discussion_r2078182430][此评论]]
+  - aider-pull-or-review-diff-file :: 让 aider 拉取并审查代码更改。
 
 *** 代码问题
   - aider-ask-question :: 向 Aider 询问当前上下文中的代码问题。如果选择了区域，使用该区域作为上下文。
     - 您可以询问关于代码的任何问题。例如，解释函数、审查代码并找出错误等
     - 使用 aider-helm.el 时提供了几个常用的提示
   - aider-go-ahead :: 当您使用上述命令要求 aider 建议更改时，甚至在几轮讨论之后，当您对解决方案满意时，可以使用此命令要求 Aider 继续实施更改。
+  - aider-code-read :: 从书籍 [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]] 中选择方法，分析区域/函数/文件/模块。
+  - aider-start-software-planning :: 通过基于问题的顺序思考过程，与 Aider 开始一个交互式的软件规划讨论过程。
 
 *** Aider 提示文件
 
@@ -204,33 +219,38 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - 文件路径补全会在某些命令后自动触发
 - 使用 TAB 键从迷你缓冲区输入提示，或使用带补全的 helm
 
-* 经典书籍中的方法
+* 近期新增功能
 
-** AI 辅助敏捷开发
+** AI 辅助敏捷开发（源自书籍）
 
 - [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][重构：改善既有代码的设计，作者 Martin Fowler]]: ~aider-refactor-book-method~
+  - 在此基础上，要求 LLM 根据当前函数或选定区域建议重构策略
 - [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][测试驱动开发：实例，作者 Kent Beck]]: ~aider-tdd-cycle~
 - [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][修改代码的艺术，作者 Michael Feathers]]: ~aider-legacy-code~
 
-** AI 辅助代码阅读
+** AI 辅助代码阅读（源自书籍）
 
 - [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]]: ~aider-code-read~
 
-* 优点和缺点
+** 软件规划讨论
 
-** 优点：用户界面、上下文感知 AI 结对编程
+- aider-software-planning :: 使用 mcp 服务器中的代码进行软件规划（~C-c a P~）
+  - 软件规划是一个 mcp 服务器，旨在通过交互式、结构化的方法促进软件开发规划。它有助于将复杂的软件项目分解为可管理的任务。
 
-- 已在本 README 中介绍
+** 通过与 magit-blame 集成进行文件变更历史分析
 
-** 缺点：comint 中的 aider 会话不够 fancy
+- aider-magit-blame-analyze :: 结合 magit-blame 与 AI 分析，帮助理解文件或选定区域的代码历史和变更原因（~C-c a b~）。
+
+** 引导新文件
+
+- aider-bootstrap :: 引导通用代码/文档结构（代码、配置、文档、幻灯片等，~C-c a B~）
+
+* aider.el 的缺点
 
 - 当前实现使用 comint 托管 aider 会话，这是 emacs 中使用的经典 CLI 交互解决方案，然而，comint-mode 最初_没有_ aider 的高级功能，例如代码块颜色渲染和文件跟踪。
-  - *应用了颜色渲染 markdown-mode.el 并大大改善了这一点*。
+  - *从 markdown-mode.el 应用的颜色渲染在 aider comint 会话缓冲区中得到了应用，并极大地改善了这一点*。
   - 没有文件跟踪，aider.el 无法执行 [[https://aider.chat/docs/usage/watch.html#ai-comments][AI 注释]]。*我们提供的解决方法是 ~aider-implement-todo~*，它使用 architect 命令要求 aider 默认实现光标下的注释。我经常使用此功能，感觉还可以。
-
-- *通常，直接通过 comint 终端与 Aider 进行大量交互并不有利。* 相反，由于 comint 终端与 emacs 的其他部分集成良好，建议生成提示并将其发送到终端，可以从以下任一方式进行：
-  - 直接从代码缓冲区通过 _aider 代码更改相关命令_ 或 _提问相关命令_。这样可以减少上下文切换，并有助于构建提示，减少手动输入。
-  - Aider 提示文件（~aider-open-prompt-file~，~C-c a p~）。这是 emacs 中与 comint 缓冲区通信的传统方式（就像 ESS、python-mode、scala-mode 等）。它便于重新访问您使用过的命令，组织和管理需要更多提示的大型代码更改，并将它们分解为子任务（因为它是 org 格式），并且它便于多行提示。最近，为该文件添加了语法高亮、补全和代码片段，现在它是编写和组织提示的好地方。
+  - [[https://github.com/akermu/emacs-libvterm][基于 vterm 的交互式会话]] 可以使 aider 会话更接近在终端中使用 aider 的用户体验。考虑到基于 comint 的解决方案经过多年实战检验并且非常稳定，以及项目的长期可维护性，aider.el 仅使用基于 comint 会话的解决方案。
 
 * 注意AI生成的代码
 
@@ -283,6 +303,9 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 * 常见问题
 
+- transient-define-group undefined error:
+  - 请安装最新的 transient 包。版本需要 >= 0.9.0，以便它具有 [[https://github.com/magit/transient/blob/main/CHANGELOG#v090----unreleased][transient-define-group 宏]]
+
 - 如何审查/接受代码更改？
   - 与 cursor 相比，aider 有不同的方式来处理代码更改。[[https://github.com/tninja/aider.el/issues/98][讨论]]
   - 注意：*Aider v0.77.0 自动接受 /architect 命令的更改。如果您想像以前那样在接受更改之前审查代码更改（适用于 aider.el 中的许多命令），可以在 aider-args 或 .aider.conf.yml 中使用 "--no-auto-accept-architect" 禁用该标志*。
@@ -313,32 +336,38 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
   - artyom-smushkov 使 aider-add-current-file 支持 tramp 文件：https://github.com/tninja/aider.el/issues/36
   - mgcyung 说它可以这样工作：https://github.com/tninja/aider.el/issues/85
 
+- 我的屏幕很窄，transient 菜单太宽了，如何使其更易读？ (https://github.com/tninja/aider.el/issues/157)
+  - 使用 ~aider-transient-menu-1col~ 或 ~aider-transient-menu-2cols~ 来使用 1 列或 2 列的 transient 菜单。
+
 - 如何自定义 aider-comint-mode 的提示和输入颜色？
   - Spike-Leung 说 [[https://github.com/tninja/aider.el/issues/117#issuecomment-2764420079][为其添加钩子会有帮助]]
 
 - 为何 aider-code-change 在 transient 菜单中被禁用？
   - 它绕过了代码审查，因此不推荐使用。其代码质量不如 /architect。讨论见：https://github.com/tninja/aider.el/issues/128
 
-* TODO 未来工作
-
+* 未来工作
+    
 ** 功能
-
+    
 - 更多上下文敏感的代码更改/代码阅读命令 [2/3]
   - [X] 当前的 aider-ask-question 需要改进，因为可能有很多不同的问题要问
   - [X] 如何将候选列表功能移植到 aider-plain-read-string
   - [ ] 思考如何改进函数的候选列表
-- 更多关于改进代码质量工具（如单元测试）的思考 [4/5]
+- 更多关于改进代码质量工具（如单元测试）的思考 [5/5]
   - [X] 代码重构函数
   - [X] TDD 函数
   - [X] 代码阅读函数
   - [X] 遗留代码支持
-  - [ ] 从头开始引导代码或文档
-- 更多关于如何简化菜单/命令的思考
-
+- [X] 从头开始引导代码或文档
+- [ ] 将有用的 MCP 功能导入 aider
+- [ ] 学习并迁移流行的 AI 编码工具中的有用功能
+- [ ] 更好地批量添加仓库中的相关文件到 aider 会话
+- [ ] 思考如何简化菜单/命令
+    
 ** 代码质量
-
+     
 - 更好的单元测试/集成测试。希望是自动化的。
-
+    
 * 其他 Emacs AI 编码工具
 
 - 受启发与致谢：
@@ -350,3 +379,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 - 依赖此包的包
   - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]：用于 Aider.el 集成的 Org Babel 函数
+
+* 贡献
+
+- 欢迎贡献！请随时提交拉取请求。

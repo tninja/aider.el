@@ -2,7 +2,7 @@
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.10.0
-;; Package-Requires: ((emacs "26.1") (transient "0.3.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
+;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
 ;; SPDX-License-Identifier: Apache-2.0
@@ -20,7 +20,7 @@
 ;;
 ;; To use aider.el, you need to install the Aider command line tool: https://aider.chat/#getting-started
 ;; After that, configure it with (use sonnet as example):
-;; 
+;;
 ;; (use-package aider
 ;;   :config
 ;;   ;; For latest claude sonnet model
@@ -30,14 +30,16 @@
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
 ;;
-;; Comparison of aider.el to aidermacs (a fork version of aider.el):
-;; - More Focus on build prompts using your code (buffer/selection).
-;; - Less configurations (transparent to aider config), simplified menu.
-;; - Reuse prompts easily, fuzzy search with helm.
-;; - Agile development and Code reading tools from classic books.
-;; - Diff extract and code review tools
-;; - Organize project with repo specific Aider prompt file, with snippets from community.
-;; - More Focus on stability and long term maintainability (e.g. pure comint, do not parse aider output)
+;; Comparing to its forked peer (aidermacs), Aider.el has brought in lots of application-level features and tools to enhance daily programming. These include:
+;;   - AI-assisted agile development methodologies (like TDD, refactoring and legacy code handling based on established software engineering books)
+;;   - Diff extraction and AI code review tools
+;;   - Advanced code / module reading assistant
+;;   - Project software planning discussion capabilities
+;;   - Integration with magit-blame for historical code analysis
+;;   - Utilities for bootstrapping new files and projects.
+;;   - Organize project with repo specific Aider prompt file
+;;   - Snippets from community and aider use experience and pattern
+;; Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
 ;;; Code:
 
@@ -48,6 +50,7 @@
 (require 'aider-core)
 (require 'aider-prompt-mode)
 (require 'aider-file)
+(require 'aider-git)
 (require 'aider-code-change)
 (require 'aider-discussion)
 (require 'aider-agile)
@@ -55,6 +58,7 @@
 (require 'aider-legacy-code)
 (require 'aider-bootstrap)
 (require 'aider-software-planning)
+
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "gemini"  ;; SOTA
@@ -83,53 +87,87 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
            (not aider--switch-to-buffer-other-frame)))
 
 ;; Transient menu for Aider commands
+
+;; Define each menu section as a reusable variable
+;;; Transient menu items for the “Aider Process” section.
+(transient-define-group aider--menu-aider-process
+  (aider--infix-switch-to-buffer-other-frame)
+  ("a" "Run Aider (C-u: args)"           aider-run-aider)
+  ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
+  ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
+  ("s" "Reset Aider (C-u: clear)"        aider-reset)
+  ("o" "Select Model (C-u: benchmark)" aider-change-model)
+  ("x" "Exit Aider"                      aider-exit))
+
+;;; Transient menu items for the “File Operation” section.
+(transient-define-group aider--menu-file-operation
+  ("f" "Add Current/Marked File (C-u: readonly)"  aider-add-current-file-or-dired-marked-files)
+  ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
+  ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
+  ("O" "Drop Current File"                        aider-drop-current-file)
+  ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
+  ("u" "Undo Last Change"                         aider-undo-last-change)
+  ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
+  ("b" "File Evolution Analysis"                  aider-magit-blame-analyze))
+
+;;; Transient menu items for the “Code Change” section.
+(transient-define-group aider--menu-code-change
+  ("r" "Change Function/Region"      aider-function-or-region-refactor)
+  ("i" "Implement Requirement"       aider-implement-todo)
+  ("t" "Architect Discuss/Change"    aider-architect-discussion)
+  ("U" "Write Unit Test"             aider-write-unit-test)
+  ("F" "Fix Flycheck Errors (C-u: file)"          aider-flycheck-fix-errors-in-scope)
+  ("R" "Refactor Code"               aider-refactor-book-method)
+  ("T" "Test Driven Development"     aider-tdd-cycle)
+  ("l" "Work with Legacy Code"       aider-legacy-code)
+  ("B" "Code/Doc Bootstrap"          aider-bootstrap))
+
+;;; Transient menu items for the “Discussion” section.
+(transient-define-group aider--menu-discussion
+  ("q" "Question (C-u no context)"  aider-ask-question)
+  ("y" "Then Go Ahead"              aider-go-ahead)
+  ("d" "Code Reading"               aider-code-read)
+  ("c" "Copy To Clipboard"          aider-copy-to-clipboard)
+  ("P" "Software Planning"          aider-start-software-planning)
+  ("e" "Debug Exception"            aider-debug-exception)
+  ("h" "Open History"               aider-open-history)
+  ("?" "Help (C-u: homepage)"       aider-help))
+
 ;; The instruction in the autoload comment is needed, see
 ;; https://github.com/magit/transient/issues/280.
 ;;;###autoload (autoload 'aider-transient-menu "aider" "Transient menu for Aider commands." t)
 (transient-define-prefix aider-transient-menu ()
   "Transient menu for Aider commands."
   ["Aider: AI Pair Programming"
+   ["Aider Process"   aider--menu-aider-process]
+   ["File Operation"  aider--menu-file-operation]
+   ["Code Change"     aider--menu-code-change]
+   ["Discussion"      aider--menu-discussion]])
+
+(transient-define-prefix aider-transient-menu-2cols ()
+  "Transient menu for Aider commands."
+  ["Aider: AI Pair Programming"
+   ["Aider Process"   aider--menu-aider-process]
+   ["File Operation"  aider--menu-file-operation]]
+  [["Code Change" aider--menu-code-change]
+   ;; adjust space to align
+   ["     "  ""]
+   ["Discussion" aider--menu-discussion]])
+
+(transient-define-prefix aider-transient-menu-1col ()
+  "Transient menu for Aider commands."
+  ["Aider: AI Pair Programming"
    ["Aider Process"
-    (aider--infix-switch-to-buffer-other-frame)
-    ("a" "Run Aider (C-u: args) " aider-run-aider)
-    ("z" "Switch to Aider Buffer" aider-switch-to-buffer)
-    ("p" "Input with Repo Prompt File" aider-open-prompt-file)
-    ("s" "Reset Aider (C-u: clear)" aider-reset)
-    ("o" "Select Model (C-u: leadboard)" aider-change-model)
-    ("x" "Exit Aider" aider-exit)
-    ]
-   ["File Operation"
-    ("f" "Add Current/Marked File (C-u: readonly)" aider-add-current-file-or-dired-marked-files)
-    ("w" "Add All Files in Window" aider-add-files-in-current-window)
-    ("M" "Add Module (C-u: readonly)" aider-add-module)
-    ("O" "Drop Current File" aider-drop-current-file)
-    ("m" "Show Last Commit (C-u: magit-log)" aider-magit-show-last-commit-or-log)
-    ("u" "Undo Last Change" aider-undo-last-change)
-    ("v" "Pull or Review Code Change" aider-pull-or-review-diff-file)
-    ("b" "File Evolution Analysis" aider-magit-blame-analyze)
-    ]
-   ["Code Change"
-    ("r" "Change Function/Region" aider-function-or-region-refactor)
-    ("i" "Implement Requirement" aider-implement-todo)
-    ("t" "Architect Discuss/Change" aider-architect-discussion)
-    ("U" "Write Unit Test" aider-write-unit-test)
-    ("R" "Refactor Code" aider-refactor-book-method)
-    ("T" "Test Driven Development" aider-tdd-cycle)
-    ("l" "Work with Legacy Code" aider-legacy-code)
-    ("B" "Code/Doc Bootstrap" aider-bootstrap)
-    ;; ("c" "Direct Code Change" aider-code-change)
-    ]
-   ["Discussion"
-    ("q" "Question (C-u no context)" aider-ask-question)
-    ("y" "Then Go Ahead" aider-go-ahead)
-    ("d" "Code Reading" aider-code-read)
-    ("c" "Copy To Clipboard" aider-copy-to-clipboard)
-    ("P" "Software Planning" aider-start-software-planning)
-    ("e" "Debug Exception" aider-debug-exception)
-    ("h" "Open History" aider-open-history)
-    ("?" "Help (C-u: homepage)" aider-help)
-    ]
-   ])
+    aider--menu-aider-process
+    ""
+    "File Operation"
+    aider--menu-file-operation
+    ""
+    "Code Change"
+    aider--menu-code-change
+    ""
+    "Discussion"
+    aider--menu-discussion]])
 
 ;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
 ;;;###autoload

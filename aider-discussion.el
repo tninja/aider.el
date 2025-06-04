@@ -18,7 +18,7 @@
 (defun aider-ask-question (&optional prefix)
   "Ask aider question about specific code.
 Focuses on understanding, analyzing, improving the selected code or function.
-With a prefix argument, calls `aider-general-question` instead."
+With a prefix argument PREFIX, calls `aider-general-question` instead."
   (interactive "P")
   (if prefix
       (aider-general-question)
@@ -72,12 +72,6 @@ With a prefix argument, calls `aider-general-question` instead."
       (aider--send-command command t))))
 
 ;;;###autoload
-(defun aider-go-ahead ()
-  "Send the command \"go ahead\" to the corresponding aider comint buffer."
-  (interactive)
-  (aider--send-command "go ahead" t))
-
-;;;###autoload
 (defun aider-copy-to-clipboard ()
   "Copy the last assistant message to the clipboard via Aider."
   (interactive)
@@ -92,6 +86,19 @@ With a prefix argument, calls `aider-general-question` instead."
   (interactive)
   (let ((command (aider-read-string "Enter exception details (can be multiple lines): ")))
     (aider--send-command (concat "/ask Investigate the following exception, using the added files as context:\n" command) t))) ;; Add newline for clarity
+
+;;;###autoload
+(defun aider-open-history ()
+  "Open the Aider history file (.aider.chat-history.md under repo git root).
+If the history file does not exist, notify the user."
+  (interactive)
+  (let ((git-root (magit-toplevel)))
+    (unless git-root
+      (user-error "Not inside a git repository"))
+    (let ((history-file (expand-file-name ".aider.chat.history.md" git-root)))
+      (if (file-exists-p history-file)
+          (find-file-other-window history-file)
+        (message "History file does not exist: %s" history-file)))))
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload

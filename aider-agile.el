@@ -60,7 +60,8 @@
       ("Consolidate Conditional Expression" . "Combine multiple conditional checks within the current function/context that lead to the same result into a single, clearer conditional expression."))))
 
 (defun aider--process-refactoring-parameters (selected-technique technique-description context)
-  "Process parameters for SELECTED-TECHNIQUE with TECHNIQUE-DESCRIPTION using CONTEXT."
+  "Process parameters for SELECTED-TECHNIQUE with TECHNIQUE-DESCRIPTION.
+Uses CONTEXT."
   (let ((current-function (plist-get context :current-function)))
     (cond
      ((string= selected-technique "Extract Method")
@@ -175,7 +176,7 @@ If TDD-MODE is non-nil, adds TDD constraints to the prompt."
          (context-info (cond
                         (region-active "Selected code region")
                         (current-function (format "Function '%s'" current-function))
-                        (t "Current buffer context")))
+                        (t "All added files")))
          (code-snippet (if region-active
                            (format "\n```\n%s\n```" region-text)
                          ""))
@@ -201,7 +202,8 @@ If TDD-MODE is non-nil, adds TDD constraints to the prompt."
 (defun aider-refactor-book-method (&optional tdd-mode)
   "Apply refactoring techniques or request suggestions.
 Uses current context (function, class, selected region).
-If TDD-MODE is non-nil, adjusts prompts and instructions for the TDD refactor stage."
+If TDD-MODE is non-nil, adjusts prompts and instructions for the
+TDD refactor stage."
   ;; The `interactive` spec needs to handle the optional argument if called directly,
   ;; but here it's primarily called programmatically from aider-tdd-cycle or interactively without args.
   ;; For interactive calls, tdd-mode will be nil.
@@ -250,15 +252,11 @@ If TDD-MODE is non-nil, adjusts prompts and instructions for the TDD refactor st
 Helps users follow Kent Beck's TDD methodology with AI assistance.
 Works with both source code and test files that have been added to aider."
   (interactive)
-  (let* ((current-file (buffer-file-name))
-         (is-test-file (and current-file 
-                           (string-match-p "\\(test\\|spec\\)" 
-                                          (file-name-nondirectory current-file))))
-         (function-name (which-function))
-         (cycle-stage (completing-read 
-                       "Select TDD stage: " 
-                       '("1. Red (Write failing test)" 
-                         "2. Green (Make test pass)" 
+  (let* ((function-name (which-function))
+         (cycle-stage (completing-read
+                       "Select TDD stage: "
+                       '("1. Red (Write failing test)"
+                         "2. Green (Make test pass)"
                          "3. Refactor (Improve code quality)")
                        nil t))
          (stage-num (string-to-number (substring cycle-stage 0 1))))

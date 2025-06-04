@@ -25,7 +25,7 @@ including general analysis and specific concerns like security or performance."
          (class-name (aider--get-class-at-point))
          (region-active (region-active-p))
          (file-name (when buffer-file-name (file-name-nondirectory buffer-file-name)))
-         (dir-name (when buffer-file-name (file-name-directory buffer-file-name)))
+         ;; Removed dir-name as it was unused
          (context-description (cond
                               (region-active "selected region")
                               (function-name (format "function '%s'" function-name))
@@ -33,10 +33,10 @@ including general analysis and specific concerns like security or performance."
                               (file-name (format "file '%s'" file-name))
                               (t "current context")))
          (reading-techniques
-          `(("Analyze Code Unit (Bottom-up)" . 
+          `(("Analyze Code Unit (Bottom-up)" . ;; Removed trailing whitespace
              ,(if region-active 'aider--analyze-code-unit-region 'aider--analyze-code-unit))
             ("Analyze Program Structure (Top-down)" . aider--analyze-program-structure)
-            ,@(when function-name 
+            ,@(when function-name
                 '(("Analyze Dependencies (Cross-reference)" . aider--analyze-dependencies)))
             ("Identify Patterns (Pattern Recognition)" . aider--identify-patterns)
             ,@(when class-name
@@ -219,7 +219,7 @@ Generate *only* the ASCII art diagram.")
 
 (defun aider--analyze-for-security ()
   "Analyze the current file for potential security vulnerabilities.
-Assumes the current file has been added to the Aider context."
+This function assumes the current file has been added to the Aider context."
   (let* ((initial-prompt
           "Please analyze the code in the current file for potential security vulnerabilities:
 1. Input Validation: Are inputs properly sanitized and validated? (e.g., against injection, path traversal)
@@ -236,7 +236,7 @@ Assumes the current file has been added to the Aider context."
 
 (defun aider--analyze-for-performance ()
   "Analyze the current file for potential performance bottlenecks.
-Assumes the current file has been added to the Aider context."
+This function assumes the current file has been added to the Aider context."
   (let* ((initial-prompt
           "Please analyze the code in the current file for potential performance bottlenecks:
 1. Algorithmic Complexity: Are there algorithms with high complexity (e.g., O(n^2)) in critical paths?
