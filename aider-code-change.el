@@ -12,6 +12,9 @@
 (require 'aider-core)
 (require 'aider-file)
 (require 'which-func)
+(require 'flycheck nil t)
+(require 'cl-lib)
+(require 'magit)
 
 (defcustom aider-todo-keyword-pair '("TODO" . "comment line START with string: TODO:")
   "Pair of keyword and its definition for `aider-implement-todo`.
@@ -112,11 +115,15 @@ ignoring leading whitespace."
 (defun aider-implement-todo ()
   "Implement comments with configured keyword in current context.
 If region is selected, implement that specific region.
-If cursor is on a comment line with the configured keyword, implement that specific comment.
-If cursor is inside a function, implement comments with the keyword for that function.
-Otherwise implement comments with the keyword for the entire current file.
+If cursor is on a comment line with the configured keyword,
+implement that specific comment.
+If cursor is inside a function, implement comments with the
+keyword for that function.
+Otherwise implement comments with the keyword for the entire
+current file.
 
-The keyword and its definition are configured in `aider-todo-keyword-pair`."
+The keyword and its definition are configured in
+`aider-todo-keyword-pair`."
   (interactive)
   (if (not buffer-file-name)
       (message "Current buffer is not visiting a file.")
@@ -188,6 +195,115 @@ Otherwise:
                (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
           (aider-current-file-command-and-switch "/architect " user-command)))))))
 
+;;; New Flycheck integration
+(defun aider-flycheck--get-errors-in-scope (start end)
+  "Return a list of Flycheck errors within the given START and END
+buffer positions."
+  (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
+    (cl-remove-if-not
+     (lambda (err)
+       (let ((pos (flycheck-error-pos err)))
+         (and (integerp pos) (>= pos start) (< pos end))))
+     flycheck-current-errors)))
+
+(defun aider-flycheck--format-error-list (errors file-path-for-error-reporting)
+  "Format a list string for multiple Flycheck ERRORS.
+FILE-PATH-FOR-ERROR-REPORTING is the relative file path
+to include in each error report."
+  (let ((error-reports '()))
+    (dolist (err errors)
+      (let* ((line (flycheck-error-line err))
+             (col (flycheck-error-column err))
+             (msg (flycheck-error-message err)))
+        (if (and (integerp line) (integerp col))
+            (let* ((error-line-text
+                    (save-excursion
+                      (goto-char (point-min))
+                      (forward-line (1- line))
+                      (buffer-substring-no-properties (line-beginning-position) (line-end-position)))))
+              (push (format "File: %s:%d:%d\nError: %s\nContext line:\n%s"
+                            file-path-for-error-reporting line col msg error-line-text)
+                    error-reports))
+          (progn
+            (message "Aider: Flycheck error for %s. Line: %S, Col: %S. Full location/context not available. Sending general error info."
+                     file-path-for-error-reporting line col)
+            (push (format "File: %s (Location: Line %s, Column %s)\nError: %s"
+                          file-path-for-error-reporting
+                          (if (integerp line) (format "%d" line) "N/A")
+                          (if (integerp col) (format "%d" col) "N/A")
+                          msg)
+                  error-reports)))))
+    (mapconcat #'identity (nreverse error-reports) "\n\n")))
+
+(defun aider--determine-flycheck-scope-parameters (apply-to-whole-file-p)
+  "Determine and return the scope for Flycheck error fixing.
+Returns a list (SCOPE-START SCOPE-END SCOPE-DESCRIPTION).
+Signals a `user-error` if a valid scope cannot be determined.
+APPLY-TO-WHOLE-FILE-P is non-nil if C-u prefix was used."
+  (let (scope-start scope-end scope-description)
+    (cond
+     (apply-to-whole-file-p
+      (setq scope-start (point-min)
+            scope-end (point-max)
+            scope-description "the entire file"))
+     ((region-active-p)
+      (setq scope-start (region-beginning)
+            scope-end (region-end)
+            scope-description (format "the selected region (lines %d-%d)"
+                                      (line-number-at-pos scope-start)
+                                      (line-number-at-pos scope-end))))
+     ((which-function)
+      (let ((bounds (bounds-of-thing-at-point 'defun)))
+        (if bounds
+            (setq scope-start (car bounds)
+                  scope-end (cdr bounds)
+                  scope-description (format "function '%s' (lines %d-%d)"
+                                            (which-function)
+                                            (line-number-at-pos scope-start)
+                                            (line-number-at-pos scope-end)))
+          (user-error "Could not determine bounds for function '%s'. Select a region or use C-u for the entire file." (which-function)))))
+     (t
+      (user-error "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file.")))
+    (list scope-start scope-end scope-description)))
+
+;;;###autoload
+(defun aider-flycheck-fix-errors-in-scope (&optional raw-prefix-arg)
+  "Ask Aider to generate a patch fixing Flycheck errors.
+With a prefix argument (C-u), applies to the entire file.
+Otherwise, applies to the active region if any.
+If no region is active and no prefix argument, applies to the current function.
+If not in a function, no region active, and no prefix arg, an error is signaled.
+This command requires the `flycheck` package to be installed and available."
+  (interactive "P")
+  (unless (featurep 'flycheck)
+    (user-error "Flycheck package not found. This feature is unavailable."))
+  (unless (and buffer-file-name (bound-and-true-p flycheck-mode))
+    (user-error "Flycheck mode is not enabled or buffer is not visiting a file."))
+  (unless flycheck-current-errors
+    (message "No Flycheck errors found in the current buffer.")
+    (cl-return-from aider-flycheck-fix-errors-in-scope nil))
+  (let* ((git-root (or (magit-toplevel) default-directory))
+         (rel-file (file-relative-name buffer-file-name git-root)))
+    (cl-destructuring-bind (scope-start scope-end scope-description)
+        (aider--determine-flycheck-scope-parameters raw-prefix-arg)
+      (let ((errors-in-scope (aider-flycheck--get-errors-in-scope scope-start scope-end)))
+        (unless errors-in-scope
+          (message "No Flycheck errors found in %s." scope-description)
+          (cl-return-from aider-flycheck-fix-errors-in-scope nil))
+        (let ((error-list-string (aider-flycheck--format-error-list errors-in-scope rel-file)))
+          (if (string-blank-p error-list-string)
+              (message "No actionable Flycheck errors to send for %s." scope-description)
+            (let* ((prompt
+                    (if (string-equal "the entire file" scope-description)
+                        (format "Please fix the following Flycheck errors in file %s:\n\n%s"
+                                rel-file error-list-string)
+                      (format "Please fix the following Flycheck errors in %s of file %s:\n\n%s"
+                              scope-description rel-file error-list-string)))
+                   (edited-prompt (aider-read-string "Edit prompt for Aider: " prompt)))
+              (when (and edited-prompt (not (string-blank-p edited-prompt)))
+                (aider-add-current-file)
+                (aider--send-command (concat "/architect " edited-prompt) t)
+                (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))))))
 
 (provide 'aider-code-change)
 

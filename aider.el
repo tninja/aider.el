@@ -96,7 +96,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
-  ("o" "Select Model (C-u: leaderboard)" aider-change-model)
+  ("o" "Select Model (C-u: benchmark)" aider-change-model)
   ("x" "Exit Aider"                      aider-exit))
 
 ;;; Transient menu items for the “File Operation” section.
@@ -116,6 +116,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("i" "Implement Requirement"       aider-implement-todo)
   ("t" "Architect Discuss/Change"    aider-architect-discussion)
   ("U" "Write Unit Test"             aider-write-unit-test)
+  ("F" "Fix Flycheck Errors (C-u: file)"          aider-flycheck-fix-errors-in-scope)
   ("R" "Refactor Code"               aider-refactor-book-method)
   ("T" "Test Driven Development"     aider-tdd-cycle)
   ("l" "Work with Legacy Code"       aider-legacy-code)

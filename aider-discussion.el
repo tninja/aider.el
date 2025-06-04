@@ -18,7 +18,7 @@
 (defun aider-ask-question (&optional prefix)
   "Ask aider question about specific code.
 Focuses on understanding, analyzing, improving the selected code or function.
-With a prefix argument, calls `aider-general-question` instead."
+With a prefix argument PREFIX, calls `aider-general-question` instead."
   (interactive "P")
   (if prefix
       (aider-general-question)
@@ -70,12 +70,6 @@ With a prefix argument, calls `aider-general-question` instead."
          (question (aider-read-string "Enter general question to ask: " nil candidate-list)))
     (let ((command (format "/ask %s" question)))
       (aider--send-command command t))))
-
-;;;###autoload
-(defun aider-go-ahead ()
-  "Send the command \"go ahead\" to the corresponding aider comint buffer."
-  (interactive)
-  (aider--send-command "go ahead" t))
 
 ;;;###autoload
 (defun aider-copy-to-clipboard ()
