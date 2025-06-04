@@ -148,10 +148,12 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   "Transient menu for Aider commands."
   ["Aider: AI Pair Programming"
    ["Aider Process"   aider--menu-aider-process]
+   ;; adjust space to align
+   [""  ""]
    ["File Operation"  aider--menu-file-operation]]
   [["Code Change" aider--menu-code-change]
    ;; adjust space to align
-   ["     "  ""]
+   ;; ["     "  ""]
    ["Discussion" aider--menu-discussion]])
 
 (transient-define-prefix aider-transient-menu-1col ()
