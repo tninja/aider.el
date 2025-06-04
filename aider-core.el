@@ -15,10 +15,10 @@
 (require 'markdown-mode)
 
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
-(defun aider--safe-maybe-funcall-regexp (origfn object &optional arg)
+(defun aider--safe-maybe-funcall-regexp (origfn &rest args)
   "Call `markdown-maybe-funcall-regexp' but on error return empty regex."
   (condition-case _
-      (funcall origfn object arg)
+      (apply origfn args)
     (error "")))
 (advice-add 'markdown-maybe-funcall-regexp
             :around #'aider--safe-maybe-funcall-regexp)
