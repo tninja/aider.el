@@ -22,6 +22,7 @@
 - Let aider-comint-session be able to scroll up / search the prompt across sessions
   - By parsing .aider.input.history file, use ctrl + up / down key to scroll, alt + r to search
   - [ ] TODO: integrate .aider.input.history with aider-helm.el 
+- Let aider to fix the errors reported by flycheck: aider-flycheck-fix-errors-in-scope 
 
 ** v0.10.0
 
