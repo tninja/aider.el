@@ -188,6 +188,11 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a B~)
 
+** Aider-comint-session be able to scroll up / search the prompt across sessions
+
+- By parsing .aider.input.history
+- Use ctrl + up / down key to scroll, alt + r to search
+
 * Frequently used features
 
 *** Aider session management

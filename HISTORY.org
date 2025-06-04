@@ -1,7 +1,7 @@
 
 * Release history
 
-** Main branch change
+** v0.11.0
 
 - Make transient menu be able to fit in narrow screen
   - https://github.com/tninja/aider.el/issues/157 by markokocic
@@ -21,7 +21,7 @@
   - Move git related feature to aider-git.el
 - Let aider-comint-session be able to scroll up / search the prompt across sessions
   - By parsing .aider.input.history file, use ctrl + up / down key to scroll, alt + r to search
-  - [ ] TODO: integrate .aider.input.history with aider-helm.el 
+  - [X] TODO: integrate .aider.input.history with aider-helm.el 
 - Let aider to fix the errors reported by flycheck: aider-flycheck-fix-errors-in-scope 
 
 ** v0.10.0
