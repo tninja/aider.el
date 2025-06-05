@@ -59,6 +59,31 @@ drop that file instead."
         (message "No file path found under cursor in aider session"))
     (aider-action-current-file "/drop")))
 
+(defun aider--get-full-expanded-file-path-at-point ()
+  "Return the full, expanded file path found at point, or nil.
+The path is expanded relative to the git repository root if available,
+otherwise relative to `default-directory`."
+  (when-let ((file-name-at-point (ffap-file-at-point)))
+    (let* ((git-root (ignore-errors (magit-toplevel)))
+           (base-dir (or git-root default-directory)))
+      (expand-file-name file-name-at-point base-dir))))
+
+(defun aider--file-path-under-cursor-is-file ()
+  "Check if the file-path under cursor represents an existing file.
+Works in both git repositories and regular directories."
+  (when-let ((potential-file-path (aider--get-full-expanded-file-path-at-point)))
+    (message "%s" potential-file-path)
+    (file-exists-p potential-file-path)))
+
+(defun aider--drop-file-under-cursor ()
+  "Drop the file under cursor from aider session.
+Works in both git repositories and regular directories."
+  (when-let ((full-file-path (aider--get-full-expanded-file-path-at-point)))
+    (let* ((file-path-for-command (aider--get-file-path full-file-path))
+           (formatted-path (aider--format-file-path file-path-for-command))
+           (command (format "/drop %s" formatted-path)))
+      (aider--send-command command))))
+
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)
   "Perform the COMMAND-PREFIX to aider session.
@@ -173,31 +198,6 @@ Otherwise, add the current file as read-only."
   "Retrieve list of files in DIRECTORY matching SUFFIXES. SUFFIXES is a list of strings without dot."
   (let ((regex (concat "\\.\\(" (mapconcat #'regexp-quote suffixes "\\|") "\\)$")))
     (directory-files-recursively directory regex)))
-
-(defun aider--get-full-expanded-file-path-at-point ()
-  "Return the full, expanded file path found at point, or nil.
-The path is expanded relative to the git repository root if available,
-otherwise relative to `default-directory`."
-  (when-let ((file-name-at-point (ffap-file-at-point)))
-    (let* ((git-root (ignore-errors (magit-toplevel)))
-           (base-dir (or git-root default-directory)))
-      (expand-file-name file-name-at-point base-dir))))
-
-(defun aider--file-path-under-cursor-is-file ()
-  "Check if the file-path under cursor represents an existing file.
-Works in both git repositories and regular directories."
-  (when-let ((potential-file-path (aider--get-full-expanded-file-path-at-point)))
-    (message "%s" potential-file-path)
-    (file-exists-p potential-file-path))))
-
-(defun aider--drop-file-under-cursor ()
-  "Drop the file under cursor from aider session.
-Works in both git repositories and regular directories."
-  (when-let ((full-file-path (aider--get-full-expanded-file-path-at-point)))
-    (let* ((file-path-for-command (aider--get-file-path full-file-path))
-           (formatted-path (aider--format-file-path file-path-for-command))
-           (command (format "/drop %s" formatted-path)))
-      (aider--send-command command))))
 
 (defun aider--filter-files-by-content-regex (files content-regex)
   "Filter FILES based on CONTENT-REGEX using grep.
