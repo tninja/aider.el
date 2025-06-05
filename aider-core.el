@@ -34,6 +34,12 @@
   :type 'boolean
   :group 'aider)
 
+(defcustom aider-use-branch-specific-buffers nil
+  "When non-nil, Aider buffer names will include the current git branch.
+The format will be *aider:<git-repo-path>:<branch-name>*."
+  :type 'boolean
+  :group 'aider)
+
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
 When non-nil, open Aider buffer in a new frame.
@@ -219,6 +225,14 @@ Returns nil if neither can be determined."
           (push (string-join current-multi-line-command-parts "\n") history-items))
         (reverse history-items))))) ; Reverse to get chronological order (oldest first)
 
+(defun aider--get-current-git-branch (repo-root-path)
+  "Return the current git branch name for the git repository at REPO-ROOT-PATH.
+Returns nil if REPO-ROOT-PATH is not a git repository or no branch is checked out."
+  ;; Ensure repo-root-path is a valid directory string before proceeding
+  (when (and repo-root-path (stringp repo-root-path) (file-directory-p repo-root-path))
+    (let ((default-directory repo-root-path)) ; Scope magit call to the repo root
+      (magit-get-current-branch)))) ; magit-get-current-branch returns nil if no branch or not a repo
+
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
@@ -243,23 +257,31 @@ This function combines candidate-list with history for better completion."
   (defalias 'aider-read-string #'aider-plain-read-string))
 
 (defun aider-buffer-name ()
-  "Generate the Aider buffer name based on git repo or current buffer file path.
-If not in a git repository and no buffer file exists, an error is raised."
-  (let ((git-repo-path (magit-toplevel))
-        (current-file (buffer-file-name)))
+  "Generate the Aider buffer name.
+If `aider-use-branch-specific-buffers' is non-nil and in a git repository,
+the buffer name will be *aider:<git-repo-path>:<branch-name>*.
+Otherwise, it uses *aider:<git-repo-path>* or *aider:<current-file-directory>*."
+  (let ((git-repo-path-raw (magit-toplevel)))
     (cond
-     ;; Case 1: Valid git repo path (not nil and not containing "fatal")
-     ((and git-repo-path
-           (stringp git-repo-path)
-           (not (string-match-p "fatal" git-repo-path)))
-      (format "*aider:%s*" (file-truename git-repo-path)))
-     ;; Case 2: Has buffer file (handles both nil and "fatal" git-repo-path cases)
-     (current-file
-      (format "*aider:%s*"
-              (file-truename (file-name-directory current-file))))
-     ;; Case 3: No git repo and no buffer file
+     ;; Case 1: In a Git repository
+     ((and git-repo-path-raw (stringp git-repo-path-raw) (not (string-match-p "fatal" git-repo-path-raw)))
+      (let ((git-repo-path-true (file-truename git-repo-path-raw)))
+        (if aider-use-branch-specific-buffers
+            (let ((branch-name (aider--get-current-git-branch git-repo-path-true)))
+              (if (and branch-name (not (string-empty-p branch-name)))
+                  (format "*aider:%s:%s*" git-repo-path-true branch-name)
+                ;; Fallback: branch name not found or empty
+                (progn
+                  (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+                  (format "*aider:%s*" git-repo-path-true))))
+          ;; aider-use-branch-specific-buffers is nil
+          (format "*aider:%s*" git-repo-path-true))))
+     ;; Case 2: Not in a Git repository, but current buffer has a file
+     ((buffer-file-name)
+      (format "*aider:%s*" (file-truename (file-name-directory (buffer-file-name)))))
+     ;; Case 3: Not in a Git repository and no buffer file
      (t
-      (error "Not in a git repository and current buffer is not associated with a file")))))
+      (error "Aider: Not in a git repository and current buffer is not associated with a file")))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages.
