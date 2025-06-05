@@ -256,26 +256,31 @@ This function combines candidate-list with history for better completion."
   ;; Ensure the alias is always available in both compiled and interpreted modes.
   (defalias 'aider-read-string #'aider-plain-read-string))
 
+(defun aider--buffer-name-for-git-repo (git-repo-path-true)
+  "Generate the Aider buffer name for a GIT-REPO-PATH-TRUE.
+If `aider-use-branch-specific-buffers' is non-nil, includes the branch name.
+Format: *aider:<git-repo-path>[:<branch-name>]*."
+  (if aider-use-branch-specific-buffers
+      (let ((branch-name (aider--get-current-git-branch git-repo-path-true)))
+        (if (and branch-name (not (string-empty-p branch-name)))
+            (format "*aider:%s:%s*" git-repo-path-true branch-name)
+          ;; Fallback: branch name not found or empty
+          (progn
+            (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+            (format "*aider:%s*" git-repo-path-true))))
+    ;; aider-use-branch-specific-buffers is nil
+    (format "*aider:%s*" git-repo-path-true)))
+
 (defun aider-buffer-name ()
   "Generate the Aider buffer name.
-If `aider-use-branch-specific-buffers' is non-nil and in a git repository,
+If in a git repository and `aider-use-branch-specific-buffers' is non-nil,
 the buffer name will be *aider:<git-repo-path>:<branch-name>*.
 Otherwise, it uses *aider:<git-repo-path>* or *aider:<current-file-directory>*."
-  (let ((git-repo-path-raw (magit-toplevel)))
+  (let ((git-repo-path (aider--get-git-repo-root)))
     (cond
      ;; Case 1: In a Git repository
-     ((and git-repo-path-raw (stringp git-repo-path-raw) (not (string-match-p "fatal" git-repo-path-raw)))
-      (let ((git-repo-path-true (file-truename git-repo-path-raw)))
-        (if aider-use-branch-specific-buffers
-            (let ((branch-name (aider--get-current-git-branch git-repo-path-true)))
-              (if (and branch-name (not (string-empty-p branch-name)))
-                  (format "*aider:%s:%s*" git-repo-path-true branch-name)
-                ;; Fallback: branch name not found or empty
-                (progn
-                  (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
-                  (format "*aider:%s*" git-repo-path-true))))
-          ;; aider-use-branch-specific-buffers is nil
-          (format "*aider:%s*" git-repo-path-true))))
+     (git-repo-path
+      (aider--buffer-name-for-git-repo git-repo-path))
      ;; Case 2: Not in a Git repository, but current buffer has a file
      ((buffer-file-name)
       (format "*aider:%s*" (file-truename (file-name-directory (buffer-file-name)))))
