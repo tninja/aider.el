@@ -266,7 +266,7 @@ Format: *aider:<git-repo-path>[:<branch-name>]*."
             (format "*aider:%s:%s*" git-repo-path-true branch-name)
           ;; Fallback: branch name not found or empty
           (progn
-            (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+            (warning "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
             (format "*aider:%s*" git-repo-path-true))))
     ;; aider-use-branch-specific-buffers is nil
     (format "*aider:%s*" git-repo-path-true)))
