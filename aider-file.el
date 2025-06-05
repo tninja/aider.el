@@ -11,6 +11,7 @@
 
 (require 'aider-core)
 (require 'dired)
+(require 'ffap)
 
 ;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
@@ -185,23 +186,7 @@ Works in both git repositories and regular directories."
 
 (defun aider--get-full-file-path-at-point ()
   (interactive)
-  (let* ((bounds (bounds-of-thing-at-point 'filename))
-         (start (car bounds))
-         (end (cdr bounds))
-         (path (and bounds (buffer-substring-no-properties start end))))
-    (when path
-      (save-excursion
-        (goto-char start)
-        (while (and (not (bobp))
-                    (looking-back "[^ \t\n\"'<>|]" 1))
-          (backward-char))
-        (let ((new-start (point)))
-          (goto-char end)
-          (while (and (not (eobp))
-                      (looking-at "[^ \t\n\"'<>|]"))
-            (forward-char))
-          (setq path (buffer-substring-no-properties new-start (point))))))
-    path))
+  (ffap-file-at-point))
 
 (defun aider--drop-file-under-cursor ()
   "Drop the file under cursor from aider session.
