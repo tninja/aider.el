@@ -187,7 +187,7 @@ otherwise relative to `default-directory`."
   "Check if the file-path under cursor represents an existing file.
 Works in both git repositories and regular directories."
   (when-let ((potential-file-path (aider--get-full-expanded-file-path-at-point)))
-    (message potential-file-path)
+    (message "%s" potential-file-path)
     (file-exists-p potential-file-path))))
 
 (defun aider--drop-file-under-cursor ()
