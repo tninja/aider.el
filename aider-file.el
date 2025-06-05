@@ -9,9 +9,11 @@
 
 ;;; Code:
 
-(require 'aider-core)
 (require 'dired)
+(require 'magit)
 (require 'ffap)
+
+(require 'aider-core)
 
 ;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
