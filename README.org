@@ -193,6 +193,11 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - By parsing .aider.input.history
 - Use ctrl + up / down key to scroll, alt + r to search
 
+** Multiple chats for the same repository
+
+- To turn on this feature, ~(setq aider-use-branch-specific-buffers t)~
+- *If we want to switch to work on a different feature, we switch git branch, and it will map to a corresponding aider session.* The aider session name pattern would be ~aider:<path-to-git-repo>:branch-name~ 
+
 * Frequently used features
 
 *** Aider session management
