@@ -48,9 +48,15 @@ Add quotes if the path contains spaces."
 
 ;;;###autoload
 (defun aider-drop-current-file ()
-  "Drop current file from aider session."
+  "Drop current file from aider session.
+If current buffer is the aider comint session and cursor is on a file path,
+drop that file instead."
   (interactive)
-  (aider-action-current-file "/drop"))
+  (if (derived-mode-p 'aider-comint-mode)
+      (if (aider--file-path-under-cursor-is-file)
+          (aider--drop-file-under-cursor)
+        (message "No file path found under cursor in aider session"))
+    (aider-action-current-file "/drop")))
 
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)
@@ -166,6 +172,48 @@ Otherwise, add the current file as read-only."
   "Retrieve list of files in DIRECTORY matching SUFFIXES. SUFFIXES is a list of strings without dot."
   (let ((regex (concat "\\.\\(" (mapconcat #'regexp-quote suffixes "\\|") "\\)$")))
     (directory-files-recursively directory regex)))
+
+(defun aider--file-path-under-cursor-is-file ()
+  "Check if the file-path under cursor represents an existing file.
+Works in both git repositories and regular directories."
+  (when-let ((file-path (aider--get-full-file-path-at-point)))
+    (let* ((git-root (ignore-errors (magit-toplevel)))
+           (base-dir (or git-root default-directory))
+           (potential-file-path (expand-file-name file-path base-dir)))
+      (message potential-file-path)
+      (file-exists-p potential-file-path))))
+
+(defun aider--get-full-file-path-at-point ()
+  (interactive)
+  (let* ((bounds (bounds-of-thing-at-point 'filename))
+         (start (car bounds))
+         (end (cdr bounds))
+         (path (and bounds (buffer-substring-no-properties start end))))
+    (when path
+      (save-excursion
+        (goto-char start)
+        (while (and (not (bobp))
+                    (looking-back "[^ \t\n\"'<>|]" 1))
+          (backward-char))
+        (let ((new-start (point)))
+          (goto-char end)
+          (while (and (not (eobp))
+                      (looking-at "[^ \t\n\"'<>|]"))
+            (forward-char))
+          (setq path (buffer-substring-no-properties new-start (point))))))
+    path))
+
+(defun aider--drop-file-under-cursor ()
+  "Drop the file under cursor from aider session.
+Works in both git repositories and regular directories."
+  (when-let ((file-path (aider--get-full-file-path-at-point)))
+    (let* ((git-root (ignore-errors (magit-toplevel)))
+           (base-dir (or git-root default-directory))
+           (full-file-path (expand-file-name file-path base-dir))
+           (file-path (aider--get-file-path full-file-path))
+           (formatted-path (aider--format-file-path file-path))
+           (command (format "/drop %s" formatted-path)))
+      (aider--send-command command))))
 
 (defun aider--filter-files-by-content-regex (files content-regex)
   "Filter FILES based on CONTENT-REGEX using grep.
