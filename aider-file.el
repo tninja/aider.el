@@ -177,21 +177,17 @@ Otherwise, add the current file as read-only."
 (defun aider--file-path-under-cursor-is-file ()
   "Check if the file-path under cursor represents an existing file.
 Works in both git repositories and regular directories."
-  (when-let ((file-path (aider--get-full-file-path-at-point)))
+  (when-let ((file-path (ffap-file-at-point)))
     (let* ((git-root (ignore-errors (magit-toplevel)))
            (base-dir (or git-root default-directory))
            (potential-file-path (expand-file-name file-path base-dir)))
       (message potential-file-path)
       (file-exists-p potential-file-path))))
 
-(defun aider--get-full-file-path-at-point ()
-  (interactive)
-  (ffap-file-at-point))
-
 (defun aider--drop-file-under-cursor ()
   "Drop the file under cursor from aider session.
 Works in both git repositories and regular directories."
-  (when-let ((file-path (aider--get-full-file-path-at-point)))
+  (when-let ((file-path (ffap-file-at-point)))
     (let* ((git-root (ignore-errors (magit-toplevel)))
            (base-dir (or git-root default-directory))
            (full-file-path (expand-file-name file-path base-dir))
