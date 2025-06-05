@@ -1,6 +1,10 @@
 
 * Release history
 
+** Main branch
+
+- Add support for dropping file under cursor in aider comint buffer, given discussion in https://github.com/tninja/aider.el/issues/179
+
 ** v0.11.0
 
 - Make transient menu be able to fit in narrow screen
