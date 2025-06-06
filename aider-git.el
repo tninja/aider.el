@@ -294,29 +294,23 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
          (log-output)
          ;; Define the expected path for git.log at the project root
          (project-log-file-path (expand-file-name "git.log" git-root)))
-    (if (and buffer-file-name
-             (string-equal (file-name-nondirectory buffer-file-name) "git.log")
-             ;; Optional: more strictly check if it's the project's git.log
-             ;; (string-equal (file-truename buffer-file-name) (file-truename project-log-file-path))
-             ;; For simplicity, we'll stick to checking just the filename "git.log"
-             ;; This means any file named "git.log" will be used if currently open.
-             )
-        (progn
-          (message "Analyzing existing git.log file: %s" buffer-file-name)
-          (setq log-output (with-current-buffer (find-file-noselect buffer-file-name) ; Ensure buffer content is up-to-date
-                             (with-temp-buffer
-                               (insert-file-contents buffer-file-name)
-                               (buffer-string)))))
-      ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
-      (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
-             (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
-        (message "Fetching Git log for %s (%s commits with stats)... This might take a moment." repo-name num-commits)
-        (setq log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits))
-        (message "Saving Git log to %s" project-log-file-path)
-        (with-temp-file project-log-file-path
-          (insert log-output))
-        (find-file project-log-file-path) ; Open the generated/updated git.log file
-        (message "Git log saved to %s and opened. Proceeding with analysis." project-log-file-path)))
+    (if (not (and buffer-file-name
+                  (string-equal (file-name-nondirectory buffer-file-name) "git.log")
+                  ;; Optional: more strictly check if it's the project's git.log
+                  ;; (string-equal (file-truename buffer-file-name) (file-truename project-log-file-path))
+                  ;; For simplicity, we'll stick to checking just the filename "git.log"
+                  ;; This means any file named "git.log" will be used if currently open.
+                  ))
+        ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
+        (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
+               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
+          (message "Fetching Git log for %s (%s commits with stats)... This might take a moment." repo-name num-commits)
+          (setq log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits))
+          (message "Saving Git log to %s" project-log-file-path)
+          (with-temp-file project-log-file-path
+            (insert log-output))
+          (find-file project-log-file-path) ; Open the generated/updated git.log file
+          (message "Git log saved to %s and opened. Proceeding with analysis." project-log-file-path)))
     ;; Common analysis part, using the determined log-output
     (let* ((context (format "Repository: %s\n\n" repo-name))
            (default-analysis
@@ -331,7 +325,7 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
            ;; Changed prompt to refer to "Git Log content" generically
            (prompt (format "Analyze the Git commit history for the entire repository '%s':\n\n%sGit Log content:\n```\n%s\n```\n\n%s"
                            repo-name context log-output analysis-instructions)))
-      ;; The context is the whole repo, so we don't add a specific file to Aider.
+      (aider-add-current-file) ;; git.log
       (aider--send-command (concat "/ask " prompt) t)
       (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
 
