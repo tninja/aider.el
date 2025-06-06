@@ -75,7 +75,7 @@ Handles special /subtree-only command."
 ;;;###autoload
 (defun aider-send-line-or-region (&optional arg)
   "Send text to the Aider buffer.
-If universal argument (C-u) is provided, send the current paragraph
+With a prefix argument ARG (e.g., invoked with C-u), send the current paragraph
 line by line.
 If region is active, send the selected region line by line.
 Otherwise, send the line under cursor.
