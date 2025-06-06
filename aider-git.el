@@ -290,7 +290,7 @@ It fetches the last 100 commits with stats by default."
   (interactive)
   (let ((git-root (aider--validate-git-repository))) ; ensure we're in a git repo
     (message "Fetching Git log for the repository (last 100 commits with stats)... This might take a moment.")
-    (let* ((log-output (magit-run-git-string "log" "--pretty=medium" "--stat" "-n" "100"))
+    (let* ((log-output (magit-run-git "log" "--pretty=medium" "--stat" "-n" "100"))
            (repo-name (file-name-nondirectory (directory-file-name git-root)))
            (context (format "Repository: %s\n\n" repo-name))
            (default-analysis
