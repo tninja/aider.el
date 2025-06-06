@@ -15,7 +15,7 @@
 
 ;;;###autoload
 (defun aider-legacy-code ()
-  "Apply legacy code techniques from 'Working Effectively with Legacy Code'.
+  "Apply legacy code techniques from \"Working Effectively with Legacy Code\".
 Provides a selection of different techniques for working with legacy code
 based on the current context."
   (interactive)
@@ -55,9 +55,10 @@ based on the current context."
       (message "No valid legacy code technique selected."))))
 
 (defun aider--legacy-code-identify-seams ()
-  "Identify seams in the current code where behavior can be changed without editing.
-A seam is a place where you can alter behavior in your program without editing in that place.
-This function helps identify potential seams in legacy code to make it more testable."
+  "Identify seams in the current code where behavior can be changed.
+A seam is a place where you can alter behavior in your program
+without editing in that place. This function helps identify
+potential seams in legacy code to make it more testable."
   (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
@@ -67,7 +68,11 @@ This function helps identify potential seams in legacy code to make it more test
                               (region-active "in the selected code")
                               (function-name (format "in function '%s'" function-name))
                               (t "in the current file")))
-         (initial-prompt (format "Identify seams %s. Look for places where behavior can be changed without editing the code directly. Consider: preprocessing seams, link seams, object seams." context-description))
+         (initial-prompt (format (concat "Identify seams %s. Look for places where "
+                                         "behavior can be changed without editing "
+                                         "the code directly. Consider: preprocessing "
+                                         "seams, link seams, object seams.")
+                                 context-description))
          (user-prompt (aider-read-string "Seam identification instruction: " initial-prompt))
          (command (if region-active
                      (format "/ask \"Analyze this code to identify seams as defined in 'Working Effectively with Legacy Code': %s\n\n```\n%s\n```\""
@@ -77,9 +82,10 @@ This function helps identify potential seams in legacy code to make it more test
     (aider--send-command command t)))
 
 (defun aider--legacy-code-characterization-test ()
-  "Generate characterization tests for the current code.
-Characterization tests document existing behavior without making judgments about correctness.
-This is essential for safely refactoring legacy code."
+  "Generate characterization test for the current code.
+Characterization tests document existing behavior without making
+judgments about correctness. This is essential for safely
+refactoring legacy code."
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -88,7 +94,13 @@ This is essential for safely refactoring legacy code."
                               (region-active "for the selected code")
                               (function-name (format "for function '%s'" function-name))
                               (t "for the current file")))
-         (initial-prompt (format "Write characterization tests %s. These tests should document the existing behavior without making judgments about correctness. Focus on capturing all current behaviors, including edge cases and error conditions." context-description))
+         (initial-prompt (format (concat "Write characterization tests %s. These "
+                                         "tests should document the existing "
+                                         "behavior without making judgments about "
+                                         "correctness. Focus on capturing all "
+                                         "current behaviors, including edge cases "
+                                         "and error conditions.")
+                                 context-description))
          (user-prompt (aider-read-string "Characterization test instruction: " initial-prompt))
          (command (if region-active
                      (format "/architect \"Generate characterization tests for this code as described in 'Working Effectively with Legacy Code': %s\n\n```\n%s\n```\""
@@ -99,8 +111,9 @@ This is essential for safely refactoring legacy code."
 
 (defun aider--legacy-code-break-dependencies ()
   "Apply techniques to break dependencies in legacy code.
-Offers various dependency-breaking techniques from 'Working Effectively with Legacy Code'
-to make the code more testable."
+Offers various dependency-breaking techniques from
+\"Working Effectively with Legacy Code\" to make the code more
+testable."
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -121,8 +134,8 @@ to make the code more testable."
          (selected-technique (completing-read "Select dependency-breaking technique: " technique-names nil t))
          (technique-description (cdr (assoc selected-technique techniques)))
          (initial-prompt (format "Apply the '%s' technique %s. %s."
-                               selected-technique 
-                               context-description 
+                               selected-technique
+                               context-description
                                technique-description))
          (user-prompt (aider-read-string "Dependency breaking instruction: " initial-prompt))
          (command (if region-active
@@ -134,7 +147,8 @@ to make the code more testable."
 
 (defun aider--legacy-code-sprout-method ()
   "Apply the Sprout Method technique to add new functionality.
-Creates a new method for the new functionality to minimize changes to existing code."
+Creates a new method for the new functionality to minimize
+changes to existing code."
   (let* ((function-name (which-function))
          (region-active (region-active-p))
          (region-text (when region-active
@@ -159,7 +173,8 @@ Creates a new method for the new functionality to minimize changes to existing c
 
 (defun aider--legacy-code-wrap-method ()
   "Apply the Wrap Method technique to modify existing behavior.
-Wraps an existing method to add behavior before/after it without changing the original."
+Wraps an existing method to add behavior before/after it without
+changing the original."
   (let* ((function-name (which-function))
          (method-to-wrap (or function-name
                             (aider-read-string "Method to wrap: ")))
@@ -180,7 +195,8 @@ Wraps an existing method to add behavior before/after it without changing the or
 
 (defun aider--legacy-code-sprout-class ()
   "Apply the Sprout Class technique to add new functionality.
-Creates a new class for the new functionality to minimize changes to existing code."
+Creates a new class for the new functionality to minimize changes
+to existing code."
   (let* ((class-name (aider-read-string "Name for the new class: "))
          (new-functionality (aider-read-string "Describe the functionality for the new class: "))
          (initial-prompt (format "Apply the Sprout Class technique to create a new class named '%s' that implements this functionality: %s. Design the class to work with the existing code with minimal changes to the original code."
@@ -193,7 +209,8 @@ Creates a new class for the new functionality to minimize changes to existing co
 
 (defun aider--legacy-code-wrap-class ()
   "Apply the Wrap Class technique to modify existing behavior.
-Creates a wrapper class that delegates to the original class while adding new behavior."
+Creates a wrapper class that delegates to the original class
+while adding new behavior."
   (let* ((original-class (aider-read-string "Original class to wrap: "))
          (wrapper-class-name (aider-read-string "Name for the wrapper class: "))
          (new-behavior (aider-read-string "Describe the new behavior to add: "))
@@ -230,7 +247,7 @@ Adds mechanisms to expose variables that would otherwise be hidden."
     (aider--send-command command t)))
 
 (defun aider--legacy-code-extract-and-override-call ()
-  "Apply the Extract and Override Call technique to replace problematic method calls.
+  "Apply the Extract and Override Call technique to replace problematic method call.
 Extracts method calls to make them overridable for testing."
   (let* ((function-name (which-function))
          (region-active (region-active-p))
@@ -242,7 +259,11 @@ Extracts method calls to make them overridable for testing."
                               (t "in the current file")))
          (call-to-extract (aider-read-string "Method call to extract and override: "))
          (new-method-name (aider-read-string "Name for the extracted method: "))
-         (initial-prompt (format "Apply the Extract and Override Call technique %s to extract the call to '%s' into a new method named '%s'. This will allow the call to be overridden in a testing subclass."
+         (initial-prompt (format (concat "Apply the Extract and Override Call "
+                                         "technique %s to extract the call to '%s' "
+                                         "into a new method named '%s'. This will "
+                                         "allow the call to be overridden in a "
+                                         "testing subclass.")
                                context-description
                                call-to-extract
                                new-method-name))
@@ -283,7 +304,8 @@ Extracts field access into getter methods to allow overriding in tests."
 
 (defun aider--legacy-code-replace-function-with-function-pointer ()
   "Apply the Replace Function with Function Pointer technique.
-Useful in C/C++ code to make static functions testable by replacing them with function pointers."
+Useful in C/C++ code to make static functions testable by
+replacing them with function pointers."
   (let* ((function-name (which-function))
          (function-to-replace (or function-name
                                  (aider-read-string "Function to replace with pointer: ")))
@@ -431,7 +453,8 @@ Adds a static setter method to allow tests to replace static dependencies."
 
 (defun aider--legacy-code-encapsulate-global-references ()
   "Apply the Encapsulate Global References technique.
-Groups related global variables or external dependencies into a single class or structure."
+Groups related global variables or external dependencies into a
+single class or structure."
   (interactive)
   (let* ((globals-list (aider-read-string "List the global variables/references to encapsulate (comma-separated): "))
          (encapsulating-class (aider-read-string "Name for the new encapsulating class/structure: "))
@@ -445,7 +468,8 @@ Groups related global variables or external dependencies into a single class or 
 
 (defun aider--legacy-code-introduce-null-object ()
   "Apply the Introduce Null Object pattern.
-Replaces conditional checks for null/nil with a Null Object that provides default do-nothing behavior."
+Replaces conditional checks for null/nil with a Null Object that
+provides default do-nothing behavior."
   (interactive)
   (let* ((class-name (aider-read-string "Class for which to introduce a Null Object: "))
          (null-object-class-name (aider-read-string "Name for the Null Object class: " (format "Null%s" class-name)))
@@ -461,8 +485,8 @@ Replaces conditional checks for null/nil with a Null Object that provides defaul
 
 (defun aider--legacy-code-replace-conditional-polymorphism ()
   "Apply the Replace Conditional with Polymorphism refactoring.
-Replaces complex conditional logic (e.g., switch statements, if/else chains based on type)
-with polymorphic method calls."
+Replaces complex conditional logic (e.g., switch statements,
+if/else chains based on type) with polymorphic method calls."
   (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p))
@@ -473,7 +497,14 @@ with polymorphic method calls."
                               (function-name (format "in function '%s'" function-name))
                               (t "in the current file")))
          (conditional-description (aider-read-string "Describe the conditional logic to replace (e.g., 'switch on type code', 'if/else checking status'): "))
-         (initial-prompt (format "Apply the Replace Conditional with Polymorphism refactoring %s. Identify the conditional logic related to '%s'. Introduce a class hierarchy or use existing polymorphism to replace the conditional checks with polymorphic method calls. Define the necessary interface/base class and subclasses."
+         (initial-prompt (format (concat "Apply the Replace Conditional with "
+                                         "Polymorphism refactoring %s. Identify "
+                                         "the conditional logic related to '%s'. "
+                                         "Introduce a class hierarchy or use "
+                                         "existing polymorphism to replace the "
+                                         "conditional checks with polymorphic "
+                                         "method calls. Define the necessary "
+                                         "interface/base class and subclasses.")
                                context-description
                                conditional-description))
          (user-prompt (aider-read-string "Replace Conditional/Polymorphism instruction: " initial-prompt))
