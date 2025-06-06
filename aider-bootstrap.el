@@ -129,8 +129,8 @@ Provides a selection of language-agnostic bootstrapping prompts."
          (suggested-filename "README.md")
          (filename (read-file-name "Save file as: " nil nil t suggested-filename))
          ;; Generate prompt *before* switching buffer
-         (initial-prompt (format "Generate a standard README.md template for a project named '%s'. Purpose: '%s'. Include sections for: Project Title, Description, Installation, Usage, Contributing, License, and Contact/Support Info. Use Markdown formatting."
-                               project-name purpose))
+         (initial-prompt (format "Generate a standard Markdown template for a file named '%s' (typically a README.md) for a project named '%s'. Purpose: '%s'. Include sections for: Project Title, Description, Installation, Usage, Contributing, License, and Contact/Support Info. Use Markdown formatting."
+                                   (file-name-nondirectory filename) project-name purpose))
          (user-prompt (aider-read-string "README Template instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     (aider--send-command command t)))
@@ -204,26 +204,26 @@ For each file, provide a brief description of its purpose and basic content."
          (initial-prompt
           (cond
            ((string= config-type "Dockerfile")
-            (format "Generate a Dockerfile for a %s application. %sInclude:
-1. Appropriate base image selection
-2. Proper dependency installation
-3. Security best practices
-4. Clear comments explaining each step
-5. Optimizations for build speed and image size" language multi-stage-text))
+            (format "Generate content for a Dockerfile named '%s' for a %s application. %sInclude:
+    1. Appropriate base image selection
+    2. Proper dependency installation
+    3. Security best practices
+    4. Clear comments explaining each step
+    5. Optimizations for build speed and image size" (file-name-nondirectory filename) language multi-stage-text))
            ((string= config-type "Docker Compose")
-            (format "Generate a Docker Compose configuration for a %s application with these services: %s. Include:
-1. Service definitions with appropriate images/builds
-2. Network configuration
-3. Volume mounts
-4. Environment variables
-5. Clear comments explaining each service and configuration option" language services))
+            (format "Generate content for a Docker Compose file named '%s' for a %s application with these services: %s. Include:
+    1. Service definitions with appropriate images/builds
+    2. Network configuration
+    3. Volume mounts
+    4. Environment variables
+    5. Clear comments explaining each service and configuration option" (file-name-nondirectory filename) language services))
            ((string= config-type "Both")
-            (format "Generate both a Dockerfile and Docker Compose configuration for a %s application. %sFor Docker Compose, include these services: %s. Include:
-1. Well-structured Dockerfile with best practices
-2. Complete Docker Compose setup with service definitions
-3. Network and volume configuration
-4. Environment variables
-5. Clear comments throughout" language multi-stage-text services))))
+            (format "Generate content suitable for Docker setup, potentially involving a Dockerfile and a Docker Compose configuration (the user specified saving this initial output to '%s'), for a %s application. %sFor Docker Compose, include these services: %s. Include:
+    1. Well-structured Dockerfile with best practices
+    2. Complete Docker Compose setup with service definitions
+    3. Network and volume configuration
+    4. Environment variables
+    5. Clear comments throughout" (file-name-nondirectory filename) language multi-stage-text services))))
          (user-prompt (aider-read-string "Docker Configuration instruction: " initial-prompt))
          (command (format "/architect \"%s\"" user-prompt)))
     (aider--send-command command t)))
@@ -273,7 +273,7 @@ For each file, provide a brief description of its purpose and basic content."
       (if is-update
           (progn
             (unless (file-exists-p note-filename)
-              (error "Note file '%s' does not exist. Cannot update." note-filename))
+              (error "Note file '%s' does not exist. Cannot update" note-filename))
             ;; Add the existing note file to Aider's context
             (aider--send-command (format "/add %s" (shell-quote-argument note-filename)) t)))
       ;; Send the main architect command
