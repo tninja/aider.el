@@ -323,8 +323,8 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
                     "6. General trends in the project's direction or focus over time."))
            (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
            ;; Changed prompt to refer to "Git Log content" generically
-           (prompt (format "Analyze the Git commit history for the entire repository '%s':\n\n%sGit Log content:\n```\n%s\n```\n\n%s"
-                           repo-name context log-output analysis-instructions)))
+           (prompt (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
+                           repo-name context analysis-instructions)))
       (aider-add-current-file) ;; git.log
       (aider--send-command (concat "/ask " prompt) t)
       (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
