@@ -329,6 +329,9 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
       (aider--send-command (concat "/ask " prompt) t)
       (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
 
+;; add a function aider-magit-blame-or-log-analyze, when C-u pressed,
+;; trigger aider-magit-log-analyze, otherwise, trigger aider-magit-blame-analyze
+
 (provide 'aider-git)
 
 ;;; aider-git.el ends here
