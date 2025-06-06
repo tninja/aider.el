@@ -339,6 +339,27 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
         (arg (aider-magit-log-analyze))
         (t (aider-magit-blame-analyze))))
 
+;;;###autoload
+(defun aider-magit-setup-transients ()
+  "Configure Aider's transient menu entries in Magit.
+This function uses `with-eval-after-load` to ensure that the
+Magit transients are modified only after Magit itself has been loaded.
+Call this function to register the Aider commands with Magit."
+  (interactive)
+  (with-eval-after-load 'magit
+    ;; For magit-diff-popup (usually 'd' in status buffer)
+    (transient-append-suffix 'magit-diff "r" ; "Extra" group
+      '("a" "Aider: Review/generate diff" aider-pull-or-review-diff-file))
+    ;; For magit-blame-popup (usually 'B' in status buffer or log)
+    (transient-append-suffix 'magit-blame "b" ; "Extra" group
+      '("a" "Aider: Analyze blame" aider-magit-blame-analyze))
+    ;; For magit-log-popup (usually 'l' in status buffer)
+    (transient-append-suffix 'magit-log "b" ; "Extra" group
+      '("a" "Aider: Analyze log" aider-magit-log-analyze))))
+
+;; Ensure the Magit transients are set up when this file is loaded.
+;; (aider-magit-setup-transients)
+
 (provide 'aider-git)
 
 ;;; aider-git.el ends here
