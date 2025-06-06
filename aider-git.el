@@ -331,11 +331,13 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
 
 ;;;###autoload
 (defun aider-magit-blame-or-log-analyze (&optional arg)
-  "If called with prefix ARG, run log analysis; otherwise run blame analysis."
+  "If current buffer is git.log, run log analysis; else if prefix ARG, run log analysis; otherwise run blame analysis."
   (interactive "P")
-  (if arg
-      (aider-magit-log-analyze)
-    (aider-magit-blame-analyze)))
+  (cond ((and buffer-file-name
+              (string-equal (file-name-nondirectory buffer-file-name) "git.log"))
+         (aider-magit-log-analyze))
+        (arg (aider-magit-log-analyze))
+        (t (aider-magit-blame-analyze))))
 
 (provide 'aider-git)
 
