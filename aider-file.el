@@ -9,8 +9,11 @@
 
 ;;; Code:
 
-(require 'aider-core)
 (require 'dired)
+(require 'magit)
+(require 'ffap)
+
+(require 'aider-core)
 
 ;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
@@ -48,9 +51,39 @@ Add quotes if the path contains spaces."
 
 ;;;###autoload
 (defun aider-drop-current-file ()
-  "Drop current file from aider session."
+  "Drop current file from aider session.
+If current buffer is the aider comint session and cursor is on a file path,
+drop that file instead."
   (interactive)
-  (aider-action-current-file "/drop"))
+  (if (derived-mode-p 'aider-comint-mode)
+      (if (aider--file-path-under-cursor-is-file)
+          (aider--drop-file-under-cursor)
+        (message "No file path found under cursor in aider session"))
+    (aider-action-current-file "/drop")))
+
+(defun aider--get-full-expanded-file-path-at-point ()
+  "Return the full, expanded file path found at point, or nil.
+The path is expanded relative to the git repository root if available,
+otherwise relative to `default-directory`."
+  (when-let ((file-name-at-point (ffap-file-at-point)))
+    (let* ((git-root (ignore-errors (magit-toplevel)))
+           (base-dir (or git-root default-directory)))
+      (expand-file-name file-name-at-point base-dir))))
+
+(defun aider--file-path-under-cursor-is-file ()
+  "Check if the file-path under cursor represents an existing file.
+Works in both git repositories and regular directories."
+  (when-let ((potential-file-path (aider--get-full-expanded-file-path-at-point)))
+    (file-exists-p potential-file-path)))
+
+(defun aider--drop-file-under-cursor ()
+  "Drop the file under cursor from aider session.
+Works in both git repositories and regular directories."
+  (when-let ((full-file-path (aider--get-full-expanded-file-path-at-point)))
+    (let* ((file-path-for-command (aider--get-file-path full-file-path))
+           (formatted-path (aider--format-file-path file-path-for-command))
+           (command (format "/drop %s" formatted-path)))
+      (aider--send-command command))))
 
 ;;;###autoload
 (defun aider-action-current-file (command-prefix)

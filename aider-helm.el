@@ -13,6 +13,8 @@
 
 (require 'cl-lib)  ; For `cl-subseq`
 
+(require 'aider-core)
+
 (declare-function helm-comp-read "helm-mode" (prompt collection &rest args))
 
 (defun aider-helm-read-string-with-history (prompt history-file-name &optional initial-input candidate-list)
@@ -22,11 +24,22 @@ HISTORY-FILE-NAME is the base name for history file.
 INITIAL-INPUT is optional initial input string.
 CANDIDATE-LIST is an optional list of candidate strings to show before history."
   ;; Load history from file
-  (let* ((history-file (expand-file-name history-file-name user-emacs-directory))
-         (history (when (file-exists-p history-file)
-                    (with-temp-buffer
-                      (insert-file-contents history-file)
-                      (delete-dups (read (buffer-string))))))
+  (let* ((helm-history-file (expand-file-name history-file-name user-emacs-directory))
+         (helm-history (if (file-exists-p helm-history-file)
+                           (with-temp-buffer
+                             (insert-file-contents helm-history-file)
+                             (read (buffer-string))) ; Assumed newest first
+                         '()))
+         (cli-history-file-path (aider--generate-history-file-name))
+         (parsed-cli-history (if cli-history-file-path
+                                 (aider--parse-aider-cli-history cli-history-file-path) ; Oldest first
+                               '()))
+         (cli-history-newest-first (reverse parsed-cli-history))
+         (cli-history-newest-first
+          (cl-remove-if-not (lambda (s) (not (string-match "\n" s)))
+                            cli-history-newest-first))
+         ;; Combine Helm history and CLI history, then deduplicate. Helm history items take precedence.
+         (history (delete-dups (append helm-history cli-history-newest-first)))
          ;; Extract the most recent item from history (if exists)
          (most-recent (when (and history (not (null history)))
                         (car history)))
@@ -56,7 +69,7 @@ CANDIDATE-LIST is an optional list of candidate strings to show before history."
     (unless (or (string-empty-p input) (string-match "\n" input))
       (push input history)
       ;; (setq history (mapcar #'substring-no-properties history))
-      (with-temp-file history-file
+      (with-temp-file helm-history-file ; Save to the Helm-specific history file
         (let ((history-entries (cl-subseq history
                                           0 (min (length history)
                                                  10000))))  ; Keep last 10000 entries

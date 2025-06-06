@@ -1,7 +1,7 @@
 ;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.10.0
+;; Version: 0.11.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
@@ -104,7 +104,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("f" "Add Current/Marked File (C-u: readonly)"  aider-add-current-file-or-dired-marked-files)
   ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
   ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
-  ("O" "Drop Current File"                        aider-drop-current-file)
+  ("O" "Drop File in Buffer / under Cursor"       aider-drop-current-file)
   ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
@@ -148,10 +148,12 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   "Transient menu for Aider commands."
   ["Aider: AI Pair Programming"
    ["Aider Process"   aider--menu-aider-process]
+   ;; adjust space to align
+   [""  ""]
    ["File Operation"  aider--menu-file-operation]]
   [["Code Change" aider--menu-code-change]
    ;; adjust space to align
-   ["     "  ""]
+   ;; ["     "  ""]
    ["Discussion" aider--menu-discussion]])
 
 (transient-define-prefix aider-transient-menu-1col ()
