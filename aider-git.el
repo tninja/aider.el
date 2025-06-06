@@ -282,9 +282,31 @@ code evolution and the reasoning behind changes."
     (aider--send-command (concat "/ask " prompt) t)
     (message "Press (S) to skip questions when it pop up")))
 
-;; similar to aider-magit-blame-analyze, I want to add a new function:
-;; aider-magit-log-analyze. It pull git log of the whole repo, and
-;; perform evolution analysis for the whole repo
+;;;###autoload
+(defun aider-magit-log-analyze ()
+  "Analyze the Git log of the entire repository with AI for insights.
+Helps understand project evolution, key changes, and architectural trends.
+It fetches the last 100 commits with stats by default."
+  (interactive)
+  (let ((git-root (aider--validate-git-repository))) ; ensure we're in a git repo
+    (message "Fetching Git log for the repository (last 100 commits with stats)... This might take a moment.")
+    (let* ((log-output (magit-run-git-string "log" "--pretty=medium" "--stat" "-n" "100"))
+           (repo-name (file-name-nondirectory (directory-file-name git-root)))
+           (context (format "Repository: %s\n\n" repo-name))
+           (default-analysis
+            (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
+                    "1. Overall project evolution and major development phases.\n"
+                    "2. Identification of key features, refactorings, or architectural changes and their timeline.\n"
+                    "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.).\n"
+                    "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
+                    "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
+                    "6. General trends in the project's direction or focus over time."))
+           (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
+           (prompt (format "Analyze the Git commit history for the entire repository '%s':\n\n%sGit Log (last 100 commits with stats):\n```\n%s\n```\n\n%s"
+                           repo-name context log-output analysis-instructions)))
+      ;; The context is the whole repo, so we don't add a specific file.
+      (aider--send-command (concat "/ask " prompt) t)
+      (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
 
 (provide 'aider-git)
 
