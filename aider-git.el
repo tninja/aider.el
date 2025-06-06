@@ -294,7 +294,6 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
          (log-output)
          ;; Define the expected path for git.log at the project root
          (project-log-file-path (expand-file-name "git.log" git-root)))
-
     (if (and buffer-file-name
              (string-equal (file-name-nondirectory buffer-file-name) "git.log")
              ;; Optional: more strictly check if it's the project's git.log
@@ -313,13 +312,11 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
              (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
         (message "Fetching Git log for %s (%s commits with stats)... This might take a moment." repo-name num-commits)
         (setq log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits))
-
         (message "Saving Git log to %s" project-log-file-path)
         (with-temp-file project-log-file-path
           (insert log-output))
         (find-file project-log-file-path) ; Open the generated/updated git.log file
         (message "Git log saved to %s and opened. Proceeding with analysis." project-log-file-path)))
-
     ;; Common analysis part, using the determined log-output
     (let* ((context (format "Repository: %s\n\n" repo-name))
            (default-analysis
