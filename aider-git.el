@@ -282,6 +282,10 @@ code evolution and the reasoning behind changes."
     (aider--send-command (concat "/ask " prompt) t)
     (message "Press (S) to skip questions when it pop up")))
 
+;; similar to aider-magit-blame-analyze, I want to add a new function:
+;; aider-magit-log-analyze. It pull git log of the whole repo, and
+;; perform evolution analysis for the whole repo
+
 (provide 'aider-git)
 
 ;;; aider-git.el ends here
