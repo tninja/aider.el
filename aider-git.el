@@ -284,15 +284,44 @@ code evolution and the reasoning behind changes."
 
 ;;;###autoload
 (defun aider-magit-log-analyze ()
-  "Analyze the Git log of the entire repository with AI for insights.
-Helps understand project evolution, key changes, and architectural trends.
-It fetches the last 100 commits with stats by default."
+  "Analyze Git log with AI.
+If current buffer is visiting a file named 'git.log', analyze its content.
+Otherwise, prompt for number of commits (default 100), generate the log,
+save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content."
   (interactive)
-  (let ((git-root (aider--validate-git-repository))) ; ensure we're in a git repo
-    (message "Fetching Git log for the repository (last 100 commits with stats)... This might take a moment.")
-    (let* ((log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" "100"))
-           (repo-name (file-name-nondirectory (directory-file-name git-root)))
-           (context (format "Repository: %s\n\n" repo-name))
+  (let* ((git-root (aider--validate-git-repository)) ; Ensure we're in a git repo
+         (repo-name (file-name-nondirectory (directory-file-name git-root)))
+         (log-output)
+         ;; Define the expected path for git.log at the project root
+         (project-log-file-path (expand-file-name "git.log" git-root)))
+
+    (if (and buffer-file-name
+             (string-equal (file-name-nondirectory buffer-file-name) "git.log")
+             ;; Optional: more strictly check if it's the project's git.log
+             ;; (string-equal (file-truename buffer-file-name) (file-truename project-log-file-path))
+             ;; For simplicity, we'll stick to checking just the filename "git.log"
+             ;; This means any file named "git.log" will be used if currently open.
+             )
+        (progn
+          (message "Analyzing existing git.log file: %s" buffer-file-name)
+          (setq log-output (with-current-buffer (find-file-noselect buffer-file-name) ; Ensure buffer content is up-to-date
+                             (with-temp-buffer
+                               (insert-file-contents buffer-file-name)
+                               (buffer-string)))))
+      ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
+      (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
+             (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
+        (message "Fetching Git log for %s (%s commits with stats)... This might take a moment." repo-name num-commits)
+        (setq log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits))
+
+        (message "Saving Git log to %s" project-log-file-path)
+        (with-temp-file project-log-file-path
+          (insert log-output))
+        (find-file project-log-file-path) ; Open the generated/updated git.log file
+        (message "Git log saved to %s and opened. Proceeding with analysis." project-log-file-path)))
+
+    ;; Common analysis part, using the determined log-output
+    (let* ((context (format "Repository: %s\n\n" repo-name))
            (default-analysis
             (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
                     "1. Overall project evolution and major development phases.\n"
@@ -302,9 +331,10 @@ It fetches the last 100 commits with stats by default."
                     "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
                     "6. General trends in the project's direction or focus over time."))
            (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
-           (prompt (format "Analyze the Git commit history for the entire repository '%s':\n\n%sGit Log (last 100 commits with stats):\n```\n%s\n```\n\n%s"
+           ;; Changed prompt to refer to "Git Log content" generically
+           (prompt (format "Analyze the Git commit history for the entire repository '%s':\n\n%sGit Log content:\n```\n%s\n```\n\n%s"
                            repo-name context log-output analysis-instructions)))
-      ;; The context is the whole repo, so we don't add a specific file.
+      ;; The context is the whole repo, so we don't add a specific file to Aider.
       (aider--send-command (concat "/ask " prompt) t)
       (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
 
