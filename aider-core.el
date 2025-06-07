@@ -482,9 +482,16 @@ invoke `aider-prompt-insert-add-file-path`."
       (when (string-match-p "^[ \t]*/drop $" line-content)
         (aider-prompt-insert-drop-file-path)))))
 
-;; add function aider-prompt-insert-drop-file-path. It will call
-;; aider-core--parse-added-file-list to get candidate list, use
-;; completing-read to get the one choosed, and insert it under cursor
+(defun aider-prompt-insert-drop-file-path ()
+  "Prompt for a file to drop from the list of added files and insert its path."
+  (interactive)
+  (let ((candidate-files (aider-core--parse-added-file-list)))
+    (if candidate-files
+        (let ((file-to-drop (completing-read "Drop file: " candidate-files nil t nil)))
+          ;; Check if a file was actually selected and it's not an empty string
+          (when (and file-to-drop (not (string-empty-p file-to-drop)))
+            (insert file-to-drop)))
+      (message "No files currently added to Aider to drop."))))
 
 (defun aider-core--parse-added-file-list ()
   "Parse the Aider comint buffer to find the list of currently added files.
