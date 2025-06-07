@@ -1,6 +1,12 @@
 
 * Release history
 
+* Main branch change
+
+- Add whole git repo evolution analysis: aider-magit-log-analyze
+  - Update menu item to aider-magit-blame-or-log-analyze
+- Add aider-magit-setup-transients function to register Aider commands with Magit transients
+
 ** v0.11.1
 
 - Add support for dropping file under cursor in aider comint buffer, given discussion in https://github.com/tninja/aider.el/issues/179
@@ -8,9 +14,6 @@
   - To turn on this feature, ~(setq aider-use-branch-specific-buffers t)~
   - *If we want to switch to work on a different feature, we switch git branch, and it will map to a corresponding aider session.* The aider session name pattern would be ~aider:<path-to-git-repo>:branch-name~ 
 - prevent "Object cannot be turned into regex" error in aider-comint-session
-- Add whole git repo evolution analysis: aider-magit-log-analyze
-  - Update menu item to aider-magit-blame-or-log-analyze
-- Add aider-magit-setup-transients function to register Aider commands with Magit transients
 
 ** v0.11.0
 
