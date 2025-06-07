@@ -1,6 +1,12 @@
 
 * Release history
 
+* Main branch change
+
+- Add whole git repo evolution analysis: aider-magit-log-analyze
+  - Update menu item to aider-magit-blame-or-log-analyze
+- Add aider-magit-setup-transients function to register Aider commands with Magit transients
+
 ** v0.11.1
 
 - Add support for dropping file under cursor in aider comint buffer, given discussion in https://github.com/tninja/aider.el/issues/179

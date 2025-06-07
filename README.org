@@ -92,8 +92,9 @@ Enable installation of packages from MELPA by adding an entry to package-archive
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
     ;; Optional: Set a key binding for the transient menu
-    (global-set-key (kbd "C-c a") 'aider-transient-menu)) ;; for wider screen
+    (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
     ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
+    (aider-magit-setup-transients)) ;; add aider magit function to magit menu
 #+END_SRC
 
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
