@@ -472,15 +472,15 @@ invoke `aider-prompt-insert-file-path`."
   "Parse the Aider comint buffer to find the list of currently added files.
 Searches upwards from the last Aider prompt (e.g., '>') until a blank line.
 Removes trailing \" (read only)\" from file names."
-  (intreactive)
+  (interactive)
   (let ((aider-buf (get-buffer (aider-buffer-name)))
         (file-list '())) ; Initialize file-list to nil (empty list)
     (when aider-buf
       (with-current-buffer aider-buf
         (save-excursion
           (goto-char (point-max))
-          ;; Search backward for the last line starting with ">" or ">>"
-          (if (re-search-backward "^\\(>\\|>\\)>" nil t)
+          ;; Search backward for the last line starting with ">"
+          (if (re-search-backward "^>" nil t)
               (progn
                 ;; Move to the line above the prompt line
                 (forward-line -1)
