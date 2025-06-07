@@ -3,7 +3,7 @@
 
 ** Main branch change
 
-- file completion for /drop only list added files
+- file completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
 
 ** v0.11.1
 
