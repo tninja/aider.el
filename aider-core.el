@@ -473,7 +473,7 @@ invoke `aider-prompt-insert-add-file-path`."
   "Automatically trigger file path insertion in aider buffer.
 If the current line matches one of the file-related commands
 followed by a space, and the cursor is at the end of the line,
-invoke `aider-prompt-insert-add-file-path`."
+invoke `aider-prompt-insert-drop-file-path`."
   (when (and (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s)  ; Check if last char is space
