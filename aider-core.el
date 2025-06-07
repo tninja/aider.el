@@ -468,11 +468,40 @@ invoke `aider-prompt-insert-file-path`."
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
         (aider-prompt-insert-file-path)))))
 
-;; add a function, aider-core--parse-added-file-list. It will check
-;; the aider comint buffer (example, aider-comint-session.txt)
-;; from the very bottom line with > character
-;; and look above. get all lines above till a space line, remove
-;; trailing " (read only)" of each line, and return the list
+(defun aider-core--parse-added-file-list ()
+  "Parse the Aider comint buffer to find the list of currently added files.
+Searches upwards from the last Aider prompt (e.g., '>') until a blank line.
+Removes trailing \" (read only)\" from file names."
+  (let ((aider-buf (get-buffer (aider-buffer-name)))
+        (file-list '())) ; Initialize file-list to nil (empty list)
+    (when aider-buf
+      (with-current-buffer aider-buf
+        (save-excursion
+          (goto-char (point-max))
+          ;; Search backward for the last line starting with ">" or ">>"
+          (if (re-search-backward "^\\(>\\|>\\)>" nil t)
+              (progn
+                ;; Move to the line above the prompt line
+                (forward-line -1)
+                ;; Loop upwards as long as not at buffer beginning and line is not blank
+                (while (and (not (bobp))
+                            (let ((current-line-text (buffer-substring-no-properties
+                                                      (line-beginning-position)
+                                                      (line-end-position))))
+                              ;; Check if the line contains any non-whitespace characters
+                              (string-match-p "\\S-" current-line-text)))
+                  (let* ((line-text (buffer-substring-no-properties
+                                     (line-beginning-position)
+                                     (line-end-position)))
+                         ;; Remove " (read only)" suffix from the line
+                         (processed-line (replace-regexp-in-string " (read only)$" "" line-text)))
+                    (push processed-line file-list))
+                  (forward-line -1))))
+          ;; If prompt not found, file-list remains empty
+          )))
+    ;; The list is built by pushing items, so it's naturally in top-to-bottom order
+    ;; as read from bottom-up. No need to reverse.
+    file-list))
 
 ;;;###autoload
 (defun aider-core-insert-prompt ()
