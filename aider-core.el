@@ -468,6 +468,12 @@ invoke `aider-prompt-insert-file-path`."
       (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
         (aider-prompt-insert-file-path)))))
 
+;; add a function, aider-core--parse-added-file-list. It will check
+;; the aider comint buffer (example, aider-comint-session.txt)
+;; from the very bottom line with > character
+;; and look above. get all lines above till a space line, remove
+;; trailing " (read only)" of each line, and return the list
+
 ;;;###autoload
 (defun aider-core-insert-prompt ()
   "Get user input via `aider-read-string` and insert it at point."
