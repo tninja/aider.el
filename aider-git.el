@@ -68,15 +68,15 @@ Signal an error if either branch doesn't exist."
     (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
 
 (defun aider--generate-staged-diff (diff-file)
-  "Generate diff for staged (staged) changes and save to DIFF-FILE."
+  "Generate diff for staged (staged) change and save to DIFF-FILE."
   (message "Generating diff for staged (staged) changes...")
   (magit-run-git "diff" "--cached" (concat "--output=" diff-file)))
 
 (defun aider--resolve-diff-branches (type input-base-branch input-feature-branch &optional branch-scope)
   "Resolve base and feature branches for diff generation.
-TYPE is 'commit, 'base-vs-head, or 'branch-range.
+TYPE is `'commit`, `'base-vs-head`, or `'branch-range`.
 INPUT-BASE-BRANCH and INPUT-FEATURE-BRANCH are user-provided names.
-BRANCH-SCOPE is 'local or 'remote, used for 'branch-range.
+BRANCH-SCOPE is `'local` or `'remote`, used for `'branch-range`.
 Returns a cons cell (RESOLVED-BASE . RESOLVED-FEATURE)."
   (let (resolved-base-branch resolved-feature-branch)
     (pcase type
@@ -106,8 +106,9 @@ Returns a cons cell (RESOLVED-BASE . RESOLVED-FEATURE)."
 
 (defun aider--generate-branch-or-commit-diff (diff-params diff-file)
   "Generate diff based on DIFF-PARAMS and save to DIFF-FILE.
-DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
-:base-branch, :feature-branch, :diff-file-name-part, and optionally :branch-scope."
+DIFF-PARAMS is a plist with :type (`'commit`, `'base-vs-head`, `'branch-range`),
+:base-branch, :feature-branch, :diff-file-name-part, and optionally
+:branch-scope."
   (let* ((type (plist-get diff-params :type))
          (input-base-branch (plist-get diff-params :base-branch))
          (input-feature-branch (plist-get diff-params :feature-branch))
@@ -145,14 +146,16 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
   (message "Generated diff file: %s" diff-file))
 
 (defun aider--handle-staged-diff-generation (git-root)
-  "Handle generation of diff for staged changes."
+  "Handle generation of diff for staged change.
+GIT-ROOT is the root directory of the Git repository."
   (let* ((diff-file-name-part "staged")
          (diff-file (expand-file-name (concat diff-file-name-part ".diff") git-root)))
     (aider--generate-staged-diff diff-file)
     diff-file))
 
 (defun aider--handle-base-vs-head-diff-generation (git-root)
-  "Handle generation of diff between a base branch and HEAD."
+  "Handle generation of diff between a base branch and HEAD.
+GIT-ROOT is the root directory of the Git repository."
   (let* ((base-branch (read-string "Base branch name: " nil nil nil))
          (feature-branch "HEAD")
          (diff-file-name-part (concat (replace-regexp-in-string "/" "-" base-branch) ".HEAD"))
@@ -165,7 +168,8 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
     diff-file))
 
 (defun aider--handle-branch-range-diff-generation (git-root)
-  "Handle generation of diff between a base branch and a feature branch."
+  "Handle generation of diff between a base branch and a feature branch.
+GIT-ROOT is the root directory of the Git repository."
   (let* ((base-branch (read-string "Base branch name: "))
          (feature-branch (read-string "Feature branch name: "))
          (branch-scope)
@@ -191,7 +195,8 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
       diff-file)))
 
 (defun aider--handle-commit-diff-generation (git-root)
-  "Handle generation of diff for a single commit."
+  "Handle generation of diff for a single commit.
+GIT-ROOT is the root directory of the Git repository."
   (let* ((commit-hash (read-string "Commit hash: "))
          (base-branch (concat commit-hash "^")) ; Diff against parent
          (feature-branch commit-hash)
@@ -244,7 +249,7 @@ code evolution and the reasoning behind changes."
   (interactive)
   (when (aider--validate-buffer-file)
     (let* ((file-path (buffer-file-name))
-           (file-name (file-name-nondirectory file-path))
+           ;; (file-name (file-name-nondirectory file-path)) ; Unused variable
            (has-region (use-region-p))
            (line-start (if has-region
                            (line-number-at-pos (region-beginning))
@@ -256,7 +261,7 @@ code evolution and the reasoning behind changes."
                             (buffer-substring-no-properties 
                              (region-beginning) (region-end))
                           nil))
-           (blame-args (list "blame" "-l" 
+           (blame-args (list "blame" "-l"
                              (format "-L%d,%d" line-start line-end)
                              file-path))
            (blame-output (with-temp-buffer
