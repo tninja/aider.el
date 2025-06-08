@@ -9,8 +9,10 @@
 
 ;;; Code:
 
-(require 'aider-core)
 (require 'magit)
+
+(require 'aider-core)
+(require 'aider-file)
 
 ;;;###autoload
 (defun aider-pull-or-review-diff-file ()
