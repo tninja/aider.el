@@ -13,7 +13,6 @@
 (require 'magit)
 (require 'savehist)
 (require 'markdown-mode)
-(require 'warnings)
 
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
 (defun aider--safe-maybe-funcall-regexp (origfn &rest args)
@@ -279,7 +278,7 @@ Format: *aider:<git-repo-path>[:<branch-name>]*."
             (format "*aider:%s:%s*" git-repo-path-true branch-name)
           ;; Fallback: branch name not found or empty
           (progn
-            (warning "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+            (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
             (format "*aider:%s*" git-repo-path-true))))
     ;; aider-use-branch-specific-buffers is nil
     (format "*aider:%s*" git-repo-path-true)))
