@@ -13,10 +13,12 @@
 (require 'magit)
 (require 'savehist)
 (require 'markdown-mode)
+(require 'warnings)
 
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
 (defun aider--safe-maybe-funcall-regexp (origfn &rest args)
-  "Call `markdown-maybe-funcall-regexp' but on error return empty regex."
+  "Call ORIGFN (`markdown-maybe-funcall-regexp') but on error return empty regex.
+ARGS are passed to ORIGFN."
   (condition-case _
       (apply origfn args)
     (error "")))
@@ -161,19 +163,19 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-drop-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
-  (condition-case err ; catch any error during history loading
-      (when-let ((history-file-path (aider--generate-history-file-name)))
-        (when (file-readable-p history-file-path)
+  (let ((history-file-path (aider--generate-history-file-name))) ; Bind history-file-path here
+    (condition-case err ; catch any error during history loading
+        (when (and history-file-path (file-readable-p history-file-path)) ; Check history-file-path too
           ;; Initialize comint ring for this buffer
           (setq comint-input-ring (make-ring comint-input-ring-size))
           (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
             (when parsed-history
               (dolist (item parsed-history)
                 (when (and item (stringp item))
-                  (comint-add-to-input-history item)))))))
-    (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
-                    (or history-file-path "unknown location") ; provide file path if available
-                    (error-message-string err)))) ; display the error message
+                  (comint-add-to-input-history item))))))
+      (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
+                      (or history-file-path "its determined location") ; provide file path if available
+                      (error-message-string err)))))) ; display the error message
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
@@ -188,20 +190,20 @@ Inherits from `comint-mode' with some Aider-specific customizations.
       (file-truename git-root))))
 
 (defun aider--get-relevant-directory-for-history ()
-  "Return the top-level directory of the current git repository,
-or the directory of the current buffer's file if not in a git repo.
+  "Return the top-level directory of the current git repository.
+If not in a git repo, return the directory of the current buffer's file.
 Returns nil if neither can be determined."
   (or (aider--get-git-repo-root)
       (when-let ((bfn (buffer-file-name)))
         (file-name-directory (file-truename bfn)))))
-
 (defun aider--generate-history-file-name ()
-  "Generate the path for .aider.input.history in the git repo root or current buffer's file directory."
+  "Generate path for .aider.input.history in git repo root or current buffer's dir."
   (when-let ((relevant-dir (aider--get-relevant-directory-for-history)))
     (expand-file-name ".aider.input.history" relevant-dir)))
 
 (defun aider--parse-aider-cli-history (file-path)
-  "Parse .aider.input.history file and return a list of commands (oldest to newest)."
+  "Parse .aider.input.history file at FILE-PATH.
+Return a list of commands, oldest to newest."
   (when (and file-path (file-readable-p file-path))
     (with-temp-buffer
       (insert-file-contents file-path)
@@ -236,8 +238,9 @@ Returns nil if neither can be determined."
         (reverse history-items))))) ; Reverse to get chronological order (oldest first)
 
 (defun aider--get-current-git-branch (repo-root-path)
-  "Return the current git branch name for the git repository at REPO-ROOT-PATH.
-Returns nil if REPO-ROOT-PATH is not a git repository or no branch is checked out."
+  "Return current git branch name for git repository at REPO-ROOT-PATH.
+Returns nil if REPO-ROOT-PATH is not a git repository or no branch
+is checked out."
   ;; Ensure repo-root-path is a valid directory string before proceeding
   (when (and repo-root-path (stringp repo-root-path) (file-directory-p repo-root-path))
     (let ((default-directory repo-root-path)) ; Scope magit call to the repo root
@@ -386,7 +389,7 @@ Return potentially modified CURRENT-ARGS."
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args subtree-only)
   "Run \"aider\" in a comint buffer for interactive conversation.
-With C-u EDIT-ARGS, prompt to edit `aider-args`.
+With prefix argument (e.g., \\[universal-argument]), prompt to edit `aider-args` (EDIT-ARGS).
 If SUBTREE-ONLY is non-nil, add '--subtree-only'.
 Prompts for --subtree-only in dired/eshell/shell if needed."
   (interactive "P")
@@ -547,7 +550,7 @@ invoke `aider-core-insert-prompt`."
 
 (defun aider--validate-buffer-file ()
   "Validate that current buffer is associated with a file.
-Returns buffer-file-name if valid, nil otherwise with message."
+Returns `buffer-file-name` if valid, nil otherwise with message."
   (if buffer-file-name
       buffer-file-name
     (message "Current buffer is not associated with a file")
