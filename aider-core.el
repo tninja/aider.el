@@ -176,7 +176,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
                   (comint-add-to-input-history item))))))
       (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
                       (or history-file-path "its determined location") ; provide file path if available
-                      (error-message-string err))))))) ; display the error message
+                      (error-message-string err)))))) ; display the error message
 
 ;; Apply markdown highlighting via the mode hook for robust initialization.
 (add-hook 'aider-comint-mode-hook #'aider--apply-markdown-highlighting)
