@@ -65,6 +65,9 @@ When nil, use standard `display-buffer' behavior.")
     map)
   "Keymap for `aider-comint-mode'.")
 
+(eval-after-load 'evil
+  '(evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt))
+
 ;;;###autoload
 (defun aider-prompt-insert-add-file-path ()
   "Select and insert the relative file path to git repository root."
@@ -93,8 +96,6 @@ When nil, use standard `display-buffer' behavior.")
     "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
     "/voice" "/web")
   "A list of common Aider commands for completion.")
-
-(declare-function evil-define-key* "evil" (state map key def))
 
 (defun aider--apply-markdown-highlighting ()
   "Set up markdown highlighting for aider buffer with optimized performance.
@@ -176,10 +177,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
       (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
                       (or history-file-path "its determined location") ; provide file path if available
                       (error-message-string err)))))) ; display the error message
-  ;; Bind space key to aider-core-insert-prompt when evil package is available
-  (aider--apply-markdown-highlighting)
-  (when (featurep 'evil)
-    (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+  (aider--apply-markdown-highlighting))
 
 ;; --- History Functions ---
 
