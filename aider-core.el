@@ -14,6 +14,8 @@
 (require 'savehist)
 (require 'markdown-mode)
 
+(declare-function evil-define-key* "evil" (state map key def))
+
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
 (defun aider--safe-maybe-funcall-regexp (origfn &rest args)
   "Call ORIGFN (`markdown-maybe-funcall-regexp') but on error return empty regex.
