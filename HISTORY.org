@@ -1,7 +1,7 @@
 
 * Release history
 
-* Main branch change
+** Main branch change
 
 - file completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
 - Add whole git repo evolution analysis: aider-magit-log-analyze
