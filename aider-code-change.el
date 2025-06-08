@@ -300,7 +300,7 @@ This command requires the `flycheck` package to be installed and available."
                 (when (and edited-prompt (not (string-blank-p edited-prompt)))
                   (aider-add-current-file)
                   (aider--send-command (concat "/architect " edited-prompt) t)
-                  (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))))))))
+                  (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description))))))))))
 
 (provide 'aider-code-change)
 
