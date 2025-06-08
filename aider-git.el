@@ -35,14 +35,6 @@ For each issue found, please explain:
         (aider-current-file-command-and-switch "/ask " prompt))
     (aider--magit-generate-feature-branch-diff-file)))
 
-(defun aider--validate-git-repository ()
-  "Ensure we're in a git repository and return the git root.
-Signal an error if not in a git repository."
-  (let ((git-root (magit-toplevel)))
-    (unless git-root
-      (user-error "Not in a git repository"))
-    git-root))
-
 (defun aider--get-full-branch-ref (branch)
   "Get full reference for BRANCH, handling remote branches properly.
 Prefer remote branch (origin/BRANCH) if it exists.
@@ -213,33 +205,33 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
 (defun aider--magit-generate-feature-branch-diff-file ()
   "Generate a diff file based on user-selected type (staged, branches, commit)."
   (interactive)
-  (let* ((git-root (aider--validate-git-repository))
-         (diff-type-alist '(("Staged changes" . staged)
-                            ("Base branch vs HEAD" . base-vs-head)
-                            ("Branch range (e.g., base..feature)" . branch-range)
-                            ("Single commit" . commit)))
-         (raw-diff-type-choice
-          (completing-read "Select diff type: "
-                           diff-type-alist
-                           nil t nil nil "Staged changes"))
-         (selected-diff-type-value
-          (if (consp raw-diff-type-choice)
-              (cdr raw-diff-type-choice)
-            ;; If raw-diff-type-choice is a string, it should be one of the display strings.
-            ;; We look up its corresponding value in the alist.
-            (cdr (assoc raw-diff-type-choice diff-type-alist))))
-         ;; Variable to hold the path of the generated diff file
-         (diff-file))
-    (setq diff-file
-          (pcase selected-diff-type-value
-            ('staged       (aider--handle-staged-diff-generation git-root))
-            ('base-vs-head (aider--handle-base-vs-head-diff-generation git-root))
-            ('branch-range (aider--handle-branch-range-diff-generation git-root))
-            ('commit       (aider--handle-commit-diff-generation git-root))
-            (_ (user-error "Invalid diff type selected"))))
+  (when-let ((git-root (aider--validate-git-repository)))
+    (let* ((diff-type-alist '(("Staged changes" . staged)
+                              ("Base branch vs HEAD" . base-vs-head)
+                              ("Branch range (e.g., base..feature)" . branch-range)
+                              ("Single commit" . commit)))
+           (raw-diff-type-choice
+            (completing-read "Select diff type: "
+                             diff-type-alist
+                             nil t nil nil "Staged changes"))
+           (selected-diff-type-value
+            (if (consp raw-diff-type-choice)
+                (cdr raw-diff-type-choice)
+              ;; If raw-diff-type-choice is a string, it should be one of the display strings.
+              ;; We look up its corresponding value in the alist.
+              (cdr (assoc raw-diff-type-choice diff-type-alist))))
+           ;; Variable to hold the path of the generated diff file
+           (diff-file))
+      (setq diff-file
+            (pcase selected-diff-type-value
+              ('staged       (aider--handle-staged-diff-generation git-root))
+              ('base-vs-head (aider--handle-base-vs-head-diff-generation git-root))
+              ('branch-range (aider--handle-branch-range-diff-generation git-root))
+              ('commit       (aider--handle-commit-diff-generation git-root))
+              (_ (user-error "Invalid diff type selected"))))
 
-    (when diff-file
-      (aider--open-diff-file diff-file))))
+      (when diff-file
+        (aider--open-diff-file diff-file)))))
 
 ;;;###autoload
 (defun aider-magit-blame-analyze ()
@@ -248,39 +240,38 @@ If region is active, analyze just that region. Otherwise analyze entire file.
 Combines magit-blame history tracking with AI analysis to help understand
 code evolution and the reasoning behind changes."
   (interactive)
-  (unless buffer-file-name
-    (user-error "Current buffer is not associated with a file"))
-  (let* ((file-path (buffer-file-name))
-         (file-name (file-name-nondirectory file-path))
-         (has-region (use-region-p))
-         (line-start (if has-region
-                         (line-number-at-pos (region-beginning))
-                       1))
-         (line-end (if has-region
-                       (line-number-at-pos (region-end))
-                     (line-number-at-pos (point-max))))
-         (region-text (if has-region
-                          (buffer-substring-no-properties 
-                           (region-beginning) (region-end))
-                        nil))
-         (blame-args (list "blame" "-l" 
-                           (format "-L%d,%d" line-start line-end)
-                           file-path))
-         (blame-output (with-temp-buffer
-                         (apply #'process-file "git" nil t nil blame-args)
-                         (buffer-string)))
-         (context (format "File: %s\nLines: %d-%d\n\n" 
-                          file-path line-start line-end))
-         (code-sample (if has-region
-                          (concat "Selected code:\n```\n" region-text "\n```\n\n")
-                        ""))
-         (default-analysis "Please provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design")
-         (analysis-instructions (aider-read-string "Analysis instructions: " default-analysis))
-         (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
-                         context code-sample blame-output analysis-instructions)))
-    (aider-add-current-file)
-    (aider--send-command (concat "/ask " prompt) t)
-    (message "Press (S) to skip questions when it pop up")))
+  (when (aider--validate-buffer-file)
+    (let* ((file-path (buffer-file-name))
+           (file-name (file-name-nondirectory file-path))
+           (has-region (use-region-p))
+           (line-start (if has-region
+                           (line-number-at-pos (region-beginning))
+                         1))
+           (line-end (if has-region
+                         (line-number-at-pos (region-end))
+                       (line-number-at-pos (point-max))))
+           (region-text (if has-region
+                            (buffer-substring-no-properties 
+                             (region-beginning) (region-end))
+                          nil))
+           (blame-args (list "blame" "-l" 
+                             (format "-L%d,%d" line-start line-end)
+                             file-path))
+           (blame-output (with-temp-buffer
+                           (apply #'process-file "git" nil t nil blame-args)
+                           (buffer-string)))
+           (context (format "File: %s\nLines: %d-%d\n\n" 
+                            file-path line-start line-end))
+           (code-sample (if has-region
+                            (concat "Selected code:\n```\n" region-text "\n```\n\n")
+                          ""))
+           (default-analysis "Please provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design")
+           (analysis-instructions (aider-read-string "Analysis instructions: " default-analysis))
+           (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
+                           context code-sample blame-output analysis-instructions)))
+      (aider-add-current-file)
+      (aider--send-command (concat "/ask " prompt) t)
+      (message "Press (S) to skip questions when it pop up"))))
 
 (provide 'aider-git)
 

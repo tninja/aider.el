@@ -328,25 +328,18 @@ after performing necessary checks.
 COMMAND should be a string representing the command to send.
 Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
 Optional LOG, when non-nil, logs the command to the message area."
-  ;; Check if the corresponding aider buffer exists
-  (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
-      (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
-             (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
-             (command (aider--process-message-if-multi-line command))
-             (aider-process (get-buffer-process aider-buffer)))
-        ;; Check if the corresponding aider buffer has an active process
-        (if (and aider-process (comint-check-proc aider-buffer))
-            (progn
-              ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer command)
-              ;; Provide feedback to the user
-              (when log
-                (message "Sent command to aider buffer: %s" (string-trim command)))
-              (when switch-to-buffer
-                (aider-switch-to-buffer))
-              (sleep-for 0.2))
-          (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
+  (when-let ((aider-buffer (aider--validate-aider-buffer)))
+    (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
+           (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
+           (command (aider--process-message-if-multi-line command)))
+      ;; Send the command to the aider process
+      (aider--comint-send-string-syntax-highlight aider-buffer command)
+      ;; Provide feedback to the user
+      (when log
+        (message "Sent command to aider buffer: %s" (string-trim command)))
+      (when switch-to-buffer
+        (aider-switch-to-buffer))
+      (sleep-for 0.2))))
 
 ;;;###autoload
 (defun aider-switch-to-buffer ()
@@ -356,15 +349,13 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (if-let ((buffer (get-buffer (aider-buffer-name))))
-        (progn
-          (if aider--switch-to-buffer-other-frame
-              (switch-to-buffer-other-frame buffer)
-            (pop-to-buffer buffer))
-          ;; Scroll to the end of the buffer after switching
-          (with-current-buffer buffer
-            (goto-char (point-max))))
-      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+    (when-let ((buffer (aider--validate-aider-buffer)))
+      (if aider--switch-to-buffer-other-frame
+          (switch-to-buffer-other-frame buffer)
+        (pop-to-buffer buffer))
+      ;; Scroll to the end of the buffer after switching
+      (with-current-buffer buffer
+        (goto-char (point-max))))))
 
 (defun aider--is-default-directory-git-root ()
   "Return t if `default-directory' is the root of a Git repository, nil otherwise."
@@ -551,6 +542,41 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
+
+;; validators
+
+(defun aider--validate-buffer-file ()
+  "Validate that current buffer is associated with a file.
+Returns buffer-file-name if valid, nil otherwise with message."
+  (if buffer-file-name
+      buffer-file-name
+    (message "Current buffer is not associated with a file")
+    nil))
+
+(defun aider--validate-git-repository ()
+  "Validate that we're in a git repository and return git root.
+Returns git root if valid, nil otherwise with message."
+  (let ((git-root (magit-toplevel)))
+    (if git-root
+        git-root
+      (message "Not in a git repository")
+      nil)))
+
+(defun aider--validate-aider-buffer ()
+  "Validate that aider buffer exists and has an active process.
+Returns the aider buffer if valid, otherwise returns nil with message."
+  (let ((buffer-name (aider-buffer-name)))
+    (cond
+     ((not (get-buffer buffer-name))
+      (message "Aider buffer does not exist. Please start 'aider' first")
+      nil)
+     (t
+      (let* ((aider-buffer (get-buffer buffer-name))
+             (aider-process (get-buffer-process aider-buffer)))
+        (if (and aider-process (comint-check-proc aider-buffer))
+            aider-buffer
+          (message "No active process found in aider buffer: %s" buffer-name)
+          nil))))))
 
 (provide 'aider-core)
 
