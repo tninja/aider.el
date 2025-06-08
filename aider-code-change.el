@@ -261,7 +261,7 @@ APPLY-TO-WHOLE-FILE-P is non-nil if prefix argument was used."
                                             (line-number-at-pos scope-end)))
           (user-error "Could not determine bounds for function '%s'. Select a region or use C-u for the entire file" (which-function)))))
      (t
-      (user-error "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file"))))
+      (user-error "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file")))
     (list scope-start scope-end scope-description)))
 
 ;;;###autoload
