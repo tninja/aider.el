@@ -4,6 +4,7 @@
 ** Main branch change
 
 - file completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
+- add Introduce shared validator functions, widely used and can reduce code duplication
 
 ** v0.11.1
 
