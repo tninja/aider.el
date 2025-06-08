@@ -89,14 +89,13 @@ Works in both git repositories and regular directories."
 (defun aider-action-current-file (command-prefix)
   "Perform the COMMAND-PREFIX to aider session.
 If the file is in a git repository, use path relative to git root."
-  ;; Ensure the current buffer is associated with a file
-  (if (not buffer-file-name)
-      (message "Current buffer is not associated with a file.")
-    (let* ((local-name (aider--get-file-path buffer-file-name))
-           (formatted-path (aider--format-file-path local-name))
-           (command (format "%s %s" command-prefix formatted-path)))
-      ;; Use the shared helper function to send the command
-      (aider--send-command command))))
+  ;; Use centralized validation
+  (aider--validate-buffer-file)
+  (let* ((local-name (aider--get-file-path buffer-file-name))
+         (formatted-path (aider--format-file-path local-name))
+         (command (format "%s %s" command-prefix formatted-path)))
+    ;; Use the shared helper function to send the command
+    (aider--send-command command)))
 
 ;; New function to add files in all buffers in current emacs window
 ;;;###autoload
@@ -114,7 +113,7 @@ If files are in a git repository, use paths relative to git root."
     (if files
         (let ((command (concat "/add " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command nil))
-      (message "No files found in the current window."))))
+      (aider--handle-error 'warning "No files found in the current window"))))
 
 ;; New function to show the last commit using magit
 ;;;###autoload
@@ -150,7 +149,7 @@ Uses relative paths if files are in a git repository."
                ;; Construct the command string
                (command (concat command-prefix " " (mapconcat #'identity formatted-files " "))))
           (aider--send-command command t))
-      (message "No files marked in Dired."))))
+      (aider--handle-error 'warning "No files marked in Dired"))))
 
 ;;;###autoload
 (defun aider-batch-add-dired-marked-files ()

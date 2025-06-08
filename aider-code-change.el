@@ -125,9 +125,8 @@ current file.
 The keyword and its definition are configured in
 `aider-todo-keyword-pair`."
   (interactive)
-  (if (not buffer-file-name)
-      (message "Current buffer is not visiting a file.")
-    (let* ((current-line (string-trim (thing-at-point 'line t)))
+  (aider--validate-buffer-file)
+  (let* ((current-line (string-trim (thing-at-point 'line t)))
            (is-comment (aider--is-comment-line current-line))
            (function-name (which-function))
            (region-text (when (region-active-p)
@@ -151,7 +150,7 @@ The keyword and its definition are configured in
               (format "Please implement all %s in-place in file '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
                       keyword (file-name-nondirectory buffer-file-name) keyword definition))))
            (user-command (aider-read-string "TODO implementation instruction: " initial-input)))
-      (aider-current-file-command-and-switch "/architect " user-command))))
+      (aider-current-file-command-and-switch "/architect " user-command)))
 
 ;;;###autoload
 (defun aider-write-unit-test ()
@@ -164,10 +163,9 @@ Otherwise:
   - If cursor is on a function, generate unit test for that function
   - Otherwise generate unit tests for the entire file"
   (interactive)
-  (if (not buffer-file-name)
-      (message "Current buffer is not visiting a file.")
-    (let ((is-test-file (string-match-p "test" (file-name-nondirectory buffer-file-name)))
-          (function-name (which-function)))
+  (aider--validate-buffer-file)
+  (let ((is-test-file (string-match-p "test" (file-name-nondirectory buffer-file-name)))
+        (function-name (which-function)))
       (cond
        ;; Test file case
        (is-test-file
@@ -261,9 +259,9 @@ APPLY-TO-WHOLE-FILE-P is non-nil if C-u prefix was used."
                                             (which-function)
                                             (line-number-at-pos scope-start)
                                             (line-number-at-pos scope-end)))
-          (user-error "Could not determine bounds for function '%s'. Select a region or use C-u for the entire file." (which-function)))))
+          (aider--handle-error 'user-input "Could not determine bounds for function '%s'. Select a region or use C-u for the entire file" (which-function)))))
      (t
-      (user-error "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file.")))
+      (aider--handle-error 'user-input "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file")))
     (list scope-start scope-end scope-description)))
 
 ;;;###autoload
@@ -276,9 +274,9 @@ If not in a function, no region active, and no prefix arg, an error is signaled.
 This command requires the `flycheck` package to be installed and available."
   (interactive "P")
   (unless (featurep 'flycheck)
-    (user-error "Flycheck package not found. This feature is unavailable."))
+    (aider--handle-error 'user-input "Flycheck package not found. This feature is unavailable"))
   (unless (and buffer-file-name (bound-and-true-p flycheck-mode))
-    (user-error "Flycheck mode is not enabled or buffer is not visiting a file."))
+    (aider--handle-error 'user-input "Flycheck mode is not enabled or buffer is not visiting a file"))
   (unless flycheck-current-errors
     (message "No Flycheck errors found in the current buffer.")
     (cl-return-from aider-flycheck-fix-errors-in-scope nil))

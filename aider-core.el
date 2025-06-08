@@ -15,13 +15,23 @@
 (require 'markdown-mode)
 
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
-(defun aider--safe-maybe-funcall-regexp (origfn &rest args)
+(defun aider--safe-maybe-funcall-regexp (origfn object &optional arg)
   "Call `markdown-maybe-funcall-regexp' but on error return empty regex."
-  (condition-case _
-      (apply origfn args)
-    (error "")))
-(advice-add 'markdown-maybe-funcall-regexp
-            :around #'aider--safe-maybe-funcall-regexp)
+  (condition-case err
+      (cond ((functionp object)
+             (if arg (funcall object arg) (funcall object)))
+            ((stringp object) object)
+            ((symbolp object)
+             ;; Handle specific problematic symbols
+             (cond ((eq object 'markdown-make-tilde-fence-regex)
+                    (if arg (markdown-make-tilde-fence-regex arg) (markdown-make-tilde-fence-regex 3)))
+                   ((eq object 'markdown-get-yaml-metadata-end-border)
+                    (markdown-get-yaml-metadata-end-border arg))
+                   (t (error "Object cannot be turned into regex"))))
+            (t (error "Object cannot be turned into regex")))
+    (error 
+     (message "markdown-maybe-funcall-regexp error: %s with object: %s" (error-message-string err) object)
+     "")))
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -74,7 +84,7 @@ When nil, use standard `display-buffer' behavior.")
                                 (file-relative-name file git-root)
                               file)))
           (insert relative-path))
-      (message "No valid file selected."))))
+      (aider--handle-error 'warning "No valid file selected"))))
 
 ;;;###autoload
 (defun aider-go-ahead ()
@@ -99,7 +109,10 @@ When nil, use standard `display-buffer' behavior.")
 Ignore lines starting with '>' (command prompts/input)."
   ;; 1) Use `markdown-mode`'s syntax table:
   (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
-  ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
+  ;; 2) Apply the fix for markdown-fenced-block-pairs BEFORE enabling syntax-propertize
+  (advice-add 'markdown-maybe-funcall-regexp
+              :around #'aider--safe-maybe-funcall-regexp)
+  ;; 3) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
   (setq-local syntax-propertize-function #'markdown-syntax-propertize)
   ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting,
   ;;    but add a rule to prevent markdown highlighting on lines starting with '>'.
@@ -160,19 +173,16 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
-  (condition-case err ; catch any error during history loading
-      (when-let ((history-file-path (aider--generate-history-file-name)))
-        (when (file-readable-p history-file-path)
-          ;; Initialize comint ring for this buffer
-          (setq comint-input-ring (make-ring comint-input-ring-size))
-          (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
-            (when parsed-history
-              (dolist (item parsed-history)
-                (when (and item (stringp item))
-                  (comint-add-to-input-history item)))))))
-    (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
-                    (or history-file-path "unknown location") ; provide file path if available
-                    (error-message-string err)))) ; display the error message
+  (aider--with-error-handling 'warning
+    (when-let ((history-file-path (aider--generate-history-file-name)))
+      (when (file-readable-p history-file-path)
+        ;; Initialize comint ring for this buffer
+        (setq comint-input-ring (make-ring comint-input-ring-size))
+        (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
+          (when parsed-history
+            (dolist (item parsed-history)
+              (when (and item (stringp item))
+                (comint-add-to-input-history item))))))))
   ;; Bind space key to aider-core-insert-prompt when evil package is available
   (aider--apply-markdown-highlighting)
   (when (featurep 'evil)
@@ -275,7 +285,8 @@ Format: *aider:<git-repo-path>[:<branch-name>]*."
             (format "*aider:%s:%s*" git-repo-path-true branch-name)
           ;; Fallback: branch name not found or empty
           (progn
-            (warning "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+            (aider--handle-error 'warning 
+                               (format "Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name" git-repo-path-true))
             (format "*aider:%s*" git-repo-path-true))))
     ;; aider-use-branch-specific-buffers is nil
     (format "*aider:%s*" git-repo-path-true)))
@@ -295,7 +306,7 @@ Otherwise, it uses *aider:<git-repo-path>* or *aider:<current-file-directory>*."
       (format "*aider:%s*" (file-truename (file-name-directory (buffer-file-name)))))
      ;; Case 3: Not in a Git repository and no buffer file
      (t
-      (error "Aider: Not in a git repository and current buffer is not associated with a file")))))
+      (aider--handle-error 'user-input "Not in a git repository and current buffer is not associated with a file")))))
 
 (defun aider--process-message-if-multi-line (str)
   "Entering multi-line chat messages.
@@ -327,25 +338,20 @@ after performing necessary checks.
 COMMAND should be a string representing the command to send.
 Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
 Optional LOG, when non-nil, logs the command to the message area."
-  ;; Check if the corresponding aider buffer exists
-  (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
+  ;; Use centralized validation
+  (aider--with-error-handling 'warning
+    (let ((aider-buffer (aider--validate-aider-buffer)))
       (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
              (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
-             (command (aider--process-message-if-multi-line command))
-             (aider-process (get-buffer-process aider-buffer)))
-        ;; Check if the corresponding aider buffer has an active process
-        (if (and aider-process (comint-check-proc aider-buffer))
-            (progn
-              ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer command)
-              ;; Provide feedback to the user
-              (when log
-                (message "Sent command to aider buffer: %s" (string-trim command)))
-              (when switch-to-buffer
-                (aider-switch-to-buffer))
-              (sleep-for 0.2))
-          (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
+             (command (aider--process-message-if-multi-line command)))
+        ;; Send the command to the aider process
+        (aider--comint-send-string-syntax-highlight aider-buffer command)
+        ;; Provide feedback to the user
+        (when log
+          (message "Sent command to aider buffer: %s" (string-trim command)))
+        (when switch-to-buffer
+          (aider-switch-to-buffer))
+        (sleep-for 0.2)))))
 
 ;;;###autoload
 (defun aider-switch-to-buffer ()
@@ -489,6 +495,65 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
+
+;; --- Centralized Error Handling System ---
+
+(defun aider--format-error-message (message &optional context)
+  "Format error message with consistent Aider prefix and optional context."
+  (if context
+      (format "Aider (%s): %s" context message)
+    (format "Aider: %s" message)))
+
+(defun aider--handle-error (error-type message &optional context)
+  "Centralized error handler with consistent formatting.
+ERROR-TYPE can be:
+- 'user-input: User input validation errors (uses user-error)
+- 'system: Fatal system errors (uses error) 
+- 'warning: Non-fatal warnings (uses message)
+- 'silent: Silent failures (returns nil)
+MESSAGE is the error message.
+CONTEXT is optional context information."
+  (let ((formatted-msg (aider--format-error-message message context)))
+    (pcase error-type
+      ('user-input (user-error formatted-msg))
+      ('system (error formatted-msg))
+      ('warning (message formatted-msg))
+      ('silent nil)
+      (_ (error "Unknown error type: %s" error-type)))))
+
+(defmacro aider--with-error-handling (error-type &rest body)
+  "Execute BODY with consistent error handling.
+On error, handle according to ERROR-TYPE using aider--handle-error."
+  (declare (indent 1))
+  `(condition-case err
+       (progn ,@body)
+     (error (aider--handle-error ,error-type (error-message-string err)))))
+
+(defun aider--validate-buffer-file ()
+  "Validate that current buffer is associated with a file.
+Signals user-input error if not."
+  (unless buffer-file-name
+    (aider--handle-error 'user-input "Current buffer is not associated with a file")))
+
+(defun aider--validate-git-repository ()
+  "Validate that we're in a git repository and return git root.
+Signals user-input error if not in a git repository."
+  (let ((git-root (magit-toplevel)))
+    (unless git-root
+      (aider--handle-error 'user-input "Not in a git repository"))
+    git-root))
+
+(defun aider--validate-aider-buffer ()
+  "Validate that aider buffer exists and has an active process.
+Returns the aider buffer if valid, otherwise signals appropriate error."
+  (let ((buffer-name (aider-buffer-name)))
+    (unless (get-buffer buffer-name)
+      (aider--handle-error 'user-input "Aider buffer does not exist. Please start 'aider' first" buffer-name))
+    (let* ((aider-buffer (get-buffer buffer-name))
+           (aider-process (get-buffer-process aider-buffer)))
+      (unless (and aider-process (comint-check-proc aider-buffer))
+        (aider--handle-error 'warning "No active process found in aider buffer" buffer-name))
+      aider-buffer)))
 
 (provide 'aider-core)
 

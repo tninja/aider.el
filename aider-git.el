@@ -35,13 +35,10 @@ For each issue found, please explain:
         (aider-current-file-command-and-switch "/ask " prompt))
     (aider--magit-generate-feature-branch-diff-file)))
 
-(defun aider--validate-git-repository ()
+(defun aider-git--validate-git-repository ()
   "Ensure we're in a git repository and return the git root.
 Signal an error if not in a git repository."
-  (let ((git-root (magit-toplevel)))
-    (unless git-root
-      (user-error "Not in a git repository"))
-    git-root))
+  (aider--validate-git-repository)) ; Use the centralized function from aider-core
 
 (defun aider--get-full-branch-ref (branch)
   "Get full reference for BRANCH, handling remote branches properly.
@@ -65,13 +62,13 @@ Signal an error if either branch doesn't exist."
   (unless (or (magit-branch-p base-branch)
               (magit-branch-p (concat "origin/" base-branch))
               (magit-rev-verify base-branch))
-    (user-error "Base branch '%s' not found locally or in remotes" base-branch))
+    (aider--handle-error 'user-input (format "Base branch '%s' not found locally or in remotes" base-branch)))
   ;; Verify feature branch exists (if not HEAD)
   (when (and (not (string= feature-branch "HEAD"))
              (not (magit-branch-p feature-branch))
              (not (magit-branch-p (concat "origin/" feature-branch)))
              (not (magit-rev-verify feature-branch)))
-    (user-error "Feature branch '%s' not found locally or in remotes" feature-branch)))
+    (aider--handle-error 'user-input (format "Feature branch '%s' not found locally or in remotes" feature-branch))))
 
 (defun aider--generate-staged-diff (diff-file)
   "Generate diff for staged (staged) changes and save to DIFF-FILE."
@@ -213,7 +210,7 @@ DIFF-PARAMS is a plist with :type ('commit, 'base-vs-head, 'branch-range),
 (defun aider--magit-generate-feature-branch-diff-file ()
   "Generate a diff file based on user-selected type (staged, branches, commit)."
   (interactive)
-  (let* ((git-root (aider--validate-git-repository))
+  (let* ((git-root (aider-git--validate-git-repository))
          (diff-type-alist '(("Staged changes" . staged)
                             ("Base branch vs HEAD" . base-vs-head)
                             ("Branch range (e.g., base..feature)" . branch-range)
@@ -248,8 +245,7 @@ If region is active, analyze just that region. Otherwise analyze entire file.
 Combines magit-blame history tracking with AI analysis to help understand
 code evolution and the reasoning behind changes."
   (interactive)
-  (unless buffer-file-name
-    (user-error "Current buffer is not associated with a file"))
+  (aider--validate-buffer-file)
   (let* ((file-path (buffer-file-name))
          (file-name (file-name-nondirectory file-path))
          (has-region (use-region-p))

@@ -239,11 +239,9 @@ For each file, provide a brief description of its purpose and basic content."
             (read-file-name "Enter filename for the new note (e.g., notes.md, report.org): " nil nil t "context_notes.md")))
          (context-questions (aider-read-string "Key questions/topics for the note (regarding current context): ")))
     (when (s-blank? note-filename)
-      (message "Note filename cannot be empty.")
-      (error "Filename required"))
+      (aider--handle-error 'user-input "Note filename cannot be empty"))
     (when (s-blank? context-questions)
-      (message "Context questions cannot be empty.")
-      (error "Context questions required"))
+      (aider--handle-error 'user-input "Context questions cannot be empty"))
     (let* ((prompt-intro
             (if is-update
                 (format "Please update the content of the file '%s'. This file should have just been added to our context. The update should focus on incorporating new insights or refining existing content based on the current overall context (other added files) and the following points:"
@@ -273,7 +271,7 @@ For each file, provide a brief description of its purpose and basic content."
       (if is-update
           (progn
             (unless (file-exists-p note-filename)
-              (error "Note file '%s' does not exist. Cannot update" note-filename))
+              (aider--handle-error 'user-input (format "Note file '%s' does not exist. Cannot update" note-filename)))
             ;; Add the existing note file to Aider's context
             (aider--send-command (format "/add %s" (shell-quote-argument note-filename)) t)))
       ;; Send the main architect command

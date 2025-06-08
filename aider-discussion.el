@@ -92,13 +92,11 @@ With a prefix argument PREFIX, calls `aider-general-question` instead."
   "Open the Aider history file (.aider.chat-history.md under repo git root).
 If the history file does not exist, notify the user."
   (interactive)
-  (let ((git-root (magit-toplevel)))
-    (unless git-root
-      (user-error "Not inside a git repository"))
+  (let ((git-root (aider--validate-git-repository)))
     (let ((history-file (expand-file-name ".aider.chat.history.md" git-root)))
       (if (file-exists-p history-file)
           (find-file-other-window history-file)
-        (message "History file does not exist: %s" history-file)))))
+        (aider--handle-error 'warning (format "History file does not exist: %s" history-file)))))
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
