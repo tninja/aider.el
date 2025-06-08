@@ -225,7 +225,7 @@ TDD refactor stage."
       (aider--handle-specific-refactoring selected-technique all-techniques context tdd-mode))))
 
 (defun aider--tdd-red-stage (function-name)
-  "Handle the Red stage of the TDD cycle: Write a failing test."
+  "Handle the Red stage of TDD for FUNCTION-NAME: Write a failing test."
   (let* ((initial-input
           (if function-name
               (format "Write a failing test for function '%s': " function-name)
@@ -237,7 +237,7 @@ TDD refactor stage."
     (aider-current-file-command-and-switch "/architect " tdd-instructions)))
 
 (defun aider--tdd-green-stage (function-name)
-  "Handle the Green stage of the TDD cycle: Make the test pass."
+  "Handle the Green stage of TDD for FUNCTION-NAME: Make the test pass."
   (let* ((initial-input
           (if function-name
               (format "Implement function '%s' with minimal code to make tests pass: " function-name)
