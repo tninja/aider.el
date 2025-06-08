@@ -1,6 +1,10 @@
 
 * Release history
 
+** Main branch change
+
+- file completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
+
 ** v0.11.1
 
 - Add support for dropping file under cursor in aider comint buffer, given discussion in https://github.com/tninja/aider.el/issues/179
