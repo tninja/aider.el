@@ -57,14 +57,14 @@ When nil, use standard `display-buffer' behavior.")
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
-    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
+    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-add-file-path)
     (define-key map (kbd "TAB") #'aider-core-insert-prompt)
     (define-key map (kbd "C-c C-y") #'aider-go-ahead)
     map)
   "Keymap for `aider-comint-mode'.")
 
 ;;;###autoload
-(defun aider-prompt-insert-file-path ()
+(defun aider-prompt-insert-add-file-path ()
   "Select and insert the relative file path to git repository root."
   (interactive)
   (let* ((git-root (magit-toplevel))
@@ -157,7 +157,8 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
-  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-add-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-drop-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
   (condition-case err ; catch any error during history loading
@@ -454,19 +455,80 @@ If the last character in the current line is '/', invoke `completion-at-point`."
              (eq (char-before) ?/))
     (completion-at-point)))
 
-(defun aider-core--auto-trigger-file-path-insertion ()
+(defun aider-core--auto-trigger-add-file-path-insertion ()
   "Automatically trigger file path insertion in aider buffer.
 If the current line matches one of the file-related commands
 followed by a space, and the cursor is at the end of the line,
-invoke `aider-prompt-insert-file-path`."
+invoke `aider-prompt-insert-add-file-path`."
   (when (and (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s)  ; Check if last char is space
              (eolp))                 ; Check if cursor is at end of line
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\|/drop\\) $" line-content)
-        (aider-prompt-insert-file-path)))))
+      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\) $" line-content)
+        (aider-prompt-insert-add-file-path)))))
+
+(defun aider-core--auto-trigger-drop-file-path-insertion ()
+  "Automatically trigger file path insertion in aider buffer.
+If the current line matches one of the file-related commands
+followed by a space, and the cursor is at the end of the line,
+invoke `aider-prompt-insert-drop-file-path`."
+  (when (and (not (minibufferp))
+             (not (bolp))
+             (eq (char-before) ?\s)  ; Check if last char is space
+             (eolp))                 ; Check if cursor is at end of line
+    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
+      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
+      (when (string-match-p "^[ \t]*/drop $" line-content)
+        (aider-prompt-insert-drop-file-path)))))
+
+(defun aider-prompt-insert-drop-file-path ()
+  "Prompt for a file to drop from the list of added files and insert its path."
+  (interactive)
+  (let ((candidate-files (aider-core--parse-added-file-list)))
+    (if candidate-files
+        (let ((file-to-drop (completing-read "Drop file: " candidate-files nil t nil)))
+          ;; Check if a file was actually selected and it's not an empty string
+          (when (and file-to-drop (not (string-empty-p file-to-drop)))
+            (insert file-to-drop)))
+      (message "No files currently added to Aider to drop."))))
+
+(defun aider-core--parse-added-file-list ()
+  "Parse the Aider comint buffer to find the list of currently added files.
+Searches upwards from the last Aider prompt (e.g., '>') until a blank line.
+Removes trailing \" (read only)\" from file names."
+  (interactive)
+  (let ((aider-buf (get-buffer (aider-buffer-name)))
+        (file-list '()))    ; Initialize file-list to nil (empty list)
+    (when aider-buf
+      (with-current-buffer aider-buf
+        (save-excursion
+          (goto-char (point-max))
+          ;; Search backward for the last line starting with ">"
+          (if (re-search-backward "^>" nil t)
+              (progn
+                ;; Move to the line above the prompt line
+                (forward-line -1)
+                ;; Loop upwards as long as not at buffer beginning and line is not blank
+                (while (and (not (bobp))
+                            (let ((current-line-text (buffer-substring-no-properties
+                                                      (line-beginning-position)
+                                                      (line-end-position))))
+                              ;; Check if the line contains any non-whitespace characters
+                              (string-match-p "\\S-" current-line-text)))
+                  (let* ((line-text (buffer-substring-no-properties
+                                     (line-beginning-position)
+                                     (line-end-position)))
+                         ;; Remove " (read only)" suffix from the line
+                         (processed-line (replace-regexp-in-string " (read only)$" "" line-text)))
+                    (push processed-line file-list))
+                  (forward-line -1))))
+          ;; If prompt not found, file-list remains empty
+          )))
+    ;; The list is built by pushing items, so it's naturally in top-to-bottom order
+    ;; as read from bottom-up. No need to reverse.
+    file-list))
 
 ;;;###autoload
 (defun aider-core-insert-prompt ()
