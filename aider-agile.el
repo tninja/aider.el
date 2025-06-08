@@ -71,10 +71,10 @@ Uses CONTEXT."
       (let* ((current-name (or (thing-at-point 'symbol t)
                               (read-string "Current name: ")))
              (new-name (read-string (format "Rename '%s' to: " current-name))))
-        (replace-regexp-in-string 
+        (replace-regexp-in-string
          "\\[NEW_NAME\\]" new-name
-         (replace-regexp-in-string 
-          "\\[CURRENT_NAME\\]" current-name technique-description t) 
+         (replace-regexp-in-string
+          "\\[CURRENT_NAME\\]" current-name technique-description t)
          t)))
      ((string= selected-technique "Inline Method")
       (let ((method-name (or (thing-at-point 'symbol t)
@@ -142,6 +142,7 @@ Uses CONTEXT."
 
 (defun aider--handle-specific-refactoring (selected-technique all-techniques context tdd-mode)
   "Handle the case where a specific refactoring technique is chosen.
+Uses SELECTED-TECHNIQUE, ALL-TECHNIQUES, CONTEXT, and TDD-MODE.
 If TDD-MODE is non-nil, adds TDD constraints to the instruction."
   (let* ((region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
@@ -169,6 +170,7 @@ If TDD-MODE is non-nil, adds TDD constraints to the instruction."
 
 (defun aider--handle-ask-llm-suggestion (context tdd-mode)
   "Handle the case where the user asks the LLM for a refactoring suggestion.
+Uses CONTEXT and TDD-MODE.
 If TDD-MODE is non-nil, adds TDD constraints to the prompt."
   (let* ((region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
