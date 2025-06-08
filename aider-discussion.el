@@ -96,7 +96,7 @@ If the history file does not exist, notify the user."
     (let ((history-file (expand-file-name ".aider.chat.history.md" git-root)))
       (if (file-exists-p history-file)
           (find-file-other-window history-file)
-        (aider--handle-error 'warning (format "History file does not exist: %s" history-file)))))
+        (aider--handle-error 'warning (format "History file does not exist: %s" history-file))))))
 
 ;; New function to get command from user and send it prefixed with "/help "
 ;;;###autoload
