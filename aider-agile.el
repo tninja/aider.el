@@ -163,9 +163,9 @@ If TDD-MODE is non-nil, adds TDD constraints to the instruction."
                               region-text)
                     (format "\"%s\"" final-instruction)))
          (message-suffix (if tdd-mode " during TDD refactor stage" "")))
-    (aider-current-file-command-and-switch "/architect " command)
-    (message "%s refactoring request sent to Aider%s. After code refactored, better to re-run unit-tests."
-             selected-technique message-suffix)))
+    (when (aider-current-file-command-and-switch "/architect " command)
+      (message "%s refactoring request sent to Aider%s. After code refactored, better to re-run unit-tests."
+               selected-technique message-suffix))))
 
 (defun aider--handle-ask-llm-suggestion (context tdd-mode)
   "Handle the case where the user asks the LLM for a refactoring suggestion.
@@ -193,10 +193,10 @@ If TDD-MODE is non-nil, adds TDD constraints to the prompt."
          (prompt (concat base-prompt tdd-constraint))
          (message-suffix (if tdd-mode " during TDD refactor stage" "")))
     ;; Send the prompt using the /ask command
-    (aider-current-file-command-and-switch "/ask " prompt)
-    ;; Inform the user
-    (message "Requesting refactoring suggestion from Aider%s. If you are happy with the suggestion, use 'go ahead' to accept the change"
-             message-suffix)))
+    (when (aider-current-file-command-and-switch "/ask " prompt)
+      ;; Inform the user
+      (message "Requesting refactoring suggestion from Aider%s. If you are happy with the suggestion, use 'go ahead' to accept the change"
+               message-suffix))))
 
 ;;;###autoload
 (defun aider-refactor-book-method (&optional tdd-mode)

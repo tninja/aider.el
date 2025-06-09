@@ -100,8 +100,8 @@ a structured planning discussion with Aider using the
             (let ((initial-message (format "/ask %s\n\nMy goal is: %s"
                                            aider-software-planning--sequential-thinking-prompt
                                            goal)))
-              (aider--send-command initial-message t)
-              (message "Software planning session started for goal: %s, after that, use /ask to follow up with aider step by step" goal))
+              (when (aider--send-command initial-message t)
+                (message "Software planning session started for goal: %s, after that, use /ask to follow up with aider step by step" goal)))
           (message "Aider buffer could not be created or found. Planning session not started."))))))
 
 (provide 'aider-software-planning)

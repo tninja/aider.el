@@ -95,10 +95,10 @@ Otherwise, refactor the function under cursor."
         (aider--send-command command t)))
      ;; Function case
      (function-name
-      (aider-current-file-command-and-switch
-       "/architect "
-       (concat (format "refactor %s: " function-name) instruction))))
-      (message "Code change request sent to Aider")))))
+      (when (aider-current-file-command-and-switch
+             "/architect "
+             (concat (format "refactor %s: " function-name) instruction))
+        (message "Code change request sent to Aider")))))))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.
@@ -302,8 +302,8 @@ This command requires the `flycheck` package to be installed and available."
                    (edited-prompt (aider-read-string "Edit prompt for Aider: " prompt)))
               (when (and edited-prompt (not (string-blank-p edited-prompt)))
                 (aider-add-current-file)
-                (aider--send-command (concat "/architect " edited-prompt) t)
-                (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))))))
+                (when (aider--send-command (concat "/architect " edited-prompt) t)
+                  (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))))))
 
 (provide 'aider-code-change)
 

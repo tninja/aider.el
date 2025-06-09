@@ -327,7 +327,8 @@ Uses comint's built-in highlighting for input text."
 after performing necessary checks.
 COMMAND should be a string representing the command to send.
 Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
-Optional LOG, when non-nil, logs the command to the message area."
+Optional LOG, when non-nil, logs the command to the message area.
+Returns t if command was sent successfully, nil otherwise."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
       (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
@@ -344,9 +345,14 @@ Optional LOG, when non-nil, logs the command to the message area."
                 (message "Sent command to aider buffer: %s" (string-trim command)))
               (when switch-to-buffer
                 (aider-switch-to-buffer))
-              (sleep-for 0.2))
-          (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
+              (sleep-for 0.2)
+              t) ; Return t for success
+          (progn
+            (message "No active process found in buffer %s." (aider-buffer-name))
+            nil))) ; Return nil for failure
+    (progn
+      (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
+      nil))) ; Return nil for failure
 
 ;;;###autoload
 (defun aider-switch-to-buffer ()

@@ -51,8 +51,8 @@ With a prefix argument PREFIX, calls `aider-general-question` instead."
            (question-context (if region-text
                                  (format "%s: %s" question region-text)
                                question)))
-      (aider-current-file-command-and-switch "/ask " question-context)
-      (message "Question about code sent to Aider"))))
+      (when (aider-current-file-command-and-switch "/ask " question-context)
+        (message "Question about code sent to Aider")))))
 
 ;;;###autoload
 (defun aider-general-question ()

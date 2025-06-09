@@ -279,8 +279,8 @@ code evolution and the reasoning behind changes."
          (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
                          context code-sample blame-output analysis-instructions)))
     (aider-add-current-file)
-    (aider--send-command (concat "/ask " prompt) t)
-    (message "Press (S) to skip questions when it pop up")))
+    (when (aider--send-command (concat "/ask " prompt) t)
+      (message "Press (S) to skip questions when it pop up"))))
 
 ;;;###autoload
 (defun aider-magit-log-analyze ()
@@ -326,8 +326,8 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
            (prompt (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
                            repo-name context analysis-instructions)))
       (aider-add-current-file) ;; git.log
-      (aider--send-command (concat "/ask " prompt) t)
-      (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
+      (when (aider--send-command (concat "/ask " prompt) t)
+        (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
 
 ;;;###autoload
 (defun aider-magit-blame-or-log-analyze (&optional arg)
