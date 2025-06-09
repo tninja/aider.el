@@ -280,6 +280,84 @@ code evolution and the reasoning behind changes."
       (aider--send-command (concat "/ask " prompt) t)
       (message "Press (S) to skip questions when it pop up"))))
 
+;;;###autoload
+(defun aider-magit-log-analyze ()
+  "Analyze Git log with AI.
+If current buffer is visiting a file named 'git.log', analyze its content.
+Otherwise, prompt for number of commits (default 100), generate the log,
+save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content."
+  (interactive)
+  (let* ((git-root (aider--validate-git-repository)) ; Ensure we're in a git repo
+         (repo-name (file-name-nondirectory (directory-file-name git-root)))
+         (log-output)
+         ;; Define the expected path for git.log at the project root
+         (project-log-file-path (expand-file-name "git.log" git-root)))
+    (if (not (and buffer-file-name
+                  (string-equal (file-name-nondirectory buffer-file-name) "git.log")
+                  ;; Optional: more strictly check if it's the project's git.log
+                  ;; (string-equal (file-truename buffer-file-name) (file-truename project-log-file-path))
+                  ;; For simplicity, we'll stick to checking just the filename "git.log"
+                  ;; This means any file named "git.log" will be used if currently open.
+                  ))
+        ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
+        (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
+               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
+          (message "Fetching Git log for %s (%s commits with stats)... This might take a moment." repo-name num-commits)
+          (setq log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits))
+          (message "Saving Git log to %s" project-log-file-path)
+          (with-temp-file project-log-file-path
+            (insert log-output))
+          (find-file project-log-file-path) ; Open the generated/updated git.log file
+          (message "Git log saved to %s and opened. Proceeding with analysis." project-log-file-path)))
+    ;; Common analysis part, using the determined log-output
+    (let* ((context (format "Repository: %s\n\n" repo-name))
+           (default-analysis
+            (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
+                    "1. Overall project evolution and major development phases.\n"
+                    "2. Identification of key features, refactorings, or architectural changes and their timeline.\n"
+                    "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.).\n"
+                    "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
+                    "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
+                    "6. General trends in the project's direction or focus over time."))
+           (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
+           ;; Changed prompt to refer to "Git Log content" generically
+           (prompt (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
+                           repo-name context analysis-instructions)))
+      (aider-add-current-file) ;; git.log
+      (aider--send-command (concat "/ask " prompt) t)
+      (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
+
+;;;###autoload
+(defun aider-magit-blame-or-log-analyze (&optional arg)
+  "If current buffer is git.log, run log analysis; else if prefix ARG, run log analysis; otherwise run blame analysis."
+  (interactive "P")
+  (cond ((and buffer-file-name
+              (string-equal (file-name-nondirectory buffer-file-name) "git.log"))
+         (aider-magit-log-analyze))
+        (arg (aider-magit-log-analyze))
+        (t (aider-magit-blame-analyze))))
+
+;;;###autoload
+(defun aider-magit-setup-transients ()
+  "Configure Aider's transient menu entries in Magit.
+This function uses `with-eval-after-load` to ensure that the
+Magit transients are modified only after Magit itself has been loaded.
+Call this function to register the Aider commands with Magit."
+  (interactive)
+  (with-eval-after-load 'magit
+    ;; For magit-diff-popup (usually 'd' in status buffer)
+    (transient-append-suffix 'magit-diff "r" ; "Extra" group
+      '("a" "Aider: Review/generate diff" aider-pull-or-review-diff-file))
+    ;; For magit-blame-popup (usually 'B' in status buffer or log)
+    (transient-append-suffix 'magit-blame "b" ; "Extra" group
+      '("a" "Aider: Analyze blame" aider-magit-blame-analyze))
+    ;; For magit-log-popup (usually 'l' in status buffer)
+    (transient-append-suffix 'magit-log "b" ; "Extra" group
+      '("a" "Aider: Analyze log" aider-magit-log-analyze))))
+
+;; Ensure the Magit transients are set up when this file is loaded.
+;; (aider-magit-setup-transients)
+
 (provide 'aider-git)
 
 ;;; aider-git.el ends here

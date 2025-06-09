@@ -401,19 +401,21 @@ Prompts for --subtree-only in dired/eshell/shell if needed."
                             (read-string "Edit aider arguments: "
                                          (mapconcat #'identity aider-args " ")))
                          aider-args)))
-    ;; Handle --subtree-only prompting for special modes
-    (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
-    ;; Add --subtree-only if the parameter is set and it's not already present
-    (when (and subtree-only (not (member "--subtree-only" current-args)))
-      (setq current-args (append current-args '("--subtree-only")))
-      (message "Adding --subtree-only argument as requested."))
-    (unless (comint-check-proc buffer-name)
-      (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
-      (with-current-buffer buffer-name
-        (aider-comint-mode))
-      (message "%s" (if current-args
-                       (format "Running aider from %s, with args: %s.\nMay the AI force be with you!" default-directory (mapconcat #'identity current-args " "))
-                     (format "Running aider from %s with no args provided.\nMay the AI force be with you!" default-directory))))
+    (if (comint-check-proc buffer-name)
+        (message "Aider session already running in buffer: %s" buffer-name)
+      (progn
+        ;; Handle --subtree-only prompting for special modes
+        (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
+        ;; Add --subtree-only if the parameter is set and it's not already present
+        (when (and subtree-only (not (member "--subtree-only" current-args)))
+          (setq current-args (append current-args '("--subtree-only")))
+          (message "Adding --subtree-only argument as requested."))
+        (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
+        (with-current-buffer buffer-name
+          (aider-comint-mode))
+        (message "%s" (if current-args
+                          (format "Running aider from %s, with args: %s.\nMay the AI force be with you!" default-directory (mapconcat #'identity current-args " "))
+                        (format "Running aider from %s with no args provided.\nMay the AI force be with you!" default-directory)))))
     (aider-switch-to-buffer)))
 
 (defun aider-input-sender (proc string)

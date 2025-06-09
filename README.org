@@ -39,7 +39,7 @@
   - [[./aider-code-read.el][Advanced code / module reading assistant]]
   - [[./aider-software-planning.el][Project software planning discussion capabilities]]
   - Let aider to fix the errors reported by flycheck
-  - [[./aider-git.el][Code evolution analysis]] with git blame
+  - [[./aider-git.el][Code / repo evolution analysis]] with git blame and git log
   - [[./aider-bootstrap.el][Utilities for bootstrapping new files and projects]].
   - Organize project with repo specific [[./aider-prompt-mode.el][Aider prompt file]]
   - [[./snippets][Snippets]] from community and aider use pattern / workflow
@@ -92,8 +92,9 @@ Enable installation of packages from MELPA by adding an entry to package-archive
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
     ;; Optional: Set a key binding for the transient menu
-    (global-set-key (kbd "C-c a") 'aider-transient-menu)) ;; for wider screen
+    (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
     ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
+    (aider-magit-setup-transients)) ;; add aider magit function to magit menu
 #+END_SRC
 
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
@@ -157,17 +158,6 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 * Recent New Features
 
-** AI assisted Agile development (from book)
-
-- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Refactoring: Improving the Design of Existing Code, by  Martin Fowler]]: ~aider-refactor-book-method~
-  - On top of that, ask LLM to suggest the refactoring strategy given current function or selected region
-- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][Test Driven Development: By Example, by Kent Beck]]: ~aider-tdd-cycle~
-- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][Working Effectively with Legacy Code, by Michael Feathers]]: ~aider-legacy-code~
-
-** AI assisted Code reading (from book)
-
-- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]]: ~aider-code-read~
-
 ** Software Planning Discussion
 
 - aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
@@ -180,9 +170,10 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - selected region
   - whole file (C-u)
 
-** File change history analysis with magit-blame integration 
+** File / repo change history analysis with magit-blame and magit-log integration 
 
-- aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region (~C-c a b~).
+- aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region (~C-c a e~).
+- aider-aider-magit-log-analyze :: integrates magit-log with AI analysis to provide insights into commit history and evolution of the repository (~C-u C-c a e~).
 
 ** Bootstrap New File 
 
