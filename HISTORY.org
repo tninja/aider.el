@@ -7,6 +7,7 @@
 - Add whole git repo evolution analysis: aider-magit-log-analyze
   - Update menu item to aider-magit-blame-or-log-analyze
 - Add aider-magit-setup-transients function to register Aider commands with Magit transients
+- rewrite unit-tests
 
 ** v0.11.1
 
