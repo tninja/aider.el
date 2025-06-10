@@ -17,14 +17,41 @@
 (declare-function evil-define-key* "evil" (state map key def))
 
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
-(defun aider--safe-maybe-funcall-regexp (origfn &rest args)
-  "Call ORIGFN (`markdown-maybe-funcall-regexp') but on error return empty regex.
-ARGS are passed to ORIGFN."
-  (condition-case _
-      (apply origfn args)
+(defun aider--safe-maybe-funcall-regexp (origfn object &optional arg)
+  "Call ORIGFN (`markdown-maybe-funcall-regexp') safely.
+Returns empty regex on error to prevent 'Object cannot be turned into regex' errors."
+  (condition-case nil
+      (cond ((functionp object)
+             (condition-case nil
+                 (if arg (funcall object arg) (funcall object))
+               (error "")))  ; Return empty string if function call fails
+            ((stringp object) object)
+            ((null object) "")  ; Handle nil objects
+            (t ""))  ; Return empty string for any other type
     (error "")))
 (advice-add 'markdown-maybe-funcall-regexp
             :around #'aider--safe-maybe-funcall-regexp)
+
+;; Additional safety for markdown-get-start-fence-regexp
+(defun aider--safe-get-start-fence-regexp (origfn &rest args)
+  "Safely call `markdown-get-start-fence-regexp' with error handling."
+  (condition-case nil
+      (let ((result (apply origfn args)))
+        (if (and result (stringp result) (not (string-empty-p result)))
+            result
+          "\\`never-match\\`"))  ; Return non-matching regex if result is invalid
+    (error "\\`never-match\\`")))
+(advice-add 'markdown-get-start-fence-regexp
+            :around #'aider--safe-get-start-fence-regexp)
+
+;; Additional safety for markdown-syntax-propertize-fenced-block-constructs
+(defun aider--safe-syntax-propertize-fenced-block-constructs (origfn start end)
+  "Safely call `markdown-syntax-propertize-fenced-block-constructs' with error handling."
+  (condition-case nil
+      (funcall origfn start end)
+    (error nil)))  ; Silently ignore errors in this function
+(advice-add 'markdown-syntax-propertize-fenced-block-constructs
+            :around #'aider--safe-syntax-propertize-fenced-block-constructs)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -119,11 +146,9 @@ Ignore lines starting with '>' (command prompts/input)."
   ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
   ;; Note: The rule added above is a more targeted way to handle prompts than disabling these globally.
   ;; Consider if these are still needed or can be re-enabled depending on desired appearance for non-prompt text.
-  ;; Use non-matching regex patterns instead of nil to avoid type errors in jit-lock-function
-  (setq-local markdown-regex-italic
-              "\\(?:^\\|[^\\]\\)\\(?1:\\(?2:[*]\\)\\(?3:[^ \n\t\\]\\|[^ \n\t*]\\(?:.\\|\n[^\n]\\)*?[^\\ ]\\)\\(?4:\\2\\)\\)")
-  (setq-local markdown-regex-bold
-              "\\(?1:^\\|[^\\]\\)\\(?2:\\(?3:\\*\\*\\)\\(?4:[^ \n\t\\]\\|[^ \n\t]\\(?:.\\|\n[^\n]\\)*?[^\\ ]\\)\\(?5:\\3\\)\\)")
+  ;; Use regex patterns that will never match to effectively disable italic/bold formatting
+  (setq-local markdown-regex-italic "\\`never-match-this-pattern\\'")
+  (setq-local markdown-regex-bold "\\`never-match-this-pattern\\'")
   ;; 5) Jit-lock and other
   (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
   (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
