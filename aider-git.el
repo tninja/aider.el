@@ -327,7 +327,7 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
                            repo-name context analysis-instructions)))
       (aider-add-current-file) ;; git.log
       (when (aider--send-command (concat "/ask " prompt) t)
-        (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
+        (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider.")))))
 
 ;;;###autoload
 (defun aider-magit-blame-or-log-analyze (&optional arg)
