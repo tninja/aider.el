@@ -79,6 +79,7 @@ Otherwise, refactor the function under cursor."
                            '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
                              "Simplify this code, reduce complexity and improve readability while preserving functionality"
                              "Fix potential bugs or issues in this code"
+                             "Given your code review feedback, make corresponding change" ;; code review using /ask firstly
                              "Make this code more maintainable and easier to test"
                              "Generate Docstring/Comment for This"
                              "Improve error handling and edge cases"
