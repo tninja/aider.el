@@ -90,8 +90,7 @@ Works in both git repositories and regular directories."
   "Perform the COMMAND-PREFIX to aider session.
 If the file is in a git repository, use path relative to git root."
   ;; Ensure the current buffer is associated with a file
-  (if (not buffer-file-name)
-      (message "Current buffer is not associated with a file.")
+  (when (aider--validate-buffer-file)
     (let* ((local-name (aider--get-file-path buffer-file-name))
            (formatted-path (aider--format-file-path local-name))
            (command (format "%s %s" command-prefix formatted-path)))

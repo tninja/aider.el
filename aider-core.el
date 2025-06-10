@@ -14,9 +14,12 @@
 (require 'savehist)
 (require 'markdown-mode)
 
+(declare-function evil-define-key* "evil" (state map key def))
+
 ;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
 (defun aider--safe-maybe-funcall-regexp (origfn &rest args)
-  "Call `markdown-maybe-funcall-regexp' but on error return empty regex."
+  "Call ORIGFN (`markdown-maybe-funcall-regexp') but on error return empty regex.
+ARGS are passed to ORIGFN."
   (condition-case _
       (apply origfn args)
     (error "")))
@@ -63,6 +66,9 @@ When nil, use standard `display-buffer' behavior.")
     map)
   "Keymap for `aider-comint-mode'.")
 
+(eval-after-load 'evil
+  '(evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt))
+
 ;;;###autoload
 (defun aider-prompt-insert-add-file-path ()
   "Select and insert the relative file path to git repository root."
@@ -91,8 +97,6 @@ When nil, use standard `display-buffer' behavior.")
     "/multiline-mode" "/report" "/run" "/save" "/settings" "/test"
     "/voice" "/web")
   "A list of common Aider commands for completion.")
-
-(declare-function evil-define-key* "evil" (state map key def))
 
 (defun aider--apply-markdown-highlighting ()
   "Set up markdown highlighting for aider buffer with optimized performance.
@@ -161,23 +165,22 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-drop-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
-  (condition-case err ; catch any error during history loading
-      (when-let ((history-file-path (aider--generate-history-file-name)))
-        (when (file-readable-p history-file-path)
+  (let ((history-file-path (aider--generate-history-file-name))) ; Bind history-file-path here
+    (condition-case err ; catch any error during history loading
+        (when (and history-file-path (file-readable-p history-file-path)) ; Check history-file-path too
           ;; Initialize comint ring for this buffer
           (setq comint-input-ring (make-ring comint-input-ring-size))
           (let ((parsed-history (aider--parse-aider-cli-history history-file-path)))
             (when parsed-history
               (dolist (item parsed-history)
                 (when (and item (stringp item))
-                  (comint-add-to-input-history item)))))))
-    (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
-                    (or history-file-path "unknown location") ; provide file path if available
-                    (error-message-string err)))) ; display the error message
-  ;; Bind space key to aider-core-insert-prompt when evil package is available
-  (aider--apply-markdown-highlighting)
-  (when (featurep 'evil)
-    (evil-define-key* 'normal aider-comint-mode-map (kbd "SPC") #'aider-core-insert-prompt)))
+                  (comint-add-to-input-history item))))))
+      (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
+                      (or history-file-path "its determined location") ; provide file path if available
+                      (error-message-string err)))))) ; display the error message
+
+;; Apply markdown highlighting via the mode hook for robust initialization.
+(add-hook 'aider-comint-mode-hook #'aider--apply-markdown-highlighting)
 
 ;; --- History Functions ---
 
@@ -188,20 +191,20 @@ Inherits from `comint-mode' with some Aider-specific customizations.
       (file-truename git-root))))
 
 (defun aider--get-relevant-directory-for-history ()
-  "Return the top-level directory of the current git repository,
-or the directory of the current buffer's file if not in a git repo.
+  "Return the top-level directory of the current git repository.
+If not in a git repo, return the directory of the current buffer's file.
 Returns nil if neither can be determined."
   (or (aider--get-git-repo-root)
       (when-let ((bfn (buffer-file-name)))
         (file-name-directory (file-truename bfn)))))
-
 (defun aider--generate-history-file-name ()
-  "Generate the path for .aider.input.history in the git repo root or current buffer's file directory."
+  "Generate path for .aider.input.history in git repo root or current buffer's dir."
   (when-let ((relevant-dir (aider--get-relevant-directory-for-history)))
     (expand-file-name ".aider.input.history" relevant-dir)))
 
 (defun aider--parse-aider-cli-history (file-path)
-  "Parse .aider.input.history file and return a list of commands (oldest to newest)."
+  "Parse .aider.input.history file at FILE-PATH.
+Return a list of commands, oldest to newest."
   (when (and file-path (file-readable-p file-path))
     (with-temp-buffer
       (insert-file-contents file-path)
@@ -236,8 +239,9 @@ Returns nil if neither can be determined."
         (reverse history-items))))) ; Reverse to get chronological order (oldest first)
 
 (defun aider--get-current-git-branch (repo-root-path)
-  "Return the current git branch name for the git repository at REPO-ROOT-PATH.
-Returns nil if REPO-ROOT-PATH is not a git repository or no branch is checked out."
+  "Return current git branch name for git repository at REPO-ROOT-PATH.
+Returns nil if REPO-ROOT-PATH is not a git repository or no branch
+is checked out."
   ;; Ensure repo-root-path is a valid directory string before proceeding
   (when (and repo-root-path (stringp repo-root-path) (file-directory-p repo-root-path))
     (let ((default-directory repo-root-path)) ; Scope magit call to the repo root
@@ -276,7 +280,7 @@ Format: *aider:<git-repo-path>[:<branch-name>]*."
             (format "*aider:%s:%s*" git-repo-path-true branch-name)
           ;; Fallback: branch name not found or empty
           (progn
-            (warning "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+            (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
             (format "*aider:%s*" git-repo-path-true))))
     ;; aider-use-branch-specific-buffers is nil
     (format "*aider:%s*" git-repo-path-true)))
@@ -328,25 +332,18 @@ after performing necessary checks.
 COMMAND should be a string representing the command to send.
 Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
 Optional LOG, when non-nil, logs the command to the message area."
-  ;; Check if the corresponding aider buffer exists
-  (if-let ((aider-buffer (get-buffer (aider-buffer-name))))
-      (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
-             (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
-             (command (aider--process-message-if-multi-line command))
-             (aider-process (get-buffer-process aider-buffer)))
-        ;; Check if the corresponding aider buffer has an active process
-        (if (and aider-process (comint-check-proc aider-buffer))
-            (progn
-              ;; Send the command to the aider process
-              (aider--comint-send-string-syntax-highlight aider-buffer command)
-              ;; Provide feedback to the user
-              (when log
-                (message "Sent command to aider buffer: %s" (string-trim command)))
-              (when switch-to-buffer
-                (aider-switch-to-buffer))
-              (sleep-for 0.2))
-          (message "No active process found in buffer %s." (aider-buffer-name))))
-    (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))))
+  (when-let ((aider-buffer (aider--validate-aider-buffer)))
+    (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
+           (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
+           (command (aider--process-message-if-multi-line command)))
+      ;; Send the command to the aider process
+      (aider--comint-send-string-syntax-highlight aider-buffer command)
+      ;; Provide feedback to the user
+      (when log
+        (message "Sent command to aider buffer: %s" (string-trim command)))
+      (when switch-to-buffer
+        (aider-switch-to-buffer))
+      (sleep-for 0.2))))
 
 ;;;###autoload
 (defun aider-switch-to-buffer ()
@@ -356,15 +353,13 @@ If the current buffer is already the Aider buffer, do nothing."
   (interactive)
   (if (string= (buffer-name) (aider-buffer-name))
       (message "Already in Aider buffer")
-    (if-let ((buffer (get-buffer (aider-buffer-name))))
-        (progn
-          (if aider--switch-to-buffer-other-frame
-              (switch-to-buffer-other-frame buffer)
-            (pop-to-buffer buffer))
-          ;; Scroll to the end of the buffer after switching
-          (with-current-buffer buffer
-            (goto-char (point-max))))
-      (message "Aider buffer '%s' does not exist." (aider-buffer-name)))))
+    (when-let ((buffer (aider--validate-aider-buffer)))
+      (if aider--switch-to-buffer-other-frame
+          (switch-to-buffer-other-frame buffer)
+        (pop-to-buffer buffer))
+      ;; Scroll to the end of the buffer after switching
+      (with-current-buffer buffer
+        (goto-char (point-max))))))
 
 (defun aider--is-default-directory-git-root ()
   "Return t if `default-directory' is the root of a Git repository, nil otherwise."
@@ -395,7 +390,7 @@ Return potentially modified CURRENT-ARGS."
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args subtree-only)
   "Run \"aider\" in a comint buffer for interactive conversation.
-With C-u EDIT-ARGS, prompt to edit `aider-args`.
+With prefix argument (e.g., \\[universal-argument]), prompt to edit `aider-args` (EDIT-ARGS).
 If SUBTREE-ONLY is non-nil, add '--subtree-only'.
 Prompts for --subtree-only in dired/eshell/shell if needed."
   (interactive "P")
@@ -553,6 +548,41 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
+
+;; validators
+
+(defun aider--validate-buffer-file ()
+  "Validate that current buffer is associated with a file.
+Returns `buffer-file-name` if valid, nil otherwise with message."
+  (if buffer-file-name
+      buffer-file-name
+    (message "Current buffer is not associated with a file")
+    nil))
+
+(defun aider--validate-git-repository ()
+  "Validate that we're in a git repository and return git root.
+Returns git root if valid, nil otherwise with message."
+  (let ((git-root (magit-toplevel)))
+    (if git-root
+        git-root
+      (message "Not in a git repository")
+      nil)))
+
+(defun aider--validate-aider-buffer ()
+  "Validate that aider buffer exists and has an active process.
+Returns the aider buffer if valid, otherwise returns nil with message."
+  (let ((buffer-name (aider-buffer-name)))
+    (cond
+     ((not (get-buffer buffer-name))
+      (message "Aider buffer does not exist. Please start 'aider' first")
+      nil)
+     (t
+      (let* ((aider-buffer (get-buffer buffer-name))
+             (aider-process (get-buffer-process aider-buffer)))
+        (if (and aider-process (comint-check-proc aider-buffer))
+            aider-buffer
+          (message "No active process found in aider buffer: %s" buffer-name)
+          nil))))))
 
 (provide 'aider-core)
 
