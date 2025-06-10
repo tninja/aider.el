@@ -35,7 +35,8 @@
 ;;   - Diff extraction and AI code review tools
 ;;   - Advanced code / module reading assistant
 ;;   - Project software planning discussion capabilities
-;;   - Integration with magit-blame for historical code analysis
+;;   - Let aider to fix the errors reported by flycheck
+;;   - Code / repo evolution analysis with git blame and git log
 ;;   - Utilities for bootstrapping new files and projects.
 ;;   - Organize project with repo specific Aider prompt file
 ;;   - Snippets from community and aider use experience and pattern

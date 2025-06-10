@@ -8,6 +8,7 @@
   - Update menu item to aider-magit-blame-or-log-analyze
 - Add aider-magit-setup-transients function to register Aider commands with Magit transients
 - rewrite unit-tests
+- Introduce shared validator functions to reduce code duplication.
 
 ** v0.11.1
 
