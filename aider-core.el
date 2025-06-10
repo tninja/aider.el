@@ -334,7 +334,7 @@ Optional SWITCH-TO-BUFFER, when non-nil, switches to the aider buffer.
 Optional LOG, when non-nil, logs the command to the message area.
 Returns t if command was sent successfully, nil otherwise."
   ;; Check if the corresponding aider buffer exists
-  (when-let ((aider-buffer (aider--validate-aider-buffer)))
+  (if-let ((aider-buffer (aider--validate-aider-buffer)))
     (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
            (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
            (command (aider--process-message-if-multi-line command))
