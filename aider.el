@@ -210,7 +210,7 @@ specific patterns (e.g., OpenAI's o4, o3, o1 series)."
            (effort (completing-read "Select reasoning effort: " efforts nil t nil nil "medium")))
       (when effort
         (when (aider--send-command (format "/reasoning-effort %s" effort) t)
-          (message "Reasoning effort set to %s for model %s" effort model)))))
+          (message "Reasoning effort set to %s for model %s" effort model))))))
 
 ;;;###autoload
 (defun aider-change-model (leaderboards)
@@ -227,7 +227,7 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
         (when (aider--send-command (format "%s %s" command model) t)
           (message "%s changed to %s, customize aider-popular-models for the model candidates"
                    (substring command 1) model)
-          (aider--maybe-prompt-and-set-reasoning-effort command model)))))
+          (aider--maybe-prompt-and-set-reasoning-effort command model))))))
 
 (provide 'aider)
 
