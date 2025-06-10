@@ -194,8 +194,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
-  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-add-file-path-insertion nil t)
-  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-drop-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
   (let ((history-file-path (aider--generate-history-file-name))) ; Bind history-file-path here
@@ -485,33 +484,24 @@ If the last character in the current line is '/', invoke `completion-at-point`."
              (eq (char-before) ?/))
     (completion-at-point)))
 
-(defun aider-core--auto-trigger-add-file-path-insertion ()
+(defun aider-core--auto-trigger-file-path-insertion ()
   "Automatically trigger file path insertion in aider buffer.
 If the current line matches one of the file-related commands
 followed by a space, and the cursor is at the end of the line,
-invoke `aider-prompt-insert-add-file-path`."
+invoke the appropriate file path insertion function."
   (when (and (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s)  ; Check if last char is space
              (eolp))                 ; Check if cursor is at end of line
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\) $" line-content)
-        (aider-prompt-insert-add-file-path)))))
+      (cond
+       ;; Match commands like /add, /read-only followed by a space at the end of the line
+       ((string-match-p "^[ \t]*\\(/add\\|/read-only\\) $" line-content)
+        (aider-prompt-insert-add-file-path))
+       ;; Match /drop command followed by a space at the end of the line
+       ((string-match-p "^[ \t]*/drop $" line-content)
+        (aider-prompt-insert-drop-file-path))))))
 
-(defun aider-core--auto-trigger-drop-file-path-insertion ()
-  "Automatically trigger file path insertion in aider buffer.
-If the current line matches one of the file-related commands
-followed by a space, and the cursor is at the end of the line,
-invoke `aider-prompt-insert-drop-file-path`."
-  (when (and (not (minibufferp))
-             (not (bolp))
-             (eq (char-before) ?\s)  ; Check if last char is space
-             (eolp))                 ; Check if cursor is at end of line
-    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
-      (when (string-match-p "^[ \t]*/drop $" line-content)
-        (aider-prompt-insert-drop-file-path)))))
 
 (defun aider-prompt-insert-drop-file-path ()
   "Prompt for a file to drop from the list of added files and insert its path."
