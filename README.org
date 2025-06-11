@@ -46,7 +46,8 @@
 
 - Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
-- Aider.el is under active development. [[./HISTORY.org][Recent change history]]
+- Aider.el is under active development. [[./HISTORY.org][Recent change history]],  [[./appendix.org#recent-new-features][Recent new features]]
+
 
 [[file:./transient_menu.png]]
 
@@ -172,9 +173,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - Use ~subtree-only <dir>~ to start aider session in a sub-tree, where <dir> is the directory to start the session.
   - This is useful when you want to work on a sub-directory of a large mono repo, and don't want to wait for aider to scan the entire repo.
 
-* [[./appendix.org#prompt-snippets][Prompt Snippets]]
-
-* [[./appendix.org#recent-new-features][Recent New Features]]
+*** [[./appendix.org#prompt-snippets][Prompt Snippets]]
 
 * Cons of aider.el
 
