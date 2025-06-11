@@ -271,21 +271,24 @@ and the source code files it depends on."
            (search-root (or git-root default-directory))
            (dependencies (aider--find-file-dependencies current-file search-root))
            (dependents (aider--find-file-dependents current-file search-root))
-           (all-files (delete-dups (append (list current-file) dependencies dependents)))
-           (relative-files (mapcar #'aider--get-file-path all-files))
-           (formatted-files (mapcar #'aider--format-file-path relative-files)))
+           (all-files (delete-dups (append (list current-file) dependencies dependents))))
       (if (> (length all-files) 1)
-          (let ((command (concat "/add " (mapconcat #'identity formatted-files " ")))
-                (dep-files (mapcar #'file-name-nondirectory dependencies))
-                (dept-files (mapcar #'file-name-nondirectory dependents)))
-            (when (aider--send-command command t)
-              (message "Add %d files: current file + %d dependencies%s + %d dependents%s"
-                      (length all-files)
-                      (length dependencies)
-                      (if dep-files (format " (%s)" (mapconcat #'identity dep-files ", ")) "")
-                      (length dependents)
-                      (if dept-files (format " (%s)" (mapconcat #'identity dept-files ", ")) ""))))
-        (message "No additional dependencies or dependents found for current file")))))
+          (progn
+            (message "Dependencies: %s"
+                     (mapconcat #'identity
+                                (mapcar #'file-name-nondirectory dependencies)
+                                ", "))
+            (message "Dependents: %s"
+                     (mapconcat #'identity
+                                (mapcar #'file-name-nondirectory dependents)
+                                ", "))
+            (let* ((relative-files (mapcar #'aider--get-file-path all-files))
+                   (formatted (mapcar #'aider--format-file-path relative-files))
+                   (to-add (completing-read-multiple
+                            "Select files to add: " formatted nil t formatted)))
+              (dolist (file to-add)
+                (aider--send-command (concat "/add " file) t))))
+        (message "No additional dependencies or dependents found for current file"))))
 
 (defun aider--find-file-dependencies (file-path search-root)
   "Find files that FILE-PATH depends on by searching for filenames mentioned in the file.
