@@ -97,7 +97,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
-  ("o" "Select Model (C-u: benchmark)" aider-change-model)
+  ("o" "Select Model (C-u: benchmark)"   aider-change-model)
   ("X" "Exit Aider"                      aider-exit))
 
 ;;; Transient menu items for the “File Operation” section.
@@ -110,8 +110,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
-  ("e" "File Evolution Analysis (C-u: Repo)"      aider-magit-blame-or-log-analyze)
-  ("r" "Reset Aider (C-u: clear)"                 aider-reset))
+  ("e" "File Evolution Analysis (C-u: Repo)"      aider-magit-blame-or-log-analyze))
 
 ;;; Transient menu items for the “Code Change” section.
 (transient-define-group aider--menu-code-change
