@@ -12,13 +12,7 @@
 
 - [[#introduction][Introduction]]
 - [[#installation][Installation]]
-  - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
-  - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
-  - [[#helm-support][Helm Support]]
-- [[#recent-new-features][Recent New Features]]
-- [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
-- [[#cons-of-aider.el][Cons of aider.el]]
-- [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
+- [[#frequently-used-features][Most used features (integrated into the aider menu)]]
 - [[#faq][FAQ]]
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
@@ -46,7 +40,8 @@
 
 - Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
-- Aider.el is under active development. [[./HISTORY.org][Recent change history]]
+- Aider.el is under active development. [[./HISTORY.org][Recent change history]],  [[./appendix.org#recent-new-features][Recent new features]]
+
 
 [[file:./transient_menu.png]]
 
@@ -54,12 +49,10 @@
 
 - Emacs need to be >= 26.1
 
-** Vanilla Emacs Installation
+** Melpa + package-install (recommended)
 - [[https://aider.chat/docs/install.html][Install aider]]
 - Install the emacs dependency library [[https://github.com/magit/transient][Transient]] (version >= 0.9.0), [[https://github.com/magit/magit][Magit]], and [[https://jblevins.org/projects/markdown-mode/][Markdown-mode]] using your package manager.
 - Install aider.el with the following instruction:
-
-*** With Melpa + package-install (recommended)
 
 Enable installation of packages from MELPA by adding an entry to package-archives after (require 'package) and before the call to package-initialize in your init.el or .emacs file: 
 
@@ -103,91 +96,13 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 
 - The example models: sonnet, gemini, o4-mini, they charge money, and you need to ask for api key add fund to your api account firstly
 
-*** With [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]] (Emacs 30+ built-in)
-- Install aider.el by running the following code within Emacs
-  - You'll need to manually install the required packages, such as [[https://github.com/magit/transient][Transient]], [[https://github.com/magit/magit][Magit]], and helm.
-
-#+BEGIN_SRC emacs-lisp
-(package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
-#+END_SRC
-
-The config part is as same as above one
-
-*** With [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
-If you have Straight installed
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :straight (:host github :repo "tninja/aider.el")
-    :config
-    ;; rest of configs
-    )
-#+END_SRC
-
-** Doom Installation and Configuration
-
-- Add the following code to your doom/packages.el
-
-#+BEGIN_SRC emacs-lisp
-(package! aider :recipe (:host github :repo "tninja/aider.el" ))
-#+END_SRC
-
-- Adjust and add the following code to your doom/config.el
-
-#+BEGIN_SRC emacs-lisp
-(use-package aider
-  :config
-  (setq aider-args '("--model" "sonnet"))
-  (require 'aider-doom))
-#+END_SRC
-
-The aider prefix is ~A~.
-
-- Start and open the aider buffer: =[SPC] A p a=
-- Add the current file with =[SPC] A f f=
-- Reset the aider session with =[SPC] A p s=
-[[file:./doom_menus.png]]
-
-- *However, transient menu is more recommended than doom menu*, cause I constantly use that one so it is better maintained.
-  - Anyone want to contribute to doom menu, feel free to help on it. Thanks.
- 
 ** Helm Support
 
-Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is highly recommended if you are OK with helm*.
+Helm enables fuzzy searching functionality for command history prompts. Since it is very possible that we use prompt written before, it could potentially save lots of time typing. *This plugin is recommended if you use helm*.
 
 If you used installed aider.el through melpa and package-install, just need to ~(require 'aider-helm)~
 
-* Recent New Features
-
-** Software Planning Discussion
-
-- aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
-  - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
-
-** Let aider to fix the errors reported by flycheck
-
-- aider-flycheck-fix-errors-in-scope :: Flycheck output will be sent to aider as context to fix the error. It support:
-  - current function
-  - selected region
-  - whole file (C-u)
-
-** File / repo change history analysis with magit-blame and magit-log integration 
-
-- aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region (~C-c a e~).
-- aider-aider-magit-log-analyze :: integrates magit-log with AI analysis to provide insights into commit history and evolution of the repository (~C-u C-c a e~).
-
-** Bootstrap New File 
-
-- aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a B~)
-
-** Aider-comint-session be able to scroll up / search the prompt across sessions
-
-- By parsing .aider.input.history
-- Use ctrl + up / down key to scroll, alt + r to search
-
-** Multiple chats for the same repository
-
-- To turn on this feature, ~(setq aider-use-branch-specific-buffers t)~
-- *If we want to switch to work on a different feature, we switch git branch, and it will map to a corresponding aider session.* The aider session name pattern would be ~aider:<path-to-git-repo>:branch-name~ 
+** [[./appendix.org#other-ways-to-install-aiderel][Other ways to install aider.el]]
 
 * Frequently used features
 
@@ -228,7 +143,13 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - aider-code-read :: Choose the method from the book, [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]], to analyze the region / function / file / module. 
   - aider-start-software-planning :: Start an interactive software planning discussion session with Aider, through a question-based sequential thinking process.
 
-*** Aider prompt file
+*** Inside comint buffer
+
+- / key to trigger aider command completion
+- file path completion will be triggered automatically after certain command
+- use TAB key to enter prompt from mini-buffer, or helm with completion
+
+*** Aider prompt file - Good place to write and organize prompt
 
 - Syntax highlight, aider command completion, file path completion supported
 
@@ -246,80 +167,11 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - Use ~subtree-only <dir>~ to start aider session in a sub-tree, where <dir> is the directory to start the session.
   - This is useful when you want to work on a sub-directory of a large mono repo, and don't want to wait for aider to scan the entire repo.
 
-**** [[./snippets/aider-prompt-mode][Prompt Snippets]]
+*** [[./appendix.org#prompt-snippets][Prompt Snippets]]
 
-- Prompts for aider might share similar structure. Yasnippet can be used to help reusing these prompts.
+* [[./appendix.org#cons-of-aiderel][Cons of aider.el]]
 
-- Aider prompt file now support yasnippet. Current snippets came from [[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][this reddit post]], [[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][another reddit post]], and a [[https://github.com/PickleBoxer/dev-chatgpt-prompts][git repo]].
-
-- You can use
-  - ~M-x yas-describe-tables~ to see the available snippets
-  - ~M-x yas-insert-snippet~ to insert a snippet.
-  - ~M-x yas-expand~ to expand the snippet under cursor.
-
-- Welcome to add more snippets / improve existing snippets in the [[./snippets/aider-prompt-mode][snippets folder]]!
-
-*** Inside comint buffer
-
-- / key to trigger aider command completion
-- file path completion will be triggered automatically after certain command
-- use TAB key to enter prompt from mini-buffer, or helm with completion
-
-* Cons of aider.el
-
-- The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
-  - *color rendering from markdown-mode.el is applied in aider comint session buffer it and largely improved this*.
-  - Without file tracking, aider.el cannot do [[https://aider.chat/docs/usage/watch.html#ai-comments][AI comments]]. *The work around we provided is ~aider-implement-todo~*, It use architect command to ask aider to implement comment under cursor by default. I constantly use this feature and feel it is OK.
-  - [[https://github.com/akermu/emacs-libvterm][vterm based interactive session]] can make the aider session close to the user experience of using aider in terminal. Considering that comint based solution is battle tested for many years and it is very stable, and long term maintainability of the project, aider.el only use comint session based solution. 
-
-* Be careful about AI generated code
-
-- Thanks to LLM. It is so easy to generate bunch of code with AI. But generating code doesn't complete the work. 
-  - There might be potential bug hidden inside. It need to be verified that the feature work as expected, and code change didn't break existing features.
-  - Developer might be lack of understanding of AI generated code. If there is too many code developer don't quite understand, the project could be out of control, like this:
-
-#+BEGIN_HTML
-  <img src="https://i.redd.it/puzjerkgcfqe1.jpeg" width="300" />
-#+END_HTML
-
-- *Unit-test can be useful on both of the above concern*. And aider can help writing unit tests.
-  - The AI generated test need to be manually checked / fixed. But generally test code is easier to understand.
-  - Running the unit-tests can help verifying the correctness / identifying the bug of code. It also help developer better understanding how the AI generated code work, and it can give developer more confidence on the new code.
-
-** A weak [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] style AI programming workflow
-
-1. *Implement or modify code*
-   - For existing code: Use ~aider-function-or-region-refactor~ with cursor in function or on selected region
-   - For new code: Use ~aider-implement-todo~ on TODO comments
-   
-   *Example of adding new code*:
-   
-   With cursor on this comment:
-   #+BEGIN_SRC python :eval never
-   # TODO: Implement a function that checks if a number is prime
-   #+END_SRC
-   
-   Running ~aider-implement-todo~ might generate:
-   #+BEGIN_SRC python :eval never
-   def is_prime(n):
-       if n <= 1:
-           return False
-       for i in range(2, int(n ** 0.5) + 1):
-           if n % i == 0:
-               return False
-       return True
-   #+END_SRC
-   
-   If suggestions aren't satisfactory, use ~Ask Question~ for refinements and ~Go Ahead~ to confirm changes.
-
-2. *Generate tests*: Validate your implementation with ~aider-write-unit-test~. Do run the test to validate code behavior.
-   - ~aider-write-unit-test~ can be used to write unit-test before the code is implemented, just call the function in the unit-test class. I tried it with leetcode problems and it works pretty well.
-
-3. *Refine code and tests*: Further refactor as needed using additional prompts or manual adjustments. ~aider-refactor-book-method~ have couple of refactoring techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]]
-
-4. Goto 1
-
-- Alternatively, if you prefer strong TDD practice, you might want to try ~aider-tdd-cycle~, it will follow strict red-green-refactor cycle.
+* [[./appendix.org#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 
 * FAQ
 
@@ -422,6 +274,9 @@ The following books introduce how to use AI to assist programming and potentiall
 
 - Package depends on this
   - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]: Org Babel functions for Aider.el integration
+
+- Other tools
+  - [[https://github.com/stevemolitor/claude-code.el][claude-code.el]]
 
 * Contributing
 

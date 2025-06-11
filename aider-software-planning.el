@@ -94,14 +94,12 @@ a structured planning discussion with Aider using the
         (message "Goal cannot be empty. Planning session not started.")
       (progn
         ;; Ensure Aider is running
-        (unless (aider--validate-aider-buffer)
-          (call-interactively #'aider-run-aider))
         (when (aider--validate-aider-buffer)
           (let ((initial-message (format "/ask %s\n\nMy goal is: %s"
                                          aider-software-planning--sequential-thinking-prompt
                                          goal)))
-            (aider--send-command initial-message t)
-            (message "Software planning session started for goal: %s, after that, use /ask to follow up with aider step by step" goal)))))))
+            (when (aider--send-command initial-message t)
+              (message "Software planning session started for goal: %s, after that, use /ask to follow up with aider step by step" goal))))))))
 
 (provide 'aider-software-planning)
 
