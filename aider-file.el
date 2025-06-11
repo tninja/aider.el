@@ -283,11 +283,8 @@ and the source code files it depends on."
                                 ", "))
             (let* ((relative-files (mapcar #'aider--get-file-path all-files))
                    (formatted (mapcar #'aider--format-file-path relative-files))
-                   (to-add (completing-read-multiple
-                            "Select files to add (comma separated): "
-                            formatted nil t formatted)))
-              (dolist (file to-add)
-                (aider--send-command (concat "/add " file) t))))
+                   (command (concat "/add " (mapconcat #'identity formatted " "))))
+              (aider--send-command command t)))
         (message "No additional dependencies or dependents found for current file")))))
 
 (defun aider--find-file-dependencies (file-path search-root)
