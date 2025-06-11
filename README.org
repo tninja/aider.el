@@ -12,13 +12,7 @@
 
 - [[#introduction][Introduction]]
 - [[#installation][Installation]]
-  - [[#vanilla-emacs-installation][Vanilla Emacs Installation]]
-  - [[#doom-installation-and-configuration][Doom Installation and Configuration]]
-  - [[#helm-support][Helm Support]]
-- [[#recent-new-features][Recent New Features]]
 - [[#most-used-features-integrated-into-the-aider-menu][Most used features (integrated into the aider menu)]]
-- [[#cons-of-aider.el][Cons of aider.el]]
-- [[#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 - [[#faq][FAQ]]
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
@@ -175,7 +169,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 *** [[./appendix.org#prompt-snippets][Prompt Snippets]]
 
-* Cons of aider.el
+* [[./appendix.org#cons-of-aiderel][Cons of aider.el]]
 
 - The current implementation is using comint to host aider session, a classic CLI interactive solution used in emacs, However, comint-mode initially _doesn't have the advance features such as codeblock color rendering and file tracking_ from aider.
   - *color rendering from markdown-mode.el is applied in aider comint session buffer it and largely improved this*.
@@ -285,6 +279,9 @@ The following books introduce how to use AI to assist programming and potentiall
 
 - Package depends on this
   - [[https://github.com/localredhead/ob-aider.el][ob-aider.el]]: Org Babel functions for Aider.el integration
+
+- Other tools
+  - [[https://github.com/stevemolitor/claude-code.el][claude-code.el]]
 
 * Contributing
 
