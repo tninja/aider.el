@@ -17,6 +17,7 @@
 (declare-function evil-define-key* "evil" (state map key def))
 
 ;; Workaround: make markdown functions safe only in aider-comint-mode buffers
+;; Addressing: 1. https://github.com/tninja/aider.el/issues/159; 2. https://github.com/MatthewZMD/aidermacs/issues/141
 (defun aider--safe-maybe-funcall-regexp (origfn object &optional arg)
   "Call ORIGFN (`markdown-maybe-funcall-regexp') safely in aider buffers only."
   (if (eq major-mode 'aider-comint-mode)
