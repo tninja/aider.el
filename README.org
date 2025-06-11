@@ -107,7 +107,7 @@ Helm enables fuzzy searching functionality for command history prompts. Since it
 
 If you used installed aider.el through melpa and package-install, just need to ~(require 'aider-helm)~
 
-** [[file:appendix.org::*Other ways to install aider.el][Other ways to install aider.el]]
+** [[./appendix.org::*Other ways to install aider.el][Other ways to install aider.el]]
 
 * Frequently used features
 
@@ -172,9 +172,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - Use ~subtree-only <dir>~ to start aider session in a sub-tree, where <dir> is the directory to start the session.
   - This is useful when you want to work on a sub-directory of a large mono repo, and don't want to wait for aider to scan the entire repo.
 
-* [[file:appendix.org::*\[\[./snippets/aider-prompt-mode\]\[Prompt Snippets\]\]][Prompt Snippets]]
+* [[./appendix.org::*\[\[./snippets/aider-prompt-mode\]\[Prompt Snippets\]\]][Prompt Snippets]]
 
-* [[file:appendix.org::*Recent New Features][Recent New Features]]
+* [[./appendix.org::*Recent New Features][Recent New Features]]
 
 * Cons of aider.el
 
