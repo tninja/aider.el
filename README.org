@@ -107,7 +107,7 @@ Helm enables fuzzy searching functionality for command history prompts. Since it
 
 If you used installed aider.el through melpa and package-install, just need to ~(require 'aider-helm)~
 
-** [[./appendix.org::*Other ways to install aider.el][Other ways to install aider.el]]
+** [[./appendix.org#other-ways-to-install-aiderel][Other ways to install aider.el]]
 
 * Frequently used features
 
