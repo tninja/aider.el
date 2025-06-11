@@ -282,9 +282,9 @@ and the source code files it depends on."
                                 (mapcar #'file-name-nondirectory dependents)
                                 ", "))
             (let* ((relative-files (mapcar #'aider--get-file-path all-files))
-                   (formatted (mapcar #'aider--format-file-path relative-files))
-                   (command (concat "/add " (mapconcat #'identity formatted " "))))
-              (aider--send-command command t)))
+                   (formatted-files (mapcar #'aider--format-file-path relative-files)))
+              (dolist (file formatted-files)
+                (aider--send-command (concat "/add " file) t))))
         (message "No additional dependencies or dependents found for current file")))))
 
 (defun aider--find-file-dependencies (file-path search-root)
