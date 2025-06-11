@@ -235,7 +235,7 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
          (read-directory-name "Module directory: " nil nil t)
          (read-string "File suffixes (comma-separated): "
                       (let ((ext (when (buffer-file-name)
-                                   (file-name-extension (buffer-file-name))))
+                                   (file-name-extension (buffer-file-name)))))
                         (if ext ext "py,java,scala,el,sql")))
          (read-string "Content regex (empty for none): "
                       (or (thing-at-point 'symbol) ""))))
