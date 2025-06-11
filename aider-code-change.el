@@ -9,12 +9,13 @@
 
 ;;; Code:
 
-(require 'aider-core)
-(require 'aider-file)
 (require 'which-func)
 (require 'flycheck nil t)
 (require 'cl-lib)
 (require 'magit)
+
+(require 'aider-core)
+(require 'aider-file)
 
 (defcustom aider-todo-keyword-pair '("TODO" . "comment line START with string: TODO:")
   "Pair of keyword and its definition for `aider-implement-todo`.
@@ -78,6 +79,7 @@ Otherwise, refactor the function under cursor."
                            '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
                              "Simplify this code, reduce complexity and improve readability while preserving functionality"
                              "Fix potential bugs or issues in this code"
+                             "Given your code review feedback, make corresponding change" ;; code review using /ask firstly
                              "Make this code more maintainable and easier to test"
                              "Generate Docstring/Comment for This"
                              "Improve error handling and edge cases"
@@ -95,10 +97,10 @@ Otherwise, refactor the function under cursor."
         (aider--send-command command t)))
      ;; Function case
      (function-name
-      (aider-current-file-command-and-switch
-       "/architect "
-       (concat (format "refactor %s: " function-name) instruction))))
-      (message "Code change request sent to Aider")))))
+      (when (aider-current-file-command-and-switch
+             "/architect "
+             (concat (format "refactor %s: " function-name) instruction))
+        (message "Code change request sent to Aider"))))))))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.
@@ -299,8 +301,8 @@ This command requires the `flycheck` package to be installed and available."
                      (edited-prompt (aider-read-string "Edit prompt for Aider: " prompt)))
                 (when (and edited-prompt (not (string-blank-p edited-prompt)))
                   (aider-add-current-file)
-                  (aider--send-command (concat "/architect " edited-prompt) t)
-                  (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description))))))))))
+                  (when (aider--send-command (concat "/architect " edited-prompt) t)
+                    (message "Sent request to Aider to fix %d Flycheck error(s) in %s." (length errors-in-scope) scope-description)))))))))))
 
 (provide 'aider-code-change)
 

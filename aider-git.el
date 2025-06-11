@@ -248,37 +248,37 @@ Combines magit-blame history tracking with AI analysis to help understand
 code evolution and the reasoning behind changes."
   (interactive)
   (when (aider--validate-buffer-file)
-    (let* ((file-path (buffer-file-name))
-           ;; (file-name (file-name-nondirectory file-path)) ; Unused variable
-           (has-region (use-region-p))
-           (line-start (if has-region
-                           (line-number-at-pos (region-beginning))
-                         1))
-           (line-end (if has-region
-                         (line-number-at-pos (region-end))
-                       (line-number-at-pos (point-max))))
-           (region-text (if has-region
-                            (buffer-substring-no-properties 
-                             (region-beginning) (region-end))
-                          nil))
-           (blame-args (list "blame" "-l"
-                             (format "-L%d,%d" line-start line-end)
-                             file-path))
-           (blame-output (with-temp-buffer
-                           (apply #'process-file "git" nil t nil blame-args)
-                           (buffer-string)))
-           (context (format "File: %s\nLines: %d-%d\n\n" 
-                            file-path line-start line-end))
-           (code-sample (if has-region
-                            (concat "Selected code:\n```\n" region-text "\n```\n\n")
-                          ""))
-           (default-analysis "Please provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design")
-           (analysis-instructions (aider-read-string "Analysis instructions: " default-analysis))
-           (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
-                           context code-sample blame-output analysis-instructions)))
-      (aider-add-current-file)
-      (aider--send-command (concat "/ask " prompt) t)
-      (message "Press (S) to skip questions when it pop up"))))
+  (let* ((file-path (buffer-file-name))
+         (file-name (file-name-nondirectory file-path))
+         (has-region (use-region-p))
+         (line-start (if has-region
+                         (line-number-at-pos (region-beginning))
+                       1))
+         (line-end (if has-region
+                       (line-number-at-pos (region-end))
+                     (line-number-at-pos (point-max))))
+         (region-text (if has-region
+                          (buffer-substring-no-properties 
+                           (region-beginning) (region-end))
+                        nil))
+         (blame-args (list "blame" "-l" 
+                           (format "-L%d,%d" line-start line-end)
+                           file-path))
+         (blame-output (with-temp-buffer
+                         (apply #'process-file "git" nil t nil blame-args)
+                         (buffer-string)))
+         (context (format "File: %s\nLines: %d-%d\n\n" 
+                          file-path line-start line-end))
+         (code-sample (if has-region
+                          (concat "Selected code:\n```\n" region-text "\n```\n\n")
+                        ""))
+         (default-analysis "Please provide the following analysis:\n1. Code evolution patterns and timeline\n2. Key changes and their purpose\n3. Potential design decisions and thought processes\n4. Possible refactoring or improvement opportunities\n5. Insights about code architecture or design")
+         (analysis-instructions (aider-read-string "Analysis instructions: " default-analysis))
+         (prompt (format "Analyze the Git commit history for this code:\n\n%s%sCommit history information:\n```\n%s\n```\n\n%s"
+                         context code-sample blame-output analysis-instructions)))
+    (aider-add-current-file)
+    (when (aider--send-command (concat "/ask " prompt) t)
+      (message "Press (S) to skip questions when it pop up")))))
 
 ;;;###autoload
 (defun aider-magit-log-analyze ()
@@ -324,8 +324,8 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
            (prompt (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
                            repo-name context analysis-instructions)))
       (aider-add-current-file) ;; git.log
-      (aider--send-command (concat "/ask " prompt) t)
-      (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
+      (when (aider--send-command (concat "/ask " prompt) t)
+        (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider.")))))
 
 ;;;###autoload
 (defun aider-magit-blame-or-log-analyze (&optional arg)

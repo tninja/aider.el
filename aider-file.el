@@ -148,7 +148,8 @@ Uses relative paths if files are in a git repository."
                (formatted-files (mapcar #'aider--format-file-path relative-files))
                ;; Construct the command string
                (command (concat command-prefix " " (mapconcat #'identity formatted-files " "))))
-          (aider--send-command command t))
+          (when (aider--send-command command t)
+            (message "Successfully added %d file(s) to Aider" (length absolute-files))))
       (message "No files marked in Dired."))))
 
 ;;;###autoload
@@ -187,12 +188,13 @@ Otherwise, add the current file as read-only."
     (aider-current-file-read-only)))
 
 (defun aider-current-file-command-and-switch (prefix command)
-  "Send COMMAND to the Aider buffer prefixed with PREFIX."
+  "Send COMMAND to the Aider buffer prefixed with PREFIX.
+Returns t if command was sent successfully, nil otherwise."
   (aider-add-current-file)
-  (aider--send-command (concat prefix command) t)
-  ;; (when (string-prefix-p "/architect" prefix)
-  ;;   (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml."))
-  )
+  (let ((result (aider--send-command (concat prefix command) t)))
+    ;; (when (string-prefix-p "/architect" prefix)
+    ;;   (message "Note: Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with \"--no-auto-accept-architect\" in aider-args or .aider.conf.yml."))
+    result))
 
 (defun aider--get-files-in-directory (directory suffixes)
   "Retrieve list of files in DIRECTORY matching SUFFIXES. SUFFIXES is a list of strings without dot."
@@ -242,14 +244,14 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
          (formatted    (if rel-paths (mapcar #'aider--format-file-path rel-paths) nil)))
     (if filtered-files
         (progn
-          (aider--send-command (concat cmd-prefix " " (mapconcat #'identity formatted " ")) t)
-         (message (if read-only
-                      "Added %d files as read-only from %s%s"
-                    "Added %d files from %s%s")
-                  (length filtered-files) directory
-                  (if (and content-regex (not (string-empty-p content-regex)))
-                      (format " (matching content regex '%s')" content-regex)
-                    "")))
+          (when (aider--send-command (concat cmd-prefix " " (mapconcat #'identity formatted " ")) t)
+            (message (if read-only
+                         "Added %d files as read-only from %s%s"
+                       "Added %d files from %s%s")
+                     (length filtered-files) directory
+                     (if (and content-regex (not (string-empty-p content-regex)))
+                         (format " (matching content regex '%s')" content-regex)
+                       ""))))
       (message (format "No files found in %s with suffixes %s%s"
                        directory
                        suffix-input

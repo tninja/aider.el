@@ -275,10 +275,11 @@ For each file, provide a brief description of its purpose and basic content."
             (unless (file-exists-p note-filename)
               (error "Note file '%s' does not exist. Cannot update" note-filename))
             ;; Add the existing note file to Aider's context
-            (aider--send-command (format "/add %s" (shell-quote-argument note-filename)) t)))
+            (unless (aider--send-command (format "/add %s" (shell-quote-argument note-filename)) t)
+              (error "Failed to add note file to Aider context"))))
       ;; Send the main architect command
-      (aider--send-command command t)
-      (message "Contextual note generation/update request sent to Aider for '%s'." (file-name-nondirectory note-filename)))))
+      (when (aider--send-command command t)
+        (message "Contextual note generation/update request sent to Aider for '%s'." (file-name-nondirectory note-filename))))))
 
 (defun aider--bootstrap-general-plan ()
   "Generate a general plan outline for various purposes."
