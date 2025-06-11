@@ -16,15 +16,51 @@
 
 (declare-function evil-define-key* "evil" (state map key def))
 
-;; Workaround: make markdown-maybe-funcall-regexp safe in Aider
-(defun aider--safe-maybe-funcall-regexp (origfn &rest args)
-  "Call ORIGFN (`markdown-maybe-funcall-regexp') but on error return empty regex.
-ARGS are passed to ORIGFN."
-  (condition-case _
-      (apply origfn args)
-    (error "")))
+;; Workaround: make markdown functions safe only in aider-comint-mode buffers
+;; Addressing: 1. https://github.com/tninja/aider.el/issues/159; 2. https://github.com/MatthewZMD/aidermacs/issues/141
+(defun aider--safe-maybe-funcall-regexp (origfn object &optional arg)
+  "Call ORIGFN (`markdown-maybe-funcall-regexp') safely in aider buffers only."
+  (if (eq major-mode 'aider-comint-mode)
+      (condition-case nil
+          (cond ((functionp object)
+                 (condition-case nil
+                     (if arg (funcall object arg) (funcall object))
+                   (error "")))  ; Return empty string if function call fails
+                ((stringp object) object)
+                ((null object) "")  ; Handle nil objects
+                (t ""))  ; Return empty string for any other type
+        (error ""))
+    ;; In non-aider buffers, call original function normally
+    (funcall origfn object arg)))
+
+(defun aider--safe-get-start-fence-regexp (origfn &rest args)
+  "Safely call `markdown-get-start-fence-regexp' in aider buffers only."
+  (if (eq major-mode 'aider-comint-mode)
+      (condition-case nil
+          (let ((result (apply origfn args)))
+            (if (and result (stringp result) (not (string-empty-p result)))
+                result
+              "\\`never-match\\`"))  ; Return non-matching regex if result is invalid
+        (error "\\`never-match\\`"))
+    ;; In non-aider buffers, call original function normally
+    (apply origfn args)))
+
+(defun aider--safe-syntax-propertize-fenced-block-constructs (origfn start end)
+  "Safely call `markdown-syntax-propertize-fenced-block-constructs' in aider buffers only."
+  (if (eq major-mode 'aider-comint-mode)
+      (condition-case nil
+          (funcall origfn start end)
+        (error nil))  ; Silently ignore errors in aider buffers
+    ;; In non-aider buffers, call original function normally
+    (funcall origfn start end)))
+
+;; Apply advice globally but they only activate in aider-comint-mode
 (advice-add 'markdown-maybe-funcall-regexp
             :around #'aider--safe-maybe-funcall-regexp)
+(advice-add 'markdown-get-start-fence-regexp
+            :around #'aider--safe-get-start-fence-regexp)
+(advice-add 'markdown-syntax-propertize-fenced-block-constructs
+            :around #'aider--safe-syntax-propertize-fenced-block-constructs)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -119,11 +155,9 @@ Ignore lines starting with '>' (command prompts/input)."
   ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
   ;; Note: The rule added above is a more targeted way to handle prompts than disabling these globally.
   ;; Consider if these are still needed or can be re-enabled depending on desired appearance for non-prompt text.
-  ;; Use non-matching regex patterns instead of nil to avoid type errors in jit-lock-function
-  (setq-local markdown-regex-italic
-              "\\(?:^\\|[^\\]\\)\\(?1:\\(?2:[*]\\)\\(?3:[^ \n\t\\]\\|[^ \n\t*]\\(?:.\\|\n[^\n]\\)*?[^\\ ]\\)\\(?4:\\2\\)\\)")
-  (setq-local markdown-regex-bold
-              "\\(?1:^\\|[^\\]\\)\\(?2:\\(?3:\\*\\*\\)\\(?4:[^ \n\t\\]\\|[^ \n\t]\\(?:.\\|\n[^\n]\\)*?[^\\ ]\\)\\(?5:\\3\\)\\)")
+  ;; Use regex patterns that will never match to effectively disable italic/bold formatting
+  (setq-local markdown-regex-italic "\\`never-match-this-pattern\\'")
+  (setq-local markdown-regex-bold "\\`never-match-this-pattern\\'")
   ;; 5) Jit-lock and other
   (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
   (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
@@ -161,8 +195,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
   ;; Automatically trigger file path insertion for file-related commands
-  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-add-file-path-insertion nil t)
-  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-drop-file-path-insertion nil t)
+  (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
   ;; Load history from .aider.input.history if available
   (let ((history-file-path (aider--generate-history-file-name))) ; Bind history-file-path here
@@ -465,33 +498,24 @@ If the last character in the current line is '/', invoke `completion-at-point`."
              (eq (char-before) ?/))
     (completion-at-point)))
 
-(defun aider-core--auto-trigger-add-file-path-insertion ()
+(defun aider-core--auto-trigger-file-path-insertion ()
   "Automatically trigger file path insertion in aider buffer.
 If the current line matches one of the file-related commands
 followed by a space, and the cursor is at the end of the line,
-invoke `aider-prompt-insert-add-file-path`."
+invoke the appropriate file path insertion function."
   (when (and (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s)  ; Check if last char is space
              (eolp))                 ; Check if cursor is at end of line
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
-      (when (string-match-p "^[ \t]*\\(/add\\|/read-only\\) $" line-content)
-        (aider-prompt-insert-add-file-path)))))
+      (cond
+       ;; Match commands like /add, /read-only followed by a space at the end of the line
+       ((string-match-p "^[ \t]*\\(/add\\|/read-only\\) $" line-content)
+        (aider-prompt-insert-add-file-path))
+       ;; Match /drop command followed by a space at the end of the line
+       ((string-match-p "^[ \t]*/drop $" line-content)
+        (aider-prompt-insert-drop-file-path))))))
 
-(defun aider-core--auto-trigger-drop-file-path-insertion ()
-  "Automatically trigger file path insertion in aider buffer.
-If the current line matches one of the file-related commands
-followed by a space, and the cursor is at the end of the line,
-invoke `aider-prompt-insert-drop-file-path`."
-  (when (and (not (minibufferp))
-             (not (bolp))
-             (eq (char-before) ?\s)  ; Check if last char is space
-             (eolp))                 ; Check if cursor is at end of line
-    (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
-      ;; Match commands like /add, /read-only, /drop followed by a space at the end of the line
-      (when (string-match-p "^[ \t]*/drop $" line-content)
-        (aider-prompt-insert-drop-file-path)))))
 
 (defun aider-prompt-insert-drop-file-path ()
   "Prompt for a file to drop from the list of added files and insert its path."

@@ -9,6 +9,11 @@
 - Add aider-magit-setup-transients function to register Aider commands with Magit transients
 - rewrite unit-tests
 - Introduce shared validator functions to reduce code duplication.
+- Fix: Do not run following commands if aider--send-command failed
+- Fix: Object cannot be turned into regex
+  - Follow up change after #178, since same error still happen sometime.
+    - Make the function related to advice-add, only take effect in aider-comint-mode and won't pollute markdown-mode.
+  - Addressing 1. #159; 2. MatthewZMD/aidermacs#141
 
 ** v0.11.1
 
