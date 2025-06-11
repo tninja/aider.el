@@ -339,18 +339,20 @@ Returns list of absolute file paths."
 (defun aider--file-mentions-basename (file-path basename)
   "Check if FILE-PATH content mentions BASENAME with word boundaries, ignoring comments."
   (when (and (file-exists-p file-path) (> (length basename) 1))
-    (let ((buffer (find-file-noselect file-path t))) ; t = nowarn
-      (unwind-protect
-          (with-current-buffer buffer
-            (goto-char (point-min))
-            (let ((regex (format "\\b%s\\b" (regexp-quote basename)))
-                  found)
-              (while (and (not found) (re-search-forward regex nil t))
-                ;; Only count match if NOT inside a comment
-                (unless (nth 4 (syntax-ppss))
-                  (setq found t)))
-              found))
-        (kill-buffer buffer)))))
+    (with-temp-buffer
+      (insert-file-contents file-path)
+      ;; Set the buffer's file name so set-auto-mode can work properly
+      (setq buffer-file-name file-path)
+      (set-auto-mode) ;; now it can recognize the mode based on file extension
+      (setq buffer-file-name nil) ;; clean up to avoid side effects
+      (goto-char (point-min))
+      (let ((regex (format "\\b%s\\b" (regexp-quote basename)))
+            found)
+        (while (and (not found) (re-search-forward regex nil t))
+          ;; Only count match if NOT inside a comment
+          (unless (nth 4 (syntax-ppss))
+            (setq found t)))
+        found))))
 
 (provide 'aider-file)
 
