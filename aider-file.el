@@ -346,8 +346,9 @@ Returns list of absolute file paths."
       (let ((regex (format "\\b%s\\b" (regexp-quote basename)))
             found)
         (while (and (not found) (re-search-forward regex nil t))
-          ;; skip match if inside a comment
-          (unless (nth 4 (syntax-ppss)) (setq found t)))
+          ;; Only count match if NOT inside a comment
+          (unless (nth 4 (syntax-ppss))
+            (setq found t)))
         found))))
 
 (provide 'aider-file)
