@@ -98,7 +98,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
   ("o" "Select Model (C-u: benchmark)" aider-change-model)
-  ("x" "Exit Aider"                      aider-exit))
+  ("X" "Exit Aider"                      aider-exit))
 
 ;;; Transient menu items for the “File Operation” section.
 (transient-define-group aider--menu-file-operation
@@ -106,6 +106,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
   ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
   ("O" "Drop File in Buffer / under Cursor"       aider-drop-current-file)
+  ("x" "Expand Context for Current File"          aider-expand-context-current-file)
   ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)

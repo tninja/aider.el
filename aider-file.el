@@ -260,7 +260,7 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
                          ""))))))
 
 ;;;###autoload
-(defun aider-expand-context ()
+(defun aider-expand-context-current-file ()
   "Add current file and its dependencies/dependents to aider session.
 Given current buffer source code file, figure out the source code files that depend on it,
 and the source code files it depends on."
@@ -284,7 +284,8 @@ and the source code files it depends on."
             (let* ((relative-files (mapcar #'aider--get-file-path all-files))
                    (formatted-files (mapcar #'aider--format-file-path relative-files)))
               (dolist (file formatted-files)
-                (aider--send-command (concat "/add " file) t))))
+                (aider--send-command (concat "/add " file) nil))
+              (aider-switch-to-buffer)))
         (message "No additional dependencies or dependents found for current file")))))
 
 (defun aider--find-file-dependencies (file-path search-root)
