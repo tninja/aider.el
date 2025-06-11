@@ -9,9 +9,10 @@
 
 ;;; Code:
 
+(require 'which-func)
+
 (require 'aider-core)
 (require 'aider-file)
-(require 'which-func)
 
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
