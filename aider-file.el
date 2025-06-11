@@ -337,13 +337,18 @@ Returns list of absolute file paths."
     (delete-dups (mapcar #'expand-file-name found-files))))
 
 (defun aider--file-mentions-basename (file-path basename)
-  "Check if FILE-PATH content mentions BASENAME with word boundaries."
+  "Check if FILE-PATH content mentions BASENAME with word boundaries, ignoring comments."
   (when (and (file-exists-p file-path) (> (length basename) 1))
     (with-temp-buffer
       (insert-file-contents file-path)
+      (set-auto-mode) ;; enable correct syntax table
       (goto-char (point-min))
-      ;; Search for basename with non-alphanumeric boundaries
-      (re-search-forward (format "\\b%s\\b" (regexp-quote basename)) nil t))))
+      (let ((regex (format "\\b%s\\b" (regexp-quote basename)))
+            found)
+        (while (and (not found) (re-search-forward regex nil t))
+          ;; skip match if inside a comment
+          (unless (nth 4 (syntax-ppss)) (setq found t)))
+        found))))
 
 (provide 'aider-file)
 
