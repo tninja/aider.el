@@ -288,7 +288,7 @@ and the source code files it depends on."
                             "Select files to add: " formatted nil t formatted)))
               (dolist (file to-add)
                 (aider--send-command (concat "/add " file) t))))
-        (message "No additional dependencies or dependents found for current file"))))
+        (message "No additional dependencies or dependents found for current file")))))
 
 (defun aider--find-file-dependencies (file-path search-root)
   "Find files that FILE-PATH depends on by searching for filenames mentioned in the file.
