@@ -180,7 +180,7 @@ GIT-ROOT is the root directory of the Git repository."
          (feature-branch (read-string "Feature branch name: "))
          (branch-scope)
          (scope-alist '(("Local" . local)
-                        ("Remote (will try to prefix with 'origin/' if needed)" . remote)))
+                        ("Remote (will prefix with 'origin/')" . remote)))
          (raw-scope-choice (completing-read "Are branches local or remote? "
                                             scope-alist
                                             nil t nil nil "Local")))
