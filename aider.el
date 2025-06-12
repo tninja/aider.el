@@ -64,8 +64,7 @@
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "gemini"  ;; SOTA
                                   "o4-mini" ;; good for difficult task
-                                  ;; "gemini-exp"  ;; google stop this free service :(
-                                  "deepseek"  ;; low price, pretty good performance
+                                  "deepseek/deepseek-reasoner" ;; DeepSeek R1 (0528), low price, pretty good performance
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.
