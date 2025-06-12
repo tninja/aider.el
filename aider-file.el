@@ -305,6 +305,42 @@ Returns list of absolute file paths."
               (push source-file dependencies))))))
     (delete-dups dependencies)))
 
+(defun aider--search-files-containing-pattern (search-root pattern file-patterns)
+  "Search for files in SEARCH-ROOT containing PATTERN and matching FILE-PATTERNS.
+Returns a list of absolute file paths."
+  (let ((candidate-files '()))
+    (if (executable-find "rg")
+        ;; Use ripgrep if available (faster)
+        (let* ((pattern-args (mapcar (lambda (pat) (concat "--glob=" pat)) file-patterns))
+               (cmd (append '("rg" "--files-with-matches" "--word-regexp") 
+                            pattern-args
+                            (list (regexp-quote pattern) search-root)))
+               (temp-buffer (generate-new-buffer " *rg-output*"))
+               (exit-code (apply #'call-process (car cmd) nil temp-buffer nil (cdr cmd))))
+          (when (= exit-code 0) ;; 0=matches found
+            (with-current-buffer temp-buffer
+              (goto-char (point-min))
+              (while (not (eobp))
+                (let ((file (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+                  (when (file-exists-p file)
+                    (push (expand-file-name file) candidate-files)))
+                (forward-line 1))))
+          (kill-buffer temp-buffer))
+      ;; Fallback to grep
+      (let* ((temp-buffer (generate-new-buffer " *grep-output*"))
+             (cmd-args (append '("grep" "-l" "-w" "-r") (list (regexp-quote pattern) search-root)))
+             (exit-code (apply #'call-process (car cmd-args) nil temp-buffer nil (cdr cmd-args))))
+        (when (= exit-code 0) ;; 0=matches found
+          (with-current-buffer temp-buffer
+            (goto-char (point-min))
+            (while (not (eobp))
+              (let ((file (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+                (when (file-exists-p file)
+                  (push (expand-file-name file) candidate-files)))
+              (forward-line 1))))
+        (kill-buffer temp-buffer)))
+    candidate-files))
+
 (defun aider--find-file-dependents (file-path search-root)
   "Find files that depend on FILE-PATH by searching for files that mention this file's basename.
 Returns list of absolute file paths."
@@ -312,13 +348,18 @@ Returns list of absolute file paths."
          (file-ext (file-name-extension file-path))
          (file-basename (file-name-sans-extension (file-name-nondirectory file-path)))
          (file-patterns (aider--get-source-file-patterns file-ext)))
-    ;; Get all source files with same extension in search root
-    (let ((source-files (aider--find-files-by-patterns search-root file-patterns)))
-      (dolist (source-file source-files)
-        ;; Check if this source file mentions our basename
-        (when (and (not (string= source-file file-path))
-                   (aider--file-mentions-basename source-file file-basename))
-          (push source-file dependents))))
+    ;; Skip if basename is too short (avoid false positives)
+    (when (> (length file-basename) 1)
+      (let* ((candidate-files (aider--search-files-containing-pattern search-root file-basename file-patterns)))
+        ;; Filter out the original file itself
+        (setq candidate-files 
+              (seq-filter (lambda (file) 
+                            (not (string= (expand-file-name file) file-path)))
+                          candidate-files))
+        ;; Filter out matches in comments
+        (dolist (file candidate-files)
+          (when (aider--file-mentions-basename file file-basename)
+            (push file dependents)))))
     (delete-dups dependents)))
 
 (defun aider--get-source-file-patterns (file-ext)
