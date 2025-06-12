@@ -337,22 +337,36 @@ Returns list of absolute file paths."
     (delete-dups (mapcar #'expand-file-name found-files))))
 
 (defun aider--file-mentions-basename (file-path basename)
-  "Check if FILE-PATH content mentions BASENAME with word boundaries, ignoring comments."
+  "Check if FILE-PATH content mentions BASENAME with word boundaries, ignoring comments.
+If FILE-PATH is already open in a buffer, use that buffer instead of creating a new one."
   (when (and (file-exists-p file-path) (> (length basename) 1))
-    (with-temp-buffer
-      (insert-file-contents file-path)
-      ;; Set the buffer's file name so set-auto-mode can work properly
-      (setq buffer-file-name file-path)
-      (set-auto-mode) ;; now it can recognize the mode based on file extension
-      (setq buffer-file-name nil) ;; clean up to avoid side effects
-      (goto-char (point-min))
-      (let ((regex (format "\\b%s\\b" (regexp-quote basename)))
-            found)
-        (while (and (not found) (re-search-forward regex nil t))
-          ;; Only count match if NOT inside a comment
-          (unless (nth 4 (syntax-ppss))
-            (setq found t)))
-        found))))
+    (let ((existing-buffer (get-file-buffer file-path))
+          (regex (format "\\b%s\\b" (regexp-quote basename)))
+          found)
+      (if existing-buffer
+          ;; Use existing buffer without disturbing point or window configuration
+          (with-current-buffer existing-buffer
+            (save-excursion
+              (save-restriction
+                (widen)
+                (goto-char (point-min))
+                (while (and (not found) (re-search-forward regex nil t))
+                  ;; Only count match if NOT inside a comment
+                  (unless (nth 4 (syntax-ppss))
+                    (setq found t))))))
+        ;; No existing buffer, create a temporary one
+        (with-temp-buffer
+          (insert-file-contents file-path)
+          ;; Set the buffer's file name so set-auto-mode can work properly
+          (setq buffer-file-name file-path)
+          (set-auto-mode) ;; now it can recognize the mode based on file extension
+          (setq buffer-file-name nil) ;; clean up to avoid side effects
+          (goto-char (point-min))
+          (while (and (not found) (re-search-forward regex nil t))
+            ;; Only count match if NOT inside a comment
+            (unless (nth 4 (syntax-ppss))
+              (setq found t)))))
+      found)))
 
 (provide 'aider-file)
 
