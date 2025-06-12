@@ -228,10 +228,6 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 ** Feature
 
-- More context sensitive code change / code reading commands [2/3]
-  - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
-  - [X] How to port the candidate list feature to aider-plain-read-string
-  - [ ] Thinking on how to improve the candidate list for the function
 - More thinking on improving code quality tool such as unit-test [4/4]
   - [X] Code refactoring functions
   - [X] TDD functions
