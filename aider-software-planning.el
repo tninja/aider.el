@@ -84,22 +84,34 @@ Begin by analyzing the provided goal and asking your first strategic question."
 
 ;;;###autoload
 (defun aider-start-software-planning ()
-  "Start an interactive software planning session with Aider.
-Prompts the user for a software development goal and initiates
-a structured planning discussion with Aider using the
-`aider-software-planning--sequential-thinking-prompt`."
+  "Start an interactive software planning session with Aider."
   (interactive)
-  (let ((goal (aider-read-string "Enter your software development goal: ")))
+  (let* ((file (buffer-file-name))
+         (file-name (and file (file-name-nondirectory file)))
+         (function (which-function))
+         (region-active (region-active-p))
+         (region-text (and region-active
+                           (buffer-substring-no-properties (region-beginning) (region-end))))
+         ;; Compose default goal from context
+         (default-goal
+          (cond
+           (region-active
+            (format "Plan feature for selected region%s: %s"
+                    (if function (format " in function '%s'" function) "") region-text))
+           (function (format "Plan feature for function '%s'" function))
+           (file-name (format "Plan software for file '%s'" file-name))
+           (t "Plan new software feature")))
+         (prompt (format "Enter your software development goal (default: %s): " default-goal))
+         (input (aider-read-string prompt default-goal))
+         (goal (if (string-empty-p input) default-goal input)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
-      (progn
-        ;; Ensure Aider is running
-        (when (aider--validate-aider-buffer)
-          (let ((initial-message (format "/ask %s\n\nMy goal is: %s"
-                                         aider-software-planning--sequential-thinking-prompt
-                                         goal)))
-            (when (aider--send-command initial-message t)
-              (message "Software planning session started for goal: %s, after that, use /ask to follow up with aider step by step" goal))))))))
+      (when (and (aider--validate-aider-buffer)
+                 (aider--send-command
+                  (format "/ask %s\n\nMy goal is: %s"
+                          aider-software-planning--sequential-thinking-prompt
+                          goal) t))
+        (message "Software planning session started for goal: %s" goal)))))
 
 (provide 'aider-software-planning)
 
