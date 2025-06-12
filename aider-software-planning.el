@@ -16,6 +16,7 @@
 ;;; Code:
 
 (require 'aider-core)
+(require 'aider-file)
 
 (defconst aider-software-planning--sequential-thinking-prompt
   "You are a senior software architect guiding the development of a software feature through a question-based sequential thinking process. Your role is to:
@@ -106,12 +107,15 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (goal (if (string-empty-p input) default-goal input)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
-      (when (and (aider--validate-aider-buffer)
-                 (aider--send-command
-                  (format "/ask %s\n\nMy goal is: %s"
-                          aider-software-planning--sequential-thinking-prompt
-                          goal) t))
-        (message "Software planning session started for goal: %s" goal)))))
+      (when (aider--validate-aider-buffer)
+        ;; if context present, add current file to the session
+        (when (or region-active function file-name)
+          (aider-add-current-file))
+        (when (aider--send-command
+               (format "/ask %s\n\nMy goal is: %s"
+                       aider-software-planning--sequential-thinking-prompt
+                       goal) t)
+          (message "Software planning session started for goal: %s" goal))))))
 
 (provide 'aider-software-planning)
 
