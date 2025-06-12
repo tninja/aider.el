@@ -242,7 +242,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - [X] Software planning discussion
   - [ ] Other
 - [ ] Learn and migrate useful feature from popular AI coding tool
-- [ ] Better way to batch add relevant files from repo to aider session
+- [ ] Better way to batch add relevant files from repo to aider session [0/2]
+  - [ ] Dependencies and dependent on current file
+  - [ ] Relevant files for current context
 - [-] Consider use existing code tool's output as part of context [1/2]
   - [X] flycheck
   - [ ] compile output
