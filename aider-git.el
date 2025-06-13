@@ -95,10 +95,16 @@ Returns a cons cell (RESOLVED-BASE . RESOLVED-FEATURE)."
           (setq resolved-base-branch input-base-branch)
           (setq resolved-feature-branch input-feature-branch))
          ('remote
-          ;; User asserts branches are remote, or should be treated as such.
-          ;; aider--get-full-branch-ref will try to find origin/X if X is given.
-          (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
-          (setq resolved-feature-branch (aider--get-full-branch-ref input-feature-branch)))
+          ;; For remote scope, explicitly try to use origin/ prefixed branches
+          ;; Add origin/ prefix if not already present
+          (setq resolved-base-branch 
+                (if (string-prefix-p "origin/" input-base-branch)
+                    input-base-branch
+                  (concat "origin/" input-base-branch)))
+          (setq resolved-feature-branch 
+                (if (string-prefix-p "origin/" input-feature-branch)
+                    input-feature-branch
+                  (concat "origin/" input-feature-branch))))
          (_ ; Default or unknown scope, fallback to smart resolution (should not happen with prompt)
           (setq resolved-base-branch (aider--get-full-branch-ref input-base-branch))
           (setq resolved-feature-branch (aider--get-full-branch-ref input-feature-branch))))))
@@ -174,7 +180,7 @@ GIT-ROOT is the root directory of the Git repository."
          (feature-branch (read-string "Feature branch name: "))
          (branch-scope)
          (scope-alist '(("Local" . local)
-                        ("Remote (will try to prefix with 'origin/' if needed)" . remote)))
+                        ("Remote (will prefix with 'origin/')" . remote)))
          (raw-scope-choice (completing-read "Are branches local or remote? "
                                             scope-alist
                                             nil t nil nil "Local")))

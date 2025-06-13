@@ -18,6 +18,7 @@
 - Update popular model: deepseek to DeepSeek R1 (0528)
 - Feat: Software Planning on given context (file, function, region)
   - Or you can let it focus on all added files, but enter right goal
+- Fix: aider-pull-or-review-diff-file should always use origin/<branch> for remote branch-scope
 
 ** v0.11.1
 
