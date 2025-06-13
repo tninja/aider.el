@@ -87,7 +87,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
 
 ;;;###autoload
 (defun aider-start-software-planning ()
-  "Start an interactive software planning session with Aider."
+  "Start an interactive software planning session with Aider, Giving context."
   (interactive)
   (let* ((file (buffer-file-name))
          (file-name (and file (file-name-nondirectory file)))
