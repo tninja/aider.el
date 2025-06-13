@@ -13,6 +13,7 @@
 (require 'magit)
 (require 'savehist)
 (require 'markdown-mode)
+(require 'cl-lib)
 
 (declare-function evil-define-key* "evil" (state map key def))
 
@@ -88,8 +89,7 @@ The format will be *aider:<git-repo-path>:<branch-name>*."
   :type 'boolean
   :group 'aider)
 
-(require 'cl-lib)
-(defvar aider-confirm-on-main-branch t
+(defcustom aider-confirm-on-main-branch t
   "When non-nil, ask before sending /code, /architect or “go ahead”
 on main/master/develop.  Set to nil when user picks “yes and do not ask again.”")
 
