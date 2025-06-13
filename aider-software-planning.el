@@ -15,6 +15,8 @@
 
 ;;; Code:
 
+(require 'which-func)
+
 (require 'aider-core)
 (require 'aider-file)
 
