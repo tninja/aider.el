@@ -241,9 +241,11 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [ ] Better way to batch add relevant files from repo to aider session [0/2]
   - [ ] Dependencies and dependent on current file
   - [ ] Relevant files for current context
-- [-] Consider use existing code tool's output as part of context [1/2]
+- [-] Consider integrating more solid / widely used package with aider [2/4]
+  - [X] magit
   - [X] flycheck
   - [ ] compile output
+  - [ ] projectile
 - [ ] Thinking on how to simplify the menu / commands
   - Only keep frequently used items in the first level
 
