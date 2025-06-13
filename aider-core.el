@@ -390,14 +390,14 @@ Returns t if command was sent successfully, nil otherwise."
                   (let ((choice
                          (read-multiple-choice
                           (format "You are on '%s'.  Changes are normally made on feature branches.\nReally send this command here? " branch)
-                          `((?y "Yes, send it"                ?y)
-                            (?n "No, abort"                   ?n)
-                            (?a "Yes and do not ask again"    ?a)))))
+                          `((?y "Yes, send it")
+                            (?n "No, abort")
+                            (?a "Yes and do not ask again")))))
                     (cond
-                     ((eq choice ?n)
+                     ((eq (car choice) ?n)
                       (message "Aborted on '%s'." branch)
                       nil)
-                     ((eq choice ?a)
+                     ((eq (car choice) ?a)
                       (setq aider-confirm-on-main-branch nil)
                       t)
                      (t t)))))))
