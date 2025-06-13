@@ -385,6 +385,7 @@ Returns t if command was sent successfully, nil otherwise."
                                    aider-confirm-on-main-branch
                                    (or (string-prefix-p "/code"      command)
                                        (string-prefix-p "/architect" command)
+                                       (string-prefix-p "/commit"    command)
                                        (string-prefix-p "go ahead"   command)))))
                 (if (not danger?) t
                   (let ((choice
