@@ -373,38 +373,37 @@ Optional LOG, when non-nil, logs the command to the message area.
 Returns t if command was sent successfully, nil otherwise."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (aider--validate-aider-buffer)))
-    (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))
-           (command (replace-regexp-in-string "[\n\r]+\\'" "" command))
-           (command (aider--process-message-if-multi-line command))
-           ;; new: check branch + confirmation
-           (continue?
-            (let* ((git-root (aider--get-git-repo-root))
-                   (branch  (when git-root (aider--get-current-git-branch git-root)))
-                   (danger? (and branch
-                                 (member branch '("main" "master" "develop"))
-                                 aider-confirm-on-main-branch
-                                 (or (string-prefix-p "/code"      command)
-                                     (string-prefix-p "/architect" command)
-                                     (string-prefix-p "go ahead"   command)))))
-              (if (not danger?) t
-                (let ((choice
-                       (read-multiple-choice
-                        (format "You are on '%s'.  Changes are normally made on feature branches.\nReally send this command here? " branch)
-                        `((?y "Yes, send it"                ?y)
-                          (?n "No, abort"                   ?n)
-                          (?a "Yes and do not ask again"    ?a)))))
-                  (cond
-                   ((eq choice ?n)
-                    (message "Aborted on '%s'." branch)
-                    nil)
-                   ((eq choice ?a)
-                    (setq aider-confirm-on-main-branch nil)
-                    t)
-                   (t t))))))
-      ;; wrap existing send logic in (when continue?)
-      (when continue?
-        (let ((aider-process (get-buffer-process aider-buffer)))
-          (if (and aider-process (comint-check-proc aider-buffer))
+      (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))
+             (command (replace-regexp-in-string "[\n\r]+\\'" "" command))
+             (command (aider--process-message-if-multi-line command))
+             ;; new: check branch + confirmation
+             (continue?
+              (let* ((git-root (aider--get-git-repo-root))
+                     (branch  (when git-root (aider--get-current-git-branch git-root)))
+                     (danger? (and branch
+                                   (member branch '("main" "master" "develop"))
+                                   aider-confirm-on-main-branch
+                                   (or (string-prefix-p "/code"      command)
+                                       (string-prefix-p "/architect" command)
+                                       (string-prefix-p "go ahead"   command)))))
+                (if (not danger?) t
+                  (let ((choice
+                         (read-multiple-choice
+                          (format "You are on '%s'.  Changes are normally made on feature branches.\nReally send this command here? " branch)
+                          `((?y "Yes, send it"                ?y)
+                            (?n "No, abort"                   ?n)
+                            (?a "Yes and do not ask again"    ?a)))))
+                    (cond
+                     ((eq choice ?n)
+                      (message "Aborted on '%s'." branch)
+                      nil)
+                     ((eq choice ?a)
+                      (setq aider-confirm-on-main-branch nil)
+                      t)
+                     (t t)))))))
+        ;; wrap existing send logic in (when continue?)
+        (when continue?
+          (if (and (get-buffer-process aider-buffer) (comint-check-proc aider-buffer))
               (progn
                 (aider--comint-send-string-syntax-highlight aider-buffer command)
                 (when log    (message "Sent command: %s" (string-trim command)))
@@ -412,7 +411,7 @@ Returns t if command was sent successfully, nil otherwise."
                 (sleep-for 0.2)
                 t)
             (message "No active process in %s." (aider-buffer-name))
-            nil)))))
+            nil)))
     (progn
       (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
       nil))) ; Return nil for failure
