@@ -1,4 +1,4 @@
-;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
+;;; aider.el --- AI assisted programming with Aider and LLM  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
 ;; Version: 0.11.1
