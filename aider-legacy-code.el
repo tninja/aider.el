@@ -9,9 +9,10 @@
 
 ;;; Code:
 
+(require 'which-func)
+
 (require 'aider-core)
 (require 'aider-file)
-(require 'which-func)
 
 ;;;###autoload
 (defun aider-legacy-code ()
