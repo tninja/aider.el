@@ -99,12 +99,12 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (default-goal
           (cond
            (region-active
-            (format "Plan feature for selected region%s: %s"
+            (format "For selected region%s: %s: "
                     (if function (format " in function '%s'" function) "") region-text))
-           (function (format "Plan feature for function '%s'" function))
-           (file-name (format "Plan software for file '%s'" file-name))
+           (function (format "For function '%s': " function))
+           (file-name (format "For file '%s': " file-name))
            (t "Plan new software feature")))
-         (prompt (format "Enter your software development goal (default: %s): " default-goal))
+         (prompt (format "Enter your software development goal (Backspace to clear): " default-goal))
          (input (aider-read-string prompt default-goal))
          (goal (if (string-empty-p input) default-goal input)))
     (if (string-empty-p goal)
