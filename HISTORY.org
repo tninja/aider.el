@@ -3,7 +3,7 @@
 
 ** Main branch change
 
-- file completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
+- File completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
 - Add whole git repo evolution analysis: aider-magit-log-analyze
   - Update menu item to aider-magit-blame-or-log-analyze
 - Add aider-magit-setup-transients function to register Aider commands with Magit transients
@@ -14,6 +14,10 @@
   - Follow up change after #178, since same error still happen sometime.
     - Make the function related to advice-add, only take effect in aider-comint-mode and won't pollute markdown-mode.
   - Addressing 1. #159; 2. MatthewZMD/aidermacs#141
+- aider-add-module function have better default value for user input (suffix-input, content-regex)
+- Update popular model: deepseek to DeepSeek R1 (0528)
+- Feat: Software Planning on given context (file, function, region)
+  - Or you can let it focus on all added files, but enter right goal
 - Fix: aider-pull-or-review-diff-file should always use origin/<branch> for remote branch-scope
 
 ** v0.11.1
