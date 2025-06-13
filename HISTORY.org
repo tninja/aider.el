@@ -14,6 +14,7 @@
   - Follow up change after #178, since same error still happen sometime.
     - Make the function related to advice-add, only take effect in aider-comint-mode and won't pollute markdown-mode.
   - Addressing 1. #159; 2. MatthewZMD/aidermacs#141
+- Fix: aider-pull-or-review-diff-file should always use origin/<branch> for remote branch-scope
 
 ** v0.11.1
 
