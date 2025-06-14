@@ -15,6 +15,8 @@
 
 (require 'aider-core)
 
+(require 'cl-lib)
+
 ;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
   "Get the appropriate path for FILE-PATH.
@@ -404,26 +406,50 @@ If FILE-PATH is already open in a buffer, use that buffer instead of creating a 
           ;; Use existing buffer without disturbing point or window configuration
           (with-current-buffer existing-buffer
             (save-excursion
-              (save-restriction
-                (widen)
-                (goto-char (point-min))
-                (while (and (not found) (re-search-forward regex nil t))
-                  ;; Only count match if NOT inside a comment
-                  (unless (nth 4 (syntax-ppss))
-                    (setq found t))))))
+              (widen)
+              (goto-char (point-min))
+              (while (and (not found) (not (eobp)))
+                (let* ((ppss     (syntax-ppss))
+                       (in-str   (nth 3 ppss))
+                       (in-comm  (nth 4 ppss))
+                       (line     (buffer-substring-no-properties
+                                  (line-beginning-position)
+                                  (line-end-position))))
+                  (when (and (not in-str)
+                             (not in-comm)
+                             (string-match-p (regexp-quote basename) line)
+                             (aider--line-has-import-keyword-p line))
+                    (setq found t)))
+                (forward-line 1))))
         ;; No existing buffer, create a temporary one
         (with-temp-buffer
           (insert-file-contents file-path)
-          ;; Set the buffer's file name so set-auto-mode can work properly
-          (setq buffer-file-name file-path)
-          (set-auto-mode) ;; now it can recognize the mode based on file extension
-          (setq buffer-file-name nil) ;; clean up to avoid side effects
           (goto-char (point-min))
-          (while (and (not found) (re-search-forward regex nil t))
-            ;; Only count match if NOT inside a comment
-            (unless (nth 4 (syntax-ppss))
-              (setq found t)))))
+          (while (and (not found) (not (eobp)))
+            (let* ((ppss     (syntax-ppss))
+                   (in-str   (nth 3 ppss))
+                   (in-comm  (nth 4 ppss))
+                   (line     (buffer-substring-no-properties
+                              (line-beginning-position)
+                              (line-end-position))))
+              (when (and (not in-str)
+                         (not in-comm)
+                         (string-match-p (regexp-quote basename) line)
+                         (aider--line-has-import-keyword-p line))
+                (setq found t)))
+            (forward-line 1))))
       found)))
+
+(defvar aider--import-keywords
+  '("import" "require" "include" "from" "using" "#include")
+  "List of words that likely indicate an import/dependency line.")
+
+(defun aider--line-has-import-keyword-p (line)
+  "Return non-nil if any of `aider--import-keywords' appears as a word in LINE."
+  (cl-some
+   (lambda (kw)
+     (string-match-p (format "\\b%s\\b" (regexp-quote kw)) line))
+   aider--import-keywords))
 
 (provide 'aider-file)
 
