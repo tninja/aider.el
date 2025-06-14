@@ -3,7 +3,7 @@
 
 ** Main branch change
 
-- file completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
+- File completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
 - Add whole git repo evolution analysis: aider-magit-log-analyze
   - Update menu item to aider-magit-blame-or-log-analyze
 - Add aider-magit-setup-transients function to register Aider commands with Magit transients
@@ -16,6 +16,7 @@
   - Addressing 1. #159; 2. MatthewZMD/aidermacs#141
 - aider-add-module function have better default value for user input (suffix-input, content-regex)
 - Update popular model: deepseek to DeepSeek R1 (0528)
+- Introduce aider-expand-context-current-file. It suggest a semi-automatic way to add relevant file. It add current file and its dependencies/dependents to aider session. Given current buffer source code file.
 
 ** v0.11.1
 
