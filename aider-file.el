@@ -372,7 +372,8 @@ Returns list of absolute file paths."
   (list (concat "*." file-ext)))
 
 (defun aider--find-files-by-patterns (search-root patterns)
-  "Find all files matching PATTERNS in SEARCH-ROOT."
+  "Find all files matching PATTERNS in SEARCH-ROOT.
+Ignores files with flycheck_ prefix."
   (let ((found-files '()))
     (dolist (pattern patterns)
       (let* ((cmd (list "find" search-root "-name" pattern "-type" "f"))
@@ -380,6 +381,11 @@ Returns list of absolute file paths."
                       (when (zerop (apply #'call-process (car cmd) nil t nil (cdr cmd)))
                         (split-string (buffer-string) "\n" t)))))
         (setq found-files (append found-files result))))
+    ;; Filter out files starting with flycheck_ prefix
+    (setq found-files (seq-filter (lambda (file)
+                                    (not (string-prefix-p "flycheck_" 
+                                                          (file-name-nondirectory file))))
+                                  found-files))
     (delete-dups (mapcar #'expand-file-name found-files))))
 
 (defun aider--file-mentions-basename (file-path basename)
