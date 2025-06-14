@@ -12,10 +12,10 @@
 (require 'dired)
 (require 'magit)
 (require 'ffap)
+(require 'cl-lib)
 
 (require 'aider-core)
 
-(require 'cl-lib)
 
 ;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
