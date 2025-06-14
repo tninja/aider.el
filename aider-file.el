@@ -272,12 +272,30 @@ and the source code files it depends on.
 User can choose between /add or /read-only command."
   (interactive)
   (when (aider--validate-buffer-file)
-    (let* ((current-file (buffer-file-name))
-           (git-root (ignore-errors (magit-toplevel)))
-           (search-root (or git-root default-directory))
+    ;; ask whether to include test files in our search
+    (let* ((current-file  (buffer-file-name))
+           (include-tests (y-or-n-p "Include test files in context expansion? "))
+           ;; search root & raw deps/clients
+           (git-root     (ignore-errors (magit-toplevel)))
+           (search-root  (or git-root default-directory))
            (dependencies (aider--find-file-dependencies current-file search-root))
-           (dependents (aider--find-file-dependents current-file search-root))
-           (all-files (delete-dups (append (list current-file) dependencies dependents))))
+           ;; if tests are excluded, drop any path whose filename contains “test”
+           (dependencies (if include-tests
+                             dependencies
+                           (seq-remove (lambda (f)
+                                         (string-match-p "test"
+                                                         (downcase (file-name-nondirectory f))))
+                                       dependencies)))
+           (dependents   (aider--find-file-dependents   current-file search-root))
+           (dependents   (if include-tests
+                             dependents
+                           (seq-remove (lambda (f)
+                                         (string-match-p "test"
+                                                         (downcase (file-name-nondirectory f))))
+                                       dependents)))
+           (all-files    (delete-dups (append (list current-file)
+                                              dependencies
+                                              dependents))))
       (if (> (length all-files) 1)
           (let* ((commands '("/add" "/read-only"))
                  (command (completing-read "Select command for files: " commands nil t nil nil "/add")))
