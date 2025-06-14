@@ -12,8 +12,10 @@
 (require 'dired)
 (require 'magit)
 (require 'ffap)
+(require 'cl-lib)
 
 (require 'aider-core)
+
 
 ;; Added helper function to get the relative or absolute path of the file
 (defun aider--get-file-path (file-path)
@@ -270,12 +272,30 @@ and the source code files it depends on.
 User can choose between /add or /read-only command."
   (interactive)
   (when (aider--validate-buffer-file)
-    (let* ((current-file (buffer-file-name))
-           (git-root (ignore-errors (magit-toplevel)))
-           (search-root (or git-root default-directory))
+    ;; ask whether to include test files in our search
+    (let* ((current-file  (buffer-file-name))
+           (include-tests (y-or-n-p "Include test files in context expansion? "))
+           ;; search root & raw deps/clients
+           (git-root     (ignore-errors (magit-toplevel)))
+           (search-root  (or git-root default-directory))
            (dependencies (aider--find-file-dependencies current-file search-root))
-           (dependents (aider--find-file-dependents current-file search-root))
-           (all-files (delete-dups (append (list current-file) dependencies dependents))))
+           ;; if tests are excluded, drop any path whose filename contains “test”
+           (dependencies (if include-tests
+                             dependencies
+                           (seq-remove (lambda (f)
+                                         (string-match-p "test"
+                                                         (downcase f)))
+                                       dependencies)))
+           (dependents   (aider--find-file-dependents   current-file search-root))
+           (dependents   (if include-tests
+                             dependents
+                           (seq-remove (lambda (f)
+                                         (string-match-p "test"
+                                                         (downcase f)))
+                                       dependents)))
+           (all-files    (delete-dups (append (list current-file)
+                                              dependencies
+                                              dependents))))
       (if (> (length all-files) 1)
           (let* ((commands '("/add" "/read-only"))
                  (command (completing-read "Select command for files: " commands nil t nil nil "/add")))
@@ -310,46 +330,30 @@ Returns list of absolute file paths."
               (push source-file dependencies))))))
     (delete-dups dependencies)))
 
+(defun aider--run-search (program args)
+  "Run PROGRAM with ARGS, return its stdout lines as a list of strings, or nil on error."
+  (ignore-errors
+    (mapcar #'expand-file-name
+            (apply #'process-lines program args))))
+
 (defun aider--search-files-containing-pattern (search-root pattern file-patterns)
   "Search for files in SEARCH-ROOT containing PATTERN and matching FILE-PATTERNS.
 Returns a list of absolute file paths."
-  (let ((candidate-files '()))
-    (if (executable-find "rg")
-        ;; Use ripgrep if available (faster)
-        (let* ((pattern-args (mapcar (lambda (pat) (concat "--glob=" pat)) file-patterns))
-               (cmd (append '("rg" "--files-with-matches" "--word-regexp") 
-                            pattern-args
-                            (list (regexp-quote pattern) search-root)))
-               (temp-buffer (generate-new-buffer " *rg-output*"))
-               (exit-code (apply #'call-process (car cmd) nil temp-buffer nil (cdr cmd))))
-          (when (= exit-code 0) ;; 0=matches found
-            (with-current-buffer temp-buffer
-              (goto-char (point-min))
-              (while (not (eobp))
-                (let ((file (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-                  (when (file-exists-p file)
-                    (push (expand-file-name file) candidate-files)))
-                (forward-line 1))))
-          (kill-buffer temp-buffer))
-      ;; Fallback to grep
-      (let* ((temp-buffer (generate-new-buffer " *grep-output*"))
-             (cmd-args (append '("grep" "-l" "-w" "-r") (list (regexp-quote pattern) search-root)))
-             (exit-code (apply #'call-process (car cmd-args) nil temp-buffer nil (cdr cmd-args))))
-        (when (= exit-code 0) ;; 0=matches found
-          (with-current-buffer temp-buffer
-            (goto-char (point-min))
-            (while (not (eobp))
-              (let ((file (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-                (when (file-exists-p file)
-                  (push (expand-file-name file) candidate-files)))
-              (forward-line 1))))
-        (kill-buffer temp-buffer)))
-    ;; Filter out files starting with flycheck_ prefix
-    (setq candidate-files (seq-filter (lambda (file)
-                                        (not (string-prefix-p "flycheck_" 
-                                                              (file-name-nondirectory file))))
-                                      candidate-files))
-    candidate-files))
+  (let* ((quoted-pat (regexp-quote pattern))
+         (pattern-args (mapcar (lambda (pat) (concat "--glob=" pat)) file-patterns))
+         (use-rg? (executable-find "rg"))
+         (cmd (if use-rg?
+                  (cons "rg" (append '("--files-with-matches" "--word-regexp")
+                                     pattern-args
+                                     (list quoted-pat search-root)))
+                (cons "grep" (list "-l" "-w" "-r" quoted-pat search-root))))
+         (candidates (ignore-errors (mapcar #'expand-file-name
+                                            (apply #'process-lines (car cmd) (cdr cmd)))))
+         (filtered (seq-remove (lambda (file)
+                                 (string-prefix-p "flycheck_"
+                                                  (file-name-nondirectory file)))
+                               (or candidates '()))))
+    filtered))
 
 (defun aider--find-file-dependents (file-path search-root)
   "Find files that depend on FILE-PATH by searching for files that mention this file's basename.
@@ -393,37 +397,51 @@ Ignores files with flycheck_ prefix."
                                   found-files))
     (delete-dups (mapcar #'expand-file-name found-files))))
 
+(defun aider--scan-buffer-for-basename (basename)
+  "Scan current buffer from point-min for BASENAME with word boundaries
+ignoring strings and comments. Returns t if found."
+  (let* ((regex (format "\\b%s\\b" (regexp-quote basename)))
+         found)
+    (while (and (not found) (not (eobp)))
+      (let* ((ppss    (syntax-ppss))
+             (in-str  (nth 3 ppss))
+             (in-comm (nth 4 ppss))
+             (line    (buffer-substring-no-properties
+                       (line-beginning-position)
+                       (line-end-position))))
+        (when (and (not in-str)
+                   (not in-comm)
+                   (string-match-p regex line)
+                   (aider--line-has-import-keyword-p line))
+          (setq found t)))
+      (forward-line 1))
+    found))
+
 (defun aider--file-mentions-basename (file-path basename)
   "Check if FILE-PATH content mentions BASENAME with word boundaries, ignoring comments.
 If FILE-PATH is already open in a buffer, use that buffer instead of creating a new one."
   (when (and (file-exists-p file-path) (> (length basename) 1))
-    (let ((existing-buffer (get-file-buffer file-path))
-          (regex (format "\\b%s\\b" (regexp-quote basename)))
-          found)
-      (if existing-buffer
-          ;; Use existing buffer without disturbing point or window configuration
-          (with-current-buffer existing-buffer
-            (save-excursion
-              (save-restriction
-                (widen)
-                (goto-char (point-min))
-                (while (and (not found) (re-search-forward regex nil t))
-                  ;; Only count match if NOT inside a comment
-                  (unless (nth 4 (syntax-ppss))
-                    (setq found t))))))
-        ;; No existing buffer, create a temporary one
-        (with-temp-buffer
-          (insert-file-contents file-path)
-          ;; Set the buffer's file name so set-auto-mode can work properly
-          (setq buffer-file-name file-path)
-          (set-auto-mode) ;; now it can recognize the mode based on file extension
-          (setq buffer-file-name nil) ;; clean up to avoid side effects
-          (goto-char (point-min))
-          (while (and (not found) (re-search-forward regex nil t))
-            ;; Only count match if NOT inside a comment
-            (unless (nth 4 (syntax-ppss))
-              (setq found t)))))
+    (let* ((existing (get-file-buffer file-path))
+           (buf      (or existing (find-file-noselect file-path)))
+           (found    (with-current-buffer buf
+                       (save-excursion
+                         (widen)
+                         (goto-char (point-min))
+                         (aider--scan-buffer-for-basename basename)))))
+      (unless existing
+        (kill-buffer buf))
       found)))
+
+(defvar aider--import-keywords
+  '("import" "require" "include" "from" "using" "#include")
+  "List of words that likely indicate an import/dependency line.")
+
+(defun aider--line-has-import-keyword-p (line)
+  "Return non-nil if any of `aider--import-keywords' appears as a word in LINE."
+  (cl-some
+   (lambda (kw)
+     (string-match-p (format "\\b%s\\b" (regexp-quote kw)) line))
+   aider--import-keywords))
 
 (provide 'aider-file)
 

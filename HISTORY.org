@@ -1,6 +1,14 @@
 
 * Release history
 
+** v0.12.1
+
+- Improve accuracy of aider-expand-context-current-file
+  - to skip matches in both comments and strings
+  - require that the basename appears in a context that suggests it is an import or a dependency
+  - ask user if test file need to be included
+
+
 ** v0.12.0
 
 - File completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
