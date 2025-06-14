@@ -13,6 +13,7 @@
 (require 'magit)
 (require 'savehist)
 (require 'markdown-mode)
+(require 'cl-lib)
 
 (declare-function evil-define-key* "evil" (state map key def))
 
@@ -87,6 +88,10 @@
 The format will be *aider:<git-repo-path>:<branch-name>*."
   :type 'boolean
   :group 'aider)
+
+(defcustom aider-confirm-on-main-branch t
+  "When non-nil, ask before sending /code, /architect or “go ahead”
+on main/master/develop.  Set to nil when user picks “yes and do not ask again.”")
 
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
@@ -368,25 +373,46 @@ Optional LOG, when non-nil, logs the command to the message area.
 Returns t if command was sent successfully, nil otherwise."
   ;; Check if the corresponding aider buffer exists
   (if-let ((aider-buffer (aider--validate-aider-buffer)))
-    (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))   ;; Remove leading newlines
-           (command (replace-regexp-in-string "[\n\r]+\\'" "" command)) ;; Remove trailing newlines
-           (command (aider--process-message-if-multi-line command))
-           (aider-process (get-buffer-process aider-buffer)))
-      ;; Check if the corresponding aider buffer has an active process
-      (if (and aider-process (comint-check-proc aider-buffer))
-          (progn
-            ;; Send the command to the aider process
-            (aider--comint-send-string-syntax-highlight aider-buffer command)
-            ;; Provide feedback to the user
-            (when log
-              (message "Sent command to aider buffer: %s" (string-trim command)))
-            (when switch-to-buffer
-              (aider-switch-to-buffer))
-            (sleep-for 0.2)
-            t) ; Return t for success
-        (progn
-          (message "No active process found in buffer %s." (aider-buffer-name))
-          nil))) ; Return nil for failure
+      (let* ((command (replace-regexp-in-string "\\`[\n\r]+" "" command))
+             (command (replace-regexp-in-string "[\n\r]+\\'" "" command))
+             (command (aider--process-message-if-multi-line command))
+             ;; new: check branch + confirmation
+             (continue?
+              (let* ((git-root (aider--get-git-repo-root))
+                     (branch  (when git-root (aider--get-current-git-branch git-root)))
+                     (danger? (and branch
+                                   (member branch '("main" "master" "develop"))
+                                   aider-confirm-on-main-branch
+                                   (or (string-prefix-p "/code"      command)
+                                       (string-prefix-p "/architect" command)
+                                       (string-prefix-p "/commit"    command)
+                                       (string-prefix-p "go ahead"   command)))))
+                (if (not danger?) t
+                  (let ((choice
+                         (read-multiple-choice
+                          (format "You are on '%s'.  Changes are normally made on feature branches.\nReally send this command here? " branch)
+                          `((?y "Yes, send it")
+                            (?n "No, abort")
+                            (?a "Yes and do not ask again")))))
+                    (cond
+                     ((eq (car choice) ?n)
+                      (message "Aborted on '%s'." branch)
+                      nil)
+                     ((eq (car choice) ?a)
+                      (setq aider-confirm-on-main-branch nil)
+                      t)
+                     (t t)))))))
+        ;; wrap existing send logic in (when continue?)
+        (when continue?
+          (if (and (get-buffer-process aider-buffer) (comint-check-proc aider-buffer))
+              (progn
+                (aider--comint-send-string-syntax-highlight aider-buffer command)
+                (when log    (message "Sent command: %s" (string-trim command)))
+                (when switch-to-buffer (aider-switch-to-buffer))
+                (sleep-for 0.2)
+                t)
+            (message "No active process in %s." (aider-buffer-name))
+            nil)))
     (progn
       (message "Buffer %s does not exist. Please start 'aider' first." (aider-buffer-name))
       nil))) ; Return nil for failure
