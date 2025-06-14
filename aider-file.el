@@ -284,14 +284,14 @@ User can choose between /add or /read-only command."
                              dependencies
                            (seq-remove (lambda (f)
                                          (string-match-p "test"
-                                                         (downcase (file-name-nondirectory f))))
+                                                         (downcase f)))
                                        dependencies)))
            (dependents   (aider--find-file-dependents   current-file search-root))
            (dependents   (if include-tests
                              dependents
                            (seq-remove (lambda (f)
                                          (string-match-p "test"
-                                                         (downcase (file-name-nondirectory f))))
+                                                         (downcase f)))
                                        dependents)))
            (all-files    (delete-dups (append (list current-file)
                                               dependencies
