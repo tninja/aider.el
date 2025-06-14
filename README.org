@@ -228,23 +228,26 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 ** Feature
 
-- More context sensitive code change / code reading commands [2/3]
-  - [X] Current aider-ask-question need to be improved, since there could be so many different question to ask
-  - [X] How to port the candidate list feature to aider-plain-read-string
-  - [ ] Thinking on how to improve the candidate list for the function
-- More thinking on improving code quality tool such as unit-test [5/5]
+- More thinking on improving code quality tool such as unit-test [4/4]
   - [X] Code refactoring functions
   - [X] TDD functions
   - [X] Code reading functions 
   - [X] Legacy code support
 - [X] Bootstrap code or document from scratch
-- [ ] Import useful MCP feature to aider
+- [-] Import useful MCP feature to aider [1/2]
+  - [X] Software planning discussion
+  - [ ] Other
 - [ ] Learn and migrate useful feature from popular AI coding tool
-- [ ] Better way to batch add relevant files from repo to aider session
-- [ ] Consider use existing code tool's output as part of context [/]
-  - [ ] flycheck
+- [ ] Better way to batch add relevant files from repo to aider session [0/2]
+  - [ ] Dependencies and dependent on current file
+  - [ ] Relevant files for current context
+- [-] Consider integrating more solid / widely used package with aider [2/4]
+  - [X] magit
+  - [X] flycheck
   - [ ] compile output
+  - [ ] projectile
 - [ ] Thinking on how to simplify the menu / commands
+  - Only keep frequently used items in the first level
 
 ** Code quality
  
