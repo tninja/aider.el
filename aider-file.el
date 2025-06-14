@@ -330,46 +330,30 @@ Returns list of absolute file paths."
               (push source-file dependencies))))))
     (delete-dups dependencies)))
 
+(defun aider--run-search (program args)
+  "Run PROGRAM with ARGS, return its stdout lines as a list of strings, or nil on error."
+  (ignore-errors
+    (mapcar #'expand-file-name
+            (apply #'process-lines program args))))
+
 (defun aider--search-files-containing-pattern (search-root pattern file-patterns)
   "Search for files in SEARCH-ROOT containing PATTERN and matching FILE-PATTERNS.
 Returns a list of absolute file paths."
-  (let ((candidate-files '()))
-    (if (executable-find "rg")
-        ;; Use ripgrep if available (faster)
-        (let* ((pattern-args (mapcar (lambda (pat) (concat "--glob=" pat)) file-patterns))
-               (cmd (append '("rg" "--files-with-matches" "--word-regexp") 
-                            pattern-args
-                            (list (regexp-quote pattern) search-root)))
-               (temp-buffer (generate-new-buffer " *rg-output*"))
-               (exit-code (apply #'call-process (car cmd) nil temp-buffer nil (cdr cmd))))
-          (when (= exit-code 0) ;; 0=matches found
-            (with-current-buffer temp-buffer
-              (goto-char (point-min))
-              (while (not (eobp))
-                (let ((file (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-                  (when (file-exists-p file)
-                    (push (expand-file-name file) candidate-files)))
-                (forward-line 1))))
-          (kill-buffer temp-buffer))
-      ;; Fallback to grep
-      (let* ((temp-buffer (generate-new-buffer " *grep-output*"))
-             (cmd-args (append '("grep" "-l" "-w" "-r") (list (regexp-quote pattern) search-root)))
-             (exit-code (apply #'call-process (car cmd-args) nil temp-buffer nil (cdr cmd-args))))
-        (when (= exit-code 0) ;; 0=matches found
-          (with-current-buffer temp-buffer
-            (goto-char (point-min))
-            (while (not (eobp))
-              (let ((file (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-                (when (file-exists-p file)
-                  (push (expand-file-name file) candidate-files)))
-              (forward-line 1))))
-        (kill-buffer temp-buffer)))
-    ;; Filter out files starting with flycheck_ prefix
-    (setq candidate-files (seq-filter (lambda (file)
-                                        (not (string-prefix-p "flycheck_" 
-                                                              (file-name-nondirectory file))))
-                                      candidate-files))
-    candidate-files))
+  (let* ((quoted-pat (regexp-quote pattern))
+         (pattern-args (mapcar (lambda (pat) (concat "--glob=" pat)) file-patterns))
+         (use-rg? (executable-find "rg"))
+         (cmd (if use-rg?
+                  (cons "rg" (append '("--files-with-matches" "--word-regexp")
+                                     pattern-args
+                                     (list quoted-pat search-root)))
+                (cons "grep" (list "-l" "-w" "-r" quoted-pat search-root))))
+         (candidates (ignore-errors (mapcar #'expand-file-name
+                                            (apply #'process-lines (car cmd) (cdr cmd)))))
+         (filtered (seq-remove (lambda (file)
+                                 (string-prefix-p "flycheck_"
+                                                  (file-name-nondirectory file)))
+                               (or candidates '()))))
+    filtered))
 
 (defun aider--find-file-dependents (file-path search-root)
   "Find files that depend on FILE-PATH by searching for files that mention this file's basename.
