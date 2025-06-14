@@ -344,6 +344,11 @@ Returns a list of absolute file paths."
                   (push (expand-file-name file) candidate-files)))
               (forward-line 1))))
         (kill-buffer temp-buffer)))
+    ;; Filter out files starting with flycheck_ prefix
+    (setq candidate-files (seq-filter (lambda (file)
+                                        (not (string-prefix-p "flycheck_" 
+                                                              (file-name-nondirectory file))))
+                                      candidate-files))
     candidate-files))
 
 (defun aider--find-file-dependents (file-path search-root)
