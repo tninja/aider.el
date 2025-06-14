@@ -71,10 +71,10 @@ Uses CONTEXT."
       (let* ((current-name (or (thing-at-point 'symbol t)
                               (read-string "Current name: ")))
              (new-name (read-string (format "Rename '%s' to: " current-name))))
-        (replace-regexp-in-string
+        (replace-regexp-in-string 
          "\\[NEW_NAME\\]" new-name
-         (replace-regexp-in-string
-          "\\[CURRENT_NAME\\]" current-name technique-description t)
+         (replace-regexp-in-string 
+          "\\[CURRENT_NAME\\]" current-name technique-description t) 
          t)))
      ((string= selected-technique "Inline Method")
       (let ((method-name (or (thing-at-point 'symbol t)
@@ -142,7 +142,6 @@ Uses CONTEXT."
 
 (defun aider--handle-specific-refactoring (selected-technique all-techniques context tdd-mode)
   "Handle the case where a specific refactoring technique is chosen.
-Uses SELECTED-TECHNIQUE, ALL-TECHNIQUES, CONTEXT, and TDD-MODE.
 If TDD-MODE is non-nil, adds TDD constraints to the instruction."
   (let* ((region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
@@ -164,13 +163,12 @@ If TDD-MODE is non-nil, adds TDD constraints to the instruction."
                               region-text)
                     (format "\"%s\"" final-instruction)))
          (message-suffix (if tdd-mode " during TDD refactor stage" "")))
-    (when (aider-current-file-command-and-switch "/architect " command)
-      (message "%s refactoring request sent to Aider%s. After code refactored, better to re-run unit-tests."
-               selected-technique message-suffix))))
+    (aider-current-file-command-and-switch "/architect " command)
+    (message "%s refactoring request sent to Aider%s. After code refactored, better to re-run unit-tests."
+             selected-technique message-suffix)))
 
 (defun aider--handle-ask-llm-suggestion (context tdd-mode)
   "Handle the case where the user asks the LLM for a refactoring suggestion.
-Uses CONTEXT and TDD-MODE.
 If TDD-MODE is non-nil, adds TDD constraints to the prompt."
   (let* ((region-active (plist-get context :region-active))
          (region-text (plist-get context :region-text))
@@ -195,10 +193,10 @@ If TDD-MODE is non-nil, adds TDD constraints to the prompt."
          (prompt (concat base-prompt tdd-constraint))
          (message-suffix (if tdd-mode " during TDD refactor stage" "")))
     ;; Send the prompt using the /ask command
-    (when (aider-current-file-command-and-switch "/ask " prompt)
-      ;; Inform the user
-      (message "Requesting refactoring suggestion from Aider%s. If you are happy with the suggestion, use 'go ahead' to accept the change"
-               message-suffix))))
+    (aider-current-file-command-and-switch "/ask " prompt)
+    ;; Inform the user
+    (message "Requesting refactoring suggestion from Aider%s. If you are happy with the suggestion, use 'go ahead' to accept the change"
+             message-suffix)))
 
 ;;;###autoload
 (defun aider-refactor-book-method (&optional tdd-mode)
@@ -225,7 +223,7 @@ TDD refactor stage."
       (aider--handle-specific-refactoring selected-technique all-techniques context tdd-mode))))
 
 (defun aider--tdd-red-stage (function-name)
-  "Handle the Red stage of TDD for FUNCTION-NAME: Write a failing test."
+  "Handle the Red stage of the TDD cycle: Write a failing test."
   (let* ((initial-input
           (if function-name
               (format "Write a failing test for function '%s': " function-name)
@@ -237,7 +235,7 @@ TDD refactor stage."
     (aider-current-file-command-and-switch "/architect " tdd-instructions)))
 
 (defun aider--tdd-green-stage (function-name)
-  "Handle the Green stage of TDD for FUNCTION-NAME: Make the test pass."
+  "Handle the Green stage of the TDD cycle: Make the test pass."
   (let* ((initial-input
           (if function-name
               (format "Implement function '%s' with minimal code to make tests pass: " function-name)

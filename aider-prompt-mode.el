@@ -33,7 +33,7 @@ This is the file name without path."
     (define-key map (kbd "C-c C-c") #'aider-send-block-or-region)
     (define-key map (kbd "C-c C-b") #'aider-send-block-by-line) ;; considering retire this since C-u C-c C-n will do same thing
     (define-key map (kbd "C-c C-z") #'aider-switch-to-buffer)
-    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-add-file-path)
+    (define-key map (kbd "C-c C-f") #'aider-prompt-insert-file-path)
     (define-key map (kbd "C-c C-i") #'aider-core-insert-prompt)
     (define-key map (kbd "C-c C-y") #'aider-prompt-cycle-file-command)
     map)
@@ -75,7 +75,7 @@ Handles special /subtree-only command."
 ;;;###autoload
 (defun aider-send-line-or-region (&optional arg)
   "Send text to the Aider buffer.
-With a prefix argument ARG (e.g., invoked with C-u), send the current paragraph
+If universal argument (C-u) is provided, send the current paragraph
 line by line.
 If region is active, send the selected region line by line.
 Otherwise, send the line under cursor.

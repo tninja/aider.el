@@ -10,19 +10,6 @@
 ;;
 ;;; Code:
 
-(require 'aider-core)
-(require 'aider-prompt-mode)
-(require 'aider-file)
-(require 'aider-git)
-(require 'aider-code-change)
-(require 'aider-discussion)
-(require 'aider-agile)
-(require 'aider-code-read)
-(require 'aider-legacy-code)
-(require 'aider-bootstrap)
-(require 'aider-software-planning)
-
-
 (defun aider-doom-setup-keys ()
   "Setup Aider keybindings if the current buffer is in a git repository."
   (when (and (featurep 'doom-keybinds)

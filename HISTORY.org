@@ -1,33 +1,12 @@
 
 * Release history
 
-** v0.12.0
-
-- File completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
-- Add whole git repo evolution analysis: aider-magit-log-analyze
-  - Update menu item to aider-magit-blame-or-log-analyze
-- Add aider-magit-setup-transients function to register Aider commands with Magit transients
-- rewrite unit-tests
-- Introduce shared validator functions to reduce code duplication.
-- Fix: Do not run following commands if aider--send-command failed
-- Fix: Object cannot be turned into regex
-  - Follow up change after #178, since same error still happen sometime.
-    - Make the function related to advice-add, only take effect in aider-comint-mode and won't pollute markdown-mode.
-  - Addressing 1. #159; 2. MatthewZMD/aidermacs#141
-- aider-add-module function have better default value for user input (suffix-input, content-regex)
-- Update popular model: deepseek to DeepSeek R1 (0528)
-- Feat: Software Planning on given context (file, function, region)
-  - Or you can let it focus on all added files, but enter right goal
-- Fix: aider-pull-or-review-diff-file should always use origin/<branch> for remote branch-scope
-- Introduce aider-expand-context-current-file. It suggest a semi-automatic way to add relevant file. It add current file and its dependencies/dependents to aider session. Given current buffer source code file.
-
-** v0.11.1
+** Main branch
 
 - Add support for dropping file under cursor in aider comint buffer, given discussion in https://github.com/tninja/aider.el/issues/179
 - Multiple chats for the same repository. 
   - To turn on this feature, ~(setq aider-use-branch-specific-buffers t)~
   - *If we want to switch to work on a different feature, we switch git branch, and it will map to a corresponding aider session.* The aider session name pattern would be ~aider:<path-to-git-repo>:branch-name~ 
-- prevent "Object cannot be turned into regex" error in aider-comint-session
 
 ** v0.11.0
 

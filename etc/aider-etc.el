@@ -98,7 +98,7 @@ If there are more than 40 files, refuse to add and show warning message."
               (command nil))
           (when formatted-files
             (setq command (concat "/add " (mapconcat #'identity formatted-files " ")))
-            (when (aider--send-command command t)
-              (message "Added %d files with suffix .%s"
-                       (length files) current-suffix)))
+            (aider--send-command command t)
+            (message "Added %d files with suffix .%s"
+                     (length files) current-suffix))
           )))))

@@ -1,7 +1,7 @@
-;;; aider.el --- AI assisted programming with Aider and LLM  -*- lexical-binding: t; -*-
+;;; aider.el --- AI assisted programming in Emacs with Aider  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.12.0
+;; Version: 0.11.0
 ;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
@@ -35,8 +35,7 @@
 ;;   - Diff extraction and AI code review tools
 ;;   - Advanced code / module reading assistant
 ;;   - Project software planning discussion capabilities
-;;   - Let aider to fix the errors reported by flycheck
-;;   - Code / repo evolution analysis with git blame and git log
+;;   - Integration with magit-blame for historical code analysis
 ;;   - Utilities for bootstrapping new files and projects.
 ;;   - Organize project with repo specific Aider prompt file
 ;;   - Snippets from community and aider use experience and pattern
@@ -64,7 +63,8 @@
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   "gemini"  ;; SOTA
                                   "o4-mini" ;; good for difficult task
-                                  "deepseek/deepseek-reasoner" ;; DeepSeek R1 (0528), low price, pretty good performance
+                                  ;; "gemini-exp"  ;; google stop this free service :(
+                                  "deepseek"  ;; low price, pretty good performance
                                   )
   "List of available AI models for selection.
 Each model should be in the format expected by the aider command line interface.
@@ -96,8 +96,8 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
-  ("o" "Select Model (C-u: benchmark)"   aider-change-model)
-  ("X" "Exit Aider"                      aider-exit))
+  ("o" "Select Model (C-u: benchmark)" aider-change-model)
+  ("x" "Exit Aider"                      aider-exit))
 
 ;;; Transient menu items for the “File Operation” section.
 (transient-define-group aider--menu-file-operation
@@ -105,11 +105,10 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
   ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
   ("O" "Drop File in Buffer / under Cursor"       aider-drop-current-file)
-  ("x" "Expand Context for Current File"          aider-expand-context-current-file)
   ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
-  ("e" "File Evolution Analysis (C-u: Repo)"      aider-magit-blame-or-log-analyze))
+  ("b" "File Evolution Analysis"                  aider-magit-blame-analyze))
 
 ;;; Transient menu items for the “Code Change” section.
 (transient-define-group aider--menu-code-change
@@ -130,7 +129,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("d" "Code Reading"               aider-code-read)
   ("c" "Copy To Clipboard"          aider-copy-to-clipboard)
   ("P" "Software Planning"          aider-start-software-planning)
-  ("E" "Debug Exception"            aider-debug-exception)
+  ("e" "Debug Exception"            aider-debug-exception)
   ("h" "Open History"               aider-open-history)
   ("?" "Help (C-u: homepage)"       aider-help))
 
@@ -209,8 +208,8 @@ specific patterns (e.g., OpenAI's o4, o3, o1 series)."
     (let* ((efforts '("low" "medium" "high"))
            (effort (completing-read "Select reasoning effort: " efforts nil t nil nil "medium")))
       (when effort
-        (when (aider--send-command (format "/reasoning-effort %s" effort) t)
-          (message "Reasoning effort set to %s for model %s" effort model))))))
+        (aider--send-command (format "/reasoning-effort %s" effort) t)
+        (message "Reasoning effort set to %s for model %s" effort model)))))
 
 ;;;###autoload
 (defun aider-change-model (leaderboards)
@@ -224,10 +223,10 @@ Allows selecting between /model, /editor-model, and /weak-model commands."
            (command (completing-read "Select model command: " commands nil t))
            (model (completing-read "Select AI model: " aider-popular-models nil t nil nil (car aider-popular-models))))
       (when model
-        (when (aider--send-command (format "%s %s" command model) t)
-          (message "%s changed to %s, customize aider-popular-models for the model candidates"
-                   (substring command 1) model)
-          (aider--maybe-prompt-and-set-reasoning-effort command model))))))
+        (aider--send-command (format "%s %s" command model) t)
+        (message "%s changed to %s, customize aider-popular-models for the model candidates"
+                 (substring command 1) model)
+        (aider--maybe-prompt-and-set-reasoning-effort command model)))))
 
 (provide 'aider)
 

@@ -9,10 +9,9 @@
 
 ;;; Code:
 
-(require 'which-func)
-
 (require 'aider-core)
 (require 'aider-file)
+(require 'which-func)
 
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
@@ -52,8 +51,8 @@ With a prefix argument PREFIX, calls `aider-general-question` instead."
            (question-context (if region-text
                                  (format "%s: %s" question region-text)
                                question)))
-      (when (aider-current-file-command-and-switch "/ask " question-context)
-        (message "Question about code sent to Aider")))))
+      (aider-current-file-command-and-switch "/ask " question-context)
+      (message "Question about code sent to Aider"))))
 
 ;;;###autoload
 (defun aider-general-question ()
