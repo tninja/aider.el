@@ -31,7 +31,7 @@
   - AI-assisted agile development methodologies (like [[./aider-agile.el][TDD, refactoring]] and [[./aider-legacy-code.el][legacy code handling]] based on established software engineering books)
   - [[./aider-git.el][Diff extraction and AI code review tools]]
   - [[./aider-code-read.el][Advanced code / module reading assistant]]
-  - [[./aider-software-planning.el][Project software planning discussion capabilities]]
+  - [[./aider-software-planning.el][Software planning / brainstorming discussion capabilities]]
   - Let aider to fix the errors reported by flycheck
   - [[./aider-git.el][Code / repo evolution analysis]] with git blame and git log
   - [[./aider-bootstrap.el][Utilities for bootstrapping new files and projects]].
