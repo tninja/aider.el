@@ -40,7 +40,7 @@
 
 - Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
-- Aider.el is under active development. [[./HISTORY.org][Recent change history]],  [[./appendix.org#recent-new-features][Recent new features]]
+- Aider.el is under active development. Current version is v.0.12.0. [[./HISTORY.org][Recent change history]],  [[./appendix.org#recent-new-features][Recent new features]]
 
 
 [[file:./transient_menu.png]]
