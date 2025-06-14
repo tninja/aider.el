@@ -395,49 +395,39 @@ Ignores files with flycheck_ prefix."
                                   found-files))
     (delete-dups (mapcar #'expand-file-name found-files))))
 
+(defun aider--scan-buffer-for-basename (basename)
+  "Scan current buffer from point-min for BASENAME with word boundaries
+ignoring strings and comments. Returns t if found."
+  (let* ((regex (format "\\b%s\\b" (regexp-quote basename)))
+         found)
+    (while (and (not found) (not (eobp)))
+      (let* ((ppss    (syntax-ppss))
+             (in-str  (nth 3 ppss))
+             (in-comm (nth 4 ppss))
+             (line    (buffer-substring-no-properties
+                       (line-beginning-position)
+                       (line-end-position))))
+        (when (and (not in-str)
+                   (not in-comm)
+                   (string-match-p regex line)
+                   (aider--line-has-import-keyword-p line))
+          (setq found t)))
+      (forward-line 1))
+    found))
+
 (defun aider--file-mentions-basename (file-path basename)
   "Check if FILE-PATH content mentions BASENAME with word boundaries, ignoring comments.
 If FILE-PATH is already open in a buffer, use that buffer instead of creating a new one."
   (when (and (file-exists-p file-path) (> (length basename) 1))
-    (let ((existing-buffer (get-file-buffer file-path))
-          (regex (format "\\b%s\\b" (regexp-quote basename)))
-          found)
-      (if existing-buffer
-          ;; Use existing buffer without disturbing point or window configuration
-          (with-current-buffer existing-buffer
-            (save-excursion
-              (widen)
-              (goto-char (point-min))
-              (while (and (not found) (not (eobp)))
-                (let* ((ppss     (syntax-ppss))
-                       (in-str   (nth 3 ppss))
-                       (in-comm  (nth 4 ppss))
-                       (line     (buffer-substring-no-properties
-                                  (line-beginning-position)
-                                  (line-end-position))))
-                  (when (and (not in-str)
-                             (not in-comm)
-                             (string-match-p (regexp-quote basename) line)
-                             (aider--line-has-import-keyword-p line))
-                    (setq found t)))
-                (forward-line 1))))
-        ;; No existing buffer, create a temporary one
-        (with-temp-buffer
-          (insert-file-contents file-path)
-          (goto-char (point-min))
-          (while (and (not found) (not (eobp)))
-            (let* ((ppss     (syntax-ppss))
-                   (in-str   (nth 3 ppss))
-                   (in-comm  (nth 4 ppss))
-                   (line     (buffer-substring-no-properties
-                              (line-beginning-position)
-                              (line-end-position))))
-              (when (and (not in-str)
-                         (not in-comm)
-                         (string-match-p (regexp-quote basename) line)
-                         (aider--line-has-import-keyword-p line))
-                (setq found t)))
-            (forward-line 1))))
+    (let* ((existing (get-file-buffer file-path))
+           (buf      (or existing (find-file-noselect file-path)))
+           (found    (with-current-buffer buf
+                       (save-excursion
+                         (widen)
+                         (goto-char (point-min))
+                         (aider--scan-buffer-for-basename basename)))))
+      (unless existing
+        (kill-buffer buf))
       found)))
 
 (defvar aider--import-keywords
