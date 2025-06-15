@@ -62,7 +62,7 @@
 
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
-                                  "gemini"  ;; SOTA
+                                  ;; "gemini"  ;; SOTA ;; extremely slow these days
                                   "o4-mini" ;; good for difficult task
                                   "deepseek/deepseek-reasoner" ;; DeepSeek R1 (0528), low price, pretty good performance
                                   )

@@ -75,9 +75,6 @@ Enable installation of packages from MELPA by adding an entry to package-archive
     ;; For latest claude sonnet model
     (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
-    ;; Or gemini model
-    ;; (setq aider-args '("--model" "gemini"))
-    ;; (setenv "GEMINI_API_KEY" <your-gemini-api-key>)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o4-mini"))
     ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
