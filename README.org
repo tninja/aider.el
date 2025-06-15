@@ -237,9 +237,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [-] Import useful MCP feature to aider [1/2]
   - [X] Software planning discussion
   - [ ] Other
-- [ ] Learn and migrate useful feature from popular AI coding tool
-- [ ] Better way to batch add relevant files from repo to aider session [0/2]
-  - [ ] Dependencies and dependent on current file
+- [ ] Learn and migrate useful feature from popular AI coding tool / MCP
+- [-] Better way to batch add relevant files from repo to aider session [1/2]
+  - [X] Dependencies and dependent on current file
   - [ ] Relevant files for current context
 - [-] Consider AI + solid / widely used package [1/4]
   - [-] magit [5/6]
@@ -250,7 +250,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
     - [X] diff pull / code review
     - [ ] suggest code change given code review feedback
   - [X] flycheck
-  - [ ] compile output
+  - [ ] compile / test output
   - [ ] projectile
 - [ ] Thinking on how to simplify the menu / commands
   - Only keep frequently used items in the first level

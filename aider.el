@@ -95,7 +95,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("a" "Run Aider (C-u: args)"           aider-run-aider)
   ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
-  ("c" "Git Checkout or Create Branch"   magit-branch-or-checkout)
+  ("c" "Create / Checkout Branch"        magit-branch-or-checkout)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
   ("o" "Select Model (C-u: benchmark)"   aider-change-model)
   ("X" "Exit Aider"                      aider-exit))
