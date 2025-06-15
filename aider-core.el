@@ -1,5 +1,13 @@
 ;;; aider-core.el --- Core functionality for Aider -*- lexical-binding: t; -*-
-;;; Commentary: moved markdown highlighting and advice to aider-comint-markdown.el
+
+;; Author: Kang Tu <tninja@gmail.com>
+
+;; SPDX-License-Identifier: Apache-2.0
+
+;;; Commentary:
+;; This file provides core functionality for the Aider package.
+
+;;; Code:
 
 (require 'comint)
 (require 'magit)

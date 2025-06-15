@@ -1,6 +1,7 @@
 ;;; aider-utils.el --- Utility functions for Aider -*- lexical-binding: t; -*-
 
-;; Author: extracted from aider-core.el
+;; Author: Kang Tu <tninja@gmail.com>
+
 ;; SPDX-License-Identifier: Apache-2.0
 
 ;;; Commentary:

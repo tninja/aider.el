@@ -1,5 +1,13 @@
 ;;; aider-comint-markdown.el --- Markdown highlighting and advice for Aider -*- lexical-binding: t; -*-
+
+;; Author: Kang Tu <tninja@gmail.com>
+
+;; SPDX-License-Identifier: Apache-2.0
+
+;;; Commentary:
 ;; Provide safe markdown functions and highlighting setup for aider-comint-mode
+
+;;; Code:
 
 (require 'markdown-mode)
 (require 'seq)
