@@ -3,11 +3,10 @@
 
 (require 'comint)
 (require 'magit)
-(require 'aider-comint-markdown)  ;; for markdown advice & highlighting
 (require 'savehist)
-(require 'markdown-mode)
 
 (require 'aider-utils)
+(require 'aider-comint-markdown)  ;; for markdown advice & highlighting
 
 (declare-function evil-define-key* "evil" (state map key def))
 
@@ -41,8 +40,6 @@ The format will be *aider:<git-repo-path>:<branch-name>*."
   "Boolean controlling Aider buffer display behavior.
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
-
-;; Removed: moved to aider-comint-markdown.el
 
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
@@ -85,8 +82,6 @@ When nil, use standard `display-buffer' behavior.")
     "/voice" "/web")
   "A list of common Aider commands for completion.")
 
-;; Removed: moved to aide-comint-markdown.el
-
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
@@ -119,10 +114,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
                       (or history-file-path "its determined location") ; provide file path if available
                       (error-message-string err)))))) ; display the error message
 
-;; Move markdown highlighting setup to separate module
 (add-hook 'aider-comint-mode-hook #'aider--apply-markdown-highlighting)
-
-;; History functions have been moved to aider-utils.el.
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
@@ -146,8 +138,6 @@ This function combines candidate-list with history for better completion."
 (eval-and-compile
   ;; Ensure the alias is always available in both compiled and interpreted modes.
   (defalias 'aider-read-string #'aider-plain-read-string))
-
-;; Function `aider--process-message-if-multi-line` moved to aider-utils.el.
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER using comint's standard input mechanism.
@@ -330,8 +320,6 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
-
-;; Validator functions moved to aider-utils.el.
 
 (provide 'aider-core)
 
