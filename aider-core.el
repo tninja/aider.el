@@ -13,6 +13,7 @@
 (require 'magit)
 (require 'savehist)
 (require 'markdown-mode)
+(require 'aider-utils)
 
 (declare-function evil-define-key* "evil" (state map key def))
 
@@ -335,16 +336,7 @@ Otherwise, it uses *aider:<git-repo-path>* or *aider:<current-file-directory>*."
      (t
       (error "Aider: Not in a git repository and current buffer is not associated with a file")))))
 
-(defun aider--process-message-if-multi-line (str)
-  "Entering multi-line chat messages.
-https://aider.chat/docs/usage/commands.html#entering-multi-line-chat-messages
-If STR contains newlines, wrap it in {aider\\nstr\\naider}.
-Otherwise return STR unchanged."
-  ;; Only wrap if contains newline and not already wrapped with \"{aider\"
-  (if (and (string-match-p "\n" str)
-           (not (string-match-p "{aider" str)))
-      (format "{aider\n%s\naider}" str)
-    str))
+;; Function `aider--process-message-if-multi-line` moved to aider-utils.el.
 
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER using comint's standard input mechanism.
@@ -586,40 +578,7 @@ invoke `aider-core-insert-prompt`."
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
 
-;; validators
-
-(defun aider--validate-buffer-file ()
-  "Validate that current buffer is associated with a file.
-Returns `buffer-file-name` if valid, nil otherwise with message."
-  (if buffer-file-name
-      buffer-file-name
-    (message "Current buffer is not associated with a file")
-    nil))
-
-(defun aider--validate-git-repository ()
-  "Validate that we're in a git repository and return git root.
-Returns git root if valid, nil otherwise with message."
-  (let ((git-root (magit-toplevel)))
-    (if git-root
-        git-root
-      (message "Not in a git repository")
-      nil)))
-
-(defun aider--validate-aider-buffer ()
-  "Validate that aider buffer exists and has an active process.
-Returns the aider buffer if valid, otherwise returns nil with message."
-  (let ((buffer-name (aider-buffer-name)))
-    (cond
-     ((not (get-buffer buffer-name))
-      (message "Aider buffer does not exist. Please start 'aider' first")
-      nil)
-     (t
-      (let* ((aider-buffer (get-buffer buffer-name))
-             (aider-process (get-buffer-process aider-buffer)))
-        (if (and aider-process (comint-check-proc aider-buffer))
-            aider-buffer
-          (message "No active process found in aider buffer: %s" buffer-name)
-          nil))))))
+;; Validator functions moved to aider-utils.el.
 
 (provide 'aider-core)
 
