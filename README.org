@@ -31,7 +31,7 @@
   - AI-assisted agile development methodologies (like [[./aider-agile.el][TDD, refactoring]] and [[./aider-legacy-code.el][legacy code handling]] based on established software engineering books)
   - [[./aider-git.el][Diff extraction and AI code review tools]]
   - [[./aider-code-read.el][Advanced code / module reading assistant]]
-  - [[./aider-software-planning.el][Project software planning discussion capabilities]]
+  - [[./aider-software-planning.el][Software planning / brainstorming discussion capabilities]]
   - Let aider to fix the errors reported by flycheck
   - [[./aider-git.el][Code / repo evolution analysis]] with git blame and git log
   - [[./aider-bootstrap.el][Utilities for bootstrapping new files and projects]].
@@ -40,7 +40,7 @@
 
 - Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
 
-- Aider.el is under active development. [[./HISTORY.org][Recent change history]],  [[./appendix.org#recent-new-features][Recent new features]]
+- Aider.el is under active development. Current version is v.0.12.1. [[./HISTORY.org][Recent change history]],  [[./appendix.org#recent-new-features][Recent new features]]
 
 
 [[file:./transient_menu.png]]
@@ -241,8 +241,14 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [ ] Better way to batch add relevant files from repo to aider session [0/2]
   - [ ] Dependencies and dependent on current file
   - [ ] Relevant files for current context
-- [-] Consider integrating more solid / widely used package with aider [2/4]
-  - [X] magit
+- [-] Consider integrating more solid / widely used package with aider [1/4]
+  - [-] magit [5/6]
+    - [X] show last commit
+    - [X] show commits history
+    - [X] git-blame analysis
+    - [X] git-log analysis
+    - [X] diff pull / code review
+    - [ ] suggest code change given code review feedback
   - [X] flycheck
   - [ ] compile output
   - [ ] projectile

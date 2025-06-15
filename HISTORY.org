@@ -1,7 +1,15 @@
 
 * Release history
 
-** Main branch change
+** v0.12.1
+
+- Improve accuracy of aider-expand-context-current-file
+  - to skip matches in both comments and strings
+  - require that the basename appears in a context that suggests it is an import or a dependency
+  - ask user if test file need to be included
+
+
+** v0.12.0
 
 - File completion for /drop only list added files, addressing https://github.com/tninja/aider.el/issues/179
 - Add whole git repo evolution analysis: aider-magit-log-analyze
@@ -18,6 +26,8 @@
 - Update popular model: deepseek to DeepSeek R1 (0528)
 - Feat: Software Planning on given context (file, function, region)
   - Or you can let it focus on all added files, but enter right goal
+- Fix: aider-pull-or-review-diff-file should always use origin/<branch> for remote branch-scope
+- Introduce aider-expand-context-current-file. It suggest a semi-automatic way to add relevant file. It add current file and its dependencies/dependents to aider session. Given current buffer source code file.
 
 ** v0.11.1
 

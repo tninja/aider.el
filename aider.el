@@ -1,7 +1,7 @@
 ;;; aider.el --- AI assisted programming with Aider and LLM  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.11.1
+;; Version: 0.12.1
 ;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
@@ -98,7 +98,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("c" "Git Checkout or Create Branch"   magit-branch-or-checkout)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
   ("o" "Select Model (C-u: benchmark)"   aider-change-model)
-  ("x" "Exit Aider"                      aider-exit))
+  ("X" "Exit Aider"                      aider-exit))
 
 ;;; Transient menu items for the “File Operation” section.
 (transient-define-group aider--menu-file-operation
@@ -106,7 +106,8 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("w" "Add All Files in Window"                  aider-add-files-in-current-window)
   ("M" "Add Module w/o grep (C-u: readonly)"      aider-add-module)
   ("O" "Drop File in Buffer / under Cursor"       aider-drop-current-file)
-  ("m" "Show Last Commit (C-u: All Commits)"      aider-magit-show-last-commit-or-log)
+  ("x" "Expand Context for Current File"          aider-expand-context-current-file)
+  ("m" "Show Last Commit (C-u: magit-log)"        aider-magit-show-last-commit-or-log)
   ("u" "Undo Last Change"                         aider-undo-last-change)
   ("v" "Pull or Review Code Change"               aider-pull-or-review-diff-file)
   ("e" "File Evolution Analysis (C-u: Repo)"      aider-magit-blame-or-log-analyze))
