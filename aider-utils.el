@@ -114,6 +114,47 @@ Returns the aider buffer if valid, otherwise returns nil with message."
           (message "No active process found in aider buffer: %s" buffer-name)
           nil))))))
 
+(defun aider-buffer-name ()
+  "Generate the Aider buffer name.
+If in a git repository and `aider-use-branch-specific-buffers' is non-nil,
+the buffer name will be *aider:<git-repo-path>:<branch-name>*.
+Otherwise, it uses *aider:<git-repo-path>* or *aider:<current-file-directory>*."
+  (let ((git-repo-path (aider--get-git-repo-root)))
+    (cond
+     ;; Case 1: In a Git repository
+     (git-repo-path
+      (aider--buffer-name-for-git-repo git-repo-path))
+     ;; Case 2: Not in a Git repository, but current buffer has a file
+     ((buffer-file-name)
+      (format "*aider:%s*" (file-truename (file-name-directory (buffer-file-name)))))
+     ;; Case 3: Not in a Git repository and no buffer file
+     (t
+      (error "Aider: Not in a git repository and current buffer is not associated with a file")))))
+
+(defun aider--buffer-name-for-git-repo (git-repo-path-true)
+  "Generate the Aider buffer name for a GIT-REPO-PATH-TRUE.
+If `aider-use-branch-specific-buffers' is non-nil, includes the branch name.
+Format: *aider:<git-repo-path>[:<branch-name>]*."
+  (if aider-use-branch-specific-buffers
+      (let ((branch-name (aider--get-current-git-branch git-repo-path-true)))
+        (if (and branch-name (not (string-empty-p branch-name)))
+            (format "*aider:%s:%s*" git-repo-path-true branch-name)
+          ;; Fallback: branch name not found or empty
+          (progn
+            (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
+            (format "*aider:%s*" git-repo-path-true))))
+    ;; aider-use-branch-specific-buffers is nil
+    (format "*aider:%s*" git-repo-path-true)))
+
+(defun aider--get-current-git-branch (repo-root-path)
+  "Return current git branch name for git repository at REPO-ROOT-PATH.
+Returns nil if REPO-ROOT-PATH is not a git repository or no branch
+is checked out."
+  ;; Ensure repo-root-path is a valid directory string before proceeding
+  (when (and repo-root-path (stringp repo-root-path) (file-directory-p repo-root-path))
+    (let ((default-directory repo-root-path)) ; Scope magit call to the repo root
+      (magit-get-current-branch)))) ; magit-get-current-branch returns nil if no branch or not a repo
+
 (provide 'aider-utils)
 
 ;;; aider-utils.el ends here
