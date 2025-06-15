@@ -178,7 +178,9 @@ If TDD-MODE is non-nil, adds TDD constraints to the prompt."
          (context-info (cond
                         (region-active "Selected code region")
                         (current-function (format "Function '%s'" current-function))
-                        (t "All added files")))
+                        (t ;; use current buffer file name when no region/function
+                         (let ((fname (plist-get context :file-name)))
+                           (format "File '%s'" (or fname "All added files"))))))
          (code-snippet (if region-active
                            (format "\n```\n%s\n```" region-text)
                          ""))
