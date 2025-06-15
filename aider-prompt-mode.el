@@ -10,6 +10,7 @@
 ;;; Code:
 
 (require 'org)
+
 (require 'aider-core)
 
 (defvar yas-snippet-dirs)

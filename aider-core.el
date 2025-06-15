@@ -13,9 +13,41 @@
 (require 'magit)
 (require 'savehist)
 (require 'markdown-mode)
+
 (require 'aider-utils)
 
 (declare-function evil-define-key* "evil" (state map key def))
+
+(defgroup aider nil
+  "Customization group for the Aider package."
+  :prefix "aider-"
+  :group 'convenience)
+
+(defcustom aider-program "aider"
+  "The name or path of the aider program."
+  :type 'string
+  :group 'aider)
+
+(defcustom aider-args '()
+  "Arguments to pass to the Aider command."
+  :type '(repeat string)
+  :group 'aider)
+
+(defcustom aider-auto-trigger-prompt nil
+  "Auto-trigger prompt insertion for /ask, /code, etc. if non-nil."
+  :type 'boolean
+  :group 'aider)
+
+(defcustom aider-use-branch-specific-buffers nil
+  "When non-nil, Aider buffer names will include the current git branch.
+The format will be *aider:<git-repo-path>:<branch-name>*."
+  :type 'boolean
+  :group 'aider)
+
+(defvar aider--switch-to-buffer-other-frame nil
+  "Boolean controlling Aider buffer display behavior.
+When non-nil, open Aider buffer in a new frame.
+When nil, use standard `display-buffer' behavior.")
 
 ;; Workaround: make markdown functions safe only in aider-comint-mode buffers
 ;; Addressing: 1. https://github.com/tninja/aider.el/issues/159; 2. https://github.com/MatthewZMD/aidermacs/issues/141
@@ -62,37 +94,6 @@
             :around #'aider--safe-get-start-fence-regexp)
 (advice-add 'markdown-syntax-propertize-fenced-block-constructs
             :around #'aider--safe-syntax-propertize-fenced-block-constructs)
-
-(defgroup aider nil
-  "Customization group for the Aider package."
-  :prefix "aider-"
-  :group 'convenience)
-
-(defcustom aider-program "aider"
-  "The name or path of the aider program."
-  :type 'string
-  :group 'aider)
-
-(defcustom aider-args '()
-  "Arguments to pass to the Aider command."
-  :type '(repeat string)
-  :group 'aider)
-
-(defcustom aider-auto-trigger-prompt nil
-  "Auto-trigger prompt insertion for /ask, /code, etc. if non-nil."
-  :type 'boolean
-  :group 'aider)
-
-(defcustom aider-use-branch-specific-buffers nil
-  "When non-nil, Aider buffer names will include the current git branch.
-The format will be *aider:<git-repo-path>:<branch-name>*."
-  :type 'boolean
-  :group 'aider)
-
-(defvar aider--switch-to-buffer-other-frame nil
-  "Boolean controlling Aider buffer display behavior.
-When non-nil, open Aider buffer in a new frame.
-When nil, use standard `display-buffer' behavior.")
 
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
@@ -218,15 +219,6 @@ Inherits from `comint-mode' with some Aider-specific customizations.
 
 ;; History functions have been moved to aider-utils.el.
 
-(defun aider--get-current-git-branch (repo-root-path)
-  "Return current git branch name for git repository at REPO-ROOT-PATH.
-Returns nil if REPO-ROOT-PATH is not a git repository or no branch
-is checked out."
-  ;; Ensure repo-root-path is a valid directory string before proceeding
-  (when (and repo-root-path (stringp repo-root-path) (file-directory-p repo-root-path))
-    (let ((default-directory repo-root-path)) ; Scope magit call to the repo root
-      (magit-get-current-branch)))) ; magit-get-current-branch returns nil if no branch or not a repo
-
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
   "Read a string from the user with PROMPT and optional INITIAL-INPUT.
@@ -249,38 +241,6 @@ This function combines candidate-list with history for better completion."
 (eval-and-compile
   ;; Ensure the alias is always available in both compiled and interpreted modes.
   (defalias 'aider-read-string #'aider-plain-read-string))
-
-(defun aider--buffer-name-for-git-repo (git-repo-path-true)
-  "Generate the Aider buffer name for a GIT-REPO-PATH-TRUE.
-If `aider-use-branch-specific-buffers' is non-nil, includes the branch name.
-Format: *aider:<git-repo-path>[:<branch-name>]*."
-  (if aider-use-branch-specific-buffers
-      (let ((branch-name (aider--get-current-git-branch git-repo-path-true)))
-        (if (and branch-name (not (string-empty-p branch-name)))
-            (format "*aider:%s:%s*" git-repo-path-true branch-name)
-          ;; Fallback: branch name not found or empty
-          (progn
-            (message "Aider: Could not determine git branch for '%s', or branch name is empty. Using default git repo buffer name." git-repo-path-true)
-            (format "*aider:%s*" git-repo-path-true))))
-    ;; aider-use-branch-specific-buffers is nil
-    (format "*aider:%s*" git-repo-path-true)))
-
-(defun aider-buffer-name ()
-  "Generate the Aider buffer name.
-If in a git repository and `aider-use-branch-specific-buffers' is non-nil,
-the buffer name will be *aider:<git-repo-path>:<branch-name>*.
-Otherwise, it uses *aider:<git-repo-path>* or *aider:<current-file-directory>*."
-  (let ((git-repo-path (aider--get-git-repo-root)))
-    (cond
-     ;; Case 1: In a Git repository
-     (git-repo-path
-      (aider--buffer-name-for-git-repo git-repo-path))
-     ;; Case 2: Not in a Git repository, but current buffer has a file
-     ((buffer-file-name)
-      (format "*aider:%s*" (file-truename (file-name-directory (buffer-file-name)))))
-     ;; Case 3: Not in a Git repository and no buffer file
-     (t
-      (error "Aider: Not in a git repository and current buffer is not associated with a file")))))
 
 ;; Function `aider--process-message-if-multi-line` moved to aider-utils.el.
 
@@ -344,16 +304,6 @@ If the current buffer is already the Aider buffer, do nothing."
       ;; Scroll to the end of the buffer after switching
       (with-current-buffer buffer
         (goto-char (point-max))))))
-
-(defun aider--is-default-directory-git-root ()
-  "Return t if `default-directory' is the root of a Git repository, nil otherwise."
-  (let ((git-root-path (magit-toplevel)))
-    (and git-root-path
-         (stringp git-root-path)
-         (not (string-match-p "fatal" git-root-path))
-         ;; Compare canonical paths of default-directory and git-root-path
-         (string= (file-truename (expand-file-name default-directory))
-                  (file-truename git-root-path)))))
 
 (defun aider--maybe-prompt-subtree-only-for-special-modes (current-args)
   "Prompt for --subtree-only in dired/eshell/shell if not in git root.
@@ -453,54 +403,6 @@ invoke the appropriate file path insertion function."
        ;; Match /drop command followed by a space at the end of the line
        ((string-match-p "^[ \t]*/drop $" line-content)
         (aider-prompt-insert-drop-file-path))))))
-
-
-(defun aider-prompt-insert-drop-file-path ()
-  "Prompt for a file to drop from the list of added files and insert its path."
-  (interactive)
-  (let ((candidate-files (aider-core--parse-added-file-list)))
-    (if candidate-files
-        (let ((file-to-drop (completing-read "Drop file: " candidate-files nil t nil)))
-          ;; Check if a file was actually selected and it's not an empty string
-          (when (and file-to-drop (not (string-empty-p file-to-drop)))
-            (insert file-to-drop)))
-      (message "No files currently added to Aider to drop."))))
-
-(defun aider-core--parse-added-file-list ()
-  "Parse the Aider comint buffer to find the list of currently added files.
-Searches upwards from the last Aider prompt (e.g., '>') until a blank line.
-Removes trailing \" (read only)\" from file names."
-  (interactive)
-  (let ((aider-buf (get-buffer (aider-buffer-name)))
-        (file-list '()))    ; Initialize file-list to nil (empty list)
-    (when aider-buf
-      (with-current-buffer aider-buf
-        (save-excursion
-          (goto-char (point-max))
-          ;; Search backward for the last line starting with ">"
-          (if (re-search-backward "^>" nil t)
-              (progn
-                ;; Move to the line above the prompt line
-                (forward-line -1)
-                ;; Loop upwards as long as not at buffer beginning and line is not blank
-                (while (and (not (bobp))
-                            (let ((current-line-text (buffer-substring-no-properties
-                                                      (line-beginning-position)
-                                                      (line-end-position))))
-                              ;; Check if the line contains any non-whitespace characters
-                              (string-match-p "\\S-" current-line-text)))
-                  (let* ((line-text (buffer-substring-no-properties
-                                     (line-beginning-position)
-                                     (line-end-position)))
-                         ;; Remove " (read only)" suffix from the line
-                         (processed-line (replace-regexp-in-string " (read only)$" "" line-text)))
-                    (push processed-line file-list))
-                  (forward-line -1))))
-          ;; If prompt not found, file-list remains empty
-          )))
-    ;; The list is built by pushing items, so it's naturally in top-to-bottom order
-    ;; as read from bottom-up. No need to reverse.
-    file-list))
 
 ;;;###autoload
 (defun aider-core-insert-prompt ()

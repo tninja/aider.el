@@ -10,7 +10,8 @@
 
 (require 'magit)
 (require 'subr-x)
-(declare-variable aider-use-branch-specific-buffers)
+
+(defvar aider-use-branch-specific-buffers)
 
 ;;; Git & path utilities
 
@@ -160,6 +161,63 @@ is checked out."
   (when (and repo-root-path (stringp repo-root-path) (file-directory-p repo-root-path))
     (let ((default-directory repo-root-path)) ; Scope magit call to the repo root
       (magit-get-current-branch)))) ; magit-get-current-branch returns nil if no branch or not a repo
+
+(defun aider-core--parse-added-file-list ()
+  "Parse the Aider comint buffer to find the list of currently added files.
+Searches upwards from the last Aider prompt (e.g., '>') until a blank line.
+Removes trailing \" (read only)\" from file names."
+  (interactive)
+  (let ((aider-buf (get-buffer (aider-buffer-name)))
+        (file-list '()))    ; Initialize file-list to nil (empty list)
+    (when aider-buf
+      (with-current-buffer aider-buf
+        (save-excursion
+          (goto-char (point-max))
+          ;; Search backward for the last line starting with ">"
+          (if (re-search-backward "^>" nil t)
+              (progn
+                ;; Move to the line above the prompt line
+                (forward-line -1)
+                ;; Loop upwards as long as not at buffer beginning and line is not blank
+                (while (and (not (bobp))
+                            (let ((current-line-text (buffer-substring-no-properties
+                                                      (line-beginning-position)
+                                                      (line-end-position))))
+                              ;; Check if the line contains any non-whitespace characters
+                              (string-match-p "\\S-" current-line-text)))
+                  (let* ((line-text (buffer-substring-no-properties
+                                     (line-beginning-position)
+                                     (line-end-position)))
+                         ;; Remove " (read only)" suffix from the line
+                         (processed-line (replace-regexp-in-string " (read only)$" "" line-text)))
+                    (push processed-line file-list))
+                  (forward-line -1))))
+          ;; If prompt not found, file-list remains empty
+          )))
+    ;; The list is built by pushing items, so it's naturally in top-to-bottom order
+    ;; as read from bottom-up. No need to reverse.
+    file-list))
+
+(defun aider--is-default-directory-git-root ()
+  "Return t if `default-directory' is the root of a Git repository, nil otherwise."
+  (let ((git-root-path (magit-toplevel)))
+    (and git-root-path
+         (stringp git-root-path)
+         (not (string-match-p "fatal" git-root-path))
+         ;; Compare canonical paths of default-directory and git-root-path
+         (string= (file-truename (expand-file-name default-directory))
+                  (file-truename git-root-path)))))
+
+(defun aider-prompt-insert-drop-file-path ()
+  "Prompt for a file to drop from the list of added files and insert its path."
+  (interactive)
+  (let ((candidate-files (aider-core--parse-added-file-list)))
+    (if candidate-files
+        (let ((file-to-drop (completing-read "Drop file: " candidate-files nil t nil)))
+          ;; Check if a file was actually selected and it's not an empty string
+          (when (and file-to-drop (not (string-empty-p file-to-drop)))
+            (insert file-to-drop)))
+      (message "No files currently added to Aider to drop."))))
 
 (provide 'aider-utils)
 
