@@ -1,16 +1,9 @@
 ;;; aider-core.el --- Core functionality for Aider -*- lexical-binding: t; -*-
-
-;; Author: Kang Tu <tninja@gmail.com>
-
-;; SPDX-License-Identifier: Apache-2.0
-
-;;; Commentary:
-;; This file provides core functionality for the Aider package.
-
-;;; Code:
+;;; Commentary: moved markdown highlighting and advice to aider-comint-markdown.el
 
 (require 'comint)
 (require 'magit)
+(require 'aider-comint-markdown)  ;; for markdown advice & highlighting
 (require 'savehist)
 (require 'markdown-mode)
 
@@ -136,51 +129,7 @@ When nil, use standard `display-buffer' behavior.")
     "/voice" "/web")
   "A list of common Aider commands for completion.")
 
-(defun aider--apply-markdown-highlighting ()
-  "Set up markdown highlighting for aider buffer with optimized performance.
-Ignore lines starting with '>' (command prompts/input)."
-  ;; 1) Use `markdown-mode`'s syntax table:
-  (set-syntax-table (make-syntax-table markdown-mode-syntax-table))
-  ;; 2) For multiline constructs (like fenced code blocks), enable `markdown-syntax-propertize`:
-  (setq-local syntax-propertize-function #'markdown-syntax-propertize)
-  ;; 3) Reuse `markdown-mode`'s font-lock keywords for highlighting,
-  ;;    but add a rule to prevent markdown highlighting on lines starting with '>'.
-  (setq-local font-lock-defaults
-              '(markdown-mode-font-lock-keywords
-                nil nil nil nil
-                (font-lock-multiline . t)
-                (font-lock-extra-managed-props
-                 . (composition display invisible))))
-  ;; 4) Enable fenced code block highlighting, and disable special font processing:
-  (setq-local markdown-fontify-code-blocks-natively t)
-  ;; https://github.com/tninja/aider.el/issues/113
-  ;; TODO: temporary solution to disable bold, italic. need a better way than this, if we want to keep them in reply text
-  ;; Note: The rule added above is a more targeted way to handle prompts than disabling these globally.
-  ;; Consider if these are still needed or can be re-enabled depending on desired appearance for non-prompt text.
-  ;; Use regex patterns that will never match to effectively disable italic/bold formatting
-  (setq-local markdown-regex-italic "\\`never-match-this-pattern\\'")
-  (setq-local markdown-regex-bold "\\`never-match-this-pattern\\'")
-  ;; 5) Jit-lock and other
-  (setq-local font-lock-multiline t)  ;; Handle multiline constructs efficiently
-  (setq-local jit-lock-contextually nil)  ;; Disable contextual analysis
-  (setq-local font-lock-support-mode 'jit-lock-mode)  ;; Ensure JIT lock is used
-  (setq-local jit-lock-defer-time 0)
-  ;; 6) Register font-lock explicitly:
-  (font-lock-mode 1)
-  ;; 7) Force immediate fontification of visible area:
-  (font-lock-flush)
-  (font-lock-ensure)
-  ;; 8) from https://github.com/MatthewZMD/aidermacs/pull/119/files
-  ;; Enable markdown mode highlighting
-  (add-hook 'syntax-propertize-extend-region-functions
-            #'markdown-syntax-propertize-extend-region nil t)
-  (add-hook 'jit-lock-after-change-extend-region-functions
-            #'markdown-font-lock-extend-region-function t t)
-  ;; a regex that will never match so we don't get the prompt interpreted as a block quote
-  (setq-local markdown-regex-blockquote "^\\_>$")
-  (if markdown-hide-markup
-      (add-to-invisibility-spec 'markdown-markup)
-    (remove-from-invisibility-spec 'markdown-markup)))
+;; Removed: moved to aide-comint-markdown.el
 
 (define-derived-mode aider-comint-mode comint-mode "Aider Session"
   "Major mode for interacting with Aider.
@@ -214,7 +163,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
                       (or history-file-path "its determined location") ; provide file path if available
                       (error-message-string err)))))) ; display the error message
 
-;; Apply markdown highlighting via the mode hook for robust initialization.
+;; Move markdown highlighting setup to separate module
 (add-hook 'aider-comint-mode-hook #'aider--apply-markdown-highlighting)
 
 ;; History functions have been moved to aider-utils.el.
