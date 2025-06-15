@@ -241,7 +241,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 - [ ] Better way to batch add relevant files from repo to aider session [0/2]
   - [ ] Dependencies and dependent on current file
   - [ ] Relevant files for current context
-- [-] Consider integrating more solid / widely used package with aider [1/4]
+- [-] Consider AI + solid / widely used package [1/4]
   - [-] magit [5/6]
     - [X] show last commit
     - [X] show commits history
