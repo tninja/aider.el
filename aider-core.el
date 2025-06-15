@@ -216,61 +216,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
 ;; Apply markdown highlighting via the mode hook for robust initialization.
 (add-hook 'aider-comint-mode-hook #'aider--apply-markdown-highlighting)
 
-;; --- History Functions ---
-
-(defun aider--get-git-repo-root ()
-  "Return the top-level directory of the current git repository, or nil."
-  (let ((git-root (magit-toplevel)))
-    (when (and git-root (stringp git-root) (not (string-match-p "fatal" git-root)))
-      (file-truename git-root))))
-
-(defun aider--get-relevant-directory-for-history ()
-  "Return the top-level directory of the current git repository.
-If not in a git repo, return the directory of the current buffer's file.
-Returns nil if neither can be determined."
-  (or (aider--get-git-repo-root)
-      (when-let ((bfn (buffer-file-name)))
-        (file-name-directory (file-truename bfn)))))
-(defun aider--generate-history-file-name ()
-  "Generate path for .aider.input.history in git repo root or current buffer's dir."
-  (when-let ((relevant-dir (aider--get-relevant-directory-for-history)))
-    (expand-file-name ".aider.input.history" relevant-dir)))
-
-(defun aider--parse-aider-cli-history (file-path)
-  "Parse .aider.input.history file at FILE-PATH.
-Return a list of commands, oldest to newest."
-  (when (and file-path (file-readable-p file-path))
-    (with-temp-buffer
-      (insert-file-contents file-path)
-      (let ((history-items '())       ; Store final history items here
-            (current-multi-line-command-parts nil)) ; Store parts of a {aider...aider} command
-        (goto-char (point-min))
-        (while (not (eobp))
-          (let ((line (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-            (if (string-match "^\\+[ \t]*\\(.*\\)" line) ; Line starts with '+'
-                (let ((content (match-string 1 line)))
-                  (cond
-                   ((string= content "{aider")
-                    (setq current-multi-line-command-parts (list content)))
-                   ((string= content "aider}")
-                    (if current-multi-line-command-parts
-                        (progn
-                          (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content)))
-                          (push (string-join current-multi-line-command-parts "\n") history-items)
-                          (setq current-multi-line-command-parts nil))
-                      ;; else, it's a standalone "aider}" not part of a block, treat as single line
-                      (push content history-items)))
-                   (current-multi-line-command-parts
-                    (setq current-multi-line-command-parts (nconc current-multi-line-command-parts (list content))))
-                   (t                   ; Single line command
-                    (push content history-items))))
-              nil)) ; Ignore non-'+' lines (timestamps or other non-command lines)
-          (forward-line 1))
-        ;; If a multi-line block was started but not properly terminated by "aider}"
-        ;; add what was collected as a single (potentially multi-line) command.
-        (when current-multi-line-command-parts
-          (push (string-join current-multi-line-command-parts "\n") history-items))
-        (reverse history-items))))) ; Reverse to get chronological order (oldest first)
+;; History functions have been moved to aider-utils.el.
 
 (defun aider--get-current-git-branch (repo-root-path)
   "Return current git branch name for git repository at REPO-ROOT-PATH.
