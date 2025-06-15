@@ -42,51 +42,7 @@ The format will be *aider:<git-repo-path>:<branch-name>*."
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
-;; Workaround: make markdown functions safe only in aider-comint-mode buffers
-;; Addressing: 1. https://github.com/tninja/aider.el/issues/159; 2. https://github.com/MatthewZMD/aidermacs/issues/141
-(defun aider--safe-maybe-funcall-regexp (origfn object &optional arg)
-  "Call ORIGFN (`markdown-maybe-funcall-regexp') safely in aider buffers only."
-  (if (eq major-mode 'aider-comint-mode)
-      (condition-case nil
-          (cond ((functionp object)
-                 (condition-case nil
-                     (if arg (funcall object arg) (funcall object))
-                   (error "")))  ; Return empty string if function call fails
-                ((stringp object) object)
-                ((null object) "")  ; Handle nil objects
-                (t ""))  ; Return empty string for any other type
-        (error ""))
-    ;; In non-aider buffers, call original function normally
-    (funcall origfn object arg)))
-
-(defun aider--safe-get-start-fence-regexp (origfn &rest args)
-  "Safely call `markdown-get-start-fence-regexp' in aider buffers only."
-  (if (eq major-mode 'aider-comint-mode)
-      (condition-case nil
-          (let ((result (apply origfn args)))
-            (if (and result (stringp result) (not (string-empty-p result)))
-                result
-              "\\`never-match\\`"))  ; Return non-matching regex if result is invalid
-        (error "\\`never-match\\`"))
-    ;; In non-aider buffers, call original function normally
-    (apply origfn args)))
-
-(defun aider--safe-syntax-propertize-fenced-block-constructs (origfn start end)
-  "Safely call `markdown-syntax-propertize-fenced-block-constructs' in aider buffers only."
-  (if (eq major-mode 'aider-comint-mode)
-      (condition-case nil
-          (funcall origfn start end)
-        (error nil))  ; Silently ignore errors in aider buffers
-    ;; In non-aider buffers, call original function normally
-    (funcall origfn start end)))
-
-;; Apply advice globally but they only activate in aider-comint-mode
-(advice-add 'markdown-maybe-funcall-regexp
-            :around #'aider--safe-maybe-funcall-regexp)
-(advice-add 'markdown-get-start-fence-regexp
-            :around #'aider--safe-get-start-fence-regexp)
-(advice-add 'markdown-syntax-propertize-fenced-block-constructs
-            :around #'aider--safe-syntax-propertize-fenced-block-constructs)
+;; Removed: moved to aider-comint-markdown.el
 
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
