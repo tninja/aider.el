@@ -3,8 +3,14 @@
 ;; Author: extracted from aider-core.el
 ;; SPDX-License-Identifier: Apache-2.0
 
+;;; Commentary:
+;; Utility functions for the Aider package.
+
+;;; Code:
+
 (require 'magit)
 (require 'subr-x)
+(declare-variable aider-use-branch-specific-buffers)
 
 ;;; Git & path utilities
 
