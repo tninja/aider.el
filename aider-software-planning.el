@@ -132,7 +132,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
               "What security considerations and potential vulnerabilities should we evaluate?"
               "What testing strategy (unit, integration, E2E) should we implement?"
               "What documentation needs should we address and how?"
-              "How can we enhance the CI/CD and deployment pipeline?")))))
+              "How can we enhance the CI/CD and deployment pipeline?"))))
          (goal (aider-read-string prompt nil candidate-list))
          ;; Collect context information
          (context (cond
