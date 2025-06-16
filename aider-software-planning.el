@@ -122,17 +122,17 @@ Begin by analyzing the provided goal and asking your first strategic question."
               "Optimize this file for performance"
               "Add documentation to this file"))
            (t
-            '("Review this repository and identify top areas for improvement"
-              "Suggest the most useful new feature given the repository's current state"
-              "Perform a code quality assessment and propose concrete refactorings"
-              "Outline a module decomposition for a large upcoming feature"
-              "Define performance and scaling requirements for this codebase"
-              "Discuss API design and interfaces for the current code"
-              "Identify key integration points with external services or libraries"
-              "Evaluate security considerations and potential vulnerabilities"
-              "Plan a comprehensive testing strategy (unit, integration, E2E)"
-              "Assess documentation needs and propose improvements"
-              "Outline CI/CD and deployment pipeline enhancements"))))
+            '("What are the top areas for improvement in this repository?"
+              "What would be the most useful new feature given the repository's current state?"
+              "What code quality issues should we address and how?"
+              "How should we decompose modules for a large upcoming feature?"
+              "What performance and scaling requirements should we define for this codebase?"
+              "How should we design the API interfaces for the current code?"
+              "What are the key integration points with external services or libraries?"
+              "What security considerations and potential vulnerabilities should we evaluate?"
+              "What testing strategy (unit, integration, E2E) should we implement?"
+              "What documentation needs should we address and how?"
+              "How can we enhance the CI/CD and deployment pipeline?")))))
          (goal (aider-read-string prompt nil candidate-list))
          ;; Collect context information
          (context (cond
