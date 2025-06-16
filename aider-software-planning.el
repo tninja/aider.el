@@ -112,8 +112,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
             "Perform a code quality assessment and propose concrete refactorings"
             "Outline a module decomposition for a large upcoming feature"
             "Define performance and scaling requirements for this codebase"))
-         (input (aider-read-string prompt default-goal candidate-list))
-         (goal (if (string-empty-p input) default-goal input)))
+         (goal (aider-read-string prompt nil candidate-list)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
       (when (aider--validate-aider-buffer)
