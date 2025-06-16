@@ -111,7 +111,14 @@ Begin by analyzing the provided goal and asking your first strategic question."
             "Suggest the most useful new feature given the repository's current state"
             "Perform a code quality assessment and propose concrete refactorings"
             "Outline a module decomposition for a large upcoming feature"
-            "Define performance and scaling requirements for this codebase"))
+            "Define performance and scaling requirements for this codebase"
+            ;; The following entries are added to better support open-ended discussion
+            "Discuss API design and interfaces for the current code"
+            "Identify key integration points with external services or libraries"
+            "Evaluate security considerations and potential vulnerabilities"
+            "Plan a comprehensive testing strategy (unit, integration, E2E)"
+            "Assess documentation needs and propose improvements"
+            "Outline CI/CD and deployment pipeline enhancements"))
          (goal (aider-read-string prompt nil candidate-list)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
