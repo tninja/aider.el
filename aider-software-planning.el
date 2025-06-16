@@ -97,6 +97,19 @@ Begin by analyzing the provided goal and asking your first strategic question."
                            (buffer-substring-no-properties (region-beginning) (region-end))))
          ;; Compose default goal from context
          (prompt "Enter your software development goal (Backspace to clear): ")
+         (scope
+          (if region-active
+              'region
+            (let* ((candidates
+                    (append
+                     (when function   (list "function"))
+                     (when file-name (list "file"))
+                     (list "repo")))
+                   (choice
+                    (completing-read
+                     "Select planning scope: "
+                     candidates nil t nil nil (car candidates))))
+            (intern choice))))
          ;; provide planning-oriented choices for the user
          (candidate-list
           (cond
