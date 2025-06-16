@@ -1,11 +1,6 @@
 
 * Recent New Features
 
-** Software Planning Discussion
-
-- aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
-  - Software Planning is a mcp server designed to facilitate software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
-
 ** Let aider to fix the errors reported by flycheck
 
 - aider-flycheck-fix-errors-in-scope :: Flycheck output will be sent to aider as context to fix the error. It support:
@@ -13,12 +8,27 @@
   - selected region
   - whole file (C-u)
 
+** Semi-automatic expansion of context
+
+- aider-expand-context-current-file :: Expand context by adding current file's dependencies/dependents 
+
+** Software planning discussion
+
+- aider-software-planning :: use Software Planning using code from the mcp server (~C-c a P~)
+  - It can do brainstorming / software development planning through an interactive, structured approach. It helps break down complex software projects into manageable tasks.
+  - It can apply on whole repo / current file / selected region.
+
 ** File / repo change history analysis with magit-blame and magit-log integration 
 
 - aider-magit-blame-analyze :: combines magit-blame with AI analysis to help understand code history and reasoning behind changes for a file or selected region (~C-c a e~).
 - aider-aider-magit-log-analyze :: integrates magit-log with AI analysis to provide insights into commit history and evolution of the repository (~C-u C-c a e~).
 
-** Bootstrap New File 
+** Better display on narrow screens, good for resolution <= 1280 x 960.
+
+- aider-transient-menu-2cols
+- aider-transient-menu-1col
+
+** Bootstrap new file 
 
 - aider-bootstrap :: Bootstrap common code / doc structures (Code, Config, Doc, Slides, etc, ~C-c a B~)
 
