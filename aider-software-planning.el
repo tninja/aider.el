@@ -112,7 +112,6 @@ Begin by analyzing the provided goal and asking your first strategic question."
             "Perform a code quality assessment and propose concrete refactorings"
             "Outline a module decomposition for a large upcoming feature"
             "Define performance and scaling requirements for this codebase"
-            ;; The following entries are added to better support open-ended discussion
             "Discuss API design and interfaces for the current code"
             "Identify key integration points with external services or libraries"
             "Evaluate security considerations and potential vulnerabilities"
