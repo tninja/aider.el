@@ -165,7 +165,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
                        (if added
                            (format "Context:\n- Added files: %s"
                                    (mapconcat 'identity added ", "))
-                         "Context: (no added files)")))))
+                         "Context: (no added files)"))))))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
       (when (aider--validate-aider-buffer)
