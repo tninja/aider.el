@@ -159,15 +159,12 @@ Begin by analyzing the provided goal and asking your first strategic question."
                     ('file
                      (format "Context:\n- Current file: %s" file-name))
                     ('repo
-                     "")))
-         ;; Get added files list only for general case (t part)
-         (added-files-context ;; only include added files when repo scope
-                               (when (eq scope 'repo)
-                                 (let ((added-files (aider-core--parse-added-file-list)))
-                                   (if added-files
-                                       (format "\n- Added files: %s" (mapconcat 'identity added-files ", "))
-                                     ""))))
-         (full-context (concat context added-files-context)))
+                     ;; List added files when at repository scope
+                     (let ((added (aider-core--parse-added-file-list)))
+                       (if added
+                           (format "Context:\n- Added files: %s"
+                                   (mapconcat 'identity added ", "))
+                         "Context: (no added files)")))))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
       (when (aider--validate-aider-buffer)
@@ -177,7 +174,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
         (when (aider--send-command
                (format "/ask %s\n\n%s\n\nMy goal is: %s"
                        aider-software-planning--sequential-thinking-prompt
-                       full-context
+                       context
                        goal) t)
           (message "Software planning session started for goal: %s" goal))))))
 
