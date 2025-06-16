@@ -107,7 +107,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (prompt (format "Enter your software development goal (Backspace to clear): " default-goal))
          ;; provide planning-oriented choices for the user
          (candidate-list
-          '("Review the whole repository and identify top areas for improvement"
+          '("Review this repository and identify top areas for improvement"
             "Suggest the most useful new feature given the repository's current state"
             "Perform a code quality assessment and propose concrete refactorings"
             "Outline a module decomposition for a large upcoming feature"
