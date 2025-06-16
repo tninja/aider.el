@@ -16,6 +16,7 @@
 ;;; Code:
 
 (require 'which-func)
+(require 'subr-x)
 
 (require 'aider-core)
 (require 'aider-file)
