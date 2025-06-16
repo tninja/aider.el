@@ -141,7 +141,26 @@ Begin by analyzing the provided goal and asking your first strategic question."
               "Plan a comprehensive testing strategy (unit, integration, E2E)"
               "Assess documentation needs and propose improvements"
               "Outline CI/CD and deployment pipeline enhancements"))))
-         (goal (aider-read-string prompt nil candidate-list)))
+         (goal (aider-read-string prompt nil candidate-list))
+         ;; Collect context information
+         (context (cond
+                   (region-active
+                    (format "Context:\n- Selected region in function: %s\n- Region content: %s\n- Current file: %s"
+                            function region-text file-name))
+                   (function
+                    (format "Context:\n- Current function: %s\n- Current file: %s"
+                            function file-name))
+                   (file-name
+                    (format "Context:\n- Current file: %s" file-name))
+                   (t "")))
+         ;; Get added files list only for general case (t part)
+         (added-files-context (if (and (not region-active) (not function) (not file-name))
+                                 (let ((added-files (aider-core--parse-added-file-list)))
+                                   (if added-files
+                                       (format "\n- Added files: %s" (mapconcat 'identity added-files ", "))
+                                     ""))
+                               ""))
+         (full-context (concat context added-files-context)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
       (when (aider--validate-aider-buffer)
@@ -149,8 +168,9 @@ Begin by analyzing the provided goal and asking your first strategic question."
         (when (or region-active function file-name)
           (aider-add-current-file))
         (when (aider--send-command
-               (format "/ask %s\n\nMy goal is: %s"
+               (format "/ask %s\n\n%s\n\nMy goal is: %s"
                        aider-software-planning--sequential-thinking-prompt
+                       full-context
                        goal) t)
           (message "Software planning session started for goal: %s" goal))))))
 
