@@ -107,17 +107,40 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (prompt (format "Enter your software development goal (Backspace to clear): " default-goal))
          ;; provide planning-oriented choices for the user
          (candidate-list
-          '("Review this repository and identify top areas for improvement"
-            "Suggest the most useful new feature given the repository's current state"
-            "Perform a code quality assessment and propose concrete refactorings"
-            "Outline a module decomposition for a large upcoming feature"
-            "Define performance and scaling requirements for this codebase"
-            "Discuss API design and interfaces for the current code"
-            "Identify key integration points with external services or libraries"
-            "Evaluate security considerations and potential vulnerabilities"
-            "Plan a comprehensive testing strategy (unit, integration, E2E)"
-            "Assess documentation needs and propose improvements"
-            "Outline CI/CD and deployment pipeline enhancements"))
+          (cond
+           (region-active
+            '("Refactor the selected code for clarity"
+              "Extend the selected code to add a new feature"
+              "Optimize the selected code for performance"
+              "Add error handling to the selected code"
+              "Write tests for the selected code"
+              "Document the selected code"))
+           (function
+            '("Refactor this function for clarity"
+              "Extend this function to handle more cases"
+              "Optimize this function for performance"
+              "Add error handling to this function"
+              "Write tests for this function"
+              "Document this function"))
+           (file-name
+            '("Review this file for code quality improvements"
+              "Identify missing tests in this file"
+              "Refactor this file for better structure"
+              "Extend this file with a new feature"
+              "Optimize this file for performance"
+              "Add documentation to this file"))
+           (t
+            '("Review this repository and identify top areas for improvement"
+              "Suggest the most useful new feature given the repository's current state"
+              "Perform a code quality assessment and propose concrete refactorings"
+              "Outline a module decomposition for a large upcoming feature"
+              "Define performance and scaling requirements for this codebase"
+              "Discuss API design and interfaces for the current code"
+              "Identify key integration points with external services or libraries"
+              "Evaluate security considerations and potential vulnerabilities"
+              "Plan a comprehensive testing strategy (unit, integration, E2E)"
+              "Assess documentation needs and propose improvements"
+              "Outline CI/CD and deployment pipeline enhancements"))))
          (goal (aider-read-string prompt nil candidate-list)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
