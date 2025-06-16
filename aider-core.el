@@ -46,8 +46,11 @@ The format will be *aider:<git-repo-path>:<branch-name>*."
   :group 'aider)
 
 (defcustom aider-confirm-on-main-branch t
-  "When non-nil, ask before sending /code, /architect or “go ahead”
-on main/master/develop.  Set to nil when user picks “yes and do not ask again.”")
+  "When non-nil, ask before sending /code, /architect, /commit or \
+\"go ahead\" on main, master, or develop branches. Set to nil when \
+user picks “yes and do not ask again.”"
+  :type 'boolean
+  :group 'aider)
 
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
