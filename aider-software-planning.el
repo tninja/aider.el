@@ -101,26 +101,26 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (candidate-list
           (cond
            (region-active
-            '("Refactor the selected code for clarity"
-              "Extend the selected code to add a new feature"
-              "Optimize the selected code for performance"
-              "Add error handling to the selected code"
-              "Write tests for the selected code"
-              "Document the selected code"))
+            '("How should we refactor the selected code for clarity?"
+              "How can we extend the selected code to add a new feature?"
+              "What are the best ways to optimize the selected code for performance?"
+              "How should we add error handling to the selected code?"
+              "What tests should we write for the selected code?"
+              "How should we document the selected code?"))
            (function
-            '("Refactor this function for clarity"
-              "Extend this function to handle more cases"
-              "Optimize this function for performance"
-              "Add error handling to this function"
-              "Write tests for this function"
-              "Document this function"))
+            '("How should we refactor this function for clarity?"
+              "How can we extend this function to handle more cases?"
+              "What are the best ways to optimize this function for performance?"
+              "How should we add error handling to this function?"
+              "What tests should we write for this function?"
+              "How should we document this function?"))
            (file-name
-            '("Review this file for code quality improvements"
-              "Identify missing tests in this file"
-              "Refactor this file for better structure"
-              "Extend this file with a new feature"
-              "Optimize this file for performance"
-              "Add documentation to this file"))
+            '("How should we review this file for code quality improvements?"
+              "What missing tests should we identify in this file?"
+              "How can we refactor this file for better structure?"
+              "How should we extend this file with a new feature?"
+              "What are the best ways to optimize this file for performance?"
+              "How should we add documentation to this file?"))
            (t
             '("What are the top areas for improvement in this repository?"
               "What would be the most useful new feature given the repository's current state?"
