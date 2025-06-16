@@ -111,66 +111,68 @@ Begin by analyzing the provided goal and asking your first strategic question."
                      candidates nil t nil nil (car candidates))))
             (intern choice))))
          ;; provide planning-oriented choices for the user
-         (candidate-list
-          (cond
-           (region-active
-            '("How should we refactor the selected code for clarity?"
-              "How can we extend the selected code to add a new feature?"
-              "What are the best ways to optimize the selected code for performance?"
-              "How should we add error handling to the selected code?"
-              "What tests should we write for the selected code?"
-              "How should we document the selected code?"))
-           (function
-            '("How should we refactor this function for clarity?"
-              "How can we extend this function to handle more cases?"
-              "What are the best ways to optimize this function for performance?"
-              "How should we add error handling to this function?"
-              "What tests should we write for this function?"
-              "How should we document this function?"))
-           (file-name
-            '("How should we review this file for code quality improvements?"
-              "What missing tests should we identify in this file?"
-              "How can we refactor this file for better structure?"
-              "How should we extend this file with a new feature?"
-              "What are the best ways to optimize this file for performance?"
-              "How should we add documentation to this file?"))
-           (t
-            '("What are the top areas for improvement in this repository?"
-              "What would be the most useful new feature given the repository's current state?"
-              "What code quality issues should we address and how?"
-              "How should we decompose modules for a large upcoming feature?"
-              "What performance and scaling requirements should we define for this codebase?"
-              "How should we design the API interfaces for the current code?"
-              "What are the key integration points with external services or libraries?"
-              "What security considerations and potential vulnerabilities should we evaluate?"
-              "What testing strategy (unit, integration, E2E) should we implement?"
-              "What documentation needs should we address and how?"
-              "How can we enhance the CI/CD and deployment pipeline?"))))
+         (candidate-list ;; choose questions based on selected scope
+          (pcase scope
+            ('region
+             '("How should we refactor the selected code for clarity?"
+               "How can we extend the selected code to add a new feature?"
+               "What are the best ways to optimize the selected code for performance?"
+               "How should we add error handling to the selected code?"
+               "What tests should we write for the selected code?"
+               "How should we document the selected code?"))
+            ('function
+             '("How should we refactor this function for clarity?"
+               "How can we extend this function to handle more cases?"
+               "What are the best ways to optimize this function for performance?"
+               "How should we add error handling to this function?"
+               "What tests should we write for this function?"
+               "How should we document this function?"))
+            ('file
+             '("How should we review this file for code quality improvements?"
+               "What missing tests should we identify in this file?"
+               "How can we refactor this file for better structure?"
+               "How should we extend this file with a new feature?"
+               "What are the best ways to optimize this file for performance?"
+               "How should we add documentation to this file?"))
+            ('repo
+             '("What are the top areas for improvement in this repository?"
+               "What would be the most useful new feature given the repository's current state?"
+               "What code quality issues should we address and how?"
+               "How should we decompose modules for a large upcoming feature?"
+               "What performance and scaling requirements should we define for this codebase?"
+               "How should we design the API interfaces for the current code?"
+               "What are the key integration points with external services or libraries?"
+               "What security considerations and potential vulnerabilities should we evaluate?"
+               "What testing strategy (unit, integration, E2E) should we implement?"
+               "What documentation needs should we address and how?"
+               "How can we enhance the CI/CD and deployment pipeline?"))))
          (goal (aider-read-string prompt nil candidate-list))
          ;; Collect context information
-         (context (cond
-                   (region-active
-                    (format "Context:\n- Selected region in function: %s\n- Region content: %s\n- Current file: %s"
-                            function region-text file-name))
-                   (function
-                    (format "Context:\n- Current function: %s\n- Current file: %s"
-                            function file-name))
-                   (file-name
-                    (format "Context:\n- Current file: %s" file-name))
-                   (t "")))
+         (context ;; build context based on selected scope
+                  (pcase scope
+                    ('region
+                     (format "Context:\n- Selected region in function: %s\n- Region content: %s\n- Current file: %s"
+                             function region-text file-name))
+                    ('function
+                     (format "Context:\n- Current function: %s\n- Current file: %s"
+                             function file-name))
+                    ('file
+                     (format "Context:\n- Current file: %s" file-name))
+                    ('repo
+                     "")))
          ;; Get added files list only for general case (t part)
-         (added-files-context (if (and (not region-active) (not function) (not file-name))
+         (added-files-context ;; only include added files when repo scope
+                               (when (eq scope 'repo)
                                  (let ((added-files (aider-core--parse-added-file-list)))
                                    (if added-files
                                        (format "\n- Added files: %s" (mapconcat 'identity added-files ", "))
-                                     ""))
-                               ""))
+                                     ""))))
          (full-context (concat context added-files-context)))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
       (when (aider--validate-aider-buffer)
         ;; if context present, add current file to the session
-        (when (or region-active function file-name)
+        (when (memq scope '(region function file)) ;; only add current file for region/function/file
           (aider-add-current-file))
         (when (aider--send-command
                (format "/ask %s\n\n%s\n\nMy goal is: %s"
