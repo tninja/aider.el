@@ -96,15 +96,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (region-text (and region-active
                            (buffer-substring-no-properties (region-beginning) (region-end))))
          ;; Compose default goal from context
-         (default-goal
-          (cond
-           (region-active
-            (format "For selected region%s: %s: "
-                    (if function (format " in function '%s'" function) "") region-text))
-           (function (format "For function '%s': " function))
-           (file-name (format "For file '%s': " file-name))
-           (t "Plan new software feature")))
-         (prompt (format "Enter your software development goal (Backspace to clear): " default-goal))
+         (prompt "Enter your software development goal (Backspace to clear): ")
          ;; provide planning-oriented choices for the user
          (candidate-list
           (cond
