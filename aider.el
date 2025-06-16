@@ -32,10 +32,11 @@
 ;;
 ;; Comparing to its forked peer (aidermacs), Aider.el has brought in lots of application-level features and tools to enhance daily programming. These include:
 ;;   - AI-assisted agile development methodologies (like TDD, refactoring and legacy code handling based on established software engineering books)
+;;   - Code / module reading AI assistant
 ;;   - Diff extraction and AI code review tools
-;;   - Advanced code / module reading assistant
-;;   - Project software planning discussion capabilities
 ;;   - Let aider to fix the errors reported by flycheck
+;;   - Expand context by adding current file's dependencies/dependents
+;;   - Software planning / brainstorming discussion capabilities
 ;;   - Code / repo evolution analysis with git blame and git log
 ;;   - Utilities for bootstrapping new files and projects.
 ;;   - Organize project with repo specific Aider prompt file
@@ -95,6 +96,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("a" "Run Aider (C-u: args)"           aider-run-aider)
   ("z" "Switch to Aider Buffer"          aider-switch-to-buffer)
   ("p" "Input with Repo Prompt File"     aider-open-prompt-file)
+  ("c" "Create / Checkout Branch"        magit-branch-or-checkout)
   ("s" "Reset Aider (C-u: clear)"        aider-reset)
   ("o" "Select Model (C-u: benchmark)"   aider-change-model)
   ("X" "Exit Aider"                      aider-exit))
@@ -128,7 +130,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("q" "Question (C-u no context)"  aider-ask-question)
   ("y" "Then Go Ahead"              aider-go-ahead)
   ("d" "Code Reading"               aider-code-read)
-  ("c" "Copy To Clipboard"          aider-copy-to-clipboard)
+  ("C" "Copy To Clipboard"          aider-copy-to-clipboard)
   ("P" "Software Planning"          aider-start-software-planning)
   ("E" "Debug Exception"            aider-debug-exception)
   ("h" "Open History"               aider-open-history)

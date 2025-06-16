@@ -1,13 +1,16 @@
 
 * Release history
 
+** Main branch change
+
+- Feat: Prefer feature branch for code change, protect main/master/develop branch from code change
+
 ** v0.12.1
 
 - Improve accuracy of aider-expand-context-current-file
   - to skip matches in both comments and strings
   - require that the basename appears in a context that suggests it is an import or a dependency
   - ask user if test file need to be included
-
 
 ** v0.12.0
 
