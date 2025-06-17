@@ -236,14 +236,12 @@ to include in each error report."
     (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
 ;;;###autoload
-(defun aider-flycheck-fix-errors-in-scope (&optional raw-prefix-arg)
+(defun aider-flycheck-fix-errors-in-scope ()
   "Ask Aider to generate a patch fixing Flycheck errors.
-With a prefix argument RAW-PREFIX-ARG (e.g., \\[universal-argument]), applies to the entire file.
-Otherwise, applies to the active region if any.
-If no region is active and no prefix argument, applies to the current function.
-If not in a function, no region active, and no prefix arg, an error is signaled.
-This command requires the `flycheck` package to be installed and available."
-  (interactive "P")
+If a region is active, operate on that region.
+Otherwise prompt to choose scope: current line, current function (if any), or whole file.
+Requires the `flycheck` package to be installed and available."
+  (interactive)
   (unless (featurep 'flycheck)
     (user-error "Flycheck package not found. This feature is unavailable"))
   (when (and (aider--validate-buffer-file) (bound-and-true-p flycheck-mode))
