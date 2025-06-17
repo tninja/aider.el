@@ -235,37 +235,6 @@ to include in each error report."
                   error-reports)))))
     (mapconcat #'identity (nreverse error-reports) "\n\n")))
 
-(defun aider--determine-flycheck-scope-parameters (apply-to-whole-file-p)
-  "Determine and return the scope for Flycheck error fixing.
-Returns a list (SCOPE-START SCOPE-END SCOPE-DESCRIPTION).
-Signals a `user-error` if a valid scope cannot be determined.
-APPLY-TO-WHOLE-FILE-P is non-nil if prefix argument was used."
-  (let (scope-start scope-end scope-description)
-    (cond
-     (apply-to-whole-file-p
-      (setq scope-start (point-min)
-            scope-end (point-max)
-            scope-description "the entire file"))
-     ((region-active-p)
-      (setq scope-start (region-beginning)
-            scope-end (region-end)
-            scope-description (format "the selected region (lines %d-%d)"
-                                      (line-number-at-pos scope-start)
-                                      (line-number-at-pos scope-end))))
-     ((which-function)
-      (let ((bounds (bounds-of-thing-at-point 'defun)))
-        (if bounds
-            (setq scope-start (car bounds)
-                  scope-end (cdr bounds)
-                  scope-description (format "function '%s' (lines %d-%d)"
-                                            (which-function)
-                                            (line-number-at-pos scope-start)
-                                            (line-number-at-pos scope-end)))
-          (user-error "Could not determine bounds for function '%s'. Select a region or use C-u for the entire file" (which-function)))))
-     (t
-      (user-error "No region active and not inside a function. Select a region, move into a function, or use C-u to process the entire file")))
-    (list scope-start scope-end scope-description)))
-
 ;;;###autoload
 (defun aider-flycheck-fix-errors-in-scope (&optional raw-prefix-arg)
   "Ask Aider to generate a patch fixing Flycheck errors.
@@ -290,9 +259,9 @@ This command requires the `flycheck` package to be installed and available."
                  (completing-read
                   "Select Flycheck‐fixing scope: "
                   (delq nil
-                        `("current line"
-                          ,(when (which-function) "current function")
-                          "whole file"))
+                        `("current-line"
+                          ,(when (which-function) "current-function")
+                          "whole-file"))
                   nil t))))
              start end scope-description)
         ;; set start/end/description by selected scope
