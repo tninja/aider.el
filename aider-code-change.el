@@ -274,11 +274,10 @@ This command requires the `flycheck` package to be installed and available."
                          (line-number-at-pos start)
                          (line-number-at-pos end))))
           ('current-line
-           (let ((pos (point)))
-             (setq start pos
-                   end   (1+ pos)
-                   scope-description
-                   (format "current line (%d)" (line-number-at-pos pos)))))
+           (setq start            (line-beginning-position)
+                 end              (line-end-position)
+                 scope-description (format "current line (%d)"
+                                           (line-number-at-pos (point)))))
           ('current-function
            (let ((bounds (bounds-of-thing-at-point 'defun)))
              (unless bounds
