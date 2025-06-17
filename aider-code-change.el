@@ -262,37 +262,6 @@ Requires the `flycheck` package to be installed and available."
                           "whole-file"))
                   nil t))))
              start end scope-description)
-        ;; set start/end/description by selected scope
-        (pcase scope
-          ('region
-           (setq start (region-beginning)
-                 end   (region-end)
-                 scope-description
-                 (format "the selected region (lines %d–%d)"
-                         (line-number-at-pos start)
-                         (line-number-at-pos end))))
-          ('current-line
-           (setq start            (line-beginning-position)
-                 end              (line-end-position)
-                 scope-description (format "current line (%d)"
-                                           (line-number-at-pos (point)))))
-          ('current-function
-           (let ((bounds (bounds-of-thing-at-point 'defun)))
-             (unless bounds
-               (user-error "Not inside a function; cannot select current function"))
-             (setq start (car bounds)
-                   end   (cdr bounds)
-                   scope-description
-                   (format "function '%s' (lines %d–%d)"
-                           (which-function)
-                           (line-number-at-pos (car bounds))
-                           (line-number-at-pos (cdr bounds))))))
-          ('whole-file
-           (setq start (point-min)
-                 end   (point-max)
-                 scope-description "the entire file"))
-          (_
-           (user-error "Unknown Flycheck scope %s" scope)))
         ;; collect errors and bail if none in that scope
         (let ((errors-in-scope (aider-flycheck--get-errors-in-scope start end)))
           (if (null errors-in-scope)
@@ -314,6 +283,49 @@ Requires the `flycheck` package to be installed and available."
                   (message "Sent request to Aider to fix %d Flycheck error(s) in %s."
                            (length errors-in-scope)
                            scope-description))))))))))
+
+(defun aider--choose-flycheck-scope ()
+  "Return a list (START END DESCRIPTION) for Flycheck fixing scope."
+  (let* ((scope (if (region-active-p) 'region
+                  (intern
+                   (completing-read
+                    "Select Flycheck‐fixing scope: "
+                    (delq nil
+                          `("current-line"
+                            ,(when (which-function) "current-function")
+                            "whole-file"))
+                    nil t))))
+         start end description)
+    (pcase scope
+      ('region
+       (setq start (region-beginning)
+             end   (region-end)
+             description
+             (format "the selected region (lines %d–%d)"
+                     (line-number-at-pos start)
+                     (line-number-at-pos end))))
+      ('current-line
+       (setq start            (line-beginning-position)
+             end              (line-end-position)
+             description       (format "current line (%d)"
+                                       (line-number-at-pos (point)))))
+      ('current-function
+       (let ((bounds (bounds-of-thing-at-point 'defun)))
+         (unless bounds
+           (user-error "Not inside a function; cannot select current function"))
+         (setq start            (car bounds)
+               end              (cdr bounds)
+               description       (format "function '%s' (lines %d–%d)"
+                                        (which-function)
+                                        (line-number-at-pos (car bounds))
+                                        (line-number-at-pos (cdr bounds))))))
+      ('whole-file
+       (setq start            (point-min)
+             end              (point-max)
+             description       "the entire file"))
+      (_
+       (user-error "Unknown Flycheck scope %s" scope)))
+    (list start end description)))
 
 (provide 'aider-code-change)
 
