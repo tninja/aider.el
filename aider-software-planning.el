@@ -16,6 +16,7 @@
 ;;; Code:
 
 (require 'which-func)
+(require 'subr-x)
 
 (require 'aider-core)
 (require 'aider-file)
@@ -96,26 +97,85 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (region-text (and region-active
                            (buffer-substring-no-properties (region-beginning) (region-end))))
          ;; Compose default goal from context
-         (default-goal
-          (cond
-           (region-active
-            (format "For selected region%s: %s: "
-                    (if function (format " in function '%s'" function) "") region-text))
-           (function (format "For function '%s': " function))
-           (file-name (format "For file '%s': " file-name))
-           (t "Plan new software feature")))
-         (prompt (format "Enter your software development goal (Backspace to clear): " default-goal))
-         (input (aider-read-string prompt default-goal))
-         (goal (if (string-empty-p input) default-goal input)))
+         (prompt "Enter your software development goal (Backspace to clear): ")
+         (scope
+          (if region-active
+              'region
+            (let* ((candidates
+                    (append
+                     (when function   (list "function"))
+                     (when file-name (list "file"))
+                     (list "repo")))
+                   (choice
+                    (completing-read
+                     "Select planning scope: "
+                     candidates nil t nil nil (car candidates))))
+            (intern choice))))
+         ;; provide planning-oriented choices for the user
+         (candidate-list ;; choose questions based on selected scope
+          (pcase scope
+            ('region
+             '("How should we refactor the selected code for clarity?"
+               "How can we extend the selected code to add a new feature?"
+               "What are the best ways to optimize the selected code for performance?"
+               "How should we add error handling to the selected code?"
+               "What tests should we write for the selected code?"
+               "How should we document the selected code?"))
+            ('function
+             '("How should we refactor this function for clarity?"
+               "How can we extend this function to handle more cases?"
+               "What are the best ways to optimize this function for performance?"
+               "How should we add error handling to this function?"
+               "What tests should we write for this function?"
+               "How should we document this function?"))
+            ('file
+             '("How should we review this file for code quality improvements?"
+               "What missing tests should we identify in this file?"
+               "How can we refactor this file for better structure?"
+               "How should we extend this file with a new feature?"
+               "What are the best ways to optimize this file for performance?"
+               "How should we add documentation to this file?"))
+            ('repo
+             '("What are the top areas for improvement in this repository?"
+               "What would be the most useful new feature given the repository's current state?"
+               "What code quality issues should we address and how?"
+               "How should we decompose modules for a large upcoming feature?"
+               "What performance and scaling requirements should we define for this codebase?"
+               "How should we design the API interfaces for the current code?"
+               "What are the key integration points with external services or libraries?"
+               "What security considerations and potential vulnerabilities should we evaluate?"
+               "What testing strategy (unit, integration, E2E) should we implement?"
+               "What documentation needs should we address and how?"
+               "How can we enhance the CI/CD and deployment pipeline?"))))
+         (goal (aider-read-string prompt nil candidate-list))
+         ;; Collect context information
+         (context ;; build context based on selected scope
+                  (pcase scope
+                    ('region
+                     (format "Context:\n- Selected region in function: %s\n- Region content: %s\n- Current file: %s"
+                             function region-text file-name))
+                    ('function
+                     (format "Context:\n- Current function: %s\n- Current file: %s"
+                             function file-name))
+                    ('file
+                     (format "Context:\n- Current file: %s" file-name))
+                    ('repo
+                     ;; List added files when at repository scope
+                     (let ((added (aider-core--parse-added-file-list)))
+                       (if added
+                           (format "Context:\n- Added files: %s"
+                                   (mapconcat 'identity added ", "))
+                         "Context: (no added files)"))))))
     (if (string-empty-p goal)
         (message "Goal cannot be empty. Planning session not started.")
       (when (aider--validate-aider-buffer)
         ;; if context present, add current file to the session
-        (when (or region-active function file-name)
+        (when (memq scope '(region function file)) ;; only add current file for region/function/file
           (aider-add-current-file))
         (when (aider--send-command
-               (format "/ask %s\n\nMy goal is: %s"
+               (format "/ask %s\n\n%s\n\nMy goal is: %s"
                        aider-software-planning--sequential-thinking-prompt
+                       context
                        goal) t)
           (message "Software planning session started for goal: %s" goal))))))
 
