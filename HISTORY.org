@@ -4,6 +4,7 @@
 ** Main branch change
 
 - Feat: Prefer feature branch for code change, protect main/master/develop branch from code change
+- Software planning goal has candidates for repo, file, function, region levels
 
 ** v0.12.1
 
