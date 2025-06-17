@@ -97,7 +97,7 @@ Begin by analyzing the provided goal and asking your first strategic question."
          (region-text (and region-active
                            (buffer-substring-no-properties (region-beginning) (region-end))))
          ;; Compose default goal from context
-         (prompt "Enter your software development goal (Backspace to clear): ")
+         (prompt "Enter / select your software development goal: ")
          (scope
           (if region-active
               'region
