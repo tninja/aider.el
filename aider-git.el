@@ -319,9 +319,9 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
     (let* ((context (format "Repository: %s\n\n" repo-name))
            (default-analysis
             (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
-                    "1. Overall project evolution and major development phases.\n"
-                    "2. Identification of key features, refactorings, or architectural changes and their timeline.\n"
-                    "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.).\n"
+                    "1. Overall project evolution and major development phases, with author name in each phase.\n"
+                    "2. Identification of key features, refactorings, or architectural changes and their timeline, with author name for each one.\n"
+                    "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.), with author name.\n"
                     "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
                     "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
                     "6. General trends in the project's direction or focus over time."))
