@@ -5,6 +5,7 @@
 
 - Feat: Prefer feature branch for code change, protect main/master/develop branch from code change
 - Software planning goal has candidates for repo, file, function, region levels
+- Aider-flycheck-fix-errors-in-scope let user choose scope
 
 ** v0.12.1
 
