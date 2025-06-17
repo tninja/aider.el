@@ -249,19 +249,11 @@ Requires the `flycheck` package to be installed and available."
         (message "No Flycheck errors found in the current buffer.")
       (let* ((git-root (or (magit-toplevel) default-directory))
              (rel-file (file-relative-name buffer-file-name git-root))
-             ;; if region is active use it; otherwise ask user
-             (scope
-              (if (region-active-p)
-                  'region
-                (intern
-                 (completing-read
-                  "Select Flycheck‐fixing scope: "
-                  (delq nil
-                        `("current-line"
-                          ,(when (which-function) "current-function")
-                          "whole-file"))
-                  nil t))))
-             start end scope-description)
+             ;; determine start/end/scope-description via helper
+             (scope-data (aider--choose-flycheck-scope))
+             (start (nth 0 scope-data))
+             (end (nth 1 scope-data))
+             (scope-description (nth 2 scope-data)))
         ;; collect errors and bail if none in that scope
         (let ((errors-in-scope (aider-flycheck--get-errors-in-scope start end)))
           (if (null errors-in-scope)
