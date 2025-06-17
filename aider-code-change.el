@@ -197,8 +197,7 @@ Otherwise:
 
 ;;; New Flycheck integration
 (defun aider-flycheck--get-errors-in-scope (start end)
-  "Return a list of Flycheck errors within the given START and END
-buffer positions."
+  "Return a list of Flycheck errors within the given START and END buffer positions."
   (when (and (bound-and-true-p flycheck-mode) flycheck-current-errors)
     (cl-remove-if-not
      (lambda (err)
