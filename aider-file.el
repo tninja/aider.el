@@ -264,6 +264,33 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
                            (format " that also match content regex '%s'" content-regex)
                          ""))))))
 
+(defun aider--filter-test-files (files include-tests)
+  "Filter test files from FILES based on INCLUDE-TESTS flag."
+  (if include-tests
+      files
+    (seq-remove (lambda (f)
+                  (string-match-p "test" (downcase f)))
+                files)))
+
+(defun aider--process-context-files (current-file dependencies dependents)
+  "Process and add context files to aider session.
+Process CURRENT-FILE, DEPENDENCIES, and DEPENDENTS."
+  (let* ((commands '("/add" "/read-only"))
+         (command (completing-read "Select command for files: " commands nil t nil nil "/add")))
+    (message "Dependencies: %s; Dependents: %s"
+             (mapconcat #'identity
+                        (mapcar #'file-name-nondirectory dependencies)
+                        ", ")
+             (mapconcat #'identity
+                        (mapcar #'file-name-nondirectory dependents)
+                        ", "))
+    (let* ((all-files (delete-dups (append (list current-file) dependencies dependents)))
+           (relative-files (mapcar #'aider--get-file-path all-files))
+           (formatted-files (mapcar #'aider--format-file-path relative-files)))
+      (dolist (file formatted-files)
+        (aider--send-command (concat command " " file) nil))
+      (aider-switch-to-buffer))))
+
 ;;;###autoload
 (defun aider-expand-context-current-file ()
   "Add current file and its dependencies/dependents to aider session.
@@ -286,31 +313,11 @@ User can choose between /add or /read-only command."
                                          (string-match-p "test"
                                                          (downcase f)))
                                        dependencies)))
-           (dependents   (aider--find-file-dependents   current-file search-root))
-           (dependents   (if include-tests
-                             dependents
-                           (seq-remove (lambda (f)
-                                         (string-match-p "test"
-                                                         (downcase f)))
-                                       dependents)))
-           (all-files    (delete-dups (append (list current-file)
-                                              dependencies
-                                              dependents))))
-      (if (> (length all-files) 1)
-          (let* ((commands '("/add" "/read-only"))
-                 (command (completing-read "Select command for files: " commands nil t nil nil "/add")))
-            (message "Dependencies: %s; Dependents: %s"
-                     (mapconcat #'identity
-                                (mapcar #'file-name-nondirectory dependencies)
-                                ", ")
-                     (mapconcat #'identity
-                                (mapcar #'file-name-nondirectory dependents)
-                                ", "))
-            (let* ((relative-files (mapcar #'aider--get-file-path all-files))
-                   (formatted-files (mapcar #'aider--format-file-path relative-files)))
-              (dolist (file formatted-files)
-                (aider--send-command (concat command " " file) nil))
-              (aider-switch-to-buffer)))
+           (dependents   (aider--filter-test-files 
+                         (aider--find-file-dependents current-file search-root)
+                         include-tests)))
+      (if (or dependencies dependents)
+          (aider--process-context-files current-file dependencies dependents)
         (message "No additional dependencies or dependents found for current file")))))
 
 (defun aider--find-file-dependencies (file-path search-root)
