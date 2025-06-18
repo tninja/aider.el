@@ -1,10 +1,12 @@
 
 * Release history
 
-** Main branch change
+** v0.12.2
 
 - Feat: Prefer feature branch for code change, protect main/master/develop branch from code change
 - Software planning goal has candidates for repo, file, function, region levels
+- Repo evolution analysis should have more author name information
+- Aider-flycheck-fix-errors-in-scope let user choose scope
 
 ** v0.12.1
 

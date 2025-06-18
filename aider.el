@@ -1,7 +1,7 @@
 ;;; aider.el --- AI assisted programming with Aider and LLM  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.12.1
+;; Version: 0.12.2
 ;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
@@ -119,7 +119,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("i" "Implement Requirement"       aider-implement-todo)
   ("t" "Architect Discuss/Change"    aider-architect-discussion)
   ("U" "Write Unit Test"             aider-write-unit-test)
-  ("F" "Fix Flycheck Errors (C-u: file)"          aider-flycheck-fix-errors-in-scope)
+  ("F" "Fix Flycheck Errors"         aider-flycheck-fix-errors-in-scope)
   ("R" "Refactor Code"               aider-refactor-book-method)
   ("T" "Test Driven Development"     aider-tdd-cycle)
   ("l" "Work with Legacy Code"       aider-legacy-code)
