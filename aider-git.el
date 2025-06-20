@@ -366,14 +366,18 @@ Call this function to register the Aider commands with Magit."
 ;;; New helper for commit ranges
 (defun aider--handle-commit-range-diff-generation (git-root)
   "Handle generation of diff between two commits (commit range)."
-  (let* ((start (read-string "Start commit hash: "))
-         (end   (read-string "End commit hash: "))
-         (name  (format "%s..%s" start end))
-         (file  (expand-file-name (concat name ".diff") git-root))
-         (params (list :type 'branch-range
-                       :base-branch start
-                       :feature-branch end
-                       :diff-file-name-part name)))
+  (let* ((raw-start (read-string "Start commit or branch: "))
+         (raw-end   (read-string "End commit or branch: "))
+         ;; try to resolve remote branches or commits
+         (start     (aider--get-full-branch-ref raw-start))
+         (end       (aider--get-full-branch-ref raw-end))
+         (name      (format "%s..%s" start end))
+         (file      (expand-file-name (concat name ".diff") git-root))
+         ;; reuse branch-range plumbing (it will fetch and verify)
+         (params    (list :type 'branch-range
+                          :base-branch start
+                          :feature-branch end
+                          :diff-file-name-part name)))
     (aider--generate-branch-or-commit-diff params file)
     file))
 
