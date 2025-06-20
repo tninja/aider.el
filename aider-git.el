@@ -215,34 +215,32 @@ GIT-ROOT is the root directory of the Git repository."
     (aider--generate-branch-or-commit-diff diff-params diff-file)
     diff-file))
 
+(defun aider--get-diff-type-choice ()
+  "Get user's choice for diff type and return the corresponding value."
+  (let* ((diff-type-alist '(("Staged changes" . staged)
+                            ("Base branch vs HEAD" . base-vs-head)
+                            ("Branch range (e.g., base..feature)" . branch-range)
+                            ("Single commit" . commit)))
+         (raw-diff-type-choice
+          (completing-read "Select diff type: "
+                           diff-type-alist
+                           nil t nil nil "Staged changes")))
+    (if (consp raw-diff-type-choice)
+        (cdr raw-diff-type-choice)
+      ;; If raw-diff-type-choice is a string, look up its corresponding value
+      (cdr (assoc raw-diff-type-choice diff-type-alist)))))
+
 (defun aider--magit-generate-feature-branch-diff-file ()
   "Generate a diff file based on user-selected type (staged, branches, commit)."
   (interactive)
   (when-let ((git-root (aider--validate-git-repository)))
-    (let* ((diff-type-alist '(("Staged changes" . staged)
-                              ("Base branch vs HEAD" . base-vs-head)
-                              ("Branch range (e.g., base..feature)" . branch-range)
-                              ("Single commit" . commit)))
-           (raw-diff-type-choice
-            (completing-read "Select diff type: "
-                             diff-type-alist
-                             nil t nil nil "Staged changes"))
-           (selected-diff-type-value
-            (if (consp raw-diff-type-choice)
-                (cdr raw-diff-type-choice)
-              ;; If raw-diff-type-choice is a string, it should be one of the display strings.
-              ;; We look up its corresponding value in the alist.
-              (cdr (assoc raw-diff-type-choice diff-type-alist))))
-           ;; Variable to hold the path of the generated diff file
-           (diff-file))
-      (setq diff-file
-            (pcase selected-diff-type-value
-              ('staged       (aider--handle-staged-diff-generation git-root))
-              ('base-vs-head (aider--handle-base-vs-head-diff-generation git-root))
-              ('branch-range (aider--handle-branch-range-diff-generation git-root))
-              ('commit       (aider--handle-commit-diff-generation git-root))
-              (_ (user-error "Invalid diff type selected"))))
-
+    (let* ((selected-diff-type-value (aider--get-diff-type-choice))
+           (diff-file (pcase selected-diff-type-value
+                        ('staged       (aider--handle-staged-diff-generation git-root))
+                        ('base-vs-head (aider--handle-base-vs-head-diff-generation git-root))
+                        ('branch-range (aider--handle-branch-range-diff-generation git-root))
+                        ('commit       (aider--handle-commit-diff-generation git-root))
+                        (_ (user-error "Invalid diff type selected")))))
       (when diff-file
         (aider--open-diff-file diff-file)))))
 
