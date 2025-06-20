@@ -264,13 +264,15 @@ With a prefix argument (C-u), files are added read-only (/read-only)."
                            (format " that also match content regex '%s'" content-regex)
                          ""))))))
 
-(defun aider--filter-test-files (files include-tests)
-  "Filter test files from FILES based on INCLUDE-TESTS flag."
-  (if include-tests
-      files
-    (seq-remove (lambda (f)
-                  (string-match-p "test" (downcase f)))
-                files)))
+(defun aider--filter-test-files (files include-tests &optional test-file-regex)
+  "Filter test files from FILES based on INCLUDE-TESTS flag.
+TEST-FILE-REGEX allows customization of the regex used to identify test files."
+  (let ((regex (or test-file-regex "\\(?:^test.*\\|.*_test\\|.*test\\.\\)")))
+    (if include-tests
+        files
+      (seq-remove (lambda (f)
+                    (string-match-p regex (downcase f)))
+                  files))))
 
 (defun aider--process-context-files (current-file dependencies dependents)
   "Process and add context files to aider session.
