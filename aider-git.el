@@ -255,7 +255,6 @@ code evolution and the reasoning behind changes."
   (interactive)
   (when (aider--validate-buffer-file)
   (let* ((file-path (buffer-file-name))
-         (file-name (file-name-nondirectory file-path))
          (has-region (use-region-p))
          (line-start (if has-region
                          (line-number-at-pos (region-beginning))
