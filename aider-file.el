@@ -305,14 +305,9 @@ User can choose between /add or /read-only command."
            ;; search root & raw deps/clients
            (git-root     (ignore-errors (magit-toplevel)))
            (search-root  (or git-root default-directory))
-           (dependencies (aider--find-file-dependencies current-file search-root))
-           ;; if tests are excluded, drop any path whose filename contains “test”
-           (dependencies (if include-tests
-                             dependencies
-                           (seq-remove (lambda (f)
-                                         (string-match-p "test"
-                                                         (downcase f)))
-                                       dependencies)))
+           (dependencies (aider--filter-test-files
+                          (aider--find-file-dependencies current-file search-root)
+                          include-tests))
            (dependents   (aider--filter-test-files 
                           (aider--find-file-dependents current-file search-root)
                           include-tests)))
