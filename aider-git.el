@@ -287,68 +287,63 @@ code evolution and the reasoning behind changes."
       (message "Press (S) to skip questions when it pop up")))))
 
 ;;;###autoload
-(defun aider-magit-log-analyze ()
-  "Analyze Git log with AI.
-If current buffer is visiting a file named 'git.log', analyze its content.
-Otherwise, prompt for number of commits (default 100) and optionally a keyword,
-generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content."
-  (interactive)
-  (let* ((git-root (aider--validate-git-repository)) ; Ensure we're in a git repo
-         (repo-name (file-name-nondirectory (directory-file-name git-root)))
-         (log-output)
-         ;; Define the expected path for git.log at the project root
-         (project-log-file-path (expand-file-name "git.log" git-root))
-         keyword)
-    ;; Always ask for an optional keyword, even if we're already visiting git.log
-    (setq keyword
-          (read-string
-           "Optional: Keyword to filter commits (leave empty for no filter): "))
-    (if (not (and buffer-file-name
-                  (string-equal (file-name-nondirectory buffer-file-name) "git.log")
-                  ;; Optional: more strictly check if it's the project's git.log
-                  ;; (string-equal (file-truename buffer-file-name) (file-truename project-log-file-path))
-                  ;; For simplicity, we'll stick to checking just the filename "git.log"
-                  ;; This means any file named "git.log" will be used if currently open.
-                  ))
-        ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
-        (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
-               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
-          (message "Fetching Git log for %s (%s commits%s)... This might take a moment."
-                   repo-name num-commits (if (string-empty-p keyword) "" (format " filtered by keyword '%s'" keyword)))
-          (setq log-output (if (string-empty-p keyword)
-                               (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits)
-                             (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits "-S" keyword)))
-          (message "Saving Git log to %s" project-log-file-path)
-          (with-temp-file project-log-file-path
-            (insert log-output))
-          (find-file project-log-file-path) ; Open the generated/updated git.log file
-          (message "Git log saved to %s and opened. Proceeding with analysis." project-log-file-path)))
-    ;; Common analysis part, using the determined log-output
-    (let* ((context (format "Repository: %s\n\n" repo-name))
-           (default-analysis
-            (if (not (string-empty-p keyword))
-                (format "Analyze the commits filtered by keyword '%s'. Provide insights on:\n\
+(defun aider--ensure-git-log (git-root repo-name keyword)
+  "Fetch N commits as git.log under GIT-ROOT for REPO-NAME, filtered by KEYWORD.
+Returns the path to the git.log file."
+  (let* ((project-log-file-path (expand-file-name "git.log" git-root))
+         (num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
+         (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str))
+         (magit-args (if (string-empty-p keyword)
+                         (list "log" "--pretty=medium" "--stat" "-n" num-commits)
+                       (list "log" "--pretty=medium" "--stat" "-n" num-commits "-S" keyword)))
+         (log-output (apply #'magit-git-output magit-args)))
+    (message "Saving Git log to %s" project-log-file-path)
+    (with-temp-file project-log-file-path
+      (insert log-output))
+    (find-file project-log-file-path)
+    project-log-file-path)
+
+(defun aider--default-log-analysis-instructions (keyword)
+  "Return the default analysis prompt for KEYWORD (may be empty)."
+  (if (not (string-empty-p keyword))
+      (format "Analyze the commits filtered by keyword '%s'. Provide insights on:\n\
 1. Overall '%s' related feature evolution and major development phases, with author name in each phase.\n\
 2. Frequency and patterns of '%s' related commits.\n\
 3. Files or areas most impacted by '%s' changes.\n\
 4. Main contributors and their roles in '%s' work.\n\
 5. Trends or hotspots in '%s' related development.\n\
 6. Suggestions for improving or refactoring '%s' implementation.\n"
-                        keyword keyword keyword keyword keyword keyword keyword)
-              (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
-                      "1. Overall project evolution and major development phases, with author name in each phase.\n"
-                      "2. Identification of key features, refactorings, or architectural changes and their timeline, with author name for each one.\n"
-                      "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.), with author name.\n"
-                      "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
-                      "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
-                      "6. General trends in the project's direction or focus over time.")))
-           (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
-           ;; Changed prompt to refer to "Git Log content" generically
-           (prompt (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
-                           repo-name context analysis-instructions)))
-      (aider-add-current-file) ;; git.log
-      (when (aider--send-command (concat "/ask " prompt) t)
-        (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider.")))))
+              keyword keyword keyword keyword keyword keyword keyword)
+    (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
+            "1. Overall project evolution and major development phases, with author name in each phase.\n"
+            "2. Identification of key features, refactorings, or architectural changes and their timeline, with author name for each one.\n"
+            "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.), with author name.\n"
+            "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
+            "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
+            "6. General trends in the project's direction or focus over time.")))
+
+(defun aider--build-log-prompt (repo-name analysis-instructions)
+  "Build the final AI prompt for REPO-NAME using ANALYSIS-INSTRUCTIONS."
+  (let ((context (format "Repository: %s\n\n" repo-name)))
+    (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
+            repo-name context analysis-instructions)))
+
+(defun aider-magit-log-analyze ()
+  "Analyze Git log with AI.
+If current buffer is visiting a file named 'git.log', analyze its content.
+Otherwise, prompt for number of commits (default 100) and optionally a keyword,
+generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content."
+  (interactive)
+  (let* ((git-root (aider--validate-git-repository))
+         (repo-name (file-name-nondirectory (directory-file-name git-root)))
+         (keyword (read-string "Optional: Keyword to filter commits (leave empty for no filter): "))
+         (log-file (aider--ensure-git-log git-root repo-name keyword))
+         (default-analysis (aider--default-log-analysis-instructions keyword))
+         (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
+         (prompt (aider--build-log-prompt repo-name analysis-instructions)))
+    (aider-add-current-file)
+    (when (aider--send-command (concat "/ask " prompt) t)
+      (message "AI analysis of repository log initiated. Press (S) to skip questions if prompted by Aider."))))
 
 ;;;###autoload
 (defun aider-magit-blame-or-log-analyze (&optional arg)
