@@ -299,6 +299,10 @@ generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then an
          ;; Define the expected path for git.log at the project root
          (project-log-file-path (expand-file-name "git.log" git-root))
          keyword)
+    ;; Always ask for an optional keyword, even if we're already visiting git.log
+    (setq keyword
+          (read-string
+           "Optional: Keyword to filter commits (leave empty for no filter): "))
     (if (not (and buffer-file-name
                   (string-equal (file-name-nondirectory buffer-file-name) "git.log")
                   ;; Optional: more strictly check if it's the project's git.log
@@ -309,8 +313,7 @@ generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then an
         ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
         (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
                (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
-          (setq keyword (read-string "Optional: Keyword to filter commits (leave empty for no filter): "))
-          (message "Fetching Git log for %s (%s commits with stats%s)... This might take a moment."
+          (message "Fetching Git log for %s (%s commits%s)... This might take a moment."
                    repo-name num-commits (if (string-empty-p keyword) "" (format " filtered by keyword '%s'" keyword)))
           (setq log-output (if (string-empty-p keyword)
                                (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits)
