@@ -255,7 +255,6 @@ code evolution and the reasoning behind changes."
   (interactive)
   (when (aider--validate-buffer-file)
   (let* ((file-path (buffer-file-name))
-         (file-name (file-name-nondirectory file-path))
          (has-region (use-region-p))
          (line-start (if has-region
                          (line-number-at-pos (region-beginning))
@@ -301,7 +300,7 @@ Returns the path to the git.log file."
     (with-temp-file project-log-file-path
       (insert log-output))
     (find-file project-log-file-path)
-    project-log-file-path)
+    project-log-file-path))
 
 (defun aider--default-log-analysis-instructions (keyword)
   "Return the default analysis prompt for KEYWORD (may be empty)."
