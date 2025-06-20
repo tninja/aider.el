@@ -290,8 +290,8 @@ code evolution and the reasoning behind changes."
 (defun aider-magit-log-analyze ()
   "Analyze Git log with AI.
 If current buffer is visiting a file named 'git.log', analyze its content.
-Otherwise, prompt for number of commits (default 100), generate the log,
-save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content."
+Otherwise, prompt for number of commits (default 100) and optionally a keyword,
+generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content."
   (interactive)
   (let* ((git-root (aider--validate-git-repository)) ; Ensure we're in a git repo
          (repo-name (file-name-nondirectory (directory-file-name git-root)))
@@ -307,9 +307,13 @@ save it to 'PROJECT_ROOT/git.log', open this file, and then analyze its content.
                   ))
         ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
         (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
-               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
-          (message "Fetching Git log for %s (%s commits with stats)... This might take a moment." repo-name num-commits)
-          (setq log-output (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits))
+               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str))
+               (keyword (read-string "Optional: Keyword to filter commits (leave empty for no filter): ")))
+          (message "Fetching Git log for %s (%s commits with stats%s)... This might take a moment."
+                   repo-name num-commits (if (string-empty-p keyword) "" (format " filtered by keyword '%s'" keyword)))
+          (setq log-output (if (string-empty-p keyword)
+                               (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits)
+                             (magit-git-output "log" "--pretty=medium" "--stat" "-n" num-commits "-S" keyword)))
           (message "Saving Git log to %s" project-log-file-path)
           (with-temp-file project-log-file-path
             (insert log-output))
