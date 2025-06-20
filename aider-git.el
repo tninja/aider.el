@@ -328,12 +328,13 @@ generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then an
            (default-analysis
             (if (not (string-empty-p keyword))
                 (format "Analyze the commits filtered by keyword '%s'. Provide insights on:\n\
-1. Frequency and patterns of '%s' related commits.\n\
-2. Files or areas most impacted by '%s' changes.\n\
-3. Main contributors and their roles in '%s' work.\n\
-4. Trends or hotspots in '%s' related development.\n\
-5. Suggestions for improving or refactoring '%s' implementation.\n"
-                        keyword keyword keyword keyword keyword keyword)
+1. Overall '%s' related feature evolution and major development phases, with author name in each phase.\n\
+2. Frequency and patterns of '%s' related commits.\n\
+3. Files or areas most impacted by '%s' changes.\n\
+4. Main contributors and their roles in '%s' work.\n\
+5. Trends or hotspots in '%s' related development.\n\
+6. Suggestions for improving or refactoring '%s' implementation.\n"
+                        keyword keyword keyword keyword keyword keyword keyword)
               (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
                       "1. Overall project evolution and major development phases, with author name in each phase.\n"
                       "2. Identification of key features, refactorings, or architectural changes and their timeline, with author name for each one.\n"
