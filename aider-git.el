@@ -240,8 +240,8 @@ GIT-ROOT is the root directory of the Git repository."
                         ('staged       (aider--handle-staged-diff-generation git-root))
                         ('base-vs-head (aider--handle-base-vs-head-diff-generation git-root))
                         ('branch-range (aider--handle-branch-range-diff-generation git-root))
-                        ('commit-range (aider--handle-commit-range-diff-generation git-root))
                         ('commit       (aider--handle-commit-diff-generation git-root))
+                        ('commit-range (aider--handle-commit-range-diff-generation git-root))
                         (_ (user-error "Invalid diff type selected")))))
       (when diff-file
         (aider--open-diff-file diff-file)))))
