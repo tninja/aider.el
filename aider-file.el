@@ -314,8 +314,8 @@ User can choose between /add or /read-only command."
                                                          (downcase f)))
                                        dependencies)))
            (dependents   (aider--filter-test-files 
-                         (aider--find-file-dependents current-file search-root)
-                         include-tests)))
+                          (aider--find-file-dependents current-file search-root)
+                          include-tests)))
       (if (or dependencies dependents)
           (aider--process-context-files current-file dependencies dependents)
         (message "No additional dependencies or dependents found for current file")))))
