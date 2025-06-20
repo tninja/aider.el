@@ -297,7 +297,8 @@ generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then an
          (repo-name (file-name-nondirectory (directory-file-name git-root)))
          (log-output)
          ;; Define the expected path for git.log at the project root
-         (project-log-file-path (expand-file-name "git.log" git-root)))
+         (project-log-file-path (expand-file-name "git.log" git-root))
+         keyword)
     (if (not (and buffer-file-name
                   (string-equal (file-name-nondirectory buffer-file-name) "git.log")
                   ;; Optional: more strictly check if it's the project's git.log
@@ -307,8 +308,8 @@ generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then an
                   ))
         ;; Not a git.log file, or no file associated with buffer, or not the project's git.log
         (let* ((num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
-               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str))
-               (keyword (read-string "Optional: Keyword to filter commits (leave empty for no filter): ")))
+               (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str)))
+          (setq keyword (read-string "Optional: Keyword to filter commits (leave empty for no filter): "))
           (message "Fetching Git log for %s (%s commits with stats%s)... This might take a moment."
                    repo-name num-commits (if (string-empty-p keyword) "" (format " filtered by keyword '%s'" keyword)))
           (setq log-output (if (string-empty-p keyword)
@@ -322,13 +323,21 @@ generate the log, save it to 'PROJECT_ROOT/git.log', open this file, and then an
     ;; Common analysis part, using the determined log-output
     (let* ((context (format "Repository: %s\n\n" repo-name))
            (default-analysis
-            (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
-                    "1. Overall project evolution and major development phases, with author name in each phase.\n"
-                    "2. Identification of key features, refactorings, or architectural changes and their timeline, with author name for each one.\n"
-                    "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.), with author name.\n"
-                    "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
-                    "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
-                    "6. General trends in the project's direction or focus over time."))
+            (if (not (string-empty-p keyword))
+                (format "Analyze the commits filtered by keyword '%s'. Provide insights on:\n\
+1. Frequency and patterns of '%s' related commits.\n\
+2. Files or areas most impacted by '%s' changes.\n\
+3. Main contributors and their roles in '%s' work.\n\
+4. Trends or hotspots in '%s' related development.\n\
+5. Suggestions for improving or refactoring '%s' implementation.\n"
+                        keyword keyword keyword keyword keyword keyword)
+              (concat "Please analyze the following Git log for the entire repository. Provide insights on:\n"
+                      "1. Overall project evolution and major development phases, with author name in each phase.\n"
+                      "2. Identification of key features, refactorings, or architectural changes and their timeline, with author name for each one.\n"
+                      "3. Patterns in development activity (e.g., periods of rapid development, bug fixing, etc.), with author name.\n"
+                      "4. Significant contributors or shifts in contribution patterns (if discernible from commit messages).\n"
+                      "5. Potential areas of technical debt or architectural concerns suggested by the commit history.\n"
+                      "6. General trends in the project's direction or focus over time.")))
            (analysis-instructions (aider-read-string "Analysis instructions for repository log: " default-analysis))
            ;; Changed prompt to refer to "Git Log content" generically
            (prompt (format "Analyze the Git commit history for the entire repository '%s'.\n\n%sThe detailed Git log content is in the 'git.log' file (which has been added to the chat).\nPlease use its content for your analysis, following these instructions:\n%s"
