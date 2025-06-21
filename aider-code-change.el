@@ -42,7 +42,7 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
   (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
     (aider-current-file-command-and-switch "/architect " command)))
 
-(defun aider-region-refactor-generate-command (region-text function-name user-command)
+(defun aider-region-change-generate-command (region-text function-name user-command)
   "Generate the command string based on input parameters.
 REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
   (let ((processed-region-text region-text))
@@ -54,7 +54,7 @@ REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
 
 (defun aider--handle-comment-requirement (line-text function-name)
   "Handle a standalone comment requirement at point.
-Delete the comment line, prompt for instruction, and send refactor command."
+Delete the comment line, prompt for instruction, and send change command."
   (let* ((req (replace-regexp-in-string
                (concat "^[ \t]*"
                        (regexp-quote (string-trim-right comment-start))
@@ -76,7 +76,7 @@ Delete the comment line, prompt for instruction, and send refactor command."
     (aider--send-command cmd t)))
 
 (defun aider--handle-region-or-function (region-active function-name)
-  "Handle refactoring of selected region or containing function."
+  "Handle changeing of selected region or containing function."
   (let* ((region-text (and region-active
                            (buffer-substring-no-properties
                             (region-beginning)
@@ -88,16 +88,16 @@ Delete the comment line, prompt for instruction, and send refactor command."
                   (function-name
                    (format "Change %s: " function-name))
                   (region-active
-                   "Refactor instruction for selected region: ")
+                   "Change instruction for selected region: ")
                   (t
-                   "Refactor instruction: ")))
+                   "Change instruction: ")))
          (is-test-file (and buffer-file-name
                             (string-match-p "test"
                                             (file-name-nondirectory
                                              buffer-file-name))))
          (candidate-list (if is-test-file
                              '("Write a new unit test function based on the given description."
-                               "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+                               "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
                                "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
                                "Improve test assertions and add edge cases."
                                "Extract this logic into a separate helper function")
@@ -113,22 +113,22 @@ Delete the comment line, prompt for instruction, and send refactor command."
          (instruction (aider-read-string prompt nil candidate-list)))
     (cond
      (region-active
-      (let ((command (aider-region-refactor-generate-command
+      (let ((command (aider-region-change-generate-command
                       region-text function-name instruction)))
         (aider-add-current-file)
         (aider--send-command command t)))
      (function-name
       (when (aider-current-file-command-and-switch
              "/architect "
-             (concat (format "refactor %s: " function-name)
+             (concat (format "change %s: " function-name)
                      instruction))
         (message "Code change request sent to Aider"))))))
 
 ;;;###autoload
-(defun aider-function-or-region-refactor ()
-  "Refactor code under cursor or in selected region.
-If a region is selected, refactor that specific region.
-Otherwise, refactor the function under cursor.
+(defun aider-function-or-region-change ()
+  "Change code under cursor or in selected region.
+If a region is selected, change that specific region.
+Otherwise, change the function under cursor.
 Additionally, if cursor is on a standalone comment line (and no region),
 treat that comment as the requirement, remove it, and send it."
   (interactive)
