@@ -1,6 +1,10 @@
 
 * Release history
 
+** Main branch change
+
+- Feat: aider-function-or-region-change (C-c a r) support inline comment based existing code change requirement
+
 ** v0.12.2
 
 - Feat: Prefer feature branch for code change, protect main/master/develop branch from code change
