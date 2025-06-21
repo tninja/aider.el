@@ -52,25 +52,49 @@ REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
       (format "/architect \"for the following code block, %s: %s\""
               user-command processed-region-text))))
 
-;;;###autoload
-(defun aider-function-or-region-refactor ()
-  "Refactor code under cursor or in selected region.
-If a region is selected, refactor that specific region.
-Otherwise, refactor the function under cursor."
-  (interactive)
-  (let* ((function-name (which-function))
-         (region-active (region-active-p)))
-    (if (not (or region-active function-name))
-        (message "No function or region selected.")
-      ;; Original let* body continues here if region or function exists
-      (let* ((region-in-function (and region-active function-name))
-             (prompt (cond
-                      (region-in-function (format "Code change instruction for selected region in function '%s': " function-name))
-                      (function-name (format "Change %s: " function-name))
-                  (region-active "Refactor instruction for selected region: ")
-                  (t "Refactor instruction: ")))
+(defun aider--handle-comment-requirement (line-text function-name)
+  "Handle a standalone comment requirement at point.
+Delete the comment line, prompt for instruction, and send refactor command."
+  (let* ((req (replace-regexp-in-string
+               (concat "^[ \t]*"
+                       (regexp-quote (string-trim-right comment-start))
+                       "+[ \t]*")
+               ""
+               line-text))
+         (default-prompt
+          (if function-name
+              (format "In function %s, change code according to requirement: %s"
+                      function-name req)
+            (format "Change code according to requirement: %s" req)))
+         (instruction (aider-read-string
+                       "Code change instruction: " default-prompt))
+         (cmd (concat "/architect " instruction)))
+    (save-excursion
+      (delete-region (line-beginning-position)
+                     (min (point-max) (1+ (line-end-position)))))
+    (aider-add-current-file)
+    (aider--send-command cmd t)))
+
+(defun aider--handle-region-or-function (region-active function-name)
+  "Handle refactoring of selected region or containing function."
+  (let* ((region-text (and region-active
+                           (buffer-substring-no-properties
+                            (region-beginning)
+                            (region-end))))
+         (prompt (cond
+                  ((and region-active function-name)
+                   (format "Code change instruction for selected region in function '%s': "
+                           function-name))
+                  (function-name
+                   (format "Change %s: " function-name))
+                  (region-active
+                   "Refactor instruction for selected region: ")
+                  (t
+                   "Refactor instruction: ")))
          (is-test-file (and buffer-file-name
-                            (string-match-p "test" (file-name-nondirectory buffer-file-name))))
+                            (string-match-p "test"
+                                            (file-name-nondirectory
+                                             buffer-file-name))))
          (candidate-list (if is-test-file
                              '("Write a new unit test function based on the given description."
                                "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
@@ -80,28 +104,48 @@ Otherwise, refactor the function under cursor."
                            '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
                              "Simplify this code, reduce complexity and improve readability while preserving functionality"
                              "Fix potential bugs or issues in this code"
-                             "Given your code review feedback, make corresponding change" ;; code review using /ask firstly
+                             "Given your code review feedback, make corresponding change"
                              "Make this code more maintainable and easier to test"
                              "Generate Docstring/Comment for This"
                              "Improve error handling and edge cases"
                              "Optimize this code for better performance"
                              "Extract this logic into a separate helper function")))
-         (instruction (aider-read-string prompt nil candidate-list))
-         (region-text (and region-active
-                           (buffer-substring-no-properties (region-beginning) (region-end)))))
+         (instruction (aider-read-string prompt nil candidate-list)))
     (cond
-     ;; Region selected case
      (region-active
       (let ((command (aider-region-refactor-generate-command
                       region-text function-name instruction)))
         (aider-add-current-file)
         (aider--send-command command t)))
-     ;; Function case
      (function-name
       (when (aider-current-file-command-and-switch
              "/architect "
-             (concat (format "refactor %s: " function-name) instruction))
-        (message "Code change request sent to Aider"))))))))
+             (concat (format "refactor %s: " function-name)
+                     instruction))
+        (message "Code change request sent to Aider"))))))
+
+;;;###autoload
+(defun aider-function-or-region-refactor ()
+  "Refactor code under cursor or in selected region.
+If a region is selected, refactor that specific region.
+Otherwise, refactor the function under cursor.
+Additionally, if cursor is on a standalone comment line (and no region),
+treat that comment as the requirement, remove it, and send it."
+  (interactive)
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (line-text    (string-trim (thing-at-point 'line t))))
+    (cond
+     ;; 1) comment-line requirement
+     ((and (not region-active)
+           (aider--is-comment-line line-text))
+      (aider--handle-comment-requirement line-text function-name))
+     ;; 2) nothing selected
+     ((not (or region-active function-name))
+      (message "No function or region selected."))
+     ;; 3) region or function
+     (t
+      (aider--handle-region-or-function region-active function-name)))))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.
@@ -165,6 +209,7 @@ If current buffer filename contains \"test\":
 Otherwise:
   - If cursor is on a function, generate unit test for that function
   - Otherwise generate unit tests for the entire file"
+  ;; this function is very long. Please consider how to refactor it and make it more readable.
   (interactive)
   (when (aider--validate-buffer-file)
     (let ((is-test-file (string-match-p "test" (file-name-nondirectory buffer-file-name)))
