@@ -1,6 +1,13 @@
 
 * Release history
 
+** Main branch change
+
+- Improve aider-magit-log-analyze
+  - add optional keyword filter to get commits related to particular topic
+  - use --since instead of -n , it is more intuitive.
+  - let user to review git log args before submitting. user can add additional arg such as --author if they want
+
 ** v0.12.2
 
 - Feat: Prefer feature branch for code change, protect main/master/develop branch from code change
