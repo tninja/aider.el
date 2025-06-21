@@ -86,7 +86,7 @@ When nil, use standard `display-buffer' behavior.")
 (defun aider-go-ahead ()
   "Send the command \"go ahead\" to the corresponding aider comint buffer."
   (interactive)
-  (aider--send-command "go ahead" t))
+  (aider--send-command "/code go ahead" t))
 
 (defconst aider--command-list
   '("/add" "/architect" "/ask" "/code" "/reset" "/undo" "/lint" "/read-only"
