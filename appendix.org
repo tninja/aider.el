@@ -127,7 +127,7 @@ The aider prefix is ~A~.
 ** A weak [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] style AI programming workflow
 
 1. *Implement or modify code*
-   - For existing code: Use ~aider-function-or-region-refactor~ with cursor in function or on selected region
+   - For existing code: Use ~aider-function-or-region-change~ with cursor in function or on selected region
    - For new code: Use ~aider-implement-todo~ on TODO comments
    
    *Example of adding new code*:

@@ -49,7 +49,7 @@
                     :desc "File Evolution Analysis" "b" #'aider-magit-blame-analyze)
 
                    (:prefix ("c" . "Code")
-                    :desc "Change Function/Region" "r" #'aider-function-or-region-refactor
+                    :desc "Change Function/Region" "r" #'aider-function-or-region-change
                     :desc "Implement Requirement" "i" #'aider-implement-todo
                     :desc "Architect Discuss/Change" "t" #'aider-architect-discussion
                     :desc "Write Unit Test" "U" #'aider-write-unit-test

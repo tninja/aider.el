@@ -42,7 +42,7 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
   (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
     (aider-current-file-command-and-switch "/architect " command)))
 
-(defun aider-region-refactor-generate-command (region-text function-name user-command)
+(defun aider-region-change-generate-command (region-text function-name user-command)
   "Generate the command string based on input parameters.
 REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
   (let ((processed-region-text region-text))
@@ -52,56 +52,100 @@ REGION-TEXT, FUNCTION-NAME, and USER-COMMAND."
       (format "/architect \"for the following code block, %s: %s\""
               user-command processed-region-text))))
 
-;;;###autoload
-(defun aider-function-or-region-refactor ()
-  "Refactor code under cursor or in selected region.
-If a region is selected, refactor that specific region.
-Otherwise, refactor the function under cursor."
-  (interactive)
-  (let* ((function-name (which-function))
-         (region-active (region-active-p)))
-    (if (not (or region-active function-name))
-        (message "No function or region selected.")
-      ;; Original let* body continues here if region or function exists
-      (let* ((region-in-function (and region-active function-name))
-             (prompt (cond
-                      (region-in-function (format "Code change instruction for selected region in function '%s': " function-name))
-                      (function-name (format "Change %s: " function-name))
-                  (region-active "Refactor instruction for selected region: ")
-                  (t "Refactor instruction: ")))
+(defun aider--handle-comment-requirement (line-text function-name)
+  "Handle a standalone comment requirement at point.
+Delete the comment line, prompt for instruction, and send change command."
+  (let* ((req (replace-regexp-in-string
+               (concat "^[ \t]*"
+                       (regexp-quote (string-trim-right comment-start))
+                       "+[ \t]*")
+               ""
+               line-text))
+         (default-prompt
+          (if function-name
+              (format "In function %s, change code according to requirement: %s"
+                      function-name req)
+            (format "Change code according to requirement: %s" req)))
+         (instruction (aider-read-string
+                       "Code change instruction: " default-prompt))
+         (cmd (concat "/architect " instruction)))
+    (save-excursion
+      (delete-region (line-beginning-position)
+                     (min (point-max) (1+ (line-end-position)))))
+    (aider-add-current-file)
+    (aider--send-command cmd t)))
+
+(defun aider--handle-region-or-function (region-active function-name)
+  "Handle changeing of selected region or containing function."
+  (let* ((region-text (and region-active
+                           (buffer-substring-no-properties
+                            (region-beginning)
+                            (region-end))))
+         (prompt (cond
+                  ((and region-active function-name)
+                   (format "Code change instruction for selected region in function '%s': "
+                           function-name))
+                  (function-name
+                   (format "Change %s: " function-name))
+                  (region-active
+                   "Change instruction for selected region: ")
+                  (t
+                   "Change instruction: ")))
          (is-test-file (and buffer-file-name
-                            (string-match-p "test" (file-name-nondirectory buffer-file-name))))
+                            (string-match-p "test"
+                                            (file-name-nondirectory
+                                             buffer-file-name))))
          (candidate-list (if is-test-file
                              '("Write a new unit test function based on the given description."
-                               "Refactor this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+                               "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
                                "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
                                "Improve test assertions and add edge cases."
                                "Extract this logic into a separate helper function")
                            '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
                              "Simplify this code, reduce complexity and improve readability while preserving functionality"
                              "Fix potential bugs or issues in this code"
-                             "Given your code review feedback, make corresponding change" ;; code review using /ask firstly
+                             "Given your code review feedback, make corresponding change"
                              "Make this code more maintainable and easier to test"
                              "Generate Docstring/Comment for This"
                              "Improve error handling and edge cases"
                              "Optimize this code for better performance"
                              "Extract this logic into a separate helper function")))
-         (instruction (aider-read-string prompt nil candidate-list))
-         (region-text (and region-active
-                           (buffer-substring-no-properties (region-beginning) (region-end)))))
+         (instruction (aider-read-string prompt nil candidate-list)))
     (cond
-     ;; Region selected case
      (region-active
-      (let ((command (aider-region-refactor-generate-command
+      (let ((command (aider-region-change-generate-command
                       region-text function-name instruction)))
         (aider-add-current-file)
         (aider--send-command command t)))
-     ;; Function case
      (function-name
       (when (aider-current-file-command-and-switch
              "/architect "
-             (concat (format "refactor %s: " function-name) instruction))
-        (message "Code change request sent to Aider"))))))))
+             (concat (format "change %s: " function-name)
+                     instruction))
+        (message "Code change request sent to Aider"))))))
+
+;;;###autoload
+(defun aider-function-or-region-change ()
+  "Change code under cursor or in selected region.
+If a region is selected, change that specific region.
+Otherwise, change the function under cursor.
+Additionally, if cursor is on a standalone comment line (and no region),
+treat that comment as the requirement, remove it, and send it."
+  (interactive)
+  (let* ((function-name (which-function))
+         (region-active (region-active-p))
+         (line-text    (string-trim (thing-at-point 'line t))))
+    (cond
+     ;; 1) comment-line requirement
+     ((and (not region-active)
+           (aider--is-comment-line line-text))
+      (aider--handle-comment-requirement line-text function-name))
+     ;; 2) nothing selected
+     ((not (or region-active function-name))
+      (message "No function or region selected."))
+     ;; 3) region or function
+     (t
+      (aider--handle-region-or-function region-active function-name)))))
 
 (defun aider--is-comment-line (line)
   "Check if LINE is a comment line based on current buffer's comment syntax.
@@ -169,32 +213,9 @@ Otherwise:
   (when (aider--validate-buffer-file)
     (let ((is-test-file (string-match-p "test" (file-name-nondirectory buffer-file-name)))
           (function-name (which-function)))
-      (cond
-       ;; Test file case
-       (is-test-file
-        (if (and function-name (let ((case-fold-search nil))
-                                 (string-match-p "test" function-name))) ;; seems that the cursor is under a test function
-            ;; implement a unit-test function given context of source function
-            (let* ((initial-input
-                    (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible."
-                            function-name))
-                   (user-command (aider-read-string "Test implementation instruction: " initial-input)))
-              (aider-current-file-command-and-switch "/architect " user-command))
-          ;; in test file, but not in a test function. write unit-test first given description
-          (let* ((initial-input "Write test functions given the feature requirement description: ")
-                 (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
-            (aider-current-file-command-and-switch "/architect " user-command))))
-       ;; Non-test file case, assuming it is main source code
-       (t
-        (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
-               (initial-input
-                (if function-name
-                    (format "Please write unit test code for function '%s'. %s"
-                           function-name common-instructions)
-                  (format "Please write unit test code for file '%s'. For each function %s"
-                         (file-name-nondirectory buffer-file-name) common-instructions)))
-               (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
-          (aider-current-file-command-and-switch "/architect " user-command)))))))
+      (if is-test-file
+          (aider--write-unit-test-test-file function-name)
+        (aider--write-unit-test-source-file function-name)))))
 
 ;;; New Flycheck integration
 (defun aider-flycheck--get-errors-in-scope (start end)
@@ -318,6 +339,26 @@ Requires the `flycheck` package to be installed and available."
       (_
        (user-error "Unknown Flycheck scope %s" scope)))
     (list start end description)))
+
+(defun aider--write-unit-test-test-file (function-name)
+  "Handle unit test generation in a test file given FUNCTION-NAME context."
+  (if (and function-name (let ((case-fold-search nil))
+                           (string-match-p "test" function-name)))
+      (let* ((initial-input (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible." function-name))
+             (user-command (aider-read-string "Test implementation instruction: " initial-input)))
+        (aider-current-file-command-and-switch "/architect " user-command))
+    (let* ((initial-input "Write test functions given the feature requirement description: ")
+           (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
+      (aider-current-file-command-and-switch "/architect " user-command))))
+
+(defun aider--write-unit-test-source-file (function-name)
+  "Handle unit test generation in source file given FUNCTION-NAME context."
+  (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
+         (initial-input (if function-name
+                            (format "Please write unit test code for function '%s'. %s" function-name common-instructions)
+                          (format "Please write unit test code for file '%s'. For each function %s" (file-name-nondirectory buffer-file-name) common-instructions)))
+         (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
+    (aider-current-file-command-and-switch "/architect " user-command)))
 
 (provide 'aider-code-change)
 
