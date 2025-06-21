@@ -209,37 +209,13 @@ If current buffer filename contains \"test\":
 Otherwise:
   - If cursor is on a function, generate unit test for that function
   - Otherwise generate unit tests for the entire file"
-  ;; this function is very long. Please consider how to refactor it and make it more readable.
   (interactive)
   (when (aider--validate-buffer-file)
     (let ((is-test-file (string-match-p "test" (file-name-nondirectory buffer-file-name)))
           (function-name (which-function)))
-      (cond
-       ;; Test file case
-       (is-test-file
-        (if (and function-name (let ((case-fold-search nil))
-                                 (string-match-p "test" function-name))) ;; seems that the cursor is under a test function
-            ;; implement a unit-test function given context of source function
-            (let* ((initial-input
-                    (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible."
-                            function-name))
-                   (user-command (aider-read-string "Test implementation instruction: " initial-input)))
-              (aider-current-file-command-and-switch "/architect " user-command))
-          ;; in test file, but not in a test function. write unit-test first given description
-          (let* ((initial-input "Write test functions given the feature requirement description: ")
-                 (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
-            (aider-current-file-command-and-switch "/architect " user-command))))
-       ;; Non-test file case, assuming it is main source code
-       (t
-        (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
-               (initial-input
-                (if function-name
-                    (format "Please write unit test code for function '%s'. %s"
-                           function-name common-instructions)
-                  (format "Please write unit test code for file '%s'. For each function %s"
-                         (file-name-nondirectory buffer-file-name) common-instructions)))
-               (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
-          (aider-current-file-command-and-switch "/architect " user-command)))))))
+      (if is-test-file
+          (aider--write-unit-test-test-file function-name)
+        (aider--write-unit-test-source-file function-name)))))
 
 ;;; New Flycheck integration
 (defun aider-flycheck--get-errors-in-scope (start end)
@@ -363,6 +339,26 @@ Requires the `flycheck` package to be installed and available."
       (_
        (user-error "Unknown Flycheck scope %s" scope)))
     (list start end description)))
+
+(defun aider--write-unit-test-test-file (function-name)
+  "Handle unit test generation in a test file given FUNCTION-NAME context."
+  (if (and function-name (let ((case-fold-search nil))
+                           (string-match-p "test" function-name)))
+      (let* ((initial-input (format "Please implement test function '%s'. Follow standard unit testing practices and make it a meaningful test. Do not use Mock if possible." function-name))
+             (user-command (aider-read-string "Test implementation instruction: " initial-input)))
+        (aider-current-file-command-and-switch "/architect " user-command))
+    (let* ((initial-input "Write test functions given the feature requirement description: ")
+           (user-command (aider-read-string "Feature requirement for tests: " initial-input)))
+      (aider-current-file-command-and-switch "/architect " user-command))))
+
+(defun aider--write-unit-test-source-file (function-name)
+  "Handle unit test generation in source file given FUNCTION-NAME context."
+  (let* ((common-instructions "Keep existing tests if there are. Follow standard unit testing practices. Do not use Mock if possible.")
+         (initial-input (if function-name
+                            (format "Please write unit test code for function '%s'. %s" function-name common-instructions)
+                          (format "Please write unit test code for file '%s'. For each function %s" (file-name-nondirectory buffer-file-name) common-instructions)))
+         (user-command (aider-read-string "Unit test generation instruction: " initial-input)))
+    (aider-current-file-command-and-switch "/architect " user-command)))
 
 (provide 'aider-code-change)
 
