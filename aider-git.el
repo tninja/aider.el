@@ -285,14 +285,24 @@ code evolution and the reasoning behind changes."
 
 ;;;###autoload
 (defun aider--ensure-git-log (git-root repo-name keyword)
-  "Fetch N commits as git.log under GIT-ROOT for REPO-NAME, filtered by KEYWORD.
+  "Fetch commits from the last X months as git.log under GIT-ROOT for REPO-NAME, filtered by KEYWORD.
 Returns the path to the git.log file."
   (let* ((project-log-file-path (expand-file-name "git.log" git-root))
-         (num-commits-str (read-string (format "Number of commits to fetch for %s (default 100): " repo-name) "100"))
-         (num-commits (if (string-empty-p num-commits-str) "100" num-commits-str))
-         (magit-args (if (string-empty-p keyword)
-                         (list "log" "--pretty=medium" "--stat" "-n" num-commits)
-                       (list "log" "--pretty=medium" "--stat" "-n" num-commits "-S" keyword)))
+         (date-str (read-string (format "Start date for history of %s (YYYY-MM-DD, e.g. 2025-01-01): " repo-name)))
+         (since-arg (unless (string-empty-p date-str)
+                      (format "--since=%s" date-str)))
+         ;; compute defaults, then let user review & edit
+         (magit-args-default
+          (let ((args (list "log" "--pretty=medium" "--stat")))
+            (when since-arg
+              (setq args (append args (list since-arg))))
+            (unless (string-empty-p keyword)
+              (setq args (append args (list "-S" keyword))))
+            args))
+         (magit-args-str (mapconcat #'identity magit-args-default " "))
+         (magit-args-input
+          (read-string (format "Git log args (edit if needed): ") magit-args-str))
+         (magit-args (split-string magit-args-input nil t))
          (log-output (apply #'magit-git-output magit-args)))
     (message "Saving Git log to %s" project-log-file-path)
     (with-temp-file project-log-file-path
