@@ -39,7 +39,7 @@
   - Organize project with repo specific [[./aider-prompt-mode.el][Aider prompt file]]
   - [[./snippets][Snippets]] from community and aider use pattern / workflow
 
-- Besides of that, aider.el focus on simplicity. It has much less configurations (transparent to aider config), simplified menu.
+- Besides of that, aider.el focus on *simplicity*. It has much less configurations (transparent to aider config, user can just focus on aider document), simplified menu.
 
 - Aider.el is under active development. Current version is v.0.12.2. [[./HISTORY.org][Release history]],  [[./appendix.org#recent-new-features][Recent new features]]
 
