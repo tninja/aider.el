@@ -1,6 +1,10 @@
 
 * Release history
 
+** Main branch change
+
+- Commit range support for aider-pull-or-review-diff-file
+
 ** v0.12.2
 
 - Feat: Prefer feature branch for code change, protect main/master/develop branch from code change

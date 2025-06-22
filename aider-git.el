@@ -220,7 +220,8 @@ GIT-ROOT is the root directory of the Git repository."
   (let* ((diff-type-alist '(("Staged changes" . staged)
                             ("Base branch vs HEAD" . base-vs-head)
                             ("Branch range (e.g., base..feature)" . branch-range)
-                            ("Single commit" . commit)))
+                            ("Single commit" . commit)
+                            ("Commit range (e.g., commitA..commitB)" . commit-range)))
          (raw-diff-type-choice
           (completing-read "Select diff type: "
                            diff-type-alist
@@ -229,6 +230,24 @@ GIT-ROOT is the root directory of the Git repository."
         (cdr raw-diff-type-choice)
       ;; If raw-diff-type-choice is a string, look up its corresponding value
       (cdr (assoc raw-diff-type-choice diff-type-alist)))))
+
+;;; New helper for commit ranges
+(defun aider--handle-commit-range-diff-generation (git-root)
+  "Handle generation of diff between two commits (commit range)."
+  (let* ((raw-start (read-string "Start commit or branch: "))
+         (raw-end   (read-string "End commit or branch: "))
+         ;; try to resolve remote branches or commits
+         (start     (aider--get-full-branch-ref raw-start))
+         (end       (aider--get-full-branch-ref raw-end))
+         (name      (format "%s..%s" start end))
+         (file      (expand-file-name (concat name ".diff") git-root))
+         ;; reuse branch-range plumbing (it will fetch and verify)
+         (params    (list :type 'branch-range
+                          :base-branch start
+                          :feature-branch end
+                          :diff-file-name-part name)))
+    (aider--generate-branch-or-commit-diff params file)
+    file))
 
 (defun aider--magit-generate-feature-branch-diff-file ()
   "Generate a diff file based on user-selected type (staged, branches, commit)."
@@ -240,6 +259,7 @@ GIT-ROOT is the root directory of the Git repository."
                         ('base-vs-head (aider--handle-base-vs-head-diff-generation git-root))
                         ('branch-range (aider--handle-branch-range-diff-generation git-root))
                         ('commit       (aider--handle-commit-diff-generation git-root))
+                        ('commit-range (aider--handle-commit-range-diff-generation git-root))
                         (_ (user-error "Invalid diff type selected")))))
       (when diff-file
         (aider--open-diff-file diff-file)))))
