@@ -7,6 +7,7 @@
   - add optional keyword filter to get commits related to particular topic
   - use --since instead of -n , it is more intuitive.
   - let user to review git log args before submitting. user can add additional arg such as --author if they want
+- Commit range support for aider-pull-or-review-diff-file
 
 ** v0.12.2
 
