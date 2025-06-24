@@ -164,7 +164,12 @@ ignoring leading whitespace."
                         region-text function-name instruction)))
           (aider-add-current-file)
           (aider--send-command command t))
-      (aider--handle-function-change function-name instruction))))
+      ;; inline handle-function-change:
+      (when (aider-current-file-command-and-switch
+             "/architect "
+             (concat (format "change %s: " function-name)
+                     instruction))
+        (message "Code change request sent to Aider")))))
 
 (defun aider--get-comment-instruction (comment-content function-name)
   "Generate instruction for comment-based changes."
