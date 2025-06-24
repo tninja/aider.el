@@ -81,48 +81,70 @@ Delete the comment line, prompt for instruction, and send change command."
                            (buffer-substring-no-properties
                             (region-beginning)
                             (region-end))))
-         (prompt (cond
-                  ((and region-active function-name)
-                   (format "Code change instruction for selected region in function '%s': "
-                           function-name))
-                  (function-name
-                   (format "Change %s: " function-name))
-                  (region-active
-                   "Change instruction for selected region: ")
-                  (t
-                   "Change instruction: ")))
-         (is-test-file (and buffer-file-name
-                            (string-match-p "test"
-                                            (file-name-nondirectory
-                                             buffer-file-name))))
-         (candidate-list (if is-test-file
-                             '("Write a new unit test function based on the given description."
-                               "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
-                               "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
-                               "Improve test assertions and add edge cases."
-                               "Extract this logic into a separate helper function")
-                           '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
-                             "Simplify this code, reduce complexity and improve readability while preserving functionality"
-                             "Fix potential bugs or issues in this code"
-                             "Given your code review feedback, make corresponding change"
-                             "Make this code more maintainable and easier to test"
-                             "Generate Docstring/Comment for This"
-                             "Improve error handling and edge cases"
-                             "Optimize this code for better performance"
-                             "Extract this logic into a separate helper function")))
-         (instruction (aider-read-string prompt nil candidate-list)))
+         ;; Check if region is all comment lines
+         (is-multi-line-comment (and region-active
+                                     region-text
+                                     (aider--is-all-comment-lines region-text))))
     (cond
-     (region-active
-      (let ((command (aider-region-change-generate-command
-                      region-text function-name instruction)))
+     ;; Handle multi-line comment region
+     ((and region-active is-multi-line-comment)
+      (let* ((comment-content (aider--extract-comment-content region-text))
+             (default-prompt
+              (if function-name
+                  (format "In function %s, change code according to requirement: %s"
+                          function-name comment-content)
+                (format "Change code according to requirement: %s" comment-content)))
+             (instruction (aider-read-string
+                           "Code change instruction: " default-prompt))
+             (cmd (concat "/architect " instruction)))
+        ;; Delete the comment region
+        (delete-region (region-beginning) (region-end))
         (aider-add-current-file)
-        (aider--send-command command t)))
-     (function-name
-      (when (aider-current-file-command-and-switch
-             "/architect "
-             (concat (format "change %s: " function-name)
-                     instruction))
-        (message "Code change request sent to Aider"))))))
+        (aider--send-command cmd t)))
+     ;; Rest of existing logic...
+     (t
+      (let* ((prompt (cond
+                      ((and region-active function-name)
+                       (format "Code change instruction for selected region in function '%s': "
+                               function-name))
+                      (function-name
+                       (format "Change %s: " function-name))
+                      (region-active
+                       "Change instruction for selected region: ")
+                      (t
+                       "Change instruction: ")))
+             (is-test-file (and buffer-file-name
+                                (string-match-p "test"
+                                                (file-name-nondirectory
+                                                 buffer-file-name))))
+             (candidate-list (if is-test-file
+                                 '("Write a new unit test function based on the given description."
+                                   "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+                                   "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
+                                   "Improve test assertions and add edge cases."
+                                   "Extract this logic into a separate helper function")
+                               '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
+                                 "Simplify this code, reduce complexity and improve readability while preserving functionality"
+                                 "Fix potential bugs or issues in this code"
+                                 "Given your code review feedback, make corresponding change"
+                                 "Make this code more maintainable and easier to test"
+                                 "Generate Docstring/Comment for This"
+                                 "Improve error handling and edge cases"
+                                 "Optimize this code for better performance"
+                                 "Extract this logic into a separate helper function")))
+             (instruction (aider-read-string prompt nil candidate-list)))
+        (cond
+         (region-active
+          (let ((command (aider-region-change-generate-command
+                          region-text function-name instruction)))
+            (aider-add-current-file)
+            (aider--send-command command t)))
+         (function-name
+          (when (aider-current-file-command-and-switch
+                 "/architect "
+                 (concat (format "change %s: " function-name)
+                         instruction))
+            (message "Code change request sent to Aider"))))))))
 
 ;;;###autoload
 (defun aider-function-or-region-change ()
@@ -157,6 +179,31 @@ ignoring leading whitespace."
                              (regexp-quote comment-str)
                              "+")
                      (string-trim-left line)))))
+
+(defun aider--is-all-comment-lines (text)
+  "Check if all lines in TEXT are comment lines."
+  (when (and comment-start text)
+    (let ((lines (split-string text "\n" t)))
+      (and lines
+           (cl-every (lambda (line)
+                       (aider--is-comment-line line))
+                     lines)))))
+
+(defun aider--extract-comment-content (comment-text)
+  "Extract the actual content from COMMENT-TEXT, removing comment markers."
+  (when comment-start
+    (let* ((comment-str (string-trim-right comment-start))
+           (lines (split-string comment-text "\n" t))
+           (content-lines
+            (mapcar (lambda (line)
+                      (replace-regexp-in-string
+                       (concat "^[ \t]*"
+                               (regexp-quote comment-str)
+                               "+[ \t]*")
+                       ""
+                       (string-trim line)))
+                    lines)))
+      (string-join content-lines " "))))
 
 ;;;###autoload
 (defun aider-implement-todo ()
