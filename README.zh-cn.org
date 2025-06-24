@@ -1,21 +1,20 @@
-#+TITLE: aider.el：在 Emacs 中使用 aider 进行 AI 结对编程
+#+TITLE: 在 Emacs 中使用 Aider 进行 AI 结对编程
+
+[[file:./icon.png]]
+
+[[https://melpa.org/#/aider][https://melpa.org/packages/aider-badge.svg]]
+[[https://stable.melpa.org/#/aider][https://stable.melpa.org/packages/aider-badge.svg]]
+[[https://github.com/tninja/aider.el/graphs/contributors][https://img.shields.io/github/contributors/tninja/aider.el.svg]]
 
 [[file:README.org][English Version]]
 
 * 目录
-
-- [[#介绍][介绍]]
+- [[#介绍][介绍]] 
 - [[#安装][安装]]
-  - [[#原生-emacs-安装][原生 Emacs 安装]]
-  - [[#doom-安装和配置][Doom 安装和配置]]
-  - [[#Helm-支持][Helm 支持]]
-- [[#近期新增功能][近期新增功能]]
-- [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
-- [[#aiderel的缺点][aider.el 的缺点]]
-- [[#注意ai生成的代码][注意AI生成的代码]]
-- [[#常见问题][常见问题]]
+- [[#常用功能][最常用功能（已集成到aider菜单）]]
+- [[#常见问题][常见问题]] 
 - [[#未来工作][未来工作]]
-- [[#其他-emacs-ai-编码工具][其他 Emacs AI 编码工具]]
+- [[#其他-emacs-ai-编程工具][其他 Emacs AI 编程工具]]
 
 * 介绍
 
@@ -28,18 +27,22 @@
   - aider.el 旨在成为我们可以日常使用的稳定生产力工具。我会在代码合并前仔细测试此库中的功能。
 
 - 经过八个多月的开发，aider.el 现在不仅仅是一个简单的 aider 用户界面。与其分叉的同类项目 (aidermacs) 相比，Aider.el 引入了许多应用级功能和工具来增强日常编程。这些包括：
-  - AI 辅助的敏捷开发方法论（如 TDD、重构和基于已建立的软件工程书籍的遗留代码处理）
+  - AI 辅助的敏捷开发方法论（基于已建立的软件工程书籍的 TDD、重构和遗留代码处理）
   - Diff 提取和 AI 代码审查工具
-  - 高级代码/模块阅读助手
-  - 项目软件规划讨论功能
-  - 与 magit-blame 集成用于历史代码分析
-  - 用于引导新文件和项目的实用程序。
+  - 代码/模块阅读 AI 助手
+  - 软件规划/头脑风暴讨论功能
+  - 让 aider 修复 flycheck 报告的错误
+  - 通过添加当前文件的依赖项/被依赖项来扩展上下文
+  - 使用 git blame 和 git log 进行代码/仓库演化分析
+  - 引导新文件和项目的实用程序
   - 使用仓库特定的 Aider 提示文件组织项目
-  - 来自社区和 aider 使用经验和模式的片段
+  - 来自社区和 aider 使用模式/工作流程的代码片段
 
-- 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明），菜单也更简化。
+- 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明，用户可以专注于 aider 文档），菜单也更简化。
 
-- [[./HISTORY.org][最近的变更历史]]
+- aider.el 正在积极开发中。当前版本是 v0.12.2。[[./HISTORY.org][发布历史]], [[./appendix.zh-cn.org#recent-new-features][近期新增功能]]
+
+[[file:./transient_menu.png]]
 
 [[file:./transient_menu.png]]
 
