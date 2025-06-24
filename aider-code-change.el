@@ -216,9 +216,6 @@ ignoring leading whitespace."
         "Optimize this code for better performance"
         "Extract this logic into a separate helper function"))))
 
-
-
-
 ;;;###autoload
 (defun aider-implement-todo ()
   "Implement comments with configured keyword in current context.
