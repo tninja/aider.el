@@ -152,7 +152,8 @@ ignoring leading whitespace."
   (let* ((comment-content (aider--extract-comment-content region-text))
          (instruction (aider--get-comment-instruction comment-content function-name)))
     (delete-region (region-beginning) (region-end))
-    (aider--execute-change-command instruction)))
+    (aider-add-current-file)                                 ; add file before sending
+    (aider--send-command (concat "/architect " instruction) t))) ; inline execute-change-command
 
 (defun aider--handle-standard-change (region-active region-text function-name)
   "Handle standard region or function changes."
@@ -221,10 +222,6 @@ ignoring leading whitespace."
                  instruction))
     (message "Code change request sent to Aider")))
 
-(defun aider--execute-change-command (instruction)
-  "Execute the change command with proper setup."
-  (aider-add-current-file)
-  (aider--send-command (concat "/architect " instruction) t))
 
 ;;;###autoload
 (defun aider-implement-todo ()
