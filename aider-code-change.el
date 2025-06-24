@@ -79,72 +79,14 @@ Delete the comment line, prompt for instruction, and send change command."
   "Handle changeing of selected region or containing function."
   (let* ((region-text (and region-active
                            (buffer-substring-no-properties
-                            (region-beginning)
-                            (region-end))))
-         ;; Check if region is all comment lines
-         (is-multi-line-comment (and region-active
-                                     region-text
+                            (region-beginning) (region-end))))
+         (is-multi-line-comment (and region-active region-text
                                      (aider--is-all-comment-lines region-text))))
     (cond
-     ;; Handle multi-line comment region
      ((and region-active is-multi-line-comment)
-      (let* ((comment-content (aider--extract-comment-content region-text))
-             (default-prompt
-              (if function-name
-                  (format "In function %s, change code according to requirement: %s"
-                          function-name comment-content)
-                (format "Change code according to requirement: %s" comment-content)))
-             (instruction (aider-read-string
-                           "Code change instruction: " default-prompt))
-             (cmd (concat "/architect " instruction)))
-        ;; Delete the comment region
-        (delete-region (region-beginning) (region-end))
-        (aider-add-current-file)
-        (aider--send-command cmd t)))
-     ;; Rest of existing logic...
+      (aider--handle-multi-line-comment region-text function-name))
      (t
-      (let* ((prompt (cond
-                      ((and region-active function-name)
-                       (format "Code change instruction for selected region in function '%s': "
-                               function-name))
-                      (function-name
-                       (format "Change %s: " function-name))
-                      (region-active
-                       "Change instruction for selected region: ")
-                      (t
-                       "Change instruction: ")))
-             (is-test-file (and buffer-file-name
-                                (string-match-p "test"
-                                                (file-name-nondirectory
-                                                 buffer-file-name))))
-             (candidate-list (if is-test-file
-                                 '("Write a new unit test function based on the given description."
-                                   "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
-                                   "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
-                                   "Improve test assertions and add edge cases."
-                                   "Extract this logic into a separate helper function")
-                               '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
-                                 "Simplify this code, reduce complexity and improve readability while preserving functionality"
-                                 "Fix potential bugs or issues in this code"
-                                 "Given your code review feedback, make corresponding change"
-                                 "Make this code more maintainable and easier to test"
-                                 "Generate Docstring/Comment for This"
-                                 "Improve error handling and edge cases"
-                                 "Optimize this code for better performance"
-                                 "Extract this logic into a separate helper function")))
-             (instruction (aider-read-string prompt nil candidate-list)))
-        (cond
-         (region-active
-          (let ((command (aider-region-change-generate-command
-                          region-text function-name instruction)))
-            (aider-add-current-file)
-            (aider--send-command command t)))
-         (function-name
-          (when (aider-current-file-command-and-switch
-                 "/architect "
-                 (concat (format "change %s: " function-name)
-                         instruction))
-            (message "Code change request sent to Aider")))))))))
+      (aider--handle-standard-change region-active region-text function-name)))))
 
 ;;;###autoload
 (defun aider-function-or-region-change ()
@@ -204,6 +146,85 @@ ignoring leading whitespace."
                        (string-trim line)))
                     lines)))
       (string-join content-lines " "))))
+
+(defun aider--handle-multi-line-comment (region-text function-name)
+  "Handle multi-line comment region changes."
+  (let* ((comment-content (aider--extract-comment-content region-text))
+         (instruction (aider--get-comment-instruction comment-content function-name)))
+    (delete-region (region-beginning) (region-end))
+    (aider--execute-change-command instruction)))
+
+(defun aider--handle-standard-change (region-active region-text function-name)
+  "Handle standard region or function changes."
+  (let* ((instruction (aider--get-standard-instruction region-active region-text function-name)))
+    (if region-active
+        (aider--handle-region-change region-text function-name instruction)
+      (aider--handle-function-change function-name instruction))))
+
+(defun aider--get-comment-instruction (comment-content function-name)
+  "Generate instruction for comment-based changes."
+  (let ((default-prompt (if function-name
+                            (format "In function %s, change code according to requirement: %s"
+                                    function-name comment-content)
+                          (format "Change code according to requirement: %s" comment-content))))
+    (aider-read-string "Code change instruction: " default-prompt)))
+
+(defun aider--get-standard-instruction (region-active region-text function-name)
+  "Generate instruction for standard region or function changes."
+  (let* ((prompt (cond
+                  ((and region-active function-name)
+                   (format "Code change instruction for selected region in function '%s': "
+                           function-name))
+                  (function-name
+                   (format "Change %s: " function-name))
+                  (region-active
+                   "Change instruction for selected region: ")
+                  (t
+                   "Change instruction: ")))
+         (candidate-list (aider--get-candidate-list)))
+    (aider-read-string prompt nil candidate-list)))
+
+(defun aider--get-candidate-list ()
+  "Get candidate list based on whether current file is a test file."
+  (let ((is-test-file (and buffer-file-name
+                           (string-match-p "test"
+                                           (file-name-nondirectory
+                                            buffer-file-name)))))
+    (if is-test-file
+        '("Write a new unit test function based on the given description."
+          "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+          "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
+          "Improve test assertions and add edge cases."
+          "Extract this logic into a separate helper function")
+      '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
+        "Simplify this code, reduce complexity and improve readability while preserving functionality"
+        "Fix potential bugs or issues in this code"
+        "Given your code review feedback, make corresponding change"
+        "Make this code more maintainable and easier to test"
+        "Generate Docstring/Comment for This"
+        "Improve error handling and edge cases"
+        "Optimize this code for better performance"
+        "Extract this logic into a separate helper function"))))
+
+(defun aider--handle-region-change (region-text function-name instruction)
+  "Handle region-specific changes."
+  (let ((command (aider-region-change-generate-command
+                  region-text function-name instruction)))
+    (aider-add-current-file)
+    (aider--send-command command t)))
+
+(defun aider--handle-function-change (function-name instruction)
+  "Handle function-specific changes."
+  (when (aider-current-file-command-and-switch
+         "/architect "
+         (concat (format "change %s: " function-name)
+                 instruction))
+    (message "Code change request sent to Aider")))
+
+(defun aider--execute-change-command (instruction)
+  "Execute the change command with proper setup."
+  (aider-add-current-file)
+  (aider--send-command (concat "/architect " instruction) t))
 
 ;;;###autoload
 (defun aider-implement-todo ()
