@@ -217,13 +217,6 @@ ignoring leading whitespace."
         "Extract this logic into a separate helper function"))))
 
 
-(defun aider--handle-function-change (function-name instruction)
-  "Handle function-specific changes."
-  (when (aider-current-file-command-and-switch
-         "/architect "
-         (concat (format "change %s: " function-name)
-                 instruction))
-    (message "Code change request sent to Aider")))
 
 
 ;;;###autoload
