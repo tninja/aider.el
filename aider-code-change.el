@@ -157,7 +157,7 @@ ignoring leading whitespace."
 
 (defun aider--handle-standard-change (region-active region-text function-name)
   "Handle standard region or function changes."
-  (let* ((instruction (aider--get-standard-instruction region-active region-text function-name)))
+  (let* ((instruction (aider--get-standard-instruction region-active function-name)))
     (if region-active
         ;; inline handle-region-change:
         (let ((command (aider-region-change-generate-command
@@ -179,7 +179,7 @@ ignoring leading whitespace."
                           (format "Change code according to requirement: %s" comment-content))))
     (aider-read-string "Code change instruction: " default-prompt)))
 
-(defun aider--get-standard-instruction (region-active region-text function-name)
+(defun aider--get-standard-instruction (region-active function-name)
   "Generate instruction for standard region or function changes."
   (let* ((prompt (cond
                   ((and region-active function-name)
