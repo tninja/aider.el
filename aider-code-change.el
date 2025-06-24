@@ -144,7 +144,7 @@ Delete the comment line, prompt for instruction, and send change command."
                  "/architect "
                  (concat (format "change %s: " function-name)
                          instruction))
-            (message "Code change request sent to Aider"))))))))
+            (message "Code change request sent to Aider")))))))))
 
 ;;;###autoload
 (defun aider-function-or-region-change ()
