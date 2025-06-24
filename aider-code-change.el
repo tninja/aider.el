@@ -159,7 +159,11 @@ ignoring leading whitespace."
   "Handle standard region or function changes."
   (let* ((instruction (aider--get-standard-instruction region-active region-text function-name)))
     (if region-active
-        (aider--handle-region-change region-text function-name instruction)
+        ;; inline handle-region-change:
+        (let ((command (aider-region-change-generate-command
+                        region-text function-name instruction)))
+          (aider-add-current-file)
+          (aider--send-command command t))
       (aider--handle-function-change function-name instruction))))
 
 (defun aider--get-comment-instruction (comment-content function-name)
@@ -207,12 +211,6 @@ ignoring leading whitespace."
         "Optimize this code for better performance"
         "Extract this logic into a separate helper function"))))
 
-(defun aider--handle-region-change (region-text function-name instruction)
-  "Handle region-specific changes."
-  (let ((command (aider-region-change-generate-command
-                  region-text function-name instruction)))
-    (aider-add-current-file)
-    (aider--send-command command t)))
 
 (defun aider--handle-function-change (function-name instruction)
   "Handle function-specific changes."
