@@ -126,10 +126,9 @@ If you used installed aider.el through melpa and package-install, just need to ~
       - The keyword (TODO by default) can be customized with the variable ~aider-todo-keyword-pair~. One example is to use AI! comment, which is as same as aider AI comment feature.
   - aider-function-or-region-change :: If a region is selected, ask Aider to change the selected region. Otherwise, ask Aider to change / change the function under the cursor.
     - A couple common used prompts provided when you are using aider-helm.el
-    - It support inline comment based existing code change requirement. To use this feature:
-      - Write a single line comment to describe the desired change for the current function (if the comment is in a function), or change on current added files (outside of a function).
-      - When the cursor is on the comment, type C-c a r, it will compose a prompt given the requirement in the comment, and then send to aider
-      - Review the code change, and accept it if you are happy with it.
+    - It support inline comment based existing code change requirement. To use this feature, trigger the command when:
+      - The current line is a comment describing the change
+      - the current selected region is multi-line comments describing the change
 
 *** Support for Agile Development
   - aider-write-unit-test :: If the current buffer is main source code file, generate comprehensive unit tests for the current function or file. If the cursor is in a test source code file, when the cursor is on a test function, implement the test function. Otherwise, provide description to implement the test function (or spec).
