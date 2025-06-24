@@ -160,7 +160,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
   - aider-add-files-in-current-window :: 添加当前窗口中的所有缓冲区。
 
 *** 编写代码
-  - aider-function-or-region-refactor :: 如果选择了区域，要求 Aider 重构所选区域。否则，要求 Aider 更改/重构光标下的函数。
+  - aider-function-or-region-change :: 如果选择了区域，要求 Aider 重构所选区域。否则，要求 Aider 更改/重构光标下的函数。
     - 当您使用 aider-helm.el 时，会提供几个常用的提示
   - aider-implement-todo :: 在当前上下文中就地实现注释中的需求。
     - 如果光标在注释行上，就地实现该特定注释。
@@ -170,7 +170,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 *** 支持敏捷开发
   - aider-write-unit-test :: 如果当前缓冲区是主源代码文件，为当前函数或文件生成全面的单元测试。如果光标在测试源代码文件中，当光标在测试函数上时，实现该测试函数。否则，提供描述来实现测试函数（或规范）。
-  - 如果主源代码出现问题且测试函数失败，可以在失败的测试函数上使用 ~aider-function-or-region-refactor~ 要求 Aider 修复代码以使测试通过。
+  - 如果主源代码出现问题且测试函数失败，可以在失败的测试函数上使用 ~aider-function-or-region-change~ 要求 Aider 修复代码以使测试通过。
   - aider-refactor-book-method :: 使用 [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower 的重构书籍]] 中的技术进行代码重构，您也可以让 AI 决定如何重构，示例：[[https://github.com/tninja/aider.el/pull/146/commits/811a8eca47dfba3c52a33afba7bb11a8a69689b1][此提交]] 解决了 [[https://github.com/tninja/aider.el/pull/146#discussion_r2078182430][此评论]]
   - aider-pull-or-review-diff-file :: 让 aider 拉取并审查代码更改。
 
@@ -269,7 +269,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 ** 一个弱 [[https://en.wikipedia.org/wiki/Test-driven_development][TDD]] 风格的 AI 编程工作流
 
 1. **实施或修改代码**：
-   - 对于现有代码：在函数中使用光标或在选定区域上使用 ~aider-function-or-region-refactor~
+   - 对于现有代码：在函数中使用光标或在选定区域上使用 ~aider-function-or-region-change~
    - 对于新代码：在 TODO 注释上使用 ~aider-implement-todo~
 
    *添加新代码的示例*：
