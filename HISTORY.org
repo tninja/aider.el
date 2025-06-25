@@ -3,7 +3,9 @@
 
 ** Main branch change
 
-- Feat: aider-function-or-region-change (C-c a r) support inline comment based existing code change requirement
+- Feat: aider-function-or-region-change (C-c a r) support inline comment based existing code change requirement, when
+  - The current line is a comment describing the change
+  - the current selected region is multi-line comments describing the change
 - Improve aider-magit-log-analyze
   - add optional keyword filter to get commits related to particular topic
   - use --since instead of -n , it is more intuitive.
