@@ -74,7 +74,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
   (use-package aider
     :config
     ;; For latest claude sonnet model
-    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect")) ;; add --no-auto-commits if you don't want it
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o4-mini"))
@@ -90,7 +90,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
   - to avoid introducing unnecessary complexity and learning cost, configuration in aider.el side is minimized.
-- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
+- if aider-args is empty (default), it will use [[https://aider.chat/docs/config/aider_conf.html][~/.aider.conf.yml]] file. In this way, aider CLI and aider.el share same configuration
 
 - The example models: sonnet, gemini, o4-mini, they charge money, and you need to ask for api key add fund to your api account firstly
 
