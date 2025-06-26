@@ -126,7 +126,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
       - The keyword (TODO by default) can be customized with the variable ~aider-todo-keyword-pair~. One example is to use AI! comment, which is as same as aider AI comment feature.
   - aider-function-or-region-change :: If a region is selected, ask Aider to change the selected region. Otherwise, ask Aider to change / change the function under the cursor.
     - A couple common used prompts provided when you are using aider-helm.el
-    - It support inline comment based existing code change requirement. To use this feature, trigger the command when:
+    - It supports inline comment based existing code change requirement. To use this feature, trigger the command when:
       - The current line is a comment describing the change
       - the current selected region is multi-line comments describing the change
 

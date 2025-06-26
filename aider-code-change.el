@@ -76,7 +76,7 @@ Delete the comment line, prompt for instruction, and send change command."
     (aider--send-command cmd t)))
 
 (defun aider--handle-region-or-function (region-active function-name)
-  "Handle changeing of selected region or containing function."
+  "Handle changing of selected region or containing function."
   (let* ((region-text (and region-active
                            (buffer-substring-no-properties
                             (region-beginning) (region-end))))
