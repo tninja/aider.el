@@ -261,6 +261,7 @@ Return potentially modified CURRENT-ARGS."
                            (read-string "Edit aider arguments: "
                                         (mapconcat #'identity aider-args " ")))
                         aider-args)))
+    ;; automatically add --no-auto-accept-architect if there is no --auto-accept-architect
     (unless (or (member "--auto-accept-architect" current-args)
                 (member "--no-auto-accept-architect" current-args))
       (setq current-args (append current-args '("--no-auto-accept-architect"))))
