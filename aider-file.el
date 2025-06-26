@@ -293,21 +293,21 @@ Process CURRENT-FILE, DEPENDENCIES, and DEPENDENTS."
         (aider--send-command (concat command " " file) nil))
       (aider-switch-to-buffer))))
 
-(defun aider-expand-context-given-file (current-file)
-  "Expand context for CURRENT-FILE by finding its dependencies and dependents.
+(defun aider-expand-context-given-file (file-path)
+  "Expand context for FILE-PATH by finding its dependencies and dependents.
 Ask user whether to include test files, then process all related files."
   (let* ((include-tests (y-or-n-p "Include test files in context expansion? "))
          ;; search root & raw deps/clients
          (git-root     (ignore-errors (magit-toplevel)))
          (search-root  (or git-root default-directory))
          (dependencies (aider--filter-test-files
-                        (aider--find-file-dependencies current-file search-root)
+                        (aider--find-file-dependencies file-path search-root)
                         include-tests))
          (dependents   (aider--filter-test-files 
-                        (aider--find-file-dependents current-file search-root)
+                        (aider--find-file-dependents file-path search-root)
                         include-tests)))
     (if (or dependencies dependents)
-        (aider--process-context-files current-file dependencies dependents)
+        (aider--process-context-files file-path dependencies dependents)
       (message "No additional dependencies or dependents found for current file"))))
 
 ;;;###autoload
