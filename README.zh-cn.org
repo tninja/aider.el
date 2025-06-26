@@ -1,21 +1,20 @@
-#+TITLE: aider.el：在 Emacs 中使用 aider 进行 AI 结对编程
+#+TITLE: 在 Emacs 中使用 Aider 进行 AI 结对编程
+
+[[file:./icon.png]]
+
+[[https://melpa.org/#/aider][https://melpa.org/packages/aider-badge.svg]]
+[[https://stable.melpa.org/#/aider][https://stable.melpa.org/packages/aider-badge.svg]]
+[[https://github.com/tninja/aider.el/graphs/contributors][https://img.shields.io/github/contributors/tninja/aider.el.svg]]
 
 [[file:README.org][English Version]]
 
 * 目录
-
-- [[#介绍][介绍]]
+- [[#介绍][介绍]] 
 - [[#安装][安装]]
-  - [[#原生-emacs-安装][原生 Emacs 安装]]
-  - [[#doom-安装和配置][Doom 安装和配置]]
-  - [[#Helm-支持][Helm 支持]]
-- [[#近期新增功能][近期新增功能]]
-- [[#最常用功能已集成到aider菜单中][最常用功能（已集成到aider菜单中）]]
-- [[#aiderel的缺点][aider.el 的缺点]]
-- [[#注意ai生成的代码][注意AI生成的代码]]
-- [[#常见问题][常见问题]]
+- [[#常用功能][最常用功能（已集成到aider菜单）]]
+- [[#常见问题][常见问题]] 
 - [[#未来工作][未来工作]]
-- [[#其他-emacs-ai-编码工具][其他 Emacs AI 编码工具]]
+- [[#其他-emacs-ai-编程工具][其他 Emacs AI 编程工具]]
 
 * 介绍
 
@@ -28,18 +27,22 @@
   - aider.el 旨在成为我们可以日常使用的稳定生产力工具。我会在代码合并前仔细测试此库中的功能。
 
 - 经过八个多月的开发，aider.el 现在不仅仅是一个简单的 aider 用户界面。与其分叉的同类项目 (aidermacs) 相比，Aider.el 引入了许多应用级功能和工具来增强日常编程。这些包括：
-  - AI 辅助的敏捷开发方法论（如 TDD、重构和基于已建立的软件工程书籍的遗留代码处理）
+  - AI 辅助的敏捷开发方法论（基于已建立的软件工程书籍的 TDD、重构和遗留代码处理）
   - Diff 提取和 AI 代码审查工具
-  - 高级代码/模块阅读助手
-  - 项目软件规划讨论功能
-  - 与 magit-blame 集成用于历史代码分析
-  - 用于引导新文件和项目的实用程序。
+  - 代码/模块阅读 AI 助手
+  - 软件规划/头脑风暴讨论功能
+  - 让 aider 修复 flycheck 报告的错误
+  - 通过添加当前文件的依赖项/被依赖项来扩展上下文
+  - 使用 git blame 和 git log 进行代码/仓库演化分析
+  - 引导新文件和项目的实用程序
   - 使用仓库特定的 Aider 提示文件组织项目
-  - 来自社区和 aider 使用经验和模式的片段
+  - 来自社区和 aider 使用模式/工作流程的代码片段
 
-- 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明），菜单也更简化。
+- 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明，用户可以专注于 aider 文档），菜单也更简化。
 
-- [[./HISTORY.org][最近的变更历史]]
+- aider.el 正在积极开发中。当前版本是 v0.12.2。[[./HISTORY.org][发布历史]], [[./appendix.zh-cn.org#recent-new-features][近期新增功能]]
+
+[[file:./transient_menu.png]]
 
 [[file:./transient_menu.png]]
 
@@ -85,32 +88,18 @@
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
     ;; Optional: Set a key binding for the transient menu
-    (global-set-key (kbd "C-c a") 'aider-transient-menu))
-#+END_SRC
-
-*** 使用 [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]（Emacs 30+ 内置）
-- 通过在 Emacs 中运行以下代码安装 aider.el
-  - 您需要手动安装所需的包，如 [[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]] 和 helm。
-#+BEGIN_SRC emacs-lisp
-(package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
-#+END_SRC
-
-配置部分与上面的 Melpa 方式相同
-
-*** 使用 [[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
-如果您已安装 Straight
-#+BEGIN_SRC emacs-lisp
-  (use-package aider
-    :straight (:host github :repo "tninja/aider.el")
-    :config
-    ;; rest of configs
-    )
+    (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
+    ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
+    (aider-magit-setup-transients)) ;; add aider magit function to magit menu
 #+END_SRC
 
 - *aider-args 直接传递给 aider CLI*，[[https://aider.chat/docs/config/options.html][aider 选项参考]]
+  - 为避免引入不必要的复杂性和学习成本，aider.el 侧的配置被最小化
 - 如果 aider-args 为空（默认），它将使用 ~/.aider.conf.yml 文件。这样，aider CLI 和 aider.el 共享相同的配置
 
-** Doom 安装和配置
+- 示例模型：sonnet、gemini、o4-mini，它们需要付费，您需要先申请 API 密钥并为您的 API 账户充值
+
+** Helm 支持
 
 - 将以下代码添加到您的 doom/packages.el
 
@@ -218,32 +207,6 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 - / 键触发 aider 命令补全
 - 文件路径补全会在某些命令后自动触发
 - 使用 TAB 键从迷你缓冲区输入提示，或使用带补全的 helm
-
-* 近期新增功能
-
-** AI 辅助敏捷开发（源自书籍）
-
-- [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=18127811547218212272-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=18127811547218212272&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][重构：改善既有代码的设计，作者 Martin Fowler]]: ~aider-refactor-book-method~
-  - 在此基础上，要求 LLM 根据当前函数或选定区域建议重构策略
-- [[https://www.amazon.com/dp/0321146530/?bestFormat=true&k=test%20driven%20development&ref_=nb_sb_ss_w_scx-ent-pd-bk-d_de_k0_1_9&crid=3DBICV1V1UE2D&sprefix=test%20driv][测试驱动开发：实例，作者 Kent Beck]]: ~aider-tdd-cycle~
-- [[https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052/ref=sr_1_1?crid=1HIN27SZHIIO7&dib=eyJ2IjoiMSJ9.F7qYZqbqJITKSTHrryYUKnJnEVmuK6ICTjrBDuRK-y0.d27rwa6RVC1h4eurYd-WE58MdrhVBiCvR9pVlyI5RU8&dib_tag=se&keywords=work+with+legacy+code&qid=1744517063&s=books&sprefix=work+with+legacy+cod%2Cstripbooks%2C174&sr=1-1][修改代码的艺术，作者 Michael Feathers]]: ~aider-legacy-code~
-
-** AI 辅助代码阅读（源自书籍）
-
-- [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][代码阅读：开源视角，作者 Diomidis Spinellis]]: ~aider-code-read~
-
-** 软件规划讨论
-
-- aider-software-planning :: 使用 mcp 服务器中的代码进行软件规划（~C-c a P~）
-  - 软件规划是一个 mcp 服务器，旨在通过交互式、结构化的方法促进软件开发规划。它有助于将复杂的软件项目分解为可管理的任务。
-
-** 通过与 magit-blame 集成进行文件变更历史分析
-
-- aider-magit-blame-analyze :: 结合 magit-blame 与 AI 分析，帮助理解文件或选定区域的代码历史和变更原因（~C-c a b~）。
-
-** 引导新文件
-
-- aider-bootstrap :: 引导通用代码/文档结构（代码、配置、文档、幻灯片等，~C-c a B~）
 
 * aider.el 的缺点
 

@@ -1,0 +1,159 @@
+* 近期新功能
+
+** 让aider修复flycheck报告的错误
+
+- aider-flycheck-fix-errors-in-scope :: Flycheck的输出将作为上下文发送给aider以修复错误。支持以下范围：
+  - 当前函数
+  - 选中区域
+  - 整个文件 (C-u)
+
+** 半自动扩展上下文
+
+- aider-expand-context-current-file :: 通过添加当前文件的依赖项/依赖关系来扩展上下文
+
+** 软件规划讨论
+
+- aider-software-planning :: 使用mcp服务器提供的代码进行软件规划 (~C-c a P~)
+  - 它可以通过交互式、结构化的方法进行头脑风暴/软件开发规划。帮助将复杂的软件项目分解为可管理的任务。
+  - 可以应用于整个仓库/当前文件/选中区域。
+
+** 文件/仓库变更历史分析（与magit-blame和magit-log集成）
+
+- aider-magit-blame-analyze :: 结合magit-blame与AI分析，帮助理解文件或选中区域的代码历史及变更原因 (~C-c a e~)。
+- aider-aider-magit-log-analyze :: 结合magit-log与AI分析，提供仓库提交历史及演变的见解 (~C-u C-c a e~)。
+
+** 在窄屏上更好的显示，适用于分辨率 <= 1280 x 960。
+
+- aider-transient-menu-2cols
+- aider-transient-menu-1col
+
+** 引导新文件
+
+- aider-bootstrap :: 引导常见的代码/文档结构（代码、配置、文档、幻灯片等，~C-c a B~）
+
+** Aider-comint-session支持向上滚动/跨会话搜索提示
+
+- 通过解析.aider.input.history
+- 使用ctrl + 上/下键滚动，alt + r搜索
+
+** 同一仓库的多个聊天会话
+
+- 启用此功能：~(setq aider-use-branch-specific-buffers t)~
+- *如果想切换到处理不同的功能，我们切换git分支，它将映射到相应的aider会话。* aider会话名称模式为~aider:<path-to-git-repo>:branch-name~
+
+* 其他安装aider.el的方式
+
+** 使用[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Fetching-Package-Sources.html#:~:text=One%20way%20to%20do%20this,just%20like%20any%20other%20package.][package-vc-install]]（Emacs 30+内置）
+- 在Emacs中运行以下代码安装aider.el
+  - 需要手动安装所需的包，如[[https://github.com/magit/transient][Transient]]、[[https://github.com/magit/magit][Magit]]和helm。
+
+#+BEGIN_SRC emacs-lisp
+(package-vc-install '(aider :url "https://github.com/tninja/aider.el"))
+#+END_SRC
+
+配置部分与上述相同
+
+** 使用[[https://github.com/radian-software/straight.el?tab=readme-ov-file][Straight]]
+如果已安装Straight
+#+BEGIN_SRC emacs-lisp
+  (use-package aider
+    :straight (:host github :repo "tninja/aider.el")
+    :config
+    ;; 其余配置
+    )
+#+END_SRC
+
+** Doom安装与配置
+
+- 将以下代码添加到doom/packages.el
+
+#+BEGIN_SRC emacs-lisp
+(package! aider :recipe (:host github :repo "tninja/aider.el" ))
+#+END_SRC
+
+- 调整并添加以下代码到doom/config.el
+
+#+BEGIN_SRC emacs-lisp
+(use-package aider
+  :config
+  (setq aider-args '("--model" "sonnet"))
+  (require 'aider-doom))
+#+END_SRC
+
+aider前缀为~A~。
+
+- 启动并打开aider缓冲区：=[SPC] A p a=
+- 添加当前文件：=[SPC] A f f=
+- 重置aider会话：=[SPC] A p s=
+[[file:./doom_menus.png]]
+
+- *然而，transient菜单比doom菜单更推荐*，因为我经常使用它，所以维护得更好。
+  - 如果有人想为doom菜单贡献，欢迎帮忙。谢谢。
+
+* [[./snippets/aider-prompt-mode][提示片段]]
+- aider的提示可能共享类似的结构。Yasnippet可用于帮助重用这些提示。
+
+- Aider提示文件现在支持yasnippet。当前片段来自[[https://www.reddit.com/r/ClaudeAI/comments/1f0ya1t/i_used_claude_to_write_an_sop_for_using_claude/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button][这篇Reddit帖子]]、[[https://www.reddit.com/r/ChatGPTCoding/comments/1f51y8s/a_collection_of_prompts_for_generating_high/][另一篇Reddit帖子]]和一个[[https://github.com/PickleBoxer/dev-chatgpt-prompts][git仓库]]。
+
+- 可以使用
+  - ~M-x yas-describe-tables~ 查看可用片段
+  - ~M-x yas-insert-snippet~ 插入片段
+  - ~M-x yas-expand~ 展开光标下的片段
+
+- 欢迎在[[./snippets/aider-prompt-mode][片段文件夹]]中添加更多片段/改进现有片段！
+
+* aider.el的缺点
+
+- 当前实现使用comint托管aider会话，这是Emacs中经典的CLI交互解决方案。然而，comint-mode最初*不具备aider的高级功能，如代码块颜色渲染和文件跟踪*。
+  - *来自markdown-mode.el的颜色渲染应用于aider comint会话缓冲区，并显著改善了这一点*。
+  - 没有文件跟踪，aider.el无法实现[[https://aider.chat/docs/usage/watch.html#ai-comments][AI注释]]。*我们提供的解决方案是~aider-implement-todo~*，默认情况下使用architect命令让aider实现光标下的注释。我经常使用此功能，感觉还不错。
+  - [[https://github.com/akermu/emacs-libvterm][基于vterm的交互会话]]可以使aider会话更接近在终端中使用aider的用户体验。考虑到comint解决方案经过多年考验且非常稳定，以及项目的长期可维护性，aider.el仅使用基于comint会话的解决方案。
+
+* 注意AI生成的代码
+
+- 感谢LLM。用AI生成大量代码变得如此简单。但生成代码并不意味着工作完成。
+  - 可能隐藏潜在的错误。需要验证功能是否按预期工作，代码变更是否破坏了现有功能。
+  - 开发者可能对AI生成的代码缺乏理解。如果有太多代码开发者不太理解，项目可能会失控，如下所示：
+
+#+BEGIN_HTML
+  <img src="https://i.redd.it/puzjerkgcfqe1.jpeg" width="300" />
+#+END_HTML
+
+- *单元测试对上述两个问题都很有用*。aider可以帮助编写单元测试。
+  - AI生成的测试需要手动检查/修复。但通常测试代码更容易理解。
+  - 运行单元测试可以帮助验证代码的正确性/识别错误。它还能帮助开发者更好地理解AI生成的代码如何工作，并增强对新代码的信心。
+
+** 一种弱化的[[https://en.wikipedia.org/wiki/Test-driven_development][TDD]]风格AI编程工作流
+
+1. *实现或修改代码*
+   - 对于现有代码：在函数内或选中区域使用~aider-function-or-region-change~
+   - 对于新代码：在TODO注释上使用~aider-implement-todo~
+   
+   *添加新代码的示例*：
+   
+   光标位于以下注释上：
+   #+BEGIN_SRC python :eval never
+   # TODO: 实现一个检查数字是否为质数的函数
+   #+END_SRC
+   
+   运行~aider-implement-todo~可能生成：
+   #+BEGIN_SRC python :eval never
+   def is_prime(n):
+       if n <= 1:
+           return False
+       for i in range(2, int(n ** 0.5) + 1):
+           if n % i == 0:
+               return False
+       return True
+   #+END_SRC
+   
+   如果建议不令人满意，使用~Ask Question~进行改进，使用~Go Ahead~确认变更。
+
+2. *生成测试*：使用~aider-write-unit-test~验证实现。务必运行测试以验证代码行为。
+   - ~aider-write-unit-test~可用于在代码实现之前编写单元测试，只需在单元测试类中调用函数即可。我在leetcode问题上尝试过，效果很好。
+
+3. *优化代码和测试*：根据需要进一步重构，使用额外的提示或手动调整。~aider-refactor-book-method~包含来自[[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower的《重构》一书]]的几种重构技术。
+
+4. 回到步骤1
+
+- 或者，如果你偏好严格的TDD实践，可以尝试~aider-tdd-cycle~，它将遵循严格的红-绿-重构循环。
