@@ -200,7 +200,7 @@ Returns t if command was sent successfully, nil otherwise."
                             (?a "Yes and do not ask again")))))
                     (cond
                      ((eq (car choice) ?n)
-                      (message "Aborted on '%s'." branch)
+                      (message "Aborted on '%s', you can use C-c a b to create feature branch." branch)
                       nil)
                      ((eq (car choice) ?a)
                       (setq aider-confirm-on-main-branch nil)
