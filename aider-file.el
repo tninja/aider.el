@@ -293,11 +293,11 @@ Process CURRENT-FILE, DEPENDENCIES, and DEPENDENTS."
         (aider--send-command (concat command " " file) nil))
       (aider-switch-to-buffer))))
 
-(defun aider-expand-context-given-file (file-path)
+(defun aider-expand-context-given-file (file-path &optional include-tests)
   "Expand context for FILE-PATH by finding its dependencies and dependents.
-Ask user whether to include test files, then process all related files."
-  (let* ((include-tests (y-or-n-p "Include test files in context expansion? "))
-         ;; search root & raw deps/clients
+INCLUDE-TESTS is optional parameter to control test file inclusion (nil by default).
+Process all related files based on the include-tests setting."
+  (let* (;; search root & raw deps/clients
          (git-root     (ignore-errors (magit-toplevel)))
          (search-root  (or git-root default-directory))
          (dependencies (aider--filter-test-files
@@ -318,8 +318,9 @@ and the source code files it depends on.
 User can choose between /add or /read-only command."
   (interactive)
   (when (aider--validate-buffer-file)
-    (let ((current-file (buffer-file-name)))
-      (aider-expand-context-given-file current-file))))
+    (let* ((current-file (buffer-file-name))
+           (include-tests (y-or-n-p "Include test files in context expansion? ")))
+      (aider-expand-context-given-file current-file include-tests))))
 
 (defun aider--find-file-dependencies (file-path search-root)
   "Find files that FILE-PATH depends on by searching for filenames mentioned in the file.
