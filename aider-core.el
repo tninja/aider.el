@@ -261,6 +261,7 @@ Return potentially modified CURRENT-ARGS."
                            (read-string "Edit aider arguments: "
                                         (mapconcat #'identity aider-args " ")))
                         aider-args)))
+    ;; automatically add --no-auto-accept-architect if there is no --auto-accept-architect and --no-auto-accept-architect
     ;; Handle --subtree-only prompting for special modes
     (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
     ;; Add --subtree-only if the parameter is set and it's not already present
