@@ -200,7 +200,7 @@ Returns t if command was sent successfully, nil otherwise."
                             (?a "Yes and do not ask again")))))
                     (cond
                      ((eq (car choice) ?n)
-                      (message "Aborted on '%s'." branch)
+                      (message "Aborted on '%s', you can use C-c a b to create feature branch." branch)
                       nil)
                      ((eq (car choice) ?a)
                       (setq aider-confirm-on-main-branch nil)
@@ -261,6 +261,10 @@ Return potentially modified CURRENT-ARGS."
                            (read-string "Edit aider arguments: "
                                         (mapconcat #'identity aider-args " ")))
                         aider-args)))
+    ;; automatically add --no-auto-accept-architect if there is no --auto-accept-architect
+    (unless (or (member "--auto-accept-architect" current-args)
+                (member "--no-auto-accept-architect" current-args))
+      (setq current-args (append current-args '("--no-auto-accept-architect"))))
     ;; Handle --subtree-only prompting for special modes
     (setq current-args (aider--maybe-prompt-subtree-only-for-special-modes current-args))
     ;; Add --subtree-only if the parameter is set and it's not already present

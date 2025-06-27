@@ -74,7 +74,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
   (use-package aider
     :config
     ;; For latest claude sonnet model
-    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect")) ;; add --no-auto-commits if you don't want it
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o4-mini"))
@@ -90,7 +90,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
 
 - *aider-args just passed directly to aider CLI*, [[https://aider.chat/docs/config/options.html][aider options reference]]
   - to avoid introducing unnecessary complexity and learning cost, configuration in aider.el side is minimized.
-- if aider-args is empty (default), it will use ~/.aider.conf.yml file. In this way, aider CLI and aider.el share same configuration
+- if aider-args is empty (default), it will use [[https://aider.chat/docs/config/aider_conf.html][~/.aider.conf.yml]] file. In this way, aider CLI and aider.el share same configuration
 
 - The example models: sonnet, gemini, o4-mini, they charge money, and you need to ask for api key add fund to your api account firstly
 
@@ -105,44 +105,55 @@ If you used installed aider.el through melpa and package-install, just need to ~
 * Frequently used features
 
 *** Aider session management
-  - aider-run-aider :: Creates a comint-based, *git repo-specific Aider session* for interactive conversation.
+  - aider-run-aider (C-c a a) :: Creates a comint-based, *git repo-specific Aider session* for interactive conversation.
     - Git repository identification is based on the current file's path
     - Multiple Aider sessions can run simultaneously for different Git repositories
     - When being called with the universal argument (~C-u~), a prompt will offer the user to change the content of ~aider-args~ for this session.
     - When run it in a dired, eshell, or shell buffer, it will ask you if you want to add [[https://aider.chat/docs/config/options.html#--subtree-only][--subtree-only flag]], which only consider files in that directory, to make it faster
-  - aider-switch-to-buffer :: Switch to the Aider buffer.
+  - aider-switch-to-buffer (C-c a z) :: Switch to the Aider buffer.
     - use ~^~ in the menu to toggle open aider session in other window inside current frame, or open a dedicate frame for aider session. This is useful when there is more than one monitor, and one frame / monitor is used to hold multi buffers for code, and another frame / monitor hold aider session.
+  - aider-reset (C-c a s) :: Reset the aider session, drop all files and clear the chat history.
+    - It is recommended before start a new task in your repo, without restart session. So the old discussion / context won't interfere the new task.
+  - aider-open-prompt-file (C-c a p) :: Open the repo specific aider prompt file. This is a good place to write prompt / organize tasks. Prompt can be sent to the Aider session with shortcut.
 
 *** More ways to add files to the Aider buffer
-  - aider-add-current-file-or-dired-marked-files :: Add the current buffer file. If it is used in dired buffer, add all dired marked files.
+  - aider-add-current-file-or-dired-marked-files (C-c a f) :: Add the current buffer file. If it is used in dired buffer, add all dired marked files.
     - ~C-u~ prefix to add files read-only.
-  - aider-add-files-in-current-window :: Add all buffers in the current window.
+  - aider-add-files-in-current-window (C-c a w) :: Add all buffers in the current window. Good for add 2-3 files
+  - aider-add-module (C-c a M) :: Recursively add all files with certain suffix list (eg. *.py and *.java) for given directory. You can specify a regex pattern to match the file content to be added. Useful to add files for given topic.
+    - ~C-u~ prefix to add files read-only.
+  - aider-drop-file (C-c a O) :: Drop a file from the Aider session.
+    - when it is triggered on a code buffer, it will drop that file
+    - when the cursor is on a filename in the repo, it will drop that file
+    - /drop command in aider session buffer or aider prompt file will have file completion on current added files
 
 *** Write code
-  - aider-implement-todo :: Implement requirement in comments in-place, in current context.
+  - aider-implement-todo (C-c a i) :: Implement requirement in comments in-place, in current context.
     - If cursor is on a comment line, implement that specific comment in-place.
     - If there is a selection region of multi-line comments, implement code for those comments in-place.
     - If cursor is inside a function, implement TODOs for that function, otherwise implement TODOs for the entire current file.
       - The keyword (TODO by default) can be customized with the variable ~aider-todo-keyword-pair~. One example is to use AI! comment, which is as same as aider AI comment feature.
-  - aider-function-or-region-change :: If a region is selected, ask Aider to change the selected region. Otherwise, ask Aider to change / change the function under the cursor.
+  - aider-function-or-region-change (C-c a c) :: If a region is selected, ask Aider to change the selected region. Otherwise, ask Aider to change / change the function under the cursor.
     - A couple common used prompts provided when you are using aider-helm.el
     - It supports inline comment based existing code change requirement. To use this feature, trigger the command when:
       - The current line is a comment describing the change
       - the current selected region is multi-line comments describing the change
+  - aider-architect-discussion (C-c a t) :: General code change request. 
+  - All the above commands follows code review / apply process
 
 *** Support for Agile Development
-  - aider-write-unit-test :: If the current buffer is main source code file, generate comprehensive unit tests for the current function or file. If the cursor is in a test source code file, when the cursor is on a test function, implement the test function. Otherwise, provide description to implement the test function (or spec).
-  - If main source code break and test function fails, use ~aider-function-or-region-change~ on the failed test function to ask Aider to fix the code to make the test pass.
-  - aider-refactor-book-method :: for code refactoring using techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]], you can also let AI make the decision on how to refactor, example: [[https://github.com/tninja/aider.el/pull/146/commits/811a8eca47dfba3c52a33afba7bb11a8a69689b1][this commit]] addressing [[https://github.com/tninja/aider.el/pull/146#discussion_r2078182430][this comment]]
-  - aider-pull-or-review-diff-file :: let aider to pull and review the code change.
+  - aider-refactor-book-method (C-c a r) :: for code refactoring using techniques from [[https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599/ref=asc_df_0134757599?mcid=2eb8b1a5039a3b7c889ee081fc2132e0&hvocijid=16400341203663661896-0134757599-&hvexpln=73&tag=hyprod-20&linkCode=df0&hvadid=721245378154&hvpos=&hvnetw=g&hvrand=16400341203663661896&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9032161&hvtargid=pla-2281435180458&psc=1][Martin Flower's Refactoring book]], you can also let AI make the decision on how to refactor, example: [[https://github.com/tninja/aider.el/pull/146/commits/811a8eca47dfba3c52a33afba7bb11a8a69689b1][this commit]] addressing [[https://github.com/tninja/aider.el/pull/146#discussion_r2078182430][this comment]]
+  - aider-write-unit-test (C-c a U) :: If the current buffer is main source code file, generate comprehensive unit tests for the current function or file. If the cursor is in a test source code file, when the cursor is on a test function, implement the test function. Otherwise, provide description to implement the test function (or spec).
+    - If main source code break and test function fails, use ~aider-function-or-region-change~ on the failed test function to ask Aider to fix the code to make the test pass.
+  - aider-pull-or-review-diff-file (C-c a v) :: let aider to pull and review the code change, it support pull diff for staged files, branch comparison, commits.
 
 *** Questions on code
-  - aider-ask-question :: Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
+  - aider-ask-question (C-c a q) :: Ask Aider a question about the code in the current context. If a region is selected, use the region as context.
     - You can ask any question on the code. Eg. Explain the function, review the code and find the bug, etc
     - A couple common used prompts provided when you are using aider-helm.el
-  - aider-go-ahead :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
-  - aider-code-read :: Choose the method from the book, [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]], to analyze the region / function / file / module. 
-  - aider-start-software-planning :: Start an interactive software planning discussion session with Aider, through a question-based sequential thinking process.
+  - aider-go-ahead (C-c a y) :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
+  - aider-code-read (C-c a d) :: Choose the method from the book, [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]], to analyze the region / function / file / module. 
+  - aider-start-software-planning (C-c a P):: Start an interactive software planning discussion session with Aider, through a question-based sequential thinking process.
 
 *** Inside comint buffer
 
@@ -184,7 +195,8 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - Note: *Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with "--no-auto-accept-architect" in either aider-args or .aider.conf.yml*.
 
 - How to disable to aider auto-commit?    
-  - add --no-auto-commits to aider-args or ~/.aider.conf.yml. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
+  - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]
+  - in [[https://aider.chat/docs/config/aider_conf.html][~/.aider.conf.yml]] file, add auto-commits: false
 
 - What kind of model aider support? Can aider support local model?
   - Yes. Aider support it through [[https://github.com/BerriAI/litellm][LiteLLM]]. Please refer [[https://aider.chat/docs/llms/other.html][aider document]].
