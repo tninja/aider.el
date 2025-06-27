@@ -40,7 +40,7 @@
 
 - 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明，用户可以专注于 aider 文档），菜单也更简化。
 
-- aider.el 正在积极开发中。当前版本是 v0.12.2。[[./HISTORY.org][发布历史]], [[./appendix.zh-cn.org#recent-new-features][近期新增功能]]
+- aider.el 正在积极开发中。当前版本是 v0.13.0。[[./HISTORY.org][发布历史]], [[./appendix.zh-cn.org#recent-new-features][近期新增功能]]
 
 [[file:./transient_menu.png]]
 

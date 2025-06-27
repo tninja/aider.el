@@ -1,7 +1,7 @@
 
 * Release history
 
-** Main branch change
+** v.0.13.0
 
 - Feat: aider-function-or-region-change (C-c a c) support inline comment based existing code change requirement, when
   - The current line is a comment describing the change
