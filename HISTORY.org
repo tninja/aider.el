@@ -11,6 +11,8 @@
   - use --since instead of -n , it is more intuitive.
   - let user to review git log args before submitting. user can add additional arg such as --author if they want
 - Commit range support for aider-pull-or-review-diff-file
+- Automatically add --no-auto-accept-architect, unless user specify --auto-accept-architect
+- Extract aider-expand-context-given-file function, it can be used inside aider-prompt file for batch process.
 
 ** v0.12.2
 
