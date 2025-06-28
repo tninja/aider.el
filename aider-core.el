@@ -52,6 +52,16 @@ user picks “yes and do not ask again.”"
   :type 'boolean
   :group 'aider)
 
+(defcustom aider-auto-trigger-command-completion t
+  "When non-nil, automatically trigger command completion when typing '/' in aider buffer."
+  :type 'boolean
+  :group 'aider)
+
+(defcustom aider-auto-trigger-file-path-insertion t
+  "When non-nil, automatically trigger file path insertion for file-related commands."
+  :type 'boolean
+  :group 'aider)
+
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
 When non-nil, open Aider buffer in a new frame.
@@ -324,7 +334,8 @@ of common commands."
 (defun aider-core--auto-trigger-command-completion ()
   "Automatically trigger command completion in aider buffer.
 If the last character in the current line is '/', invoke `completion-at-point`."
-  (when (and (not (minibufferp))
+  (when (and aider-auto-trigger-command-completion
+             (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?/))
     (completion-at-point)))
@@ -334,7 +345,8 @@ If the last character in the current line is '/', invoke `completion-at-point`."
 If the current line matches one of the file-related commands
 followed by a space, and the cursor is at the end of the line,
 invoke the appropriate file path insertion function."
-  (when (and (not (minibufferp))
+  (when (and aider-auto-trigger-file-path-insertion
+             (not (minibufferp))
              (not (bolp))
              (eq (char-before) ?\s)  ; Check if last char is space
              (eolp))                 ; Check if cursor is at end of line
