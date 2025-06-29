@@ -115,12 +115,12 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 
 ;;; Transient menu items for the “Code Change” section.
 (transient-define-group aider--menu-code-change
-  ("c" "Change Function/Region"      aider-function-or-region-change)
+  ("c" "Code Change with Review"     aider-code-change)
   ("i" "Implement Requirement"       aider-implement-todo)
-  ("t" "Architect Discuss/Change"    aider-architect-discussion)
-  ("U" "Write Unit Test"             aider-write-unit-test)
-  ("F" "Fix Flycheck Errors"         aider-flycheck-fix-errors-in-scope)
+  ;; ("t" "Architect Discuss/Change"    aider-architect-discussion)
   ("r" "Refactor Code"               aider-refactor-book-method)
+  ("F" "Fix Flycheck Errors"         aider-flycheck-fix-errors-in-scope)
+  ("U" "Write Unit Test"             aider-write-unit-test)
   ("T" "Test Driven Development"     aider-tdd-cycle)
   ("l" "Work with Legacy Code"       aider-legacy-code)
   ("B" "Code/Doc Bootstrap"          aider-bootstrap))
