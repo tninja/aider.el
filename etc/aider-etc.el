@@ -102,3 +102,11 @@ If there are more than 40 files, refuse to add and show warning message."
               (message "Added %d files with suffix .%s"
                        (length files) current-suffix)))
           )))))
+
+;; New function to get command from user and send it prefixed with "/code "
+;;;###autoload
+(defun aider-code-change ()
+  "Make direct code change given user's prompt."
+  (interactive)
+  (let ((command (aider-read-string "Enter code change requirement: ")))
+    (aider-current-file-command-and-switch "/code " command)))

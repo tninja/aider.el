@@ -26,13 +26,30 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
   :type '(cons string string)
   :group 'aider)
 
-;; New function to get command from user and send it prefixed with "/code "
 ;;;###autoload
 (defun aider-code-change ()
-  "Make direct code change given user's prompt."
+  "Change code with Aider.
+If a region is selected, change that specific region.
+If cursor is not in a function, start an architectural discussion.
+If cursor is in a function without a selected region, lets user choose
+between changing the function or starting an architectural discussion."
   (interactive)
-  (let ((command (aider-read-string "Enter code change requirement: ")))
-    (aider-current-file-command-and-switch "/code " command)))
+  (let* ((function-name (which-function))
+         (region-active (region-active-p)))
+    (cond
+     (region-active
+      (aider-function-or-region-change))
+     ((not function-name)
+      (aider-architect-discussion))
+     (t
+      (let ((choice (completing-read
+                     "Choose action: "
+                     (list (format "Change function '%s'" function-name)
+                           "Global code change")
+                     nil t)))
+        (if (string-prefix-p "Change function" choice)
+            (aider-function-or-region-change)
+          (aider-architect-discussion)))))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 ;;;###autoload
