@@ -45,7 +45,7 @@ between changing the function or starting an architectural discussion."
       (let ((choice (completing-read
                      "Choose action: "
                      (list (format "Change function '%s'" function-name)
-                           "Global code change")
+                           "Architectural discussion")
                      nil t)))
         (if (string-prefix-p "Change function" choice)
             (aider-function-or-region-change)
@@ -56,8 +56,19 @@ between changing the function or starting an architectural discussion."
 (defun aider-architect-discussion ()
   "Discuss with aider with the given prompt, and choose if we want to accept it."
   (interactive)
-  (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
-    (aider-current-file-command-and-switch "/architect " command)))
+  (let* ((line-text (string-trim (thing-at-point 'line t)))
+         (is-comment (aider--is-comment-line line-text)))
+    (if is-comment
+        (let* ((req (replace-regexp-in-string
+                     (concat "^[ \t]*"
+                             (regexp-quote (string-trim-right comment-start))
+                             "+[ \t]*")
+                     ""
+                     line-text))
+               (instruction (aider-read-string "Architectural discussion topic/question: " req)))
+          (aider-current-file-command-and-switch "/architect " instruction))
+      (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
+        (aider-current-file-command-and-switch "/architect " command)))))
 
 (defun aider-region-change-generate-command (region-text function-name user-command)
   "Generate the command string based on input parameters.
