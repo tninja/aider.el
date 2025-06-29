@@ -1,6 +1,10 @@
 
 * Release history
 
+** Main branch change
+
+- More intelligent and simplified aider-ask-question: Do not use C-u key anymore to choose if it is a question on current function or general question. It will identify the choice given position of current cursor, if it need to ask question, use completing-reading instead of C-u
+
 ** v.0.13.0
 
 - Feat: aider-function-or-region-change (C-c a c) support inline comment based existing code change requirement, when
