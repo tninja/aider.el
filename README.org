@@ -153,7 +153,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
     - A couple common used prompts provided when you are using aider-helm.el
   - aider-go-ahead (C-c a y) :: When you are asking aider to suggest a change using above command, maybe even after several round of discussion, when you are satisfied with the solution, you can use this command to ask Aider to go ahead and implement the change.
   - aider-code-read (C-c a d) :: Choose the method from the book, [[https://www.amazon.com/Code-Reading-Open-Source-Perspective/dp/0201799405/ref=sr_1_1?crid=39HOB4975Y8LZ&dib=eyJ2IjoiMSJ9.fjkryt7JHaLWMQ5xuSPTED-gJR52Wqh448RQ3TrsTPYAFNpx--gA-mTNGqRQqebb.rnvw74YGEJXCRRe0UIwUSwAaeEngg0MpraxcTOBRn5Q&dib_tag=se&keywords=Code+Reading%3A+The+Open+Source+Perspective&qid=1744517167&s=books&sprefix=code+reading+the+open+source+perspective%2Cstripbooks%2C254&sr=1-1][Code Reading: The Open Source Perspective, by Diomidis Spinellis]], to analyze the region / function / file / module. 
-  - aider-start-software-planning (C-c a P):: Start an interactive software planning discussion session with Aider, through a question-based sequential thinking process.
+  - aider-start-software-planning (C-c a P) :: Start an interactive software planning discussion session with Aider, through a question-based sequential thinking process.
 
 *** Inside comint buffer
 
