@@ -14,46 +14,70 @@
 (require 'aider-core)
 (require 'aider-file)
 
+(defun aider--get-question-candidates ()
+  "Return standard list of question candidates."
+  '("What kind of question do you have about this code?"
+    "What is your suggestion on the most important thing to do"
+    "Carefully review this file and suggest improvements"
+    "What does this code do? Explain the logic of this code step by step"
+    "What are the inputs and outputs of this code?"
+    "Are there any edge cases not handled in this code?"
+    "How could this code be simplified?"
+    "What's the time/space complexity of this algorithm?"
+    "Is there a more efficient way to implement this?"
+    "What design patterns are used here?"
+    "How does this code handle errors?"))
+
+(defun aider--build-region-question-context (prompt)
+  "Build question context for selected region with PROMPT."
+  (let* ((raw-question (aider-read-string prompt nil (aider--get-question-candidates)))
+         (question (concat prompt raw-question))
+         (region-text (buffer-substring-no-properties (region-beginning) (region-end))))
+    (format "%s: %s" question region-text)))
+
+(defun aider--ask-about-region (function-name)
+  "Ask question about selected region, optionally in FUNCTION-NAME."
+  (let* ((prompt (if function-name 
+                     (format "Question for the selected region in function '%s': " function-name)
+                   "Question for the selected region: "))
+         (question-context (aider--build-region-question-context prompt)))
+    (when (aider-current-file-command-and-switch "/ask " question-context)
+      (message "Question about code sent to Aider"))))
+
+(defun aider--ask-about-function (function-name)
+  "Ask question about specific FUNCTION-NAME."
+  (let* ((prompt (format "About function '%s': " function-name))
+         (raw-question (aider-read-string prompt nil (aider--get-question-candidates)))
+         (question (concat prompt raw-question)))
+    (when (aider-current-file-command-and-switch "/ask " question)
+      (message "Question about code sent to Aider"))))
+
+(defun aider--ask-with-function-choice (function-name)
+  "Let user choose between function-specific or general question for FUNCTION-NAME."
+  (let ((choice (completing-read 
+                 "Choose question type: "
+                 `(,(format "Question about function '%s'" function-name)
+                   "General question")
+                 nil t)))
+    (if (string-prefix-p "Question about function" choice)
+        (aider--ask-about-function function-name)
+      (aider-general-question))))
+
 ;; New function to get command from user and send it prefixed with "/ask "
 ;;;###autoload
-(defun aider-ask-question (&optional prefix)
+(defun aider-ask-question ()
   "Ask aider question about specific code.
 Focuses on understanding, analyzing, improving the selected code or function.
-With a prefix argument PREFIX, calls `aider-general-question` instead."
-  (interactive "P")
-  (if prefix
-      (aider-general-question)
-    ;; Dispatch to general question if in aider buffer
-    (let* ((function-name (which-function))
-           (region-active (region-active-p))
-           (region-in-function (and region-active function-name))
-           (prompt (cond
-                    (region-in-function (format "Question for the selected region in function '%s': " function-name))
-                    (function-name (format "About function '%s': " function-name))
-                    (region-active "Question for the selected region: ")
-                    (t "Question: ")))
-           (candidate-list '("What kind of question do you have about this code?"
-                             "What is your suggestion on the most important thing to do"
-                            "Carefully review this file and suggest improvements"
-                            "What does this code do? Explain the logic of this code step by step"
-                            "What are the inputs and outputs of this code?"
-                            "Are there any edge cases not handled in this code?"
-                            "How could this code be simplified?"
-                            "What's the time/space complexity of this algorithm?"
-                            "Is there a more efficient way to implement this?"
-                            "What design patterns are used here?"
-                            "How does this code handle errors?"))
-           (raw-question (aider-read-string prompt nil candidate-list))
-           (question (if function-name
-                         (concat prompt raw-question)
-                       raw-question))
-           (region-text (and (region-active-p)
-                             (buffer-substring-no-properties (region-beginning) (region-end))))
-           (question-context (if region-text
-                                 (format "%s: %s" question region-text)
-                               question)))
-      (when (aider-current-file-command-and-switch "/ask " question-context)
-        (message "Question about code sent to Aider")))))
+If there is selected region, ask question about the region.
+If cursor is not in a function, ask general question.
+If cursor is in a function, let user choose between function-specific or general question."
+  (interactive)
+  (let* ((function-name (which-function))
+         (region-active (region-active-p)))
+    (cond
+     (region-active (aider--ask-about-region function-name))
+     ((not function-name) (aider-general-question))
+     (t (aider--ask-with-function-choice function-name)))))
 
 ;;;###autoload
 (defun aider-general-question ()

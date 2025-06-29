@@ -127,7 +127,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 
 ;;; Transient menu items for the “Discussion” section.
 (transient-define-group aider--menu-discussion
-  ("q" "Question (C-u no context)"  aider-ask-question)
+  ("q" "Question on Context"        aider-ask-question)
   ("y" "Then Go Ahead"              aider-go-ahead)
   ("d" "Code Reading"               aider-code-read)
   ("C" "Copy To Clipboard"          aider-copy-to-clipboard)
