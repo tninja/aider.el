@@ -105,7 +105,7 @@ If there are more than 40 files, refuse to add and show warning message."
 
 ;; New function to get command from user and send it prefixed with "/code "
 ;;;###autoload
-(defun aider-code-change ()
+(defun aider-code-command ()
   "Make direct code change given user's prompt."
   (interactive)
   (let ((command (aider-read-string "Enter code change requirement: ")))
