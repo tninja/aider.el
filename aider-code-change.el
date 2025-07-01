@@ -31,7 +31,7 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
   "Change code with Aider.
 If a region is selected, change that specific region.
 If cursor is not in a function, start an architectural discussion.
-If cursor is in a function without a selected region, lets user choose
+If cursor is in a function without a selected region, let user choose
 between changing the function or general code change."
   (interactive)
   (let* ((function-name (which-function))
