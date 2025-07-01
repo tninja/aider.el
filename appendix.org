@@ -4,9 +4,10 @@
 ** Let aider to fix the errors reported by flycheck
 
 - aider-flycheck-fix-errors-in-scope :: Flycheck output will be sent to aider as context to fix the error. It support:
+  - current line
   - current function
+  - whole file
   - selected region
-  - whole file (C-u)
 
 ** Semi-automatic expansion of context
 

@@ -26,21 +26,49 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
   :type '(cons string string)
   :group 'aider)
 
-;; New function to get command from user and send it prefixed with "/code "
 ;;;###autoload
 (defun aider-code-change ()
-  "Make direct code change given user's prompt."
+  "Change code with Aider.
+If a region is selected, change that specific region.
+If cursor is not in a function, start an architectural discussion.
+If cursor is in a function without a selected region, let user choose
+between changing the function or general code change."
   (interactive)
-  (let ((command (aider-read-string "Enter code change requirement: ")))
-    (aider-current-file-command-and-switch "/code " command)))
+  (let* ((function-name (which-function))
+         (region-active (region-active-p)))
+    (cond
+     (region-active
+      (aider-function-or-region-change))
+     ((not function-name)
+      (aider-architect-discussion))
+     (t
+      (let ((choice (completing-read
+                     "Choose action: "
+                     (list (format "Change function '%s'" function-name)
+                           "General code change")
+                     nil t)))
+        (if (string-prefix-p "Change function" choice)
+            (aider-function-or-region-change)
+          (aider-architect-discussion)))))))
 
 ;; New function to get command from user and send it prefixed with "/architect "
 ;;;###autoload
 (defun aider-architect-discussion ()
   "Discuss with aider with the given prompt, and choose if we want to accept it."
   (interactive)
-  (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
-    (aider-current-file-command-and-switch "/architect " command)))
+  (let* ((line-text (string-trim (thing-at-point 'line t)))
+         (is-comment (aider--is-comment-line line-text)))
+    (if is-comment
+        (let* ((req (replace-regexp-in-string
+                     (concat "^[ \t]*"
+                             (regexp-quote (string-trim-right comment-start))
+                             "+[ \t]*")
+                     ""
+                     line-text))
+               (instruction (aider-read-string "Architectural discussion topic/question: " req)))
+          (aider-current-file-command-and-switch "/architect " instruction))
+      (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
+        (aider-current-file-command-and-switch "/architect " command)))))
 
 (defun aider-region-change-generate-command (region-text function-name user-command)
   "Generate the command string based on input parameters.

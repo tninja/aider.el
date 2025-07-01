@@ -133,12 +133,11 @@ If you used installed aider.el through melpa and package-install, just need to ~
     - If there is a selection region of multi-line comments, implement code for those comments in-place.
     - If cursor is inside a function, implement TODOs for that function, otherwise implement TODOs for the entire current file.
       - The keyword (TODO by default) can be customized with the variable ~aider-todo-keyword-pair~. One example is to use AI! comment, which is as same as aider AI comment feature.
-  - aider-function-or-region-change (C-c a c) :: If a region is selected, ask Aider to change the selected region. Otherwise, ask Aider to change / change the function under the cursor.
+  - aider-code-change (C-c a c) :: If a region is selected, ask Aider to change the selected region. Otherwise, ask Aider to change / change the function under the cursor, or general code change on all added files.
     - A couple common used prompts provided when you are using aider-helm.el
     - It supports inline comment based existing code change requirement. To use this feature, trigger the command when:
       - The current line is a comment describing the change
       - the current selected region is multi-line comments describing the change
-  - aider-architect-discussion (C-c a t) :: General code change request. 
   - All the above commands follows code review / apply process
 
 *** Support for Agile Development
