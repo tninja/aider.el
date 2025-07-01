@@ -32,7 +32,7 @@ Another common choice is (\"AI!\" . \"comment line ending with string: AI!\")."
 If a region is selected, change that specific region.
 If cursor is not in a function, start an architectural discussion.
 If cursor is in a function without a selected region, lets user choose
-between changing the function or starting an architectural discussion."
+between changing the function or general code change."
   (interactive)
   (let* ((function-name (which-function))
          (region-active (region-active-p)))
@@ -45,7 +45,7 @@ between changing the function or starting an architectural discussion."
       (let ((choice (completing-read
                      "Choose action: "
                      (list (format "Change function '%s'" function-name)
-                           "Architectural discussion")
+                           "General code change")
                      nil t)))
         (if (string-prefix-p "Change function" choice)
             (aider-function-or-region-change)
