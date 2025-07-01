@@ -117,7 +117,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
 (transient-define-group aider--menu-code-change
   ("c" "Code Change with Review"     aider-code-change)
   ("i" "Implement Requirement"       aider-implement-todo)
-  ;; ("t" "Architect Discuss/Change"    aider-architect-discussion)
+  ("t" "Architect Discuss/Change"    aider-architect-discussion)
   ("r" "Refactor Code"               aider-refactor-book-method)
   ("F" "Fix Flycheck Errors"         aider-flycheck-fix-errors-in-scope)
   ("U" "Write Unit Test"             aider-write-unit-test)
