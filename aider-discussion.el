@@ -142,10 +142,32 @@ With prefix argument HOMEPAGE, open the Aider home page in a browser."
   (interactive)
   (browse-url "https://aider.chat"))
 
-;; add an interactive function aider-run-current-file. It will
-;; generate the command to run current script file, if it is .py or
-;; .sh. let user to modify the command before running it. It should
-;; keep a dedicate history list just for this command. 
+(defvar aider-run-file-history nil
+  "History list for aider-run-current-file commands.")
+
+;;;###autoload
+(defun aider-run-current-file ()
+  "Generate command to run current script file (.py or .sh).
+Let user modify the command before running it.
+Maintains a dedicated history list for this command."
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (file-ext (when current-file (file-name-extension current-file)))
+         (default-command (cond
+                          ((string= file-ext "py")
+                           (format "python %s" (file-name-nondirectory current-file)))
+                          ((string= file-ext "sh")
+                           (format "bash %s" (file-name-nondirectory current-file)))
+                          (t nil))))
+    (unless current-file
+      (user-error "Current buffer is not visiting a file"))
+    (unless default-command
+      (user-error "Current file is not a .py or .sh file"))
+    (let ((command (read-string 
+                   (format "Run command for %s: " (file-name-nondirectory current-file))
+                   default-command
+                   'aider-run-file-history)))
+      (aider--send-command (format "/run %s" command) t))))
 
 (provide 'aider-discussion)
 
