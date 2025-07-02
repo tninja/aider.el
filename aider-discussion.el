@@ -142,6 +142,11 @@ With prefix argument HOMEPAGE, open the Aider home page in a browser."
   (interactive)
   (browse-url "https://aider.chat"))
 
+;; add an interactive function aider-run-current-file. It will
+;; generate the command to run current script file, if it is .py or
+;; .sh. let user to modify the command before running it. It should
+;; keep a dedicate history list just for this command. 
+
 (provide 'aider-discussion)
 
 ;;; aider-discussion.el ends here
