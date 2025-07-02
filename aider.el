@@ -133,6 +133,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("C" "Copy To Clipboard"          aider-copy-to-clipboard)
   ("P" "Software Planning"          aider-start-software-planning)
   ("E" "Debug Exception"            aider-debug-exception)
+  ("R" "Run Current File"           aider-run-current-file)
   ("h" "Open History"               aider-open-history)
   ("?" "Help (C-u: homepage)"       aider-help))
 
