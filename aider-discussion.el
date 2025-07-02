@@ -148,7 +148,7 @@ With prefix argument HOMEPAGE, open the Aider home page in a browser."
 ;;;###autoload
 (defun aider-run-current-file ()
   "Generate command to run current script file (.py or .sh).
-Let user modify the command before running it.
+Let user modify the command before running it in a compile buffer.
 Maintains a dedicated history list for this command."
   (interactive)
   (let* ((current-file (buffer-file-name))
@@ -167,7 +167,8 @@ Maintains a dedicated history list for this command."
                    (format "Run command for %s: " (file-name-nondirectory current-file))
                    default-command
                    'aider-run-file-history)))
-      (aider--send-command (format "/run %s" command) t))))
+      (let ((default-directory (file-name-directory current-file)))
+        (compile command)))))
 
 (provide 'aider-discussion)
 
