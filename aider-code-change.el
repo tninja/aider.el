@@ -226,7 +226,7 @@ ignoring leading whitespace."
   "Get candidate list based on whether current file is a test file."
   (let* ((ext (and buffer-file-name
                    (downcase (or (file-name-extension buffer-file-name) ""))))
-         (is-text-file (member ext '("md" "org" "txt")))
+         (is-text-file (member ext '("" "md" "org" "txt")))
          (is-test-file (and buffer-file-name
                             (string-match-p "test"
                                             (file-name-nondirectory
