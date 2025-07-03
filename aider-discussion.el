@@ -142,6 +142,41 @@ With prefix argument HOMEPAGE, open the Aider home page in a browser."
   (interactive)
   (browse-url "https://aider.chat"))
 
+(defvar aider-run-file-history nil
+  "History list for aider-run-current-file commands.")
+
+;;;###autoload
+(defun aider-run-current-file ()
+  "Generate command to run current script file (.py or .sh).
+Let user modify the command before running it in a compile buffer.
+Maintains a dedicated history list for this command."
+  (interactive)
+  (let* ((current-file (buffer-file-name))
+         (file-ext (when current-file (file-name-extension current-file)))
+         (file-name (when current-file (file-name-nondirectory current-file)))
+         (last-command (when aider-run-file-history (car aider-run-file-history)))
+         (default-command (cond
+                          ;; Check if current file is in the last run command
+                          ((and last-command file-name 
+                                (string-match-p (regexp-quote file-name) last-command))
+                           last-command)
+                          ;; Generate default command based on file extension
+                          ((string= file-ext "py")
+                           (format "python %s" file-name))
+                          ((string= file-ext "sh")
+                           (format "bash %s" file-name))
+                          (t nil))))
+    (unless current-file
+      (user-error "Current buffer is not visiting a file"))
+    (unless default-command
+      (user-error "Current file is not a .py or .sh file"))
+    (let ((command (read-string 
+                   (format "Run command for %s: " file-name)
+                   default-command
+                   'aider-run-file-history)))
+      (let ((default-directory (file-name-directory current-file)))
+        (compile command)))))
+
 (provide 'aider-discussion)
 
 ;;; aider-discussion.el ends here

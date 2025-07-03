@@ -134,6 +134,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("P" "Software Planning"          aider-start-software-planning)
   ("E" "Debug Exception"            aider-debug-exception)
   ("h" "Open History"               aider-open-history)
+  ("!" "Run Current File"           aider-run-current-file)
   ("?" "Help (C-u: homepage)"       aider-help))
 
 ;; The instruction in the autoload comment is needed, see
