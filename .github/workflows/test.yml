@@ -1,0 +1,22 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Emacs
+      uses: jcs090218/setup-emacs@v1
+      with:
+        version: '28.2'
+
+    - name: Run tests
+      run: |
+        emacs -batch -l ert -l test/test-aider.el -f ert-run-tests-batch-and-exit

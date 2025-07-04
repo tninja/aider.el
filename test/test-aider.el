@@ -296,3 +296,35 @@
       (should (equal (aider-read-string "Test prompt: ") "test input")))))
 
 (message "Aider.el comprehensive test suite loaded")
+
+(ert-deftest test-aider-with-mock-script ()
+  "Test Aider integration using a mock script."
+  (let* ((mock-script-path (expand-file-name "test/bin/mock_aider.sh"))
+         (log-file (make-temp-file "aider-mock-log"))
+         (aider-program mock-script-path)
+         (aider-args '("--model" "mock-model")))
+    (setenv "AIDER_MOCK_LOG" log-file)
+
+    (unwind-protect
+        (progn
+          ;; Run aider with the mock script
+          (aider-run-aider)
+
+          ;; Send a command
+          (aider--send-command "/add test.txt" t)
+
+          ;; Give the process a moment to write to the log
+          (sleep-for 0.5)
+
+          ;; Read the log file
+          (with-temp-buffer
+            (insert-file-contents log-file)
+            (let ((log-content (buffer-string)))
+              ;; Verify the arguments
+              (should (string-match-p "ARGS: --model mock-model" log-content))
+              ;; Verify the command sent to stdin
+              (should (string-match-p "/add test.txt" log-content)))))
+      (progn
+        (delete-file log-file)
+        (when-let ((buffer (get-buffer (aider-buffer-name))))
+          (kill-buffer buffer))))))
