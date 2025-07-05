@@ -37,6 +37,8 @@
 ;;   - Let aider to fix the errors reported by flycheck
 ;;   - Expand context by adding current file's dependencies/dependents
 ;;   - Software planning / brainstorming discussion capabilities
+;;   - Prompt candidates for code change / document change / question ask
+;;   - Run current script to validate AI's change
 ;;   - Code / repo evolution analysis with git blame and git log
 ;;   - Utilities for bootstrapping new files and projects.
 ;;   - Organize project with repo specific Aider prompt file

@@ -224,16 +224,37 @@ ignoring leading whitespace."
 
 (defun aider--get-candidate-list ()
   "Get candidate list based on whether current file is a test file."
-  (let ((is-test-file (and buffer-file-name
-                           (string-match-p "test"
-                                           (file-name-nondirectory
-                                            buffer-file-name)))))
-    (if is-test-file
-        '("Write a new unit test function based on the given description."
-          "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
-          "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
-          "Improve test assertions and add edge cases."
-          "Extract this logic into a separate helper function")
+  (let* ((ext (and buffer-file-name
+                   (downcase (or (file-name-extension buffer-file-name) ""))))
+         (is-text-file (member ext '("" "md" "org" "txt")))
+         (is-test-file (and buffer-file-name
+                            (string-match-p "test"
+                                            (file-name-nondirectory
+                                             buffer-file-name)))))
+    (cond
+     (is-text-file
+      '("Improve English grammar and clarity of the text."
+        "Ensure consistent use of technical terms and terminology."
+        "Fix typos and improve punctuation usage."
+        "Rewrite to be more concise and fluent."
+        "Eliminate redundant words and tighten phrasing."
+        "Optimize section and paragraph structure for better readability."
+        "Enhance overall flow and coherence between sections."
+        "Convert passive voice to active voice where appropriate."
+        "Rephrase sentences to sound more natural and engaging."
+        "Improve formatting of lists, headings, and code blocks."
+        "Add clear descriptions and context for examples or code snippets."
+        "Adapt tone to a technical audience—precise, direct, and objective."
+        "Ensure correct usage of acronyms, abbreviations, and domain-specific jargon."
+        "Vary sentence length and structure for better rhythm."
+        "Polish formal tone for professional, documentation-style writing."))
+     (is-test-file
+      '("Write a new unit test function based on the given description."
+        "Change this test, using better testing patterns, reducing duplication, and improving readability and maintainability. Maintain the current functionality of the tests."
+        "This test failed. Please analyze and fix the source code functions to make this test pass without changing the test itself. Don't break any other test"
+        "Improve test assertions and add edge cases."
+        "Extract this logic into a separate helper function"))
+     (t
       '("Implement the function given description and hint in comment, make it be able to pass all unit-tests if there is"
         "Simplify this code, reduce complexity and improve readability while preserving functionality"
         "Fix potential bugs or issues in this code"
@@ -242,7 +263,7 @@ ignoring leading whitespace."
         "Generate Docstring/Comment for This"
         "Improve error handling and edge cases"
         "Optimize this code for better performance"
-        "Extract this logic into a separate helper function"))))
+        "Extract this logic into a separate helper function")))))
 
 ;;;###autoload
 (defun aider-implement-todo ()

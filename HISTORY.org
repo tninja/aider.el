@@ -6,6 +6,8 @@
 - More intelligent and simplified aider-ask-question: Do not use C-u key anymore to choose if it is a question on current function or general question. It will identify the choice given position of current cursor, if it need to ask question, use completing-reading instead of C-u
 - Integrate aider-function-or-region-change and aider-architect-discussion, as aider-code-change function, similar to change above
 - Feat: add configuration options for command completion and file path insertion, by Yikai Zhao
+- Chore: Add prompt candidates for document rewriting
+  - Aider.el can be useful for document rewriting. One typical use case is, select several lines of text, call aider-code-change (C-c a c). Type the rewrite instruction, or select rewrite prompt from the candidate list, aider will rewrite the part and ask for review, just like code change.
 
 ** v.0.13.0
 
