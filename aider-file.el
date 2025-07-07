@@ -209,7 +209,7 @@ Return a list of files whose content matches CONTENT-REGEX.
 Return original FILES if CONTENT-REGEX is nil or empty.
 Return nil if grep errors or no files match."
   (if (and files content-regex (not (string-empty-p content-regex)))
-      (let* ((grep-args (list* "-l" "-E" content-regex files))
+      (let* ((grep-args (cl-list* "-l" "-E" content-regex files))
              (temp-buffer (generate-new-buffer " *grep-output*"))
              (exit-status
               (apply #'call-process "grep" nil (list temp-buffer nil) nil grep-args)))
