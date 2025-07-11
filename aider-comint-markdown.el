@@ -39,13 +39,46 @@
   "Safely call `markdown-syntax-propertize-fenced-block-constructs' in aider buffers only."
   (if (eq major-mode 'aider-comint-mode)
       (condition-case nil
-          (funcall origfn start end)
+          (let ((inhibit-recursion (get 'aider--syntax-propertize 'inhibit-recursion)))
+            (unless inhibit-recursion
+              (put 'aider--syntax-propertize 'inhibit-recursion t)
+              (unwind-protect
+                  (funcall origfn start end)
+                (put 'aider--syntax-propertize 'inhibit-recursion nil))))
+        (error nil))
+    (funcall origfn start end)))
+
+(defun aider--safe-syntax-propertize-pre-blocks (origfn start end)
+  "Safely call `markdown-syntax-propertize-pre-blocks' in aider buffers only."
+  (if (eq major-mode 'aider-comint-mode)
+      (condition-case nil
+          (let ((inhibit-recursion (get 'aider--syntax-propertize-pre-blocks 'inhibit-recursion)))
+            (unless inhibit-recursion
+              (put 'aider--syntax-propertize-pre-blocks 'inhibit-recursion t)
+              (unwind-protect
+                  (funcall origfn start end)
+                (put 'aider--syntax-propertize-pre-blocks 'inhibit-recursion nil))))
+        (error nil))
+    (funcall origfn start end)))
+
+(defun aider--safe-syntax-propertize (origfn start end)
+  "Safely call `markdown-syntax-propertize' in aider buffers only."
+  (if (eq major-mode 'aider-comint-mode)
+      (condition-case nil
+          (let ((inhibit-recursion (get 'aider--main-syntax-propertize 'inhibit-recursion)))
+            (unless inhibit-recursion
+              (put 'aider--main-syntax-propertize 'inhibit-recursion t)
+              (unwind-protect
+                  (funcall origfn start end)
+                (put 'aider--main-syntax-propertize 'inhibit-recursion nil))))
         (error nil))
     (funcall origfn start end)))
 
 (advice-add 'markdown-maybe-funcall-regexp :around #'aider--safe-maybe-funcall-regexp)
 (advice-add 'markdown-get-start-fence-regexp :around #'aider--safe-get-start-fence-regexp)
 (advice-add 'markdown-syntax-propertize-fenced-block-constructs :around #'aider--safe-syntax-propertize-fenced-block-constructs)
+(advice-add 'markdown-syntax-propertize-pre-blocks :around #'aider--safe-syntax-propertize-pre-blocks)
+(advice-add 'markdown-syntax-propertize :around #'aider--safe-syntax-propertize)
 
 (defun aider--apply-markdown-highlighting ()
   "Set up markdown highlighting for aider buffer with optimized performance."
