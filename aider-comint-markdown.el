@@ -61,7 +61,7 @@
   (setq-local font-lock-multiline t)
   (setq-local jit-lock-contextually nil)
   (setq-local font-lock-support-mode 'jit-lock-mode)
-  (setq-local jit-lock-defer-time 0)
+  ;; (setq-local jit-lock-defer-time 0) ;; https://github.com/tninja/aider.el/issues/210
   (font-lock-mode 1)
   (font-lock-flush)
   (font-lock-ensure)
