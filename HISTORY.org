@@ -8,6 +8,8 @@
 - Feat: add configuration options for command completion and file path insertion, by Yikai Zhao
 - Chore: Add prompt candidates for document rewriting
   - Aider.el can be useful for document rewriting. One typical use case is, select several lines of text, call aider-code-change (C-c a c). Type the rewrite instruction, or select rewrite prompt from the candidate list, aider will rewrite the part and ask for review, just like code change.
+- chore: replace list* with cl-list*, as list* is deprecated. By Hongyu Ouyang 
+- Fix: do not use jit-lock-defer-time, reported and tested by Yikai Zhao and Vagn Johansen 
 
 ** v.0.13.0
 
