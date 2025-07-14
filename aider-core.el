@@ -62,6 +62,11 @@ user picks “yes and do not ask again.”"
   :type 'boolean
   :group 'aider)
 
+(defcustom aider-enable-markdown-highlighting t
+  "When non-nil, automatically highlight markdown in Aider comint buffers."
+  :type 'boolean
+  :group 'aider)
+
 (defvar aider--switch-to-buffer-other-frame nil
   "Boolean controlling Aider buffer display behavior.
 When non-nil, open Aider buffer in a new frame.
@@ -125,6 +130,9 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   ;; Automatically trigger file path insertion for file-related commands
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-file-path-insertion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-insert-prompt nil t)
+  ;; only apply markdown highlighting if enabled
+  (when aider-enable-markdown-highlighting
+    (aider--apply-markdown-highlighting))
   ;; Load history from .aider.input.history if available
   (let ((history-file-path (aider--generate-history-file-name))) ; Bind history-file-path here
     (condition-case err ; catch any error during history loading
@@ -140,7 +148,6 @@ Inherits from `comint-mode' with some Aider-specific customizations.
                       (or history-file-path "its determined location") ; provide file path if available
                       (error-message-string err)))))) ; display the error message
 
-(add-hook 'aider-comint-mode-hook #'aider--apply-markdown-highlighting)
 
 ;;;###autoload
 (defun aider-plain-read-string (prompt &optional initial-input candidate-list)
