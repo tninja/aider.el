@@ -57,7 +57,8 @@ between changing the function or general code change."
   "Discuss with aider with the given prompt, and choose if we want to accept it."
   (interactive)
   (let* ((line-text (string-trim (thing-at-point 'line t)))
-         (is-comment (aider--is-comment-line line-text)))
+         (is-comment (aider--is-comment-line line-text))
+         (is-text-file (aider--is-text-file)))
     (if is-comment
         (let* ((req (replace-regexp-in-string
                      (concat "^[ \t]*"
@@ -65,9 +66,15 @@ between changing the function or general code change."
                              "+[ \t]*")
                      ""
                      line-text))
-               (instruction (aider-read-string "Architectural discussion topic/question: " req)))
+               (prompt (if is-text-file
+                           "Document editing topic/question: "
+                         "Architectural discussion topic/question: "))
+               (instruction (aider-read-string prompt req)))
           (aider-current-file-command-and-switch "/architect " instruction))
-      (let ((command (aider-read-string "Enter architectural discussion topic/question: ")))
+      (let ((prompt (if is-text-file
+                        "Enter document editing topic/question: "
+                      "Enter architectural discussion topic/question: "))
+            (command (aider-read-string prompt)))
         (aider-current-file-command-and-switch "/architect " command)))))
 
 (defun aider-region-change-generate-command (region-text function-name user-command)
@@ -89,13 +96,20 @@ Delete the comment line, prompt for instruction, and send change command."
                        "+[ \t]*")
                ""
                line-text))
+         (is-text-file (aider--is-text-file))
          (default-prompt
-          (if function-name
-              (format "In function %s, change code according to requirement: %s"
-                      function-name req)
-            (format "Change code according to requirement: %s" req)))
-         (instruction (aider-read-string
-                       "Code change instruction: " default-prompt))
+          (cond
+           (is-text-file
+            (format "Edit document according to requirement: %s" req))
+           (function-name
+            (format "In function %s, change code according to requirement: %s"
+                    function-name req))
+           (t
+            (format "Change code according to requirement: %s" req))))
+         (prompt (if is-text-file
+                     "Document editing instruction: "
+                   "Code change instruction: "))
+         (instruction (aider-read-string prompt default-prompt))
          (cmd (concat "/architect " instruction)))
     (save-excursion
       (delete-region (line-beginning-position)
@@ -201,15 +215,35 @@ ignoring leading whitespace."
 
 (defun aider--get-comment-instruction (comment-content function-name)
   "Generate instruction for comment-based changes."
-  (let ((default-prompt (if function-name
-                            (format "In function %s, change code according to requirement: %s"
-                                    function-name comment-content)
-                          (format "Change code according to requirement: %s" comment-content))))
-    (aider-read-string "Code change instruction: " default-prompt)))
+  (let* ((is-text-file (aider--is-text-file))
+         (default-prompt (cond
+                          (is-text-file
+                           (format "Edit document according to requirement: %s" comment-content))
+                          (function-name
+                           (format "In function %s, change code according to requirement: %s"
+                                   function-name comment-content))
+                          (t
+                           (format "Change code according to requirement: %s" comment-content))))
+         (prompt (if is-text-file
+                     "Document editing instruction: "
+                   "Code change instruction: ")))
+    (aider-read-string prompt default-prompt)))
 
 (defun aider--get-standard-instruction (region-active function-name)
   "Generate instruction for standard region or function changes."
-  (let* ((prompt (cond
+  (let* ((is-text-file (aider--is-text-file))
+         (prompt (cond
+                  (is-text-file
+                   (cond
+                    ((and region-active function-name)
+                     (format "Document editing instruction for selected text in section '%s': "
+                             function-name))
+                    (function-name
+                     (format "Edit section '%s': " function-name))
+                    (region-active
+                     "Edit instruction for selected text: ")
+                    (t
+                     "Edit instruction: ")))
                   ((and region-active function-name)
                    (format "Code change instruction for selected region in function '%s': "
                            function-name))
@@ -222,11 +256,17 @@ ignoring leading whitespace."
          (candidate-list (aider--get-candidate-list)))
     (aider-read-string prompt nil candidate-list)))
 
+(defun aider--is-text-file ()
+  "Check if the current buffer is a text file (non-code file)."
+  (let* ((ext (and buffer-file-name
+                   (downcase (or (file-name-extension buffer-file-name) "")))))
+    (member ext '("" "md" "org" "txt"))))
+
 (defun aider--get-candidate-list ()
   "Get candidate list based on whether current file is a test file."
   (let* ((ext (and buffer-file-name
                    (downcase (or (file-name-extension buffer-file-name) ""))))
-         (is-text-file (member ext '("" "md" "org" "txt")))
+         (is-text-file (aider--is-text-file))
          (is-test-file (and buffer-file-name
                             (string-match-p "test"
                                             (file-name-nondirectory
@@ -263,7 +303,7 @@ ignoring leading whitespace."
         "Generate Docstring/Comment for This"
         "Improve error handling and edge cases"
         "Optimize this code for better performance"
-        "Extract this logic into a separate helper function")))))
+        "Extract this logic into a separate helper function"))))))
 
 ;;;###autoload
 (defun aider-implement-todo ()
@@ -303,7 +343,10 @@ The keyword and its definition are configured in
              (t
               (format "Please implement all %s in-place in file '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
                       keyword (file-name-nondirectory buffer-file-name) keyword definition))))
-           (user-command (aider-read-string "TODO implementation instruction: " initial-input)))
+           (prompt (if (aider--is-text-file)
+                       "Document editing instruction: "
+                     "TODO implementation instruction: "))
+           (user-command (aider-read-string prompt initial-input)))
       (aider-current-file-command-and-switch "/architect " user-command))))
 
 ;;;###autoload
