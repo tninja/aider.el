@@ -1,0 +1,269 @@
+#+TITLE: Aider.el Step-by-Step Best Practices Guide
+#+SUBTITLE: From Zero to Productive AI-Assisted Development
+
+* 🎯 Quick Start: Your First 5 Minutes
+
+** Step 1: Start Your First Aider Session
+1. Open any file in your git repository
+2. Press ~C-c a a~ (or run ~M-x aider-run-aider~)
+3. Answer "yes" if prompted for --subtree-only (for large repos)
+
+** Step 2: Add Your Current File
+1. Press ~C-c a f~ to add the current file to aider
+2. You'll see confirmation in the aider buffer: "Added file.py to the chat"
+
+** Step 3: Ask Your First Question
+1. Put your cursor to the function you are interested
+2. ~C-c a q~ to ask specific questions
+
+* 🔄 The Complete Development Loop
+
+** Phase 1: Setup (30 seconds)
+1. ~C-c a a~ → Start aider session
+2. ~C-c a f~ → Add current file(s)
+3. ~C-c a p~ → Open prompt file (optional, for planning)
+
+** Phase 2: Implement (5-15 minutes)
+1. Write TODO comments in your code:
+   #+BEGIN_SRC python
+     # TODO: Add validation for email format
+     # TODO: Handle empty input case
+   #+END_SRC
+
+2. Place cursor on TODO and press ~C-c a i~ (implement)
+3. Review AI suggestions in aider buffer
+4. Type "y" to accept or refine with follow-up questions
+
+** Phase 3: Test (3-5 minutes)
+1. Press ~C-c a U~ (write unit test)
+2. Choose "current function" or "current file"
+3. Run tests manually in terminal
+4. If tests fail: ~C-c a c~ on function to fix
+
+** Phase 4: Refine (2-5 minutes)
+1. ~C-c a r~ for refactoring suggestions
+2. Repeat implement/test cycle as needed
+
+** Phase 5: Complete (30 seconds)
+1. ~C-c a s~ → Reset session for next task
+2. Commit your changes with git
+
+* 📋 Daily Workflow Patterns
+
+** Pattern 1: New Feature Development
+1. ~C-c a a~ → New session
+2. ~C-c a p~ → Write feature plan in prompt file
+3. ~C-c a M~ → Add relevant module files
+4. TODO comments → ~C-c a i~ → Implement
+5. ~C-c a U~ → Generate tests
+6. ~C-c a s~ → Reset when done
+
+** Pattern 2: Bug Fixing
+1. ~C-c a a~ → New session
+2. ~C-c a f~ → Add problematic file
+3. ~C-c a q~ → "What's causing this bug?"
+4. ~C-c a c~ → Apply fix
+5. ~C-c a U~ → Add regression tests
+6. ~C-c a s~ → Reset
+
+** Pattern 3: Code Review
+1. ~C-c a v~ → Pull diff for review
+2. ~C-c a v~ → "Review this code change"
+3. Apply suggestions with ~C-c a c~ on the relevant code
+4. ~C-c a U~ → Add missing tests
+
+* 📝 Aider Prompt File Workflow
+
+** Why Use Prompt File
+- Write multi-line prompts without mini-buffer limitations
+- Organize complex tasks with headlines
+- Keep a record of your development process
+- Batch send commands to aider
+
+** Basic Prompt File Setup
+1. ~C-c a p~ → Open repo-specific prompt file
+2. Create headlines for organization:
+   #+BEGIN_EXAMPLE
+   * User Authentication Feature
+   ** Step 1: Email Validation
+   ** Step 2: Password Hashing
+   ** Step 3: Login Function
+   #+END_EXAMPLE
+
+** Writing Commands in Prompt File
+1. **Simple commands** (just type aider commands):
+   #+BEGIN_EXAMPLE
+   /ask explain the validate_email function
+   /architect add comprehensive error handling
+   #+END_EXAMPLE
+
+2. **Multi-line prompts** (use headlines for context):
+   #+BEGIN_EXAMPLE
+   * Add user registration
+   /architect
+   Add user registration function that:
+   - Validates email format
+   - Hashes passwords with bcrypt
+   - Returns appropriate error messages
+   #+END_EXAMPLE
+
+** Sending Commands to Aider
+- ~C-c C-n~ → Send current line to aider
+- ~C-c C-c~ → Send text under headline to aider  
+- ~C-u C-c C-n~ → Send selected region
+
+** Complete Example Workflow
+1. Open prompt file: ~C-c a p~
+2. Write:
+   #+BEGIN_EXAMPLE
+   * Bug: Login failing for + emails
+   /ask investigate email validation regex
+   
+   * Fix: Update regex
+   /architect fix regex to handle + in emails
+   
+   * Test: Add regression test
+   /ask add test for emails with + character
+   #+END_EXAMPLE
+3. Send each line with ~C-c C-n~
+
+** Prompt File Best Practices
+- Use headlines to organize tasks
+- Keep prompts focused and specific
+- Add context before complex commands
+- Track progress with TODO states
+
+* 🎮 Interactive Examples: Try These Now
+
+** Example 1: Hello World in Python
+1. Create ~hello.py~
+2. Add content:
+   #+BEGIN_SRC python
+     # TODO: Create a function that returns "Hello, World!"
+   #+END_SRC
+3. Place cursor on TODO, press ~C-c a i~
+4. See AI implement the function
+
+** Example 2: Simple Calculator
+1. Create ~calculator.py~
+2. Add:
+   #+BEGIN_SRC python
+     # TODO: Add function to add two numbers
+     # TODO: Add function to multiply two numbers
+   #+END_SRC
+3. ~C-c a i~ on each TODO
+4. ~C-c a U~ to generate tests
+
+* 🔧 Essential Keybindings Cheat Sheet
+
+| Key | Command | When to Use |
+|-----+---------+-------------|
+| ~C-c a a~ | Start session | Always first |
+| ~C-c a f~ | Add file | For single file |
+| ~C-c a w~ | Add window files | For 2-3 files |
+| ~C-c a i~ | Implement TODO | On TODO comments |
+| ~C-c a c~ | Change code | On selected region |
+| ~C-c a q~ | Ask question | Anytime |
+| ~C-c a U~ | Generate tests | After implementing |
+| ~C-c a s~ | Reset session | Between tasks |
+
+* 🚨 Common Beginner Mistakes & Fixes
+
+** Mistake 1: "Nothing happens when I edit"
+- *Problem*: Buffer not updating with AI changes
+- *Fix*: Add to your config:
+  #+BEGIN_SRC emacs-lisp
+    (global-auto-revert-mode 1)
+    (auto-revert-mode 1)
+  #+END_SRC
+
+** Mistake 2: "Aider is too slow"
+- *Problem*: Large repository scanning
+- *Fix*: Use --subtree-only flag:
+  1. Navigate to project subfolder in dired
+  2. ~C-c a a~ → answer "yes" to subtree prompt
+
+** Mistake 3: "I broke my code"
+- *Problem*: Accepted bad AI suggestion
+- *Fix*: 
+  1. Use git / magit to revert changes
+  2. Ask AI to fix: ~C-c a q~ "fix the bug I introduced"
+
+* 📊 Real Project Timeline Examples
+
+** Small Function (5-10 minutes)
+1. TODO comment → Implementation → Tests → Done
+
+** Medium Feature (30-60 minutes)
+1. Plan in prompt file (5 min)
+2. Implement core logic (15 min)
+3. Generate and run tests (10 min)
+4. Refine and edge cases (15 min)
+5. Documentation (5 min)
+
+** Complex Feature (2-4 hours)
+1. Multiple planning cycles
+2. Iterative implementation
+3. Multiple test suites
+4. Refactoring passes
+5. Integration testing
+
+* 🎯 Daily Checklist
+
+** Before Starting Work
+- [ ] ~C-c a a~ → Start aider session
+- [ ] ~C-c a f~ → Add relevant files
+- [ ] ~C-c a p~ → Open prompt file for notes
+
+** During Development
+- [ ] Write TODO comments for gaps
+- [ ] Use ~C-c a i~ for implementation
+- [ ] Use ~C-c a U~ for tests
+- [ ] Review AI suggestions carefully
+
+** End of Session
+- [ ] ~C-c a s~ → Reset session
+- [ ] Commit changes to git
+- [ ] Update documentation if needed
+
+* 🔍 Troubleshooting Quick Fix
+
+| Problem | Press This | What It Does |
+|---------+------------|--------------|
+| Session stuck | ~C-c a s~ | Reset and start fresh |
+| Wrong files added | ~C-c a O~ | Drop specific files |
+| Need more context | ~C-c a q~ | Ask clarifying questions |
+| Tests failing | ~C-c a c~ | Fix the failing code |
+| Slow performance | ~C-u C-c a a~ | Start with subtree-only |
+
+* 🏁 Next Steps After Mastering Basics
+
+1. **Explore Prompt Snippets**
+   - ~M-x yas-insert-snippet~ → Try "code-review" or "unit-tests"
+
+2. **Advanced Features**
+   - ~C-c a r~ → Refactor using design patterns
+   - ~C-c a v~ → Review git diffs with AI
+   - ~C-c a P~ → Software planning discussions
+
+3. **Customization**
+   - Create custom prompt snippets
+   - Set up branch-specific sessions
+   - Configure preferred AI models
+
+* 🎓 Practice Exercises
+
+** Exercise 1: String Utilities (10 min)
+1. Create ~string_utils.py~
+2. Add TODO for: reverse_string, is_palindrome, count_vowels
+3. Implement with ~C-c a i~
+4. Generate tests with ~C-c a U~
+
+** Exercise 2: File Processing (20 min)
+1. Create ~file_processor.py~
+2. Add TODO for: read_file, count_lines, find_duplicates
+3. Implement iteratively
+4. Add error handling
+5. Generate comprehensive tests
+
+Remember: The key is starting with TODO comments and using ~C-c a i~ - this simple pattern unlocks 80% of aider.el's value!
