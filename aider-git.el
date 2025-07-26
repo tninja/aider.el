@@ -262,7 +262,9 @@ GIT-ROOT is the root directory of the Git repository."
                         ('commit-range (aider--handle-commit-range-diff-generation git-root))
                         (_ (user-error "Invalid diff type selected")))))
       (when diff-file
-        (aider--open-diff-file diff-file)))))
+        (aider--open-diff-file diff-file)
+        (if (y-or-n-p "Do you want to review the change?")
+            (aider-pull-or-review-diff-file))))))
 
 ;;;###autoload
 (defun aider-magit-blame-analyze ()
