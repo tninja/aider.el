@@ -79,7 +79,8 @@ This adds the necessary hooks to set up keybindings in appropriate buffers."
   (interactive)
   (add-hook 'find-file-hook #'aider-doom-setup-keys)
   (add-hook 'dired-mode-hook #'aider-doom-setup-keys)
-  (add-hook 'after-change-major-mode-hook #'aider-doom-setup-keys))
+  (add-hook 'after-change-major-mode-hook #'aider-doom-setup-keys)
+  (set-popup-rule! "^\\*aider*" :quit nil)) ;; https://github.com/tninja/aider.el/issues/226
 
 (aider-doom-enable)
 
