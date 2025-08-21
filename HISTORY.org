@@ -3,6 +3,8 @@
 
 ** Main branch change
 
+** v0.13.1
+
 - More intelligent and simplified aider-ask-question: Do not use C-u key anymore to choose if it is a question on current function or general question. It will identify the choice given position of current cursor, if it need to ask question, use completing-reading instead of C-u
 - Integrate aider-function-or-region-change and aider-architect-discussion, as aider-code-change function, similar to change above
 - Feat: add configuration options for command completion and file path insertion, by Yikai Zhao
@@ -10,8 +12,11 @@
   - Aider.el can be useful for document rewriting. One typical use case is, select several lines of text, call aider-code-change (C-c a c). Type the rewrite instruction, or select rewrite prompt from the candidate list, aider will rewrite the part and ask for review, just like code change.
 - chore: replace list* with cl-list*, as list* is deprecated. By Hongyu Ouyang 
 - Fix: do not use jit-lock-defer-time, reported and tested by Yikai Zhao and Vagn Johansen 
+- Fix: Double ESC in doom emacs kills aider process, by Volodymyr Anokhin 
+- Chore: visual-line-mode should be enabled in the aider buffer so the texts from the LLM is word-wrapped, suggested by Vagn Johansen 
+- Feat: Make it easier to see what code the LLM has changed: SEARCH/REPLACE diff visualization, by Vagn Johansen  
 
-** v.0.13.0
+** v0.13.0
 
 - Feat: aider-function-or-region-change (C-c a c) support inline comment based existing code change requirement, when
   - The current line is a comment describing the change
