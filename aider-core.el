@@ -78,6 +78,7 @@ When nil, use standard `display-buffer' behavior.")
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-add-file-path)
     (define-key map (kbd "TAB") #'aider-core-insert-prompt)
     (define-key map (kbd "C-c C-y") #'aider-go-ahead)
+    (define-key map (kbd "C-c d") #'aider-compare-search-replace-blocks)
     map)
   "Keymap for `aider-comint-mode'.")
 
@@ -299,9 +300,9 @@ Return potentially modified CURRENT-ARGS."
   (with-current-buffer buffer-name
     (aider-comint-mode))
   (message "%s" (if current-args
-                    (format "Running aider from %s, with args: %s.\nMay the AI force be with you!" 
+                    (format "Running aider from %s, with args: %s.\nMay the AI force be with you!"
                             default-directory (mapconcat #'identity current-args " "))
-                  (format "Running aider from %s with no args provided.\nMay the AI force be with you!" 
+                  (format "Running aider from %s with no args provided.\nMay the AI force be with you!"
                           default-directory))))
 
 ;;;###autoload
@@ -394,6 +395,76 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
+
+;; SEARCH/REPLACE block functionality
+
+(defun aider--extract-search-replace-blocks ()
+  "Extract SEARCH/REPLACE block content if point is inside a block.
+Returns a list containing the (search-text replace-text) pair if point is within
+a SEARCH/REPLACE block or nil."
+  (save-excursion
+    (let ((current-point (point))
+          (block-start nil)
+          (block-end nil)
+          (search-text nil)
+          (replace-text nil))
+      ;; Search backwards for the start of a SEARCH block
+      (when (re-search-backward "<<<<<<< SEARCH" nil t)
+        (setq block-start (match-beginning 0))
+        ;; Search forwards for the end of this REPLACE block
+        (when (re-search-forward ">>>>>>> REPLACE" nil t)
+          (setq block-end (match-end 0))
+          ;; Check if current point is within this block
+          (when (and (>= current-point block-start)
+                     (<= current-point block-end))
+            ;; Extract the content
+            (goto-char block-start)
+            (when (re-search-forward "<<<<<<< SEARCH\n\\(\\(?:.\\|\n\\)*?\\)=======\n\\(\\(?:.\\|\n\\)*?\\)>>>>>>> REPLACE" block-end t)
+              (setq search-text (match-string 1))
+              (setq replace-text (match-string 2))
+              (list (list search-text replace-text)))))))))
+
+;;;###autoload
+(defun aider-compare-search-replace-blocks ()
+  "Compare SEARCH and REPLACE blocks using diff program.
+Creates two temporary files with the content and calls diff to show differences."
+  (interactive)
+  (let ((blocks (aider--extract-search-replace-blocks)))
+    (if (null blocks)
+        (message "Point is not inside a SEARCH/REPLACE block")
+      (let* ((block (car blocks))
+             (search-text (car block))
+             (replace-text (cadr block))
+             (search-file (make-temp-file "aider-search-" nil ".txt"))
+             (replace-file (make-temp-file "aider-replace-" nil ".txt"))
+             (diff-buffer (generate-new-buffer "*aider-diff*")))
+
+        (with-temp-file search-file
+          (insert search-text))
+        (with-temp-file replace-file
+          (insert replace-text))
+
+        ;; Run diff and display results
+        (with-current-buffer diff-buffer
+          (let ((exit-code (call-process "diff" nil t nil "-u" search-file replace-file)))
+            (if (= exit-code 0)
+                (insert "No differences found between SEARCH and REPLACE blocks.")
+              (progn
+                (goto-char (point-min))
+                (diff-mode)
+                (view-mode 1))))
+
+          ;; Display the diff buffer
+          (pop-to-buffer diff-buffer)
+
+          ;; Clean up temporary files
+          (add-hook 'kill-buffer-hook
+                    (lambda ()
+                      (when (file-exists-p search-file)
+                        (delete-file search-file))
+                      (when (file-exists-p replace-file)
+                        (delete-file replace-file)))
+                    nil t))))))
 
 (provide 'aider-core)
 
