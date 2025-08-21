@@ -124,6 +124,9 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (setq-local comint-input-sender 'aider-input-sender)
   ;; Enable comint's built-in input highlighting
   (setq-local comint-highlight-input t)
+  ;; visual-line-mode
+  (when (fboundp 'visual-line-mode)
+    (visual-line-mode 1))
   ;; Add command completion hooks
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
