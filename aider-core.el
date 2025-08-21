@@ -126,7 +126,7 @@ Inherits from `comint-mode' with some Aider-specific customizations.
   (setq-local comint-highlight-input t)
   ;; visual-line-mode
   (when (fboundp 'visual-line-mode)
-    (visual-line-mode 1)))
+    (visual-line-mode 1))
   ;; Add command completion hooks
   (add-hook 'completion-at-point-functions #'aider-core--command-completion nil t)
   (add-hook 'post-self-insert-hook #'aider-core--auto-trigger-command-completion nil t)
