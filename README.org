@@ -40,6 +40,8 @@
 
 [[file:./transient_menu.png]]
 
+- If you like the feature of this package, but wish to use Claude Code or Gemini CLI, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]].
+
 * Installation
 
 - Emacs need to be >= 26.1
