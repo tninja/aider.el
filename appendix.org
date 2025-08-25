@@ -122,6 +122,9 @@ The aider prefix is ~A~.
   <img src="https://i.redd.it/puzjerkgcfqe1.jpeg" width="300" />
 #+END_HTML
 
+- [[https://www.youtube.com/watch?v=1A6uPztchXk&t=708s][David Farley's Opinion on Vibe Coding]]
+  - He is author of "[[https://www.amazon.com/Continuous-Delivery-Deployment-Automation-Addison-Wesley-ebook/dp/B003YMNVC0/?_encoding=UTF8&pd_rd_w=h7skp&content-id=amzn1.sym.0fb2cce1-1ca4-439a-844b-8ad0b1fb77f7&pf_rd_p=0fb2cce1-1ca4-439a-844b-8ad0b1fb77f7&pf_rd_r=136-1270107-4953942&pd_rd_wg=g7ryi&pd_rd_r=ae58c4a7-7782-4a27-940b-2ab165ac6e1a&ref_=aufs_ap_sc_dsk][Continuous Delivery]]" and "[[https://www.amazon.com/Modern-Software-Engineering-Better-Faster-ebook/dp/B09GG6XKS4?ref_=ast_author_mpb][Modern Software Engineering]]"
+
 - *Unit-test can be useful on both of the above concern*. And aider can help writing unit tests.
   - The AI generated test need to be manually checked / fixed. But generally test code is easier to understand.
   - Running the unit-tests can help verifying the correctness / identifying the bug of code. It also help developer better understanding how the AI generated code work, and it can give developer more confidence on the new code.
