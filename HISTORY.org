@@ -3,6 +3,8 @@
 
 ** Main branch change
 
+- feat: highlight SEARCH/REPLACE changes automatically when point is inside block, by Vagn Johansen
+
 ** v0.13.1
 
 - More intelligent and simplified aider-ask-question: Do not use C-u key anymore to choose if it is a question on current function or general question. It will identify the choice given position of current cursor, if it need to ask question, use completing-reading instead of C-u

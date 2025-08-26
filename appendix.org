@@ -1,6 +1,20 @@
 
 * Recent New Features
 
+** Make it easier to see what code the LLM has changed
+
+- SEARCH/REPLACE diff visualization, by Vagn Johansen
+
+1. Visual Highlighting:
+   - When the point is inside a SEARCH/REPLACE block, the differences between the
+     SEARCH and REPLACE sections are highlighted using overlays styled similarly
+     to smerge-mode. This highlighting is updated lazily via an idle timer.
+
+2. Block Comparison: C-c d
+   - The command `aider-compare-search-replace-blocks` allows users to compare
+     the SEARCH and REPLACE sections of the block at point. It opens a new buffer
+     showing a unified diff (requires the external `diff` program).
+
 ** Let aider to fix the errors reported by flycheck
 
 - aider-flycheck-fix-errors-in-scope :: Flycheck output will be sent to aider as context to fix the error. It support:
