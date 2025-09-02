@@ -183,7 +183,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 * [[./appendix.org#be-careful-about-ai-generated-code][Be careful about AI generated code]]
 
-* [[./best_practice.org][Best Practices]]
+* [[./best_practices.org][Best Practices]]
 
 * FAQ
 
