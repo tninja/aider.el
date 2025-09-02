@@ -46,6 +46,8 @@
 
 [[file:./transient_menu.png]]
 
+- *如果你喜欢这个包的功能，但希望使用 /Claude Code/ 或 /Gemini CLI/，请查看 [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*。
+
 * 安装
 
 - Emacs 需要 >= 26.1
