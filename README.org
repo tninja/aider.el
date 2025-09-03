@@ -17,6 +17,8 @@
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
 
+- *If you like the feature of this package, but wish to use _Claude Code_ / _Gemini CLI_ / or _OpenAI Codex_, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*.
+
 * Introduction
 
 - Want AI-powered coding like [[https://www.cursor.com/][Cursor AI Code Editor]] but inside Emacs?  
@@ -39,8 +41,6 @@
 
 
 [[file:./transient_menu.png]]
-
-- *If you like the feature of this package, but wish to use /Claude Code/ or /Gemini CLI/, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*.
 
 * Installation
 
