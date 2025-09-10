@@ -17,7 +17,7 @@
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
 
-- *If you like the feature of this package, but wish to use _Claude Code_ / _Gemini CLI_ / or _OpenAI Codex_, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*.
+- *If you like the feature of this package, but wish to use Claude Code / Gemini CLI / or OpenAI Codex, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*.
 
 * Introduction
 
