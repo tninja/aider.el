@@ -26,6 +26,8 @@
 ;;   ;; For latest claude sonnet model
 ;;   (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
 ;;   (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+;;   ;; Optional: Choose terminal backend (comint, vterm, or eat)
+;;   ;; (setq aider-terminal-backend 'vterm)  ; or 'eat
 ;;   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
