@@ -57,7 +57,7 @@ Add quotes if the path contains spaces."
 If current buffer is the aider comint session and cursor is on a file path,
 drop that file instead."
   (interactive)
-  (if (derived-mode-p 'aider-comint-mode)
+  (if (aider--in-aider-buffer-p)
       (if (aider--file-path-under-cursor-is-file)
           (aider--drop-file-under-cursor)
         (message "No file path found under cursor in aider session"))

@@ -67,6 +67,8 @@
 (require 'aider-bootstrap)
 (require 'aider-software-planning)
 
+(declare-function vterm-clear "vterm")
+
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
                                   ;; "gemini"  ;; SOTA ;; extremely slow these days
@@ -181,14 +183,19 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     "Discussion"
     aider--menu-discussion]])
 
-;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
+;; Add a function, aider-clear-buffer. It will switch aider buffer and clear its contents
 ;;;###autoload
 (defun aider-clear-buffer ()
   "Switch to the Aider buffer and clear its contents."
   (interactive)
   (when-let ((buffer (get-buffer (aider-buffer-name))))
     (with-current-buffer buffer
-      (comint-clear-buffer)
+      ;; Backend-specific buffer clearing
+      (pcase aider-terminal-backend
+        ('comint (comint-clear-buffer))
+        ('vterm (vterm-clear))
+        ('eat (let ((inhibit-read-only t))
+                (erase-buffer))))
       (aider--send-command "/clear"))
     (aider-switch-to-buffer)))
 

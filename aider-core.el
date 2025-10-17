@@ -198,6 +198,13 @@ This function combines candidate-list with history for better completion."
 
 ;;; Backend abstraction layer
 
+(defun aider--in-aider-buffer-p ()
+  "Return non-nil if current buffer is an aider buffer.
+This works for all backends (comint, vterm, eat)."
+  (let ((buffer-name (buffer-name)))
+    (and buffer-name
+         (string-match-p "^\\*aider:" buffer-name))))
+
 (defun aider--backend-available-p (backend)
   "Check if BACKEND is available.
 BACKEND can be 'comint, 'vterm, or 'eat."
