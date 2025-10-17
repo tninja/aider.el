@@ -25,7 +25,6 @@
 (declare-function vterm-send-return "vterm")
 (declare-function eat-mode "eat")
 (declare-function eat-exec "eat" (buffer name command startfile switches))
-(declare-function eat-self-input "eat" (n char))
 (defvar vterm--process)
 
 (defgroup aider nil
@@ -279,9 +278,10 @@ Returns the created buffer or nil on failure."
        (vterm-send-return)))
     ('eat
      (with-current-buffer buffer
-       (goto-char (point-max))
-       (insert text)
-       (eat-self-input 1 ?\r)))  ; Send return key
+       ;; For eat, we send the text followed by a newline to the process
+       (let ((proc (get-buffer-process buffer)))
+         (when proc
+           (process-send-string proc (concat text "\n"))))))
     (_ 
      (error "Unknown backend: %s" backend))))
 
