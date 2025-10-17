@@ -89,6 +89,11 @@
     ;; Or use your personal config file
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
+    ;; Optional: 选择终端后端（comint 是默认值，也支持 vterm 和 eat）
+    ;; (setq aider-terminal-backend 'comint)  ; 默认，内置，无额外依赖
+    ;; (setq aider-terminal-backend 'vterm)   ; 需要 emacs-libvterm 包
+    ;; (setq aider-terminal-backend 'eat)     ; 需要 emacs-eat 包
+    ;; ;;
     ;; Optional: Set a key binding for the transient menu
     (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
     ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
@@ -309,6 +314,13 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 - 为何 aider-code-change 在 transient 菜单中被禁用？
   - 它绕过了代码审查，因此不推荐使用。其代码质量不如 /architect。讨论见：https://github.com/tninja/aider.el/issues/128
+
+- 我可以使用 vterm 或 eat 代替 comint 作为 aider 终端吗？
+  - 可以！在配置中将 ~aider-terminal-backend~ 设置为 ~'vterm~ 或 ~'eat~。
+  - vterm 需要 [[https://github.com/akermu/emacs-libvterm][emacs-libvterm]] 包
+  - eat 需要 [[https://codeberg.org/akib/emacs-eat][emacs-eat]] 包
+  - comint 是默认值，无需额外依赖
+  - 示例：~(setq aider-terminal-backend 'vterm)~
 
 * 未来工作
     
