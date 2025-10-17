@@ -274,11 +274,12 @@ Returns the created buffer or nil on failure."
      (aider--comint-send-string-syntax-highlight buffer text))
     ('vterm
      (with-current-buffer buffer
+       ;; vterm provides special functions for sending input that handle terminal control codes
        (vterm-send-string text)
        (vterm-send-return)))
     ('eat
      (with-current-buffer buffer
-       ;; For eat, we send the text followed by a newline to the process
+       ;; eat uses standard process communication, so we send directly to the process
        (let ((proc (get-buffer-process buffer)))
          (when proc
            (process-send-string proc (concat text "\n"))))))
