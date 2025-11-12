@@ -3,6 +3,7 @@
 
 ** Main branch change
 
+- feat: Add history navigation keys and functions, by EdmondFrank
 - feat: highlight SEARCH/REPLACE changes automatically when point is inside block, by Vagn Johansen
 
 ** v0.13.1
