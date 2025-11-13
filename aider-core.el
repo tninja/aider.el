@@ -19,6 +19,13 @@
 (require 'aider-highlight-changes) ;; for search/replace block highlighting
 
 (declare-function evil-define-key* "evil" (state map key def))
+;; Declare functions from optional backends
+(declare-function vterm-mode "vterm")
+(declare-function vterm-send-string "vterm" (string))
+(declare-function vterm-send-return "vterm")
+(declare-function eat-mode "eat")
+(declare-function eat-exec "eat" (buffer name command startfile switches))
+(defvar vterm--process)
 
 (defgroup aider nil
   "Customization group for the Aider package."
@@ -66,6 +73,16 @@ user picks “yes and do not ask again.”"
 (defcustom aider-enable-markdown-highlighting t
   "When non-nil, automatically highlight markdown in Aider comint buffers."
   :type 'boolean
+  :group 'aider)
+
+(defcustom aider-terminal-backend 'comint
+  "Terminal backend to use for Aider sessions.
+- `comint': Use Emacs built-in comint-mode (default, no additional dependencies)
+- `vterm': Use vterm (requires emacs-libvterm package)
+- `eat': Use eat (requires emacs-eat package)"
+  :type '(choice (const :tag "Comint (built-in, default)" comint)
+                 (const :tag "VTerm (requires emacs-libvterm)" vterm)
+                 (const :tag "Eat (requires emacs-eat)" eat))
   :group 'aider)
 
 (defvar aider--switch-to-buffer-other-frame nil
@@ -190,6 +207,134 @@ This function combines candidate-list with history for better completion."
   ;; Ensure the alias is always available in both compiled and interpreted modes.
   (defalias 'aider-read-string #'aider-plain-read-string))
 
+;;; Backend abstraction layer
+
+(defun aider--in-aider-buffer-p ()
+  "Return non-nil if current buffer is an aider buffer.
+This works for all backends (comint, vterm, eat)."
+  (let ((buffer-name (buffer-name)))
+    (and buffer-name
+         (string-match-p "^\\*aider:" buffer-name))))
+
+(defun aider--backend-available-p (backend)
+  "Check if BACKEND is available.
+BACKEND can be 'comint, 'vterm, or 'eat."
+  (pcase backend
+    ('comint t)  ; comint is always available
+    ('vterm (featurep 'vterm))
+    ('eat (featurep 'eat))
+    (_ nil)))
+
+(defun aider--backend-require (backend)
+  "Ensure BACKEND is loaded.
+Returns non-nil if successful, nil otherwise."
+  (pcase backend
+    ('comint t)  ; comint is already loaded
+    ('vterm 
+     (condition-case err
+         (progn (require 'vterm) t)
+       (error 
+        (message "vterm not available: %s. Please install emacs-libvterm package." 
+                 (error-message-string err))
+        nil)))
+    ('eat
+     (condition-case err
+         (progn (require 'eat) t)
+       (error
+        (message "eat not available: %s. Please install emacs-eat package."
+                 (error-message-string err))
+        nil)))
+    (_ nil)))
+
+(defun aider--backend-create-buffer (backend buffer-name program args)
+  "Create a buffer using BACKEND.
+BUFFER-NAME is the name of the buffer to create.
+PROGRAM is the program to run.
+ARGS is a list of arguments to pass to the program.
+Returns the created buffer or nil on failure."
+  (pcase backend
+    ('comint
+     (apply #'make-comint-in-buffer "aider" buffer-name program nil args)
+     (get-buffer buffer-name))
+    ('vterm
+     ;; For vterm, we create a vterm buffer and run the command in it
+     (let* ((buf (get-buffer-create buffer-name))
+            (vterm-shell (concat program " " (mapconcat #'shell-quote-argument args " "))))
+       (with-current-buffer buf
+         (unless (eq major-mode 'vterm-mode)
+           (vterm-mode))
+         ;; Wait a bit for vterm to initialize
+         (sit-for 0.1)
+         (vterm-send-string vterm-shell)
+         (vterm-send-return)
+         buf)))
+    ('eat
+     ;; For eat, we use eat-exec to run the program directly
+     (let ((buf (get-buffer-create buffer-name)))
+       (with-current-buffer buf
+         (unless (eq major-mode 'eat-mode)
+           (eat-mode))
+         (eat-exec buf "aider" program nil args)
+         buf)))
+    (_ 
+     (error "Unknown backend: %s" backend))))
+
+(defun aider--backend-send-input (backend buffer text)
+  "Send TEXT to BUFFER using BACKEND."
+  (pcase backend
+    ('comint
+     (aider--comint-send-string-syntax-highlight buffer text))
+    ('vterm
+     (with-current-buffer buffer
+       ;; vterm provides special functions for sending input that handle terminal control codes
+       (vterm-send-string text)
+       (vterm-send-return)))
+    ('eat
+     (with-current-buffer buffer
+       ;; eat uses standard process communication, so we send directly to the process
+       (let ((proc (get-buffer-process buffer)))
+         (when proc
+           (process-send-string proc (concat text "\n"))))))
+    (_ 
+     (error "Unknown backend: %s" backend))))
+
+(defun aider--backend-check-proc (backend buffer)
+  "Check if BUFFER has an active process using BACKEND.
+Returns non-nil if process is active, nil otherwise."
+  (pcase backend
+    ('comint
+     (comint-check-proc buffer))
+    ('vterm
+     (and (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (and (eq major-mode 'vterm-mode)
+                 (process-live-p vterm--process)))))
+    ('eat
+     (and (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (and (eq major-mode 'eat-mode)
+                 (process-live-p (get-buffer-process buffer))))))
+    (_ nil)))
+
+(defun aider--backend-setup-buffer (backend buffer)
+  "Setup BUFFER for BACKEND with aider-specific configuration."
+  (with-current-buffer buffer
+    (pcase backend
+      ('comint
+       (aider-comint-mode))
+      ('vterm
+       ;; vterm-mode is already enabled, just set up key bindings
+       (local-set-key (kbd "C-c C-f") #'aider-prompt-insert-add-file-path)
+       (local-set-key (kbd "C-c C-y") #'aider-go-ahead)
+       (local-set-key (kbd "C-c d") #'aider-compare-search-replace-blocks))
+      ('eat
+       ;; eat-mode is already enabled, set up key bindings
+       (local-set-key (kbd "C-c C-f") #'aider-prompt-insert-add-file-path)
+       (local-set-key (kbd "C-c C-y") #'aider-go-ahead)
+       (local-set-key (kbd "C-c d") #'aider-compare-search-replace-blocks))
+      (_ 
+       (error "Unknown backend: %s" backend)))))
+
 (defun aider--comint-send-string-syntax-highlight (buffer text)
   "Send TEXT to the comint BUFFER using comint's standard input mechanism.
 Uses comint's built-in highlighting for input text."
@@ -243,9 +388,10 @@ Returns t if command was sent successfully, nil otherwise."
                      (t t)))))))
         ;; wrap existing send logic in (when continue?)
         (when continue?
-          (if (and (get-buffer-process aider-buffer) (comint-check-proc aider-buffer))
+          (if (and (get-buffer-process aider-buffer) 
+                   (aider--backend-check-proc aider-terminal-backend aider-buffer))
               (progn
-                (aider--comint-send-string-syntax-highlight aider-buffer command)
+                (aider--backend-send-input aider-terminal-backend aider-buffer command)
                 (when log    (message "Sent command: %s" (string-trim command)))
                 (when switch-to-buffer (aider-switch-to-buffer))
                 (sleep-for 0.2)
@@ -310,25 +456,32 @@ Return potentially modified CURRENT-ARGS."
 
 (defun aider--create-aider-buffer (buffer-name current-args)
   "Create and configure aider buffer with BUFFER-NAME and CURRENT-ARGS."
-  (apply #'make-comint-in-buffer "aider" buffer-name aider-program nil current-args)
-  (with-current-buffer buffer-name
-    (aider-comint-mode))
-  (message "%s" (if current-args
-                    (format "Running aider from %s, with args: %s.\nMay the AI force be with you!"
-                            default-directory (mapconcat #'identity current-args " "))
-                  (format "Running aider from %s with no args provided.\nMay the AI force be with you!"
-                          default-directory))))
+  (unless (aider--backend-require aider-terminal-backend)
+    (error "Backend %s is not available. Please install the required package or use a different backend" 
+           aider-terminal-backend))
+  (let ((buffer (aider--backend-create-buffer aider-terminal-backend 
+                                               buffer-name 
+                                               aider-program 
+                                               current-args)))
+    (when buffer
+      (aider--backend-setup-buffer aider-terminal-backend buffer))
+    (message "%s" (if current-args
+                      (format "Running aider from %s, with args: %s (backend: %s).\nMay the AI force be with you!"
+                              default-directory (mapconcat #'identity current-args " ") aider-terminal-backend)
+                    (format "Running aider from %s with no args provided (backend: %s).\nMay the AI force be with you!"
+                            default-directory aider-terminal-backend)))))
 
 ;;;###autoload
 (defun aider-run-aider (&optional edit-args subtree-only)
-  "Run \"aider\" in a comint buffer for interactive conversation.
+  "Run \"aider\" in a terminal buffer for interactive conversation.
+The terminal backend is determined by `aider-terminal-backend'.
 With prefix argument (e.g., \\[universal-argument]), prompt to edit `aider-args` (EDIT-ARGS).
 If SUBTREE-ONLY is non-nil, add '--subtree-only'.
 Prompts for --subtree-only in dired/eshell/shell if needed."
   (interactive "P")
   (let* ((buffer-name (aider-buffer-name))
          (comint-terminfo-terminal "dumb"))
-    (if (comint-check-proc buffer-name)
+    (if (aider--backend-check-proc aider-terminal-backend (get-buffer buffer-name))
         (message "Aider session already running in buffer: %s" buffer-name)
       (let ((current-args (aider--prepare-aider-args edit-args subtree-only)))
         (aider--create-aider-buffer buffer-name current-args)))

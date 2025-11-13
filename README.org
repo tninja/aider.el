@@ -78,6 +78,11 @@ Enable installation of packages from MELPA by adding an entry to package-archive
     ;; Or use your personal config file
     ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
     ;; ;;
+    ;; Optional: Choose terminal backend (comint is default, vterm and eat are also supported)
+    ;; (setq aider-terminal-backend 'comint)  ; default, built-in, no extra dependencies
+    ;; (setq aider-terminal-backend 'vterm)   ; requires emacs-libvterm package
+    ;; (setq aider-terminal-backend 'eat)     ; requires emacs-eat package
+    ;; ;;
     ;; Optional: Set a key binding for the transient menu
     (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
     ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
@@ -236,6 +241,13 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - Why aider-code-change got disabled in transient menu?
   - It bypass code review and is not recommended. The code quality is not as good as /architect. Discussed here: https://github.com/tninja/aider.el/issues/128
+
+- Can I use vterm or eat instead of comint for the aider terminal?
+  - Yes! Set ~aider-terminal-backend~ to ~'vterm~ or ~'eat~ in your configuration.
+  - vterm requires the [[https://github.com/akermu/emacs-libvterm][emacs-libvterm]] package
+  - eat requires the [[https://codeberg.org/akib/emacs-eat][emacs-eat]] package
+  - comint is the default and requires no extra dependencies
+  - Example: ~(setq aider-terminal-backend 'vterm)~
 
 * TODO Future work
 
