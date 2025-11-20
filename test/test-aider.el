@@ -295,4 +295,85 @@
                (lambda (prompt &optional initial) "test input")))
       (should (equal (aider-read-string "Test prompt: ") "test input")))))
 
+;;; Test aider--prepare-aider-args function
+
+(ert-deftest test-aider--prepare-aider-args-default-no-auto-accept ()
+  "Test that --no-auto-accept-architect is added by default when no flags are specified."
+  (when (fboundp 'aider--prepare-aider-args)
+    ;; Mock dependencies
+    (cl-letf (((symbol-function 'aider--maybe-prompt-subtree-only-for-special-modes)
+               (lambda (args) args)))
+      ;; Test: no args specified, should add --no-auto-accept-architect
+      (let ((aider-args '()))
+        (let ((result (aider--prepare-aider-args nil nil)))
+          (should (member "--no-auto-accept-architect" result))
+          (should-not (member "--auto-accept-architect" result))))
+      
+      ;; Test: custom args without auto-accept flags, should add --no-auto-accept-architect
+      (let ((aider-args '("--model" "gpt-4")))
+        (let ((result (aider--prepare-aider-args nil nil)))
+          (should (member "--no-auto-accept-architect" result))
+          (should (member "--model" result))
+          (should (member "gpt-4" result)))))))
+
+(ert-deftest test-aider--prepare-aider-args-respects-auto-accept-architect ()
+  "Test that --no-auto-accept-architect is NOT added when --auto-accept-architect is specified."
+  (when (fboundp 'aider--prepare-aider-args)
+    ;; Mock dependencies
+    (cl-letf (((symbol-function 'aider--maybe-prompt-subtree-only-for-special-modes)
+               (lambda (args) args)))
+      ;; Test: --auto-accept-architect specified, should NOT add --no-auto-accept-architect
+      (let ((aider-args '("--auto-accept-architect")))
+        (let ((result (aider--prepare-aider-args nil nil)))
+          (should (member "--auto-accept-architect" result))
+          (should-not (member "--no-auto-accept-architect" result))))
+      
+      ;; Test: --auto-accept-architect with other args, should NOT add --no-auto-accept-architect
+      (let ((aider-args '("--model" "gpt-4" "--auto-accept-architect")))
+        (let ((result (aider--prepare-aider-args nil nil)))
+          (should (member "--auto-accept-architect" result))
+          (should-not (member "--no-auto-accept-architect" result))
+          (should (member "--model" result))
+          (should (member "gpt-4" result)))))))
+
+(ert-deftest test-aider--prepare-aider-args-no-duplicate-no-auto-accept ()
+  "Test that --no-auto-accept-architect is NOT duplicated when already specified."
+  (when (fboundp 'aider--prepare-aider-args)
+    ;; Mock dependencies
+    (cl-letf (((symbol-function 'aider--maybe-prompt-subtree-only-for-special-modes)
+               (lambda (args) args)))
+      ;; Test: --no-auto-accept-architect already specified, should NOT add duplicate
+      (let ((aider-args '("--no-auto-accept-architect")))
+        (let ((result (aider--prepare-aider-args nil nil)))
+          ;; Count occurrences of --no-auto-accept-architect
+          (let ((count (cl-count "--no-auto-accept-architect" result :test #'string=)))
+            (should (= count 1)))))
+      
+      ;; Test: --no-auto-accept-architect with other args, should NOT add duplicate
+      (let ((aider-args '("--model" "gpt-4" "--no-auto-accept-architect")))
+        (let ((result (aider--prepare-aider-args nil nil)))
+          (let ((count (cl-count "--no-auto-accept-architect" result :test #'string=)))
+            (should (= count 1)))
+          (should (member "--model" result))
+          (should (member "gpt-4" result)))))))
+
+(ert-deftest test-aider--prepare-aider-args-subtree-only ()
+  "Test that subtree-only parameter works correctly with auto-accept flags."
+  (when (fboundp 'aider--prepare-aider-args)
+    ;; Mock dependencies
+    (cl-letf (((symbol-function 'aider--maybe-prompt-subtree-only-for-special-modes)
+               (lambda (args) args)))
+      ;; Test: subtree-only=t should add --subtree-only and --no-auto-accept-architect
+      (let ((aider-args '()))
+        (let ((result (aider--prepare-aider-args nil t)))
+          (should (member "--subtree-only" result))
+          (should (member "--no-auto-accept-architect" result))))
+      
+      ;; Test: subtree-only=t with --auto-accept-architect should NOT add --no-auto-accept-architect
+      (let ((aider-args '("--auto-accept-architect")))
+        (let ((result (aider--prepare-aider-args nil t)))
+          (should (member "--subtree-only" result))
+          (should (member "--auto-accept-architect" result))
+          (should-not (member "--no-auto-accept-architect" result)))))))
+
 (message "Aider.el comprehensive test suite loaded")
