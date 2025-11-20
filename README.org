@@ -70,7 +70,7 @@ Enable installation of packages from MELPA by adding an entry to package-archive
   (use-package aider
     :config
     ;; For latest claude sonnet model
-    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect")) ;; add --no-auto-commits if you don't want it
+    (setq aider-args '("--model" "sonnet")) ;; --no-auto-accept-architect is default, add --no-auto-commits if you don't want it
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or chatgpt model
     ;; (setq aider-args '("--model" "o4-mini"))
@@ -192,7 +192,7 @@ If you used installed aider.el through melpa and package-install, just need to ~
 
 - How to review / accept the code change? 
   - Comparing to cursor, aider have a different way to do that. [[https://github.com/tninja/aider.el/issues/98][Discussion]]
-  - Note: *Aider v0.77.0 automatically accept changes for /architect command. If you want to review the code change before accepting it like before for many commands in aider.el, you can disable that flag with "--no-auto-accept-architect" in either aider-args or .aider.conf.yml*.
+  - Note: *aider.el automatically adds "--no-auto-accept-architect" by default, so changes from /architect command will require review before accepting. If you want to auto-accept changes like Aider v0.77.0+ does by default, you can enable that by adding "--auto-accept-architect" to aider-args or .aider.conf.yml*.
 
 - How to disable to aider auto-commit?    
   - add --no-auto-commits to aider-args. aider-args is passed to aider CLI directly. [[https://aider.chat/docs/config/options.html][aider options reference]]

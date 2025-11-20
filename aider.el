@@ -24,7 +24,7 @@
 ;; (use-package aider
 ;;   :config
 ;;   ;; For latest claude sonnet model
-;;   (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+;;   (setq aider-args '("--model" "sonnet")) ;; --no-auto-accept-architect is default
 ;;   (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
 ;;   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 ;;

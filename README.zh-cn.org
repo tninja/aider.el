@@ -78,7 +78,7 @@
   (use-package aider
     :config
     ;; For latest claude sonnet model
-    (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
+    (setq aider-args '("--model" "sonnet")) ;; --no-auto-accept-architect 是默认的
     (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
     ;; Or gemini model
     ;; (setq aider-args '("--model" "gemini"))
@@ -273,7 +273,7 @@ Helm 为命令历史提示启用模糊搜索功能。由于我们很可能会使
 
 - 如何审查/接受代码更改？
   - 与 cursor 相比，aider 有不同的方式来处理代码更改。[[https://github.com/tninja/aider.el/issues/98][讨论]]
-  - 注意：*Aider v0.77.0 自动接受 /architect 命令的更改。如果您想像以前那样在接受更改之前审查代码更改（适用于 aider.el 中的许多命令），可以在 aider-args 或 .aider.conf.yml 中使用 "--no-auto-accept-architect" 禁用该标志*。
+  - 注意：*aider.el 默认自动添加 "--no-auto-accept-architect"，因此来自 /architect 命令的更改在接受之前需要审查。如果您想像 Aider v0.77.0+ 默认那样自动接受更改，可以通过在 aider-args 或 .aider.conf.yml 中添加 "--auto-accept-architect" 来启用*。
 
 - 如何禁用 aider 的自动提交功能？
   - 在 aider-args 中添加 --no-auto-commits。aider-args 直接传递给 aider CLI。[[https://aider.chat/docs/config/options.html][aider 选项参考]]
