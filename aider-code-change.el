@@ -159,6 +159,46 @@ ignoring leading whitespace."
                        (aider--is-comment-line line))
                      lines)))))
 
+(defun aider--get-function-name-for-comment ()
+  "Return function name relevant to comment at point.
+If comment precedes a function definition or is inside a function body,
+use that function; otherwise fall back to `which-function`."
+  (let* ((current-func (which-function))
+         (resolved-func
+          (save-excursion
+            (cl-labels ((line-text ()
+                          (buffer-substring-no-properties
+                           (line-beginning-position)
+                           (line-end-position))))
+              (forward-line 1)
+              (cl-block resolve
+                (let ((text (line-text)))
+                  (when (or (eobp) (string-blank-p text))
+                    (cl-return-from resolve nil))
+                  (while (aider--is-comment-line text)
+                    (forward-line 1)
+                    (setq text (line-text))
+                    (when (or (eobp) (string-blank-p text))
+                      (cl-return-from resolve nil)))
+                  (let ((next-func (which-function)))
+                    (cl-loop with lookahead = 5
+                             while (and (> lookahead 0)
+                                        (or (null next-func)
+                                            (string= next-func current-func)))
+                             do (forward-line 1)
+                                (setq lookahead (1- lookahead))
+                                (setq text (line-text))
+                                (when (string-blank-p text)
+                                  (cl-return-from resolve nil))
+                                (unless (aider--is-comment-line text)
+                                  (setq next-func (which-function)))
+                             finally return (cond
+                                             ((not current-func) next-func)
+                                             ((not next-func) current-func)
+                                             ((not (string= next-func current-func)) next-func)
+                                             (t current-func))))))))))
+    resolved-func))
+
 (defun aider--extract-comment-content (comment-text)
   "Extract the actual content from COMMENT-TEXT, removing comment markers."
   (when comment-start
@@ -304,7 +344,9 @@ The keyword and its definition are configured in `aider-todo-keyword-pair`."
         (let* ((current-line (string-trim (thing-at-point 'line t)))
                (current-line-number (line-number-at-pos (point)))
                (is-comment (aider--is-comment-line current-line))
-               (function-name (which-function))
+               (function-name (if is-comment
+                                  (aider--get-function-name-for-comment)
+                                (which-function)))
                (function-context (when function-name (format "\nFunction: %s" function-name)))
                (region-active (region-active-p))
                (region-text (when region-active

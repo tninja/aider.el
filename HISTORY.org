@@ -10,6 +10,7 @@
 - feat: Improve aider-implement-todo
   - aider-implement-todo (C-a i) on blank line will ask user and insert TODO comment.
   - After finishing code generation, mark TODO as DONE, instead of delete it
+  - you can add TODO requirement ahead of a function or class, and use aider-implement-todo to make the change for them, addressing https://github.com/tninja/ai-code-interface.el/issues/40
 
 ** v0.13.1
 
