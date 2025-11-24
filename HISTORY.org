@@ -3,8 +3,13 @@
 
 ** Main branch change
 
+** v0.13.2
+
 - feat: Add history navigation keys and functions, by EdmondFrank
 - feat: highlight SEARCH/REPLACE changes automatically when point is inside block, by Vagn Johansen
+- feat: Improve aider-implement-todo
+  - aider-implement-todo (C-a i) on blank line will ask user and insert TODO comment.
+  - After finishing code generation, mark TODO as DONE, instead of delete it
 
 ** v0.13.1
 
