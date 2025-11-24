@@ -175,6 +175,14 @@ ignoring leading whitespace."
                     lines)))
       (string-join content-lines " "))))
 
+(defun aider--region-location-info (start end)
+  "Return a human readable description for region from START to END."
+  (let ((start-line (line-number-at-pos start))
+        (end-line (line-number-at-pos end)))
+    (if (= start-line end-line)
+        (format "Selected region on line %d" start-line)
+      (format "Selected region from line %d to %d" start-line end-line))))
+
 (defun aider--handle-multi-line-comment (region-text function-name)
   "Handle multi-line comment region changes."
   (let* ((comment-content (aider--extract-comment-content region-text))
@@ -267,44 +275,76 @@ ignoring leading whitespace."
 
 ;;;###autoload
 (defun aider-implement-todo ()
-  "Implement comments with configured keyword in current context.
-If region is selected, implement that specific region.
-If cursor is on a comment line with the configured keyword,
-implement that specific comment.
-If cursor is inside a function, implement comments with the
-keyword for that function.
-Otherwise implement comments with the keyword for the entire
-current file.
-
-The keyword and its definition are configured in
-`aider-todo-keyword-pair`."
+  "Implement requirement comments in current context after TODO markers.
+If region is selected, implement that specific comment block and add code
+after it (keep the block, mark it DONE, then add implementation).
+If cursor is on a comment line, implement that specific comment similarly.
+If the current line is blank, prompt for a TODO comment to insert first.
+The keyword and its definition are configured in `aider-todo-keyword-pair`."
   (interactive)
   (when (aider--validate-buffer-file)
-    (let* ((current-line (string-trim (thing-at-point 'line t)))
-           (is-comment (aider--is-comment-line current-line))
-           (function-name (which-function))
-           (region-text (when (region-active-p)
-                         (buffer-substring-no-properties
-                          (region-beginning)
-                          (region-end))))
-           (keyword (car aider-todo-keyword-pair))
-           (definition (cdr aider-todo-keyword-pair))
-           (initial-input
-            (cond
-             (region-text
-              (format "Please implement this code block in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific block."
-                      region-text))
-             (is-comment
-              (format "Please implement this comment in-place: '%s'. It is already inside current code. Please replace it with implementation. Keep the existing code structure and implement just this specific comment."
-                      current-line))
-             (function-name
-              (format "Please implement all %s in-place in function '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
-                      keyword function-name keyword definition))
-             (t
-              (format "Please implement all %s in-place in file '%s'. The %s are %s. Keep the existing code structure and only implement these marked items."
-                      keyword (file-name-nondirectory buffer-file-name) keyword definition))))
-           (user-command (aider-read-string "TODO implementation instruction: " initial-input)))
-      (aider-current-file-command-and-switch "/architect " user-command))))
+    (let ((keyword (car aider-todo-keyword-pair)))
+      (if (and (not (region-active-p))
+               (string-blank-p (thing-at-point 'line t))
+               comment-start)
+          (let* ((todo-text (aider-read-string "Enter TODO comment: "))
+                 (comment-prefix (if (eq major-mode 'emacs-lisp-mode)
+                                     (let* ((trimmed (string-trim-right comment-start)))
+                                       (if (= (length trimmed) 1)
+                                           (make-string 2 (string-to-char trimmed))
+                                         trimmed))
+                                   (string-trim-right comment-start)))
+                 (comment-suffix (when (and comment-end (not (string-blank-p comment-end)))
+                                   (concat " " (string-trim-left comment-end)))))
+            (unless (string-blank-p todo-text)
+              (delete-region (line-beginning-position) (line-end-position))
+              (indent-according-to-mode)
+              (insert (concat comment-prefix " " keyword ": " todo-text comment-suffix))
+              (indent-according-to-mode)))
+        (let* ((current-line (string-trim (thing-at-point 'line t)))
+               (current-line-number (line-number-at-pos (point)))
+               (is-comment (aider--is-comment-line current-line))
+               (function-name (which-function))
+               (function-context (when function-name (format "\nFunction: %s" function-name)))
+               (region-active (region-active-p))
+               (region-text (when region-active
+                              (buffer-substring-no-properties
+                               (region-beginning)
+                               (region-end))))
+               (region-location-line (when region-text
+                                       (aider--region-location-info
+                                        (region-beginning)
+                                        (region-end))))
+               (prompt-label (cond
+                              (region-text "TODO implementation instruction: ")
+                              (is-comment "TODO implementation instruction: ")
+                              (t "TODO implementation instruction: ")))
+               (initial-input
+                (cond
+                 (region-text
+                  (unless (aider--is-all-comment-lines region-text)
+                    (user-error "Selected region must be a comment block"))
+                  (format (concat
+                          "Please implement code after this requirement comment block in the selected region. "
+                          "Keep the comment in place and ensure it begins with a DONE prefix (change %s to DONE or prepend DONE if no prefix) before adding the implementation code after it. "
+                          "Keep the existing code structure and add the implementation after this specific block.%s%s\n%s")
+                          keyword
+                          (or function-context "")
+                          (if region-location-line (concat "\n" region-location-line) "")
+                          region-text))
+                 (is-comment
+                  (format (concat
+                          "Please implement code after this requirement comment on line %d: '%s'. "
+                          "Keep the comment in place and ensure it begins with a DONE prefix (change %s to DONE or prepend DONE if needed) before adding the implementation code after it. "
+                          "Keep the existing code structure and add the implementation after this specific comment.%s")
+                          current-line-number current-line keyword (or function-context "")))
+                 (t
+                  (user-error (concat
+                              "Current line is not a TODO comment and cannot proceed with `aider-implement-todo`. "
+                              "Please select a comment not DONE, a region of comments, or activate on a blank line.")))))
+               (user-command (aider-read-string prompt-label initial-input)))
+          (when (and user-command (not (string-blank-p user-command)))
+            (aider-current-file-command-and-switch "/architect " user-command)))))))
 
 ;;;###autoload
 (defun aider-write-unit-test ()
