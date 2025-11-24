@@ -357,10 +357,7 @@ The keyword and its definition are configured in `aider-todo-keyword-pair`."
                                        (aider--region-location-info
                                         (region-beginning)
                                         (region-end))))
-               (prompt-label (cond
-                              (region-text "TODO implementation instruction: ")
-                              (is-comment "TODO implementation instruction: ")
-                              (t "TODO implementation instruction: ")))
+               (prompt-label "TODO implementation instruction: ")
                (initial-input
                 (cond
                  (region-text
