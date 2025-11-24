@@ -1,7 +1,7 @@
 ;;; aider.el --- AI assisted programming with Aider and LLM  -*- lexical-binding: t; -*-
 
 ;; Author: Kang Tu <tninja@gmail.com>
-;; Version: 0.13.0
+;; Version: 0.13.1
 ;; Package-Requires: ((emacs "26.1") (transient "0.9.0") (magit "2.1.0") (markdown-mode "2.5") (s "1.13.0"))
 ;; Keywords: ai gpt sonnet llm aider gemini-pro deepseek ai-assisted-coding
 ;; URL: https://github.com/tninja/aider.el
@@ -29,6 +29,8 @@
 ;;   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
+;;
+;; If you like the feature of this package, but wish to use Claude Code / Gemini CLI / or OpenAI Codex, please take a look at https://github.com/tninja/ai-code-interface.el
 ;;
 ;; Comparing to its forked peer (aidermacs), Aider.el has brought in lots of application-level features and tools to enhance daily programming. These include:
 ;;   - AI-assisted agile development methodologies (like TDD, refactoring and legacy code handling based on established software engineering books)

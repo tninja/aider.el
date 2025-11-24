@@ -16,6 +16,7 @@
 
 (require 'aider-utils)
 (require 'aider-comint-markdown)  ;; for markdown advice & highlighting
+(require 'aider-highlight-changes) ;; for search/replace block highlighting
 
 (declare-function evil-define-key* "evil" (state map key def))
 
@@ -72,12 +73,22 @@ user picks “yes and do not ask again.”"
 When non-nil, open Aider buffer in a new frame.
 When nil, use standard `display-buffer' behavior.")
 
+;; History navigation variables
+(defvar aider--history-index nil
+  "Current index in history ring when navigating.
+Nil when not navigating history.")
+(defvar aider--original-input nil
+  "Original input before starting history navigation.")
+
 (defvar aider-comint-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
     (define-key map (kbd "C-c C-f") #'aider-prompt-insert-add-file-path)
     (define-key map (kbd "TAB") #'aider-core-insert-prompt)
     (define-key map (kbd "C-c C-y") #'aider-go-ahead)
+    (define-key map (kbd "C-c d") #'aider-compare-search-replace-blocks)
+    (define-key map (kbd "M-<up>") #'aider-history-prev)
+    (define-key map (kbd "M-<down>") #'aider-history-next)
     map)
   "Keymap for `aider-comint-mode'.")
 
@@ -117,6 +128,9 @@ When nil, use standard `display-buffer' behavior.")
   "Major mode for interacting with Aider.
 Inherits from `comint-mode' with some Aider-specific customizations.
 \\{aider-comint-mode-map}"
+  ;; Make history navigation variables buffer-local for multiple instance support
+  (make-local-variable 'aider--history-index)
+  (make-local-variable 'aider--original-input)
   ;; Set up font-lock
   ;; (setq font-lock-defaults '(nil t))
   ;; (font-lock-add-keywords nil aider-font-lock-keywords t)
@@ -149,7 +163,8 @@ Inherits from `comint-mode' with some Aider-specific customizations.
                   (comint-add-to-input-history item))))))
       (error (message "Error loading Aider input history from %s: %s. Continuing without loading history."
                       (or history-file-path "its determined location") ; provide file path if available
-                      (error-message-string err)))))) ; display the error message
+                      (error-message-string err))))) ; display the error message
+  (aider--ensure-highlight-timer))
 
 
 ;;;###autoload
@@ -299,9 +314,9 @@ Return potentially modified CURRENT-ARGS."
   (with-current-buffer buffer-name
     (aider-comint-mode))
   (message "%s" (if current-args
-                    (format "Running aider from %s, with args: %s.\nMay the AI force be with you!" 
+                    (format "Running aider from %s, with args: %s.\nMay the AI force be with you!"
                             default-directory (mapconcat #'identity current-args " "))
-                  (format "Running aider from %s with no args provided.\nMay the AI force be with you!" 
+                  (format "Running aider from %s with no args provided.\nMay the AI force be with you!"
                           default-directory))))
 
 ;;;###autoload
@@ -394,6 +409,59 @@ invoke `aider-core-insert-prompt`."
     (let ((line-content (buffer-substring-no-properties (line-beginning-position) (point))))
       (when (string-match-p "^[ \t]*\\(/ask\\|/code\\|/architect\\) $" line-content)
         (aider-core-insert-prompt)))))
+
+(defun aider--get-current-input ()
+  "Get the current input line content."
+  (buffer-substring (comint-line-beginning-position) (point-max)))
+
+(defun aider--replace-input (text)
+  "Replace current input line with TEXT."
+  (delete-region (comint-line-beginning-position) (point-max))
+  (insert text))
+
+(defun aider-history-prev ()
+  "Navigate to previous command in history.
+Cycles backwards through command history with M-<up>."
+  (interactive)
+  (if (and comint-input-ring (not (ring-empty-p comint-input-ring)))
+      (let ((ring-size (ring-length comint-input-ring)))
+        (cond
+         ;; Starting history navigation - save current input and go to most recent
+         ((null aider--history-index)
+          (setq aider--original-input (aider--get-current-input)
+                aider--history-index 0)
+          (aider--replace-input (ring-ref comint-input-ring 0)))
+         ;; Moving backwards through history
+         ((< aider--history-index (1- ring-size))
+          (setq aider--history-index (1+ aider--history-index))
+          (aider--replace-input (ring-ref comint-input-ring aider--history-index)))
+         ;; Already at oldest history item
+         (t
+          (message "Beginning of history"))))
+    (message "No history available")))
+
+(defun aider-history-next ()
+  "Navigate to next command in history.
+Cycles forward through command history with M-<down>."
+  (interactive)
+  (if aider--history-index
+      (cond
+       ;; Moving forward towards current input
+       ((> aider--history-index 0)
+        (setq aider--history-index (1- aider--history-index))
+        (aider--replace-input (ring-ref comint-input-ring aider--history-index)))
+       ;; Reached current input - restore original
+       ((= aider--history-index 0)
+        (setq aider--history-index nil)
+        (aider--replace-input aider--original-input)
+        (setq aider--original-input nil)
+        (message "End of history (original input restored)"))
+       ;; Should not happen, but handle edge case
+       (t
+        (setq aider--history-index nil)
+        (aider--replace-input "")
+        (setq aider--original-input nil)))
+    (message "Not navigating history")))
 
 (provide 'aider-core)
 

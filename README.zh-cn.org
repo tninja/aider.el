@@ -40,11 +40,13 @@
 
 - 除此之外，aider.el 注重简洁性。它的配置少得多（对 aider 配置透明，用户可以专注于 aider 文档），菜单也更简化。
 
-- aider.el 正在积极开发中。当前版本是 v0.13.0。[[./HISTORY.org][发布历史]], [[./appendix.zh-cn.org#recent-new-features][近期新增功能]]
+- aider.el当前版本是 v0.13.1。[[./HISTORY.org][发布历史]], [[./appendix.zh-cn.org#recent-new-features][近期新增功能]]
 
 [[file:./transient_menu.png]]
 
 [[file:./transient_menu.png]]
+
+- *如果你喜欢这个包的功能，但希望使用 /Claude Code/ 或 /Gemini CLI/，请查看 [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*。
 
 * 安装
 

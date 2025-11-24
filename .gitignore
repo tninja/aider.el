@@ -1,3 +1,5 @@
 .aider*
 .env
 __pycache__
+GRTAGS
+GTAGS
