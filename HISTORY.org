@@ -3,6 +3,9 @@
 
 ** Main branch change
 
+** v0.13.3
+- feat: Add note-taking feature
+
 ** v0.13.2
 
 - feat: Add history navigation keys and functions, by EdmondFrank
