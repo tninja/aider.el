@@ -177,6 +177,75 @@ Maintains a dedicated history list for this command."
       (let ((default-directory (file-name-directory current-file)))
         (compile command)))))
 
+;; DONE: Migrate ai-code-take-notes functionality, and relevant variable to aider.el
+
+(defcustom aider-notes-file-name ".aider.notes.org"
+  "Default note file name relative to the project root.
+This value is used by `aider-take-notes' when suggesting where to store notes."
+  :type 'string
+  :group 'aider)
+
+(defun aider-take-notes ()
+  "Take notes from selected region and save to a note file.
+When there is a selected region, prompt to select from currently open
+org buffers or the default note file path (.aider.notes.org in the
+git root).  Add the section title as a headline at the end of the note
+file, and put the selected region as content of that section."
+  (interactive)
+  (let* ((git-root (condition-case nil
+                       (magit-toplevel)
+                     (error nil)))
+         (default-note-file (if git-root
+                                (expand-file-name aider-notes-file-name git-root)
+                              (expand-file-name aider-notes-file-name default-directory))))
+    (if (not (region-active-p))
+        (find-file-other-window default-note-file)
+      (let* ((region-text (filter-buffer-substring (region-beginning) (region-end) nil))
+             (default-note-file-truename (file-truename default-note-file))
+             ;; Get all org-mode buffers with associated files
+             (org-buffers (seq-filter
+                           (lambda (buf)
+                             (with-current-buffer buf
+                               (and (derived-mode-p 'org-mode)
+                                    (buffer-file-name))))
+                           (buffer-list)))
+             (org-buffer-files (mapcar #'buffer-file-name org-buffers))
+             ;; Create candidates list with default file first, then existing org buffers
+             (candidates (delete-dups
+                          (mapcar #'file-truename
+                                  (cons default-note-file-truename org-buffer-files))))
+             ;; Select note file from candidates
+             (note-file (completing-read "Note file: " candidates nil nil nil nil default-note-file-truename))
+             (section-title (read-string "Section title: ")))
+        (when (string-empty-p section-title)
+          (user-error "Section title cannot be empty"))
+        ;; Create note file directory if it doesn't exist
+        (let ((note-dir (file-name-directory note-file)))
+          (unless (file-exists-p note-dir)
+            (make-directory note-dir t)))
+        ;; Append section to note file
+        (with-current-buffer (find-file-noselect note-file)
+          (save-excursion
+            (goto-char (point-max))
+            ;; Add newline before new section if file is not empty
+            (unless (bobp)
+              (insert "\n\n"))
+            ;; Insert headline
+            (insert "* " section-title "\n")
+            ;; Insert timestamp
+            (org-insert-time-stamp (current-time) t nil)
+            (insert "\n\n")
+            ;; Insert region content
+            (insert region-text)
+            (insert "\n"))
+          (save-buffer))
+        ;; Open note file in other window and scroll to bottom
+        (let ((note-buffer (find-file-other-window note-file)))
+          (with-selected-window (get-buffer-window note-buffer)
+            (goto-char (point-max))
+            (recenter -1)))
+        (message "Notes added to %s under section: %s" note-file section-title)))))
+
 (provide 'aider-discussion)
 
 ;;; aider-discussion.el ends here

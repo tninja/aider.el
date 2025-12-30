@@ -135,6 +135,7 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
   ("y" "Then Go Ahead"              aider-go-ahead)
   ("d" "Code Reading"               aider-code-read)
   ("C" "Copy To Clipboard"          aider-copy-to-clipboard)
+  ("n" "Take Notes"                 aider-take-notes)
   ("P" "Software Planning"          aider-start-software-planning)
   ("E" "Debug Exception"            aider-debug-exception)
   ("h" "Open History"               aider-open-history)
