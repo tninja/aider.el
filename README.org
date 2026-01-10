@@ -17,7 +17,7 @@
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
 
-- *If you like the feature of this package, but wish to use Claude Code / Gemini CLI / or OpenAI Codex, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*.
+- *If you like the feature of this package, but wish to use Claude Code / Gemini CLI / OpenAI Codex / Github Copilot CLI / OpenCode / Grok CLI, please take a look at [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]]*.
 
 * Introduction
 
@@ -284,6 +284,8 @@ The following books introduce how to use AI to assist programming and potentiall
 - [[https://learning.oreilly.com/library/view/-/9781098162269/][Generative AI for Software Development]], by Sergio Pereira, will be published in August, 2025
 - [[https://itrevolution.com/product/vibe-coding-book/][Vibe Coding]], Coming Fall 2025
 - [[https://learning.oreilly.com/library/view/beyond-vibe-coding/9798341634749/][Beyond Vibe Coding]], by Addy Osmani, will be published in August, 2025
+
+- [[https://github.com/tninja/ai-code-interface.el?tab=readme-ov-file#ai-assisted-programming-related-books][More AI Assisted Programming related books]]
 
 * Other Emacs AI coding tool
 
