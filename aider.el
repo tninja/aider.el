@@ -26,6 +26,8 @@
 ;;   ;; For latest claude sonnet model
 ;;   (setq aider-args '("--model" "sonnet" "--no-auto-accept-architect"))
 ;;   (setenv "ANTHROPIC_API_KEY" anthropic-api-key)
+;;   ;; Optional: Choose terminal backend (comint, vterm, or eat)
+;;   ;; (setq aider-terminal-backend 'vterm)  ; or 'eat
 ;;   (global-set-key (kbd "C-c a") 'aider-transient-menu))
 ;;
 ;; For more details, see https://github.com/tninja/aider.el
@@ -64,6 +66,8 @@
 (require 'aider-legacy-code)
 (require 'aider-bootstrap)
 (require 'aider-software-planning)
+
+(declare-function vterm-clear "vterm")
 
 
 (defcustom aider-popular-models '("sonnet"  ;; really good in practical
@@ -179,14 +183,19 @@ Also based on aider LLM benchmark: https://aider.chat/docs/leaderboards/"
     "Discussion"
     aider--menu-discussion]])
 
-;; Add a function, aider-clear-buffer. It will switch aider buffer and call comint-clear-buffer
+;; Add a function, aider-clear-buffer. It will switch aider buffer and clear its contents
 ;;;###autoload
 (defun aider-clear-buffer ()
   "Switch to the Aider buffer and clear its contents."
   (interactive)
   (when-let ((buffer (get-buffer (aider-buffer-name))))
     (with-current-buffer buffer
-      (comint-clear-buffer)
+      ;; Backend-specific buffer clearing
+      (pcase aider-terminal-backend
+        ('comint (comint-clear-buffer))
+        ('vterm (vterm-clear))
+        ('eat (let ((inhibit-read-only t))
+                (erase-buffer))))
       (aider--send-command "/clear"))
     (aider-switch-to-buffer)))
 

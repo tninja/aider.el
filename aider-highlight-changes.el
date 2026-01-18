@@ -24,6 +24,8 @@
 ;;; Code:
 (require 'smerge-mode)
 
+(declare-function aider--in-aider-buffer-p "aider-core")
+
 
 (defvar aider-search-block-limit 20000
   "Maximum number of characters to look back when searching for the start of a SEARCH/REPLACE block.")
@@ -114,7 +116,7 @@ a SEARCH/REPLACE block or nil."
 ;; NOTE: This function is called frequently!
 (defun aider--idle-timer-change-block-highlight ()
   "Highlight differences between SEARCH and REPLACE blocks using smerge-mode highlighting."
-  (when (eq major-mode 'aider-comint-mode)
+  (when (aider--in-aider-buffer-p)
     (let ((current-point (point)))
       (save-excursion
         (let* ((conflict-data (aider--find-conflict-at-point current-point))
