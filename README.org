@@ -14,6 +14,7 @@
 - [[#installation][Installation]]
 - [[#frequently-used-features][Most used features (integrated into the aider menu)]]
 - [[#faq][FAQ]]
+- [[#pair-a-phone-with-build-remote-agent][Pair a phone with Build Remote Agent]]
 - [[#future-work][Future work]]
 - [[#other-emacs-ai-coding-tool][Other Emacs AI coding tool]]
 
@@ -302,6 +303,41 @@ The following books introduce how to use AI to assist programming and potentiall
 - Other tools
   - [[https://github.com/stevemolitor/claude-code.el][claude-code.el]]
   - [[https://github.com/tninja/ai-code-interface.el][ai-code-interface.el]], similar to aider.el, but a uniform interface for Claude Code / Gemini CLI / Other
+
+* Pair a phone with Build Remote Agent
+
+aider.el can keep Aider in Emacs while a phone running
+[[https://grokbuildremote.com/][Build Remote Agent]] spectates the same desktop session.
+Pairing uses the free MIT =gbr-agent=. Protocol =gbr/1=.
+The phone is spectator + veto; aider.el/Aider stay the orchestrator.
+
+Independent product. Not affiliated with xAI or SpaceX.
+
+#+begin_src bash
+# macOS / Linux
+curl -fsSL https://grokbuildremote.com/install.sh | bash
+gbr-agent version          # need v0.6.0+
+gbr-agent pair             # QR in browser + printed 8-char code
+gbr-agent run              # leave running, then use aider.el as usual
+#+end_src
+
+Phone: open Build Remote Agent → scan the QR (or type the 8-char code).
+*Unpair* in Settings before changing PCs. Force-close is not enough.
+
+Attach only:
+
+- HTTP Bot API: =http://127.0.0.1:8788= after =gbr-agent run=
+- MCP stdio: =node GrokBuildRemote-Agents/mcp/gbr-mcp/bin/gbr-mcp.js=
+
+#+begin_src bash
+curl -sS http://127.0.0.1:8788/health
+curl -sS http://127.0.0.1:8788/v1/sessions
+#+end_src
+
+Do not commit mailbox keys. Phone *Settings → Bot API* is the only place the
+relay key is copied.
+
+Agent (MIT): https://github.com/LinespottingOrg/GrokBuildRemote-Agents
 
 * Contributing
 
