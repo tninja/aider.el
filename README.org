@@ -228,6 +228,12 @@ If you used installed aider.el through melpa and package-install, just need to ~
   - artyom-smushkov make aider-add-current-file support tramp file: https://github.com/tninja/aider.el/issues/36
   - mgcyung said it can work in this way: https://github.com/tninja/aider.el/issues/85
 
+- How can I avoid exposing API keys in my Emacs configuration?
+  - Do not hard-code real API keys in files tracked by Git. Both ~(setenv "GEMINI_API_KEY" "...")~ and entries such as ~"GEMINI_API_KEY=..."~ in ~tramp-remote-process-environment~ store the key in plain text when written into your configuration. See [[https://github.com/tninja/aider.el/issues/85#issuecomment-5960594634][Xparx's warning in issue #85]].
+  - For local Aider sessions, set the API key in the environment from which Emacs is launched. For TRAMP sessions, configure it on the remote machine where Aider runs; a local ~setenv~ does not automatically set the remote environment.
+  - If you use a separate secrets file, keep it outside version control and restrict its file permissions. This still stores the key in plain text; adding a file to ~.gitignore~ does not remove an already tracked file or its Git history.
+  - If a real key has been committed or published, revoke or rotate it with the provider. Deleting it from the current configuration does not remove it from Git history.
+
 - My screen is narrow, the transient menu is too wide, how to make it more readable? (https://github.com/tninja/aider.el/issues/157)
   - Use ~aider-transient-menu-1col~ or ~aider-transient-menu-2cols~ to use 1 column or 2 columns transient menu.
 
