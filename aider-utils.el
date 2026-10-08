@@ -13,6 +13,7 @@
 (require 'subr-x)
 
 (defvar aider-use-branch-specific-buffers)
+(defvar aider-terminal-backend)
 
 ;;; Git & path utilities
 
@@ -116,8 +117,15 @@ Returns the aider buffer if valid, otherwise returns nil with message."
       nil)
      (t
       (let* ((aider-buffer (get-buffer buffer-name))
-             (aider-process (get-buffer-process aider-buffer)))
-        (if (and aider-process (comint-check-proc aider-buffer))
+             (aider-process (get-buffer-process aider-buffer))
+             ;; Get the backend from aider-core
+             (backend (if (boundp 'aider-terminal-backend) 
+                          aider-terminal-backend 
+                        'comint)))
+        (if (and aider-process 
+                 (or (eq backend 'comint) 
+                     ;; For non-comint backends, just check if process is live
+                     (process-live-p aider-process)))
             aider-buffer
           (message "No active process found in aider buffer: %s" buffer-name)
           nil))))))
